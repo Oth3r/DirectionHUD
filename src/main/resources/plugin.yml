@@ -1,0 +1,13 @@
+name: DirectionHUD
+version: '${version}'
+main: one.oth3r.directionhud.DirectionHUD
+api-version: 1.19
+commands:
+  destination:
+    description: "my own command damn"
+    aliases: "dest"
+  hud:
+    description: "my own command damn"
+  directionhud:
+    description: "my own command damn"
+    aliases: "dirhud"
