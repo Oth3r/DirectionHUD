@@ -170,4 +170,7 @@ public class Loc {
     public void setDIM(String setDIM) {
         if (Utl.dim.checkValid(setDIM)) this.dimension = setDIM;
     }
+    public String toString() {
+        return this.x+" "+this.y+" "+this.z+" "+this.dimension;
+    }
 }

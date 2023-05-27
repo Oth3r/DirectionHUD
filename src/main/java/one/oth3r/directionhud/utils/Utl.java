@@ -14,17 +14,29 @@ import java.util.*;
 
 public class Utl {
     public static class Pair<A, B> {
-        private A first;
-        private B second;
+        private final A first;
+        private final B second;
         public Pair(A first, B second) {
             this.first = first;
             this.second = second;
         }
-        public A getFirst() {
-            return first;
+        public String toString() {
+            return "("+this.first+", "+this.second+")";
         }
-        public B getSecond() {
-            return second;
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null || getClass() != obj.getClass()) {
+                return false;
+            }
+            Pair<?, ?> otherPair = (Pair<?, ?>) obj;
+            return Objects.equals(first, otherPair.first) && Objects.equals(second, otherPair.second);
+        }
+        @Override
+        public int hashCode() {
+            return Objects.hash(first, second);
         }
     }
     public static boolean isInt(String string) {
@@ -91,6 +103,16 @@ public class Utl {
         if (type.equalsIgnoreCase("z")) arr.add(location.getBlockZ()+"");
         return arr;
     }
+    public static List<String> formatSuggestions(ArrayList<String> suggester, String[] args) {
+        List<String> filteredCompletions = new ArrayList<>();
+        String currentInput = args[args.length - 1].toLowerCase();
+        for (String completion : suggester) {
+            if (completion.toLowerCase().startsWith(currentInput)) {
+                filteredCompletions.add(completion);
+            }
+        }
+        return filteredCompletions;
+    }
     public static class player {
         public static List<String> getList() {
             ArrayList<String> array = new ArrayList<>(List.of());
@@ -100,7 +122,7 @@ public class Utl {
             return array;
         }
         public static Player getFromIdentifier(String s) {
-            if (s.contains("-")) Bukkit.getPlayer(UUID.fromString(s));
+            if (s.contains("-")) return Bukkit.getPlayer(UUID.fromString(s));
             return Bukkit.getPlayer(s);
         }
         public static String uuid(Player player) {
@@ -118,6 +140,8 @@ public class Utl {
     }
     public static class dim {
         public static String format(String name) {
+            String defaultWorld = Bukkit.getWorlds().get(0).getName();
+            if (name.equals(defaultWorld)) return "overworld";
             String[] split = name.split("_");
             return split[split.length-1];
         }
@@ -161,7 +185,7 @@ public class Utl {
                 String[] split = s.split("\\|");
                 if (split.length != 2) continue;
                 double ratio = Double.parseDouble(split[0].split("=")[1])/Double.parseDouble(split[1].split("=")[1]);
-                configRatios.put(new Pair<>(split[0].split("=")[0], split[1].split("=")[0]), ratio);
+                configRatios.put(new Pair<>(split[0].split("=")[0],split[1].split("=")[0]), ratio);
             }
             conversionRatios = configRatios;
             //CONFIG TO MAP
@@ -176,13 +200,14 @@ public class Utl {
             }
             dims = configDims;
             //ADD MISSING DIMS TO MAP
+            String defaultWorld = Bukkit.getWorlds().get(0).getName();
             for (World world : Bukkit.getWorlds()) {
                 //todo
                 // ok so worlds are like world_overworld, world_nether, world_end...
                 // so we can split by underscore and save the last split part and add it to a arraylist or sm
                 // if already in list dont add, becuase spigot can load multiple worlds with the same dimensions
                 String currentDIM = format(world.getName());
-                if (!dims.containsKey(currentDIM)) {
+                if (!dims.containsKey(currentDIM) && !currentDIM.equals(defaultWorld)) {
                     HashMap<String,String> map = new HashMap<>();
                     // try to make it look better, remove all "_" and "the" and capitalizes the first word. CANT IN SPIGOT SMH
                     String formatted = currentDIM.substring(0,1).toUpperCase()+currentDIM.substring(1);

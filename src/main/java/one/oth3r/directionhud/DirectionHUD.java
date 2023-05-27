@@ -41,7 +41,6 @@ public class DirectionHUD extends JavaPlugin {
         } catch (Exception e) {
             LOGGER.info("Failed to create playerdata directory:\n" + e.getMessage());
         }
-
         //COMMANDS
         Objects.requireNonNull(getCommand("destination")).setExecutor(new DestinationCommand());
         Objects.requireNonNull(getCommand("destination")).setTabCompleter(new DestinationCommand());
@@ -49,7 +48,6 @@ public class DirectionHUD extends JavaPlugin {
         Objects.requireNonNull(getCommand("hud")).setTabCompleter(new HUDCommand());
         Objects.requireNonNull(getCommand("directionhud")).setExecutor(new DirHUDCommand());
         Objects.requireNonNull(getCommand("directionhud")).setTabCompleter(new DirHUDCommand());
-
         //LOOP & EVENTS
         getServer().getPluginManager().registerEvents(new EventManager(), this);
         new BukkitRunnable() {

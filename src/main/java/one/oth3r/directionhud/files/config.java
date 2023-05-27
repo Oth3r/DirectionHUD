@@ -18,13 +18,11 @@ import java.util.Properties;
 
 public class config {
     public static String lang = defaults.lang;
-    public static boolean DESTSaving = defaults.DESTSaving;
     public static int MAXSaved = defaults.MAXSaved;
     public static int MAXy = defaults.MAXy;
     public static int MAXxz = defaults.MAXxz;
     public static boolean deathsaving = defaults.deathsaving;
     public static boolean social = defaults.social;
-    public static boolean HUDEditing = defaults.HUDEditing;
     public static int HUDRefresh = defaults.HUDRefresh;
     public static boolean online = defaults.online;
     public static boolean HUDEnabled = defaults.HUDEnabled;
@@ -94,10 +92,7 @@ public class config {
         return new File(DirectionHUD.configDir +"DirectionHUD.properties");
     }
     public static void load() {
-        if (!configFile().exists() || !configFile().canRead()) {
-            save();
-            return;
-        }
+        if (!configFile().exists() || !configFile().canRead()) save();
         try (FileInputStream fileStream = new FileInputStream(configFile())) {
             Properties properties = new Properties();
             properties.load(fileStream);
@@ -112,10 +107,8 @@ public class config {
     }
     public static void loadVersion(Properties properties, String version) {
         //CONFIG
-        DESTSaving = Boolean.parseBoolean((String) properties.computeIfAbsent("destination-saving", a -> defaults.DESTSaving+""));
         MAXSaved = Integer.parseInt((String) properties.computeIfAbsent("destination-max-saved", a -> defaults.MAXSaved+""));
         deathsaving = Boolean.parseBoolean((String) properties.computeIfAbsent("death-saving", a -> defaults.deathsaving +""));
-        HUDEditing = Boolean.parseBoolean((String) properties.computeIfAbsent("hud-editing", a -> defaults.HUDEditing +""));
         HUDRefresh = Math.min(20, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("hud-refresh", a -> defaults.HUDRefresh+""))));
         online = Boolean.parseBoolean((String) properties.computeIfAbsent("online-mode", a -> defaults.online +""));
         //HUD
@@ -153,19 +146,13 @@ public class config {
                 properties.computeIfAbsent("dimension-ratios", a -> defaults.dimensionRatios+""),mapType);
         dimensions = new Gson().fromJson((String)
                 properties.computeIfAbsent("dimensions", a -> defaults.dimensions+""),mapType);
-
-        if (version.equalsIgnoreCase("v1.1")) {
-            HUDTracking = Boolean.parseBoolean((String) properties.computeIfAbsent("compass", a -> defaults.HUDTracking+""));
-        }
-        if (version.equalsIgnoreCase("v1.2")) {
-            MAXxz = Integer.parseInt((String) properties.computeIfAbsent("max-xz", a -> defaults.MAXxz+""));
-            MAXy = Integer.parseInt((String) properties.computeIfAbsent("max-y", a -> defaults.MAXy+""));
-            social = Boolean.parseBoolean((String) properties.computeIfAbsent("social-commands", a -> defaults.social+""));
-            DESTAutoConvert = Boolean.parseBoolean((String) properties.computeIfAbsent("autoconvert", a -> defaults.DESTAutoConvert+""));
-            HUDTracking = Boolean.parseBoolean((String) properties.computeIfAbsent("tracking", a -> defaults.HUDTracking+""));
-            DESTTrackingParticles = Boolean.parseBoolean((String) properties.computeIfAbsent("tracking-particles", a -> defaults.DESTTrackingParticles+""));
-            DESTTrackingParticleColor = Utl.color.fix((String) properties.computeIfAbsent("tracking-particle-color", a -> defaults.DESTTrackingParticleColor),false,defaults.DESTDestParticleColor);
-        }
+        MAXxz = Integer.parseInt((String) properties.computeIfAbsent("max-xz", a -> defaults.MAXxz+""));
+        MAXy = Integer.parseInt((String) properties.computeIfAbsent("max-y", a -> defaults.MAXy+""));
+        social = Boolean.parseBoolean((String) properties.computeIfAbsent("social-commands", a -> defaults.social+""));
+        DESTAutoConvert = Boolean.parseBoolean((String) properties.computeIfAbsent("autoconvert", a -> defaults.DESTAutoConvert+""));
+        HUDTracking = Boolean.parseBoolean((String) properties.computeIfAbsent("tracking", a -> defaults.HUDTracking+""));
+        DESTTrackingParticles = Boolean.parseBoolean((String) properties.computeIfAbsent("tracking-particles", a -> defaults.DESTTrackingParticles+""));
+        DESTTrackingParticleColor = Utl.color.fix((String) properties.computeIfAbsent("tracking-particle-color", a -> defaults.DESTTrackingParticleColor),false,defaults.DESTDestParticleColor);
     }
     public static void save() {
         try (var file = new FileOutputStream(configFile(), false)) {
@@ -174,11 +161,9 @@ public class config {
             file.write("\n".getBytes());
             file.write(("\nmax-xz=" + MAXxz).getBytes());
             file.write(("\nmax-y=" + MAXy).getBytes());
-            file.write(("\ndestination-saving=" + DESTSaving).getBytes());
             file.write(("\ndestination-max-saved=" + MAXSaved).getBytes());
             file.write(("\nsocial-commands=" + social).getBytes());
             file.write(("\ndeath-saving=" + deathsaving).getBytes());
-            file.write(("\nhud-editing=" + HUDEditing).getBytes());
             file.write(("\n# HUD refresh time in ticks:").getBytes());
             file.write(("\nhud-refresh=" + HUDRefresh).getBytes());
             file.write(("\n# Turn off for offline mode servers, uses a name based file system:").getBytes());
@@ -233,15 +218,13 @@ public class config {
         }
     }
     public static class defaults {
-        public static String version = "v1.2";
+        public static String version = "v1.0";
         public static String lang = "en_us";
-        public static boolean DESTSaving = true;
         public static int MAXSaved = 50;
         public static int MAXy = 512;
         public static int MAXxz = 30000000;
         public static boolean deathsaving = true;
         public static boolean social = true;
-        public static boolean HUDEditing = true;
         public static int HUDRefresh = 1;
         public static boolean online = true;
         public static boolean HUDEnabled = true;
@@ -275,7 +258,7 @@ public class config {
         public static boolean DESTSend = true;
         public static boolean DESTTrack = true;
         public static boolean DESTLastdeath = true;
-        public static List<String> dimensions = List.of("minecraft.overworld|Overworld|#55FF55","minecraft.the_nether|Nether|#e8342e","minecraft.the_end|End|#edffb0");
-        public static List<String> dimensionRatios = List.of("minecraft.overworld=1|minecraft.the_nether=8");
+        public static List<String> dimensions = List.of("overworld|Overworld|#55FF55","nether|Nether|#e8342e","end|End|#edffb0");
+        public static List<String> dimensionRatios = List.of("overworld=1|nether=8");
     }
 }

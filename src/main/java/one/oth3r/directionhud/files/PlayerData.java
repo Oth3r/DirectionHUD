@@ -44,134 +44,6 @@ public class PlayerData {
     @SuppressWarnings("unchecked")
     public static Map<String, Object> updater(Player player, Map<String,Object> map) {
         map.put("name", Utl.player.name(player));
-        if (map.get("version").equals(1.0)) {
-            map.put("version",1.1);
-            Map<String,Object> dest = (Map<String, Object>) map.get("destination");
-            Map<String,Object> dSet = (Map<String, Object>) dest.get("setting");
-            dSet.put("lastdeath",config.DESTLastdeath);
-            dest.put("setting",dSet);
-            map.put("destination",dest);
-        }
-        if (map.get("version").equals(1.1)) {
-            map.put("version",1.2);
-            Map<String,Object> hud = (Map<String, Object>) map.get("hud");
-            Map<String,Object> dest = (Map<String, Object>) map.get("destination");
-            String death = (String) dest.get("lastdeath");
-            String[] deaths = death.split(" ");
-            ArrayList<String> newDeaths = new ArrayList<>();
-            for (int i = 0;i<deaths.length;i++) {
-                if (deaths[i].equals("f")) continue;
-                String xyz = deaths[i].replace("_"," ");
-                if (i == 0) newDeaths.add("minecraft.overworld|"+xyz);
-                if (i == 1) newDeaths.add("minecraft.the_nether|"+xyz);
-                if (i == 2) newDeaths.add("minecraft.the_end|"+xyz);
-            }
-            String pri = (String) hud.get("primary");
-            String sec = (String) hud.get("secondary");
-            String[] priS = pri.split("-");
-            String[] secS = sec.split("-");
-            if (priS[0].equals("rainbow")) pri = "white-"+priS[1]+"-"+priS[2]+"-true";
-            else pri = pri+"-false";
-            if (secS[0].equals("rainbow")) sec = "white-"+secS[1]+"-"+secS[2]+"-true";
-            else sec = sec+"-false";
-            hud.put("primary",pri);
-            hud.put("secondary",sec);
-            dest.put("lastdeath",newDeaths);
-            map.put("destination",dest);
-            map.put("hud",hud);
-        }
-        if (map.get("version").equals(1.2)) {
-            map.put("version",1.3);
-            Map<String,Object> dest = (Map<String, Object>) map.get("destination");
-            dest.computeIfAbsent("saved", k -> new ArrayList<String>());
-            if (((ArrayList<String>) dest.get("saved")).size() != 0) {
-                ArrayList<String> saved = (ArrayList<String>) dest.get("saved");
-                for (String s: saved) {
-                    String[] split = s.split(" ");
-                    switch (split[2]) {
-                        case "overworld" -> saved.set(saved.indexOf(s), split[0] + " " + split[1] + " minecraft.overworld " + split[3]);
-                        case "the_nether" -> saved.set(saved.indexOf(s), split[0] + " " + split[1] + " minecraft.the_nether " + split[3]);
-                        case "the_end" -> saved.set(saved.indexOf(s), split[0] + " " + split[1] + " minecraft.the_end " + split[3]);
-                    }
-                }
-                dest.put("saved",saved);
-            }
-            dest.computeIfAbsent("lastdeath", k -> new ArrayList<String>());
-            ArrayList<String> lastdeath = (ArrayList<String>) dest.get("lastdeath");
-            for (String s:new ArrayList<>(lastdeath)) {
-                if (s.startsWith("overworld|") || s.startsWith("the_nether|")) {
-                    String prefix = s.startsWith("overworld|") ? "overworld|" : "the_nether|";
-                    int count = 0;
-                    for (String z : lastdeath) if (z.startsWith("minecraft." + prefix)) count++;
-                    if (count == 0) lastdeath.set(lastdeath.indexOf(s),"minecraft."+s);
-                    else lastdeath.remove(s);
-                }
-            }
-            dest.put("lastdeath",lastdeath);
-            map.put("dest",dest);
-        }
-        if (map.get("version").equals(1.3)) {
-            // dest logic, add new tracking
-            map.put("version",1.4);
-            map.remove("lastdeath");
-            Map<String,Object> dest = (Map<String, Object>) map.get("destination");
-            Map<String,Object> hud = (Map<String, Object>) map.get("hud");
-            Map<String,Object> hudModule = (Map<String, Object>) hud.get("module");
-            hudModule.put("tracking",hudModule.get("compass"));
-            hudModule.put("compass",null);
-            hud.put("module",hudModule);
-            //ORDER FIX
-            String order = (String) hud.get("order");
-            hud.put("order",order.replace("compass","tracking"));
-            map.put("hud",hud);
-            //NEW TRACKING & XYZ FIX
-            dest.put("tracking",null);
-            String xyz = (String) dest.get("xyz");
-            if (xyz.equals("f")) dest.put("dest","null");
-            else if (xyz.split(" ").length == 1) {
-                dest.put("dest", "null");
-                dest.put("tracking",xyz);
-            } else {
-                String[] sp = xyz.split(" ");
-                Loc loc = new Loc(xyz);
-                if (sp[1].equals("n")) loc = new Loc(sp[0]+" "+sp[2]);
-                dest.put("dest",loc.getLocC());
-            }
-            dest.remove("xyz");
-            //REMOVE SUSPENDED
-            Map<String,Object> suspended = (Map<String, Object>) dest.get("suspended");
-            if (suspended != null) {
-                dest.put("tracking",suspended.get("target"));
-            }
-            dest.remove("suspended");
-            //SAVED FIX
-            ArrayList<String> saved = (ArrayList<String>) dest.get("saved");
-            List<List<String>> savedN = new ArrayList<>();
-            for (String s: saved) {
-                String[] split = s.split(" ");
-                String[] coordS = split[1].split("_");
-                Loc loc = new Loc(Utl.tryInt(coordS[0]),Utl.tryInt(coordS[1]),Utl.tryInt(coordS[2]),split[2]);
-                savedN.add(saved.indexOf(s),Arrays.asList(split[0],loc.getLocC(),split[3]));
-            }
-            System.out.println(savedN);
-            dest.put("saved",savedN);
-            //LASTDEATH FIX
-            ArrayList<String> lastdeath = (ArrayList<String>) dest.get("lastdeath");
-            for (String s:lastdeath) {
-                String[] split = s.split("\\|");
-                lastdeath.set(lastdeath.indexOf(s),new Loc(split[1],split[0]).getLocC());
-            }
-            dest.put("lastdeath",lastdeath);
-            //ADD NEW PARTICLES & AUTOCONVERT
-            Map<String,Object> setting = (Map<String, Object>) dest.get("setting");
-            Map<String,Object> particles = (Map<String, Object>) setting.get("particles");
-            particles.put("tracking",config.defaults.DESTTrackingParticles);
-            particles.put("trackingcolor",config.defaults.DESTTrackingParticleColor);
-            setting.put("autoconvert",config.defaults.DESTAutoConvert);
-            setting.put("particles",particles);
-            dest.put("setting",setting);
-            map.put("destination",dest);
-        }
         return map;
     }
     @SuppressWarnings("unchecked")
@@ -242,7 +114,7 @@ public class PlayerData {
         destination.put("tracking", null);
         destination.put("track", null);
         //base
-        map.put("version", 1.4);
+        map.put("version", 1.0);
         map.put("name", Utl.player.name(player));
         map.put("hud", hud);
         map.put("destination", destination);

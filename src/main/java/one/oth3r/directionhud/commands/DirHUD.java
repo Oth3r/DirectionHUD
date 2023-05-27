@@ -9,6 +9,8 @@ import one.oth3r.directionhud.utils.CUtl;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.util.Objects;
+
 public class DirHUD {
     public static void setDefaults(Player player) {
         config.DESTAutoClear = PlayerData.get.dest.setting.autoclear(player);
@@ -66,8 +68,7 @@ public class DirHUD {
         player.spigot().sendMessage(msg.b());
     }
     public static void reload(Player player) {
-        if (player != null && !player.hasPermission("temp")) return; //todo
-//        if (DirectionHUD.configFile == null) DirectionHUD.configFile = FabricLoader.getInstance().getConfigDir().toFile()+"/";
+        if (DirectionHUD.configDir == null) DirectionHUD.configDir = Objects.requireNonNull(Bukkit.getServer().getPluginManager().getPlugin("DirectionHUD")).getDataFolder().getPath()+"/";
         LangReader.loadLanguageFile();
         config.load();
         for (Player pl: Bukkit.getOnlinePlayers()) {
@@ -84,13 +85,13 @@ public class DirHUD {
                         .hEvent(CUtl.TBtn("version.hover").color(CUtl.sTC())))
                 .append(CTxT.of("\n                                 \n").strikethrough(true)).append(" ");
         //hud
-        if (config.HUDEditing) msg.append(CUtl.CButton.dirHUD.hud()).append("  ");
-        //todo make defaults command a separate perm
+        if (player.hasPermission("directionhud.hud")) msg.append(CUtl.CButton.dirHUD.hud()).append("  ");
         //dest
-        msg.append(CUtl.CButton.dirHUD.dest());
-        if (player.hasPermission("TEMP")) { //todo perms
+        if (player.hasPermission("directionhud.destination")) msg.append(CUtl.CButton.dirHUD.dest());
+        if (player.hasPermission("directionhud.reload")) { //todo perms
             msg.append("\n\n ").append(CUtl.CButton.dirHUD.reload());
-        }
+            if (player.hasPermission("directionhud.defaults")) msg.append("  ").append(CUtl.CButton.dirHUD.defaults());
+        } else if (player.hasPermission("directionhud.defaults")) msg.append("\n\n ").append(CUtl.CButton.dirHUD.defaults());
         msg.append(CTxT.of("\n                                 ").strikethrough(true));
         player.spigot().sendMessage(msg.b());
     }

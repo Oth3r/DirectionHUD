@@ -1,7 +1,5 @@
 package one.oth3r.directionhud.commands;
 
-import one.oth3r.directionhud.files.PlayerData;
-import one.oth3r.directionhud.files.config;
 import one.oth3r.directionhud.utils.CUtl;
 import one.oth3r.directionhud.utils.Utl;
 import org.bukkit.command.Command;
@@ -20,6 +18,7 @@ public class DestinationCommand implements CommandExecutor, TabCompleter {
         if (!(sender instanceof Player player)) {
             return true;
         }
+        if (!player.hasPermission("directionhud.destination")) return true;
         if (args.length == 0) {
             Destination.UI(player);
             return true;
@@ -67,46 +66,36 @@ public class DestinationCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         ArrayList<String> suggester = new ArrayList<>();
-        int pos = args.length+1;
+        int pos = args.length;
         if (!(sender instanceof Player player)) {
-            return new ArrayList<>();
+            return suggester;
         }
+        if (!player.hasPermission("directionhud.destination")) return suggester;
         if (pos == 1) {
-            if (config.deathsaving && PlayerData.get.dest.setting.lastdeath(player)) suggester.add("lastdeath");
-            if (config.DESTSaving) {
-                suggester.add("add");
-                suggester.add("saved");
+            suggester.addAll(Destination.commandSuggester.base(player));
+        }
+        if (args.length >= 1) {
+            //SAVED
+            if (args[0].equalsIgnoreCase("saved")) {
+                suggester.addAll(Destination.commandSuggester.savedCMD(player,pos-2,Utl.trimStart(args,1)));
             }
-            suggester.add("set");
-            suggester.add("clear");
-            suggester.add("settings");
-            if (Destination.showSend(player)) suggester.add("send");
-            if (Destination.showTracking(player)) suggester.add("track");
-            return suggester;
+            //ADD
+            if (args[0].equalsIgnoreCase("add")) {
+                suggester.addAll(Destination.commandSuggester.addCMD(player,pos-2,Utl.trimStart(args,1)));
+            }
+            if (args[0].equalsIgnoreCase("settings")) {
+                suggester.addAll(Destination.commandSuggester.settingsCMD(pos-2,Utl.trimStart(args,1)));
+            }
+            if (args[0].equalsIgnoreCase("set")) {
+                suggester.addAll(Destination.commandSuggester.setCMD(player,pos-2,Utl.trimStart(args,1)));
+            }
+            if (args[0].equalsIgnoreCase("send")) {
+                suggester.addAll(Destination.commandSuggester.sendCMD(player,pos-2,Utl.trimStart(args,1)));
+            }
+            if (args[0].equalsIgnoreCase("track")) {
+                suggester.addAll(Destination.commandSuggester.trackCMD(player,pos-2));
+            }
         }
-        if (pos > args.length) {
-            return suggester;
-        }
-        //SAVED
-        if (args[1].equalsIgnoreCase("saved")) {
-            return Destination.commandSuggester.savedCMD(player,pos-2,Utl.trimStart(args,2));
-        }
-        //ADD
-        if (args[1].equalsIgnoreCase("add")) {
-            return Destination.commandSuggester.addCMD(player,pos-2,Utl.trimStart(args,2));
-        }
-        if (args[1].equalsIgnoreCase("settings")) {
-            return Destination.commandSuggester.settingsCMD(pos-2,Utl.trimStart(args,2));
-        }
-        if (args[1].equalsIgnoreCase("set")) {
-            return Destination.commandSuggester.setCMD(player,pos-2,Utl.trimStart(args,2));
-        }
-        if (args[1].equalsIgnoreCase("send")) {
-            return Destination.commandSuggester.sendCMD(player,pos-2,Utl.trimStart(args,2));
-        }
-        if (args[1].equalsIgnoreCase("track")) {
-            return Destination.commandSuggester.trackCMD(player,pos-2);
-        }
-        return new ArrayList<>();
+        return Utl.formatSuggestions(suggester,args);
     }
 }

@@ -1,7 +1,7 @@
 package one.oth3r.directionhud.commands;
 
-import one.oth3r.directionhud.files.config;
 import one.oth3r.directionhud.utils.CUtl;
+import one.oth3r.directionhud.utils.Utl;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -17,8 +17,7 @@ public class HUDCommand implements CommandExecutor, TabCompleter {
         if (!(sender instanceof Player player)) {
             return true;
         }
-        if (!config.HUDEditing) return true;
-
+        if (!player.hasPermission("directionhud.hud")) return true;
         if (args.length == 0) {
             HUD.UI(player, null);
             return true;
@@ -110,24 +109,19 @@ public class HUDCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         ArrayList<String> suggester = new ArrayList<>();
-        int pos = args.length+1;
-        if (!(sender instanceof Player)) {
+        int pos = args.length;
+        if (!(sender instanceof Player player)) {
             return new ArrayList<>();
         }
-        if (!config.HUDEditing) return suggester;
+        if (!player.hasPermission("directionhud.hud")) return suggester;
         if (pos == 1) {
             suggester.add("edit");
             suggester.add("color");
             suggester.add("toggle");
-            return suggester;
-        }
-        if (pos > args.length) {
-            return suggester;
         }
         if (pos == 4 && args[2].equals("set")) {
             suggester.add("ffffff");
-            return suggester;
         }
-        return suggester;
+        return Utl.formatSuggestions(suggester,args);
     }
 }

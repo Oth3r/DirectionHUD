@@ -1,13 +1,31 @@
 name: DirectionHUD
 version: '${version}'
+author: "Oth3r"
 main: one.oth3r.directionhud.DirectionHUD
 api-version: 1.19
 commands:
   destination:
-    description: "my own command damn"
+    description: "Handles everything to do with destinations, tracking, and sharing."
     aliases: "dest"
   hud:
-    description: "my own command damn"
+    description: "Handles all HUD actions"
   directionhud:
-    description: "my own command damn"
+    description: "Base command"
     aliases: "dirhud"
+permissions:
+  directionhud.hud:
+    description: "Permissions for the '/hud' command"
+    default: true
+  directionhud.destination:
+    description: "Permissions for the '/destination' command"
+    default: true
+  directionhud.destination.saving:
+    description: "Permissions for saving destinations"
+    default: true
+  directionhud.directionhud:
+    description: "Permissions for the '/directionhud' command"
+    default: true
+  directionhud.reload:
+    description: "Permissions for the reload command. (Requires directionhud permissions)"
+  directionhud.defaults:
+    description: "Permissions for the defaults command. (Requires directionhud permissions)"

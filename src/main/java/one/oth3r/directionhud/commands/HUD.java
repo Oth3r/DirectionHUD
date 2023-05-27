@@ -2,9 +2,7 @@ package one.oth3r.directionhud.commands;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
-import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.LoopManager;
 import one.oth3r.directionhud.files.PlayerData;
 import one.oth3r.directionhud.files.config;
@@ -165,14 +163,14 @@ public class HUD {
         }
         double d = Math.toDegrees(Math.atan2(x, z));
         if (d < 0) d = d + 360;
-        if (Utl.inBetweenD(rotation, Utl.sub(d, 15, 360), (d+15)%360)) return "-▲-";
-        if (Utl.inBetweenD(rotation, d, (d+65)%360)) return "◀▲-";
-        if (Utl.inBetweenD(rotation, d, (d+115)%360)) return "◀--";
-        if (Utl.inBetweenD(rotation, d, (d+165)%360)) return "◀▼-";
-        if (Utl.inBetweenD(rotation, Utl.sub(d, 65, 360), d)) return "-▲▶";
-        if (Utl.inBetweenD(rotation, Utl.sub(d, 115, 360), d)) return "--▶";
-        if (Utl.inBetweenD(rotation, Utl.sub(d, 165, 360), d)) return "-▼▶";
-        return "-▼-";
+        if (Utl.inBetweenD(rotation, Utl.sub(d, 15, 360), (d+15)%360)) return "-"+CUtl.symbols.up()+"-";
+        if (Utl.inBetweenD(rotation, d, (d+65)%360)) return CUtl.symbols.left()+CUtl.symbols.up()+"-";
+        if (Utl.inBetweenD(rotation, d, (d+115)%360)) return CUtl.symbols.left()+"--";
+        if (Utl.inBetweenD(rotation, d, (d+165)%360)) return CUtl.symbols.left()+CUtl.symbols.down()+"-";
+        if (Utl.inBetweenD(rotation, Utl.sub(d, 65, 360), d)) return "-"+CUtl.symbols.up()+CUtl.symbols.right();
+        if (Utl.inBetweenD(rotation, Utl.sub(d, 115, 360), d)) return "--"+CUtl.symbols.right();
+        if (Utl.inBetweenD(rotation, Utl.sub(d, 165, 360), d)) return "-"+CUtl.symbols.down()+CUtl.symbols.right();
+        return "-"+CUtl.symbols.down()+"-";
     }
     public static class order {
         //has to be lowercase
@@ -364,7 +362,7 @@ public class HUD {
             if (s.equalsIgnoreCase("tracking")) {
                 hoverT.append(lang("module.tracking.info")).append("\n")
                         .append(color.addColor(player,"[",1,15,20).strikethrough(true))
-                        .append(color.addColor(player,"▲",2,35,20))
+                        .append(color.addColor(player,"-"+CUtl.symbols.up()+CUtl.symbols.right(),2,35,20))
                         .append(color.addColor(player,"]",1,55,20).strikethrough(true));
             }
             if (s.equalsIgnoreCase("time")) {
@@ -379,7 +377,7 @@ public class HUD {
             }
             if (s.equalsIgnoreCase("weather")) {
                 hoverT.append(lang("module.weather.info")).append("\n")
-                        .append(color.addColor(player,"☀",1,15,20));
+                        .append(color.addColor(player,CUtl.symbols.sun(),1,15,20));
             }
             if (addStart == null) return CTxT.of(langName(s)).hEvent(hoverT);
             return CTxT.of(langName(s)).hEvent(addStart.append("\n").append(hoverT));
@@ -395,7 +393,6 @@ public class HUD {
             modules.put("direction", CTxT.of(" "));
             modules.put("time", CTxT.of(" "));
             modules.put("weather", CTxT.of(" "));
-
             //MAKE THE TEXT
             if (getEnabled(player).size() > 0) {
                 for (int i = 0; i < getEnabled(player).size(); i++) {

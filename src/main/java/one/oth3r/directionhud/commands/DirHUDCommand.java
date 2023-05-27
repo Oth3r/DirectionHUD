@@ -1,5 +1,6 @@
 package one.oth3r.directionhud.commands;
 
+import one.oth3r.directionhud.utils.Utl;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -18,11 +19,12 @@ public class DirHUDCommand implements CommandExecutor, TabCompleter {
             }
             return true;
         }
+        if (!player.hasPermission("directionhud.directionhud")) return true;
         if (args.length == 0) {
             DirHUD.UI(player);
             return true;
         }
-        if (args[0].equalsIgnoreCase("defaults")) {
+        if (args[0].equalsIgnoreCase("defaults") && player.hasPermission("directionhud.defaults")) {
             if (args.length == 1) {
                 DirHUD.defaults(player);
             }
@@ -36,26 +38,23 @@ public class DirHUDCommand implements CommandExecutor, TabCompleter {
                 DirHUD.resetDefaults(player);
             }
         }
-        if (args[0].equalsIgnoreCase("reload") && player.hasPermission("TEMP")) { //todo
+        if (args[0].equalsIgnoreCase("reload") && player.hasPermission("directionhud.reload")) {
             DirHUD.reload(player);
         }
         return true;
     }
-
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         ArrayList<String> suggester = new ArrayList<>();
-        int pos = args.length+1;
+        int pos = args.length;
         if (!(sender instanceof Player player)) {
-            return new ArrayList<>();
+            return suggester;
         }
+        if (!player.hasPermission("directionhud.directionhud")) return suggester;
         if (pos == 1) {
-//            if (!DirectionHUD.server.isRemote()) return builder.suggest("defaults").buildFuture();
-            if (player.hasPermission("TEMP")) { //todo
-                suggester.add("reload");
-                return suggester;
-            }
+            if (player.hasPermission("directionhud.defaults")) suggester.add("defaults");
+            if (player.hasPermission("directionhud.reload")) suggester.add("reload");
         }
-        return suggester;
+        return Utl.formatSuggestions(suggester,args);
     }
 }
