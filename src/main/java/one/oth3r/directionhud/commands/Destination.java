@@ -109,19 +109,19 @@ public class Destination {
         player.sendMessage(setMSG(player));
     }
     public static class commandExecutor {
-        public static boolean setCMD(Player player, String[] args) {
+        public static void setCMD(Player player, String[] args) {
             if (!Utl.inBetween(args.length, 2,5)) {
                 player.sendMessage(CUtl.usage(CUtl.cmdUsage.destSet()));
-                return true;
+                return;
             }
             // /dest set saved <name> (convert)
             if (args[0].equalsIgnoreCase("saved")) {
-                if (!Utl.checkEnabled.saving(player)) return true;
+                if (!Utl.checkEnabled.saving(player)) return;
                 if (args.length == 2) Destination.setName(player, args[1], false);
                 if (args.length == 3 && args[2].equalsIgnoreCase("convert")) Destination.setName(player, args[1], true);
-                return true;
+                return;
             }
-            if (!Utl.isInt(args[0]) || !Utl.isInt(args[1])) return true;
+            if (!Utl.isInt(args[0]) || !Utl.isInt(args[1])) return;
             // /dest set x z
             if (args.length == 2)
                 Destination.set(player,new Loc(Utl.tryInt(args[0]),Utl.tryInt(args[1]),player.getDimension()),false);
@@ -140,54 +140,53 @@ public class Destination {
             // /dest set x y z DIM (convert)
             if (args.length == 5)
                 Destination.set(player,new Loc(Utl.tryInt(args[0]),Utl.tryInt(args[1]),Utl.tryInt(args[2]),args[3]),true);
-            return true;
         }
-        public static boolean addCMD(Player player, String[] args) {
+        public static void addCMD(Player player, String[] args) {
             //dest saved add <name>
             if (args.length == 1) {
                 saved.add(true,player,args[0],new Loc(player),null);
-                return true;
+                return;
             }
             if (!Utl.inBetween(args.length, 2, 6)) {
                 player.sendMessage(CUtl.usage(CUtl.cmdUsage.destAdd()));
-                return true;
+                return;
             }
             //dest saved add <name> color
             //dest saved add <name> dim
             if (args.length == 2) {
                 if (Utl.dim.checkValid(args[1])) saved.add(true,player,args[0],new Loc(player,args[1]),null);
                 else saved.add(true,player,args[0],new Loc(player),args[1]);
-                return true;
+                return;
             }
             //dest saved add <name> x y
             if (args.length == 3) {
                 saved.add(true,player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),player.getDimension()),null);
-                return true;
+                return;
             }
             //dest saved add <name> x y color
             if (args.length == 4 && !Utl.isInt(args[3]) && !Utl.dim.checkValid(args[3])) {
                 saved.add(true,player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),player.getDimension()),args[3]);
-                return true;
+                return;
             }
             //dest saved add <name> x y DIM
             if (args.length == 4 && !Utl.isInt(args[3])) {
                 saved.add(true,player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),args[3]),null);
-                return true;
+                return;
             }
             //dest saved add <name> x y z
             if (args.length == 4 && Utl.isInt(args[3])) {
                 saved.add(true,player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),Utl.tryInt(args[3]),player.getDimension()),null);
-                return true;
+                return;
             }
             //dest saved add <name> x y DIM color
             if (args.length == 5 && !Utl.isInt(args[3])) {
                 saved.add(true,player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),args[3]),args[4]);
-                return true;
+                return;
             }
             //dest saved add <name> x y z color
             if (args.length == 5 && !Utl.dim.checkValid(args[4])) {
                 saved.add(true,player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),Utl.tryInt(args[3]),player.getDimension()),args[4]);
-                return true;
+                return;
             }
             //dest saved add <name> x y z DIM
             if (args.length == 5) {
@@ -197,25 +196,23 @@ public class Destination {
             if (args.length == 6) {
                 saved.add(true,player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),Utl.tryInt(args[3]),args[4]),args[5]);
             }
-            return true;
         }
-        public static boolean removeCMD(Player player, String[] args) {
-            if (!Utl.checkEnabled.saving(player)) return true;
+        public static void removeCMD(Player player, String[] args) {
+            if (!Utl.checkEnabled.saving(player)) return;
             if (args.length == 1) saved.delete(true, player, args[0]);
-            return true;
         }
-        public static boolean savedCMD(Player player, String[] args) {
-            if (!Utl.checkEnabled.saving(player)) return true;
+        public static void savedCMD(Player player, String[] args) {
+            if (!Utl.checkEnabled.saving(player)) return;
             if (args.length == 0) {
                 saved.UI(player, 1);
-                return true;
+                return;
             }
             if (args.length == 1 && Utl.isInt(args[0])) {
                 saved.UI(player, Integer.parseInt(args[0]));
-                return true;
+                return;
             }
             if (args[0].equalsIgnoreCase("edit")) {
-                if (args.length == 1) return true;
+                if (args.length == 1) return;
                 if (args.length == 2) saved.viewDestinationUI(true, player, args[1]);
                 if (args[1].equalsIgnoreCase("name")) {
                     if (args.length == 3) player.sendMessage(error("dest.edit.name"));
@@ -238,37 +235,36 @@ public class Destination {
                     if (args.length == 5) saved.editLocation(true,player,args[2],new Loc(Utl.tryInt(args[3]),Utl.tryInt(args[4])));
                     if (args.length == 6) saved.editLocation(true,player,args[2],new Loc(Utl.tryInt(args[3]),Utl.tryInt(args[4]),Utl.tryInt(args[5])));
                 }
-                return true;
+                return;
             }
             //SEND
             if (args[0].equalsIgnoreCase("send")) {
                 if (args.length == 2) player.sendMessage(error("dest.send.player"));
                 if (args.length == 3) social.send(player,args[2],null,args[1]);
-                return true;
+                return;
             }
             //ADD
             if (args[0].equalsIgnoreCase("add")) {
-                return addCMD(player,Utl.trimStart(args,1));
+                addCMD(player,Utl.trimStart(args,1));
+                return;
             }
             player.sendMessage(CUtl.usage(CUtl.cmdUsage.destSaved()));
-            return true;
         }
-        public static boolean lastdeathCMD(Player player, String[] args) {
-            if (!config.deathsaving || !PlayerData.get.dest.setting.lastdeath(player)) return true;
+        public static void lastdeathCMD(Player player, String[] args) {
+            if (!config.deathsaving || !PlayerData.get.dest.setting.lastdeath(player)) return;
             if (args.length == 0) {
                 lastdeath.UI(player, null);
-                return true;
+                return;
             }
             if (args.length == 1) {
                 if (args[0].equalsIgnoreCase("clear_all")) {
                     lastdeath.clearAll(true, player);
                 }
-                return true;
+                return;
             }
             player.sendMessage(CUtl.usage(CUtl.cmdUsage.destLastdeath()));
-            return true;
         }
-        public static boolean settingsCMD(Player player, String[] args) {
+        public static void settingsCMD(Player player, String[] args) {
             if (args.length == 0) settings.UI(player, null);
             if (args.length == 1 && args[0].equalsIgnoreCase("reset")) settings.reset(player, false);
             if (args.length == 2) {
@@ -276,19 +272,18 @@ public class Destination {
                 else settings.change(player, args[0], args[1], true);
             }
             if (args.length == 3) settings.change(player, args[0], args[1], false);
-            return true;
         }
-        public static boolean sendCMD(Player player, String[] args) {
-            if (!Utl.checkEnabled.send(player)) return true;
+        public static void sendCMD(Player player, String[] args) {
+            if (!Utl.checkEnabled.send(player)) return;
             if (!Utl.inBetween(args.length, 3, 6)) {
                 player.sendMessage(CUtl.usage(CUtl.cmdUsage.destSend()));
-                return true;
+                return;
             }
             // /dest send <IGN> saved <name>
             if (args[1].equalsIgnoreCase("saved") && Utl.checkEnabled.saving(player)) {
                 if (args.length > 3) player.sendMessage(CUtl.usage(CUtl.cmdUsage.destSend()));
                 else social.send(player,args[0],null,args[2]);
-                return true;
+                return;
             }
             String pDIM = player.getDimension();
             //dest send <IGN> <xyz or xy> (dimension)
@@ -300,12 +295,12 @@ public class Destination {
             //dest send IGN NAME x z
             if (args.length == 4 && !Utl.isInt(args[1])) {
                 social.send(player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),pDIM),args[1]);
-                return true;
+                return;
             }
             //dest send IGN x z DIM
             if (args.length == 4 && !Utl.isInt(args[3])) {
                 social.send(player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),args[3]),null);
-                return true;
+                return;
             }
             //dest send IGN x y z
             if (args.length == 4) {
@@ -314,12 +309,12 @@ public class Destination {
             //dest send IGN NAME x z DIM
             if (args.length == 5 && !Utl.isInt(args[1]) && !Utl.isInt(args[4])) {
                 social.send(player,args[0],new Loc(Utl.tryInt(args[2]),Utl.tryInt(args[3]),args[4]),args[1]);
-                return true;
+                return;
             }
             //dest send IGN NAME x y z
             if (args.length == 5 && !Utl.isInt(args[1])) {
                 social.send(player,args[0],new Loc(Utl.tryInt(args[2]),Utl.tryInt(args[3]),Utl.tryInt(args[4]),pDIM),args[1]);
-                return true;
+                return;
             }
             //dest send IGN x y z DIM
             if (args.length == 5) {
@@ -329,32 +324,30 @@ public class Destination {
             if (args.length == 6 && !Utl.isInt(args[1])) {
                 social.send(player,args[0],new Loc(Utl.tryInt(args[2]),Utl.tryInt(args[3]),Utl.tryInt(args[4]),args[5]),args[1]);
             }
-            return true;
         }
-        public static boolean trackCMD(Player player, String[] args) {
-            if (!Utl.checkEnabled.track(player)) return true;
+        public static void trackCMD(Player player, String[] args) {
+            if (!Utl.checkEnabled.track(player)) return;
             //dest track <name>
             if (args.length == 1) {
                 if (args[0].equalsIgnoreCase(".clear")) {
                     social.track.clear(player, null);
-                    return true;
+                    return;
                 }
                 social.track.initialize(player, args[0]);
-                return true;
+                return;
             }
             if (args.length == 3) {
                 //dest track accept/deny <name> <id>
                 if (args[0].equalsIgnoreCase("acp")) {
                     social.track.accept(player, args[1], args[2]);
-                    return true;
+                    return;
                 }
                 if (args[0].equalsIgnoreCase("dny")) {
                     social.track.deny(player, args[1], args[2]);
-                    return true;
+                    return;
                 }
             }
             player.sendMessage(CUtl.usage(CUtl.cmdUsage.destTrack()));
-            return true;
         }
     }
     public static class commandSuggester {

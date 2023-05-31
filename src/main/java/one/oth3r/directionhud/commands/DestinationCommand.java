@@ -25,44 +25,20 @@ public class DestinationCommand implements CommandExecutor, TabCompleter {
             Destination.UI(player);
             return true;
         }
-        //SET
-        if (args[0].equalsIgnoreCase("set")) {
-            return Destination.commandExecutor.setCMD(player, Utl.trimStart(args,1));
+        String type = args[0].toLowerCase();
+        String[] trimmedArgs = Utl.trimStart(args, 1);
+        switch (type) {
+            case "set" -> Destination.commandExecutor.setCMD(player, trimmedArgs);
+            case "clear" -> Destination.clear(player, null);
+            case "saved" -> Destination.commandExecutor.savedCMD(player, trimmedArgs);
+            case "add" -> Destination.commandExecutor.addCMD(player, trimmedArgs);
+            case "remove" -> Destination.commandExecutor.removeCMD(player, trimmedArgs);
+            case "lastdeath" -> Destination.commandExecutor.lastdeathCMD(player, trimmedArgs);
+            case "settings" -> Destination.commandExecutor.settingsCMD(player, trimmedArgs);
+            case "send" -> Destination.commandExecutor.sendCMD(player, trimmedArgs);
+            case "track" -> Destination.commandExecutor.trackCMD(player, trimmedArgs);
+            default -> player.sendMessage(CUtl.error(CUtl.lang("error.command")));
         }
-        //CLEAR
-        if (args[0].equalsIgnoreCase("clear")) {
-            Destination.clear(player, null);
-            return true;
-        }
-        //SAVED
-        if (args[0].equalsIgnoreCase("saved")) {
-            return Destination.commandExecutor.savedCMD(player,Utl.trimStart(args,1));
-        }
-        //ADD
-        if (args[0].equalsIgnoreCase("add")) {
-            return Destination.commandExecutor.addCMD(player,Utl.trimStart(args,1));
-        }
-        //REMOVE (HIDDEN)
-        if (args[0].equalsIgnoreCase("remove")) {
-            return Destination.commandExecutor.removeCMD(player,Utl.trimStart(args,1));
-        }
-        //LASTDEATH
-        if (args[0].equalsIgnoreCase("lastdeath")) {
-            return Destination.commandExecutor.lastdeathCMD(player,Utl.trimStart(args,1));
-        }
-        //SETTINGS
-        if (args[0].equalsIgnoreCase("settings")) {
-            return Destination.commandExecutor.settingsCMD(player,Utl.trimStart(args,1));
-        }
-        //SEND
-        if (args[0].equalsIgnoreCase("send")) {
-            return Destination.commandExecutor.sendCMD(player,Utl.trimStart(args,1));
-        }
-        //TRACK
-        if (args[0].equalsIgnoreCase("track")) {
-            return Destination.commandExecutor.trackCMD(player,Utl.trimStart(args,1));
-        }
-        player.sendMessage(CUtl.error(CUtl.lang("error.command")));
         return true;
     }
     @Override
