@@ -1,12 +1,12 @@
-package one.oth3r.directionhud.utils;
+package one.oth3r.directionhud.spigot.utils;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.hover.content.Text;
-import one.oth3r.directionhud.commands.Destination;
-import one.oth3r.directionhud.files.LangReader;
+import one.oth3r.directionhud.common.Destination;
+import one.oth3r.directionhud.spigot.files.LangReader;
 
 public class CUtl {
     public static CTxT tag() {

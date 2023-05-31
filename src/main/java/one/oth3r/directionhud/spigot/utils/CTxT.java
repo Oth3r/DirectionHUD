@@ -1,10 +1,9 @@
-package one.oth3r.directionhud.utils;
+package one.oth3r.directionhud.spigot.utils;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
-import one.oth3r.directionhud.DirectionHUD;
 
 import java.util.ArrayList;
 import java.util.List;

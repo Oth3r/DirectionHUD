@@ -1,8 +1,8 @@
-package one.oth3r.directionhud.files;
+package one.oth3r.directionhud.spigot.files;
 
 import net.md_5.bungee.api.chat.TextComponent;
-import one.oth3r.directionhud.DirectionHUD;
-import one.oth3r.directionhud.utils.CTxT;
+import one.oth3r.directionhud.spigot.DirectionHUD;
+import one.oth3r.directionhud.spigot.utils.CTxT;
 
 import java.io.InputStream;
 import java.util.Arrays;

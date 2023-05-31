@@ -1,8 +1,8 @@
-package one.oth3r.directionhud.commands;
+package one.oth3r.directionhud.common;
 
-import one.oth3r.directionhud.files.PlayerData;
-import one.oth3r.directionhud.files.config;
-import one.oth3r.directionhud.utils.*;
+import one.oth3r.directionhud.spigot.files.PlayerData;
+import one.oth3r.directionhud.spigot.files.config;
+import one.oth3r.directionhud.spigot.utils.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;

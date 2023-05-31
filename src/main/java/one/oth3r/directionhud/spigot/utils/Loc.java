@@ -1,12 +1,12 @@
-package one.oth3r.directionhud.utils;
+package one.oth3r.directionhud.spigot.utils;
 
-import one.oth3r.directionhud.files.config;
+import one.oth3r.directionhud.spigot.files.config;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static one.oth3r.directionhud.utils.Utl.dim.conversionRatios;
-import static one.oth3r.directionhud.utils.Utl.isInt;
+import static one.oth3r.directionhud.spigot.utils.Utl.dim.conversionRatios;
+import static one.oth3r.directionhud.spigot.utils.Utl.isInt;
 
 public class Loc {
     private Integer x = null;

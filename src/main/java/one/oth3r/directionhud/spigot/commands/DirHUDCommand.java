@@ -1,7 +1,8 @@
-package one.oth3r.directionhud.commands;
+package one.oth3r.directionhud.spigot.commands;
 
-import one.oth3r.directionhud.utils.Player;
-import one.oth3r.directionhud.utils.Utl;
+import one.oth3r.directionhud.common.DirHUD;
+import one.oth3r.directionhud.spigot.utils.Player;
+import one.oth3r.directionhud.spigot.utils.Utl;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

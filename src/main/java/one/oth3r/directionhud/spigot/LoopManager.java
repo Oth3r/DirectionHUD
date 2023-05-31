@@ -1,10 +1,10 @@
-package one.oth3r.directionhud;
+package one.oth3r.directionhud.spigot;
 
-import one.oth3r.directionhud.commands.Destination;
-import one.oth3r.directionhud.commands.HUD;
-import one.oth3r.directionhud.files.PlayerData;
-import one.oth3r.directionhud.files.config;
-import one.oth3r.directionhud.utils.*;
+import one.oth3r.directionhud.common.Destination;
+import one.oth3r.directionhud.common.HUD;
+import one.oth3r.directionhud.spigot.files.PlayerData;
+import one.oth3r.directionhud.spigot.files.config;
+import one.oth3r.directionhud.spigot.utils.*;
 
 import java.util.ArrayList;
 

@@ -1,13 +1,13 @@
-package one.oth3r.directionhud;
+package one.oth3r.directionhud.spigot;
 
-import one.oth3r.directionhud.commands.DestinationCommand;
-import one.oth3r.directionhud.commands.DirHUDCommand;
-import one.oth3r.directionhud.commands.HUDCommand;
-import one.oth3r.directionhud.files.LangReader;
-import one.oth3r.directionhud.files.PlayerData;
-import one.oth3r.directionhud.files.config;
-import one.oth3r.directionhud.utils.Player;
-import one.oth3r.directionhud.utils.Utl;
+import one.oth3r.directionhud.spigot.commands.DestinationCommand;
+import one.oth3r.directionhud.spigot.commands.DirHUDCommand;
+import one.oth3r.directionhud.spigot.commands.HUDCommand;
+import one.oth3r.directionhud.spigot.files.LangReader;
+import one.oth3r.directionhud.spigot.files.PlayerData;
+import one.oth3r.directionhud.spigot.files.config;
+import one.oth3r.directionhud.spigot.utils.Player;
+import one.oth3r.directionhud.spigot.utils.Utl;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;

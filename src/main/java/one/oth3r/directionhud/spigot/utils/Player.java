@@ -1,4 +1,4 @@
-package one.oth3r.directionhud.utils;
+package one.oth3r.directionhud.spigot.utils;
 
 import net.md_5.bungee.api.ChatMessageType;
 import org.bukkit.Bukkit;

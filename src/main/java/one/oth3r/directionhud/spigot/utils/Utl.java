@@ -1,19 +1,18 @@
-package one.oth3r.directionhud.utils;
+package one.oth3r.directionhud.spigot.utils;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
-import one.oth3r.directionhud.DirectionHUD;
-import one.oth3r.directionhud.commands.HUD;
-import one.oth3r.directionhud.files.PlayerData;
-import one.oth3r.directionhud.files.config;
+import one.oth3r.directionhud.common.HUD;
+import one.oth3r.directionhud.spigot.files.PlayerData;
+import one.oth3r.directionhud.spigot.files.config;
 import org.bukkit.Bukkit;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.util.Vector;
 
 import java.awt.*;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 public class Utl {
     public static class Pair<A, B> {
