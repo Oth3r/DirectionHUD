@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 public class DirectionHUD extends JavaPlugin {
     public static Logger LOGGER;
     public static String VERSION;
-    public static HashMap<org.bukkit.entity.Player,Boolean> players = new HashMap<>();
+    public static HashMap<Player,Boolean> players = new HashMap<>();
     public static String playerData;
     public static String configDir;
 
