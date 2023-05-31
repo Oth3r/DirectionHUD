@@ -1,10 +1,9 @@
-package one.oth3r.directionhud.commands;
+package one.oth3r.directionhud.common;
 
-import net.md_5.bungee.api.ChatColor;
-import one.oth3r.directionhud.LoopManager;
-import one.oth3r.directionhud.files.PlayerData;
-import one.oth3r.directionhud.files.config;
-import one.oth3r.directionhud.utils.*;
+import one.oth3r.directionhud.spigot.LoopManager;
+import one.oth3r.directionhud.spigot.files.PlayerData;
+import one.oth3r.directionhud.spigot.files.config;
+import one.oth3r.directionhud.spigot.utils.*;
 
 import java.util.*;
 
@@ -548,14 +547,9 @@ public class HUD {
             if (i==1) return Boolean.parseBoolean(p[3]);
             return Boolean.parseBoolean(s[3]);
         }
-        public static ChatColor getColorHUD(Player player, Integer i) {
-            String str = getHUDColors(player)[i-1];
-            if (str.charAt(0) == '#') return ChatColor.of(str);
-            return Utl.color.getTC(getHUDColors(player)[i-1]);
-        }
         public static CTxT addColor(Player player, String txt, int i, float start, float step) {
             if (getHUDRGB(player,i)) return CTxT.of(txt).rainbow(true,start,step).italic(getHUDItalics(player,i)).bold(getHUDBold(player,i));
-            return CTxT.of(txt).color(getColorHUD(player,i)).italic(getHUDItalics(player,i)).bold(getHUDBold(player,i));
+            return CTxT.of(txt).color(getHUDColors(player)[i-1]).italic(getHUDItalics(player,i)).bold(getHUDBold(player,i));
         }
         public static void changeUI(Player player, String type, CTxT abovemsg) {
             CTxT msg = CTxT.of("");

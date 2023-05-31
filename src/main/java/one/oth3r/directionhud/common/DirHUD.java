@@ -1,16 +1,13 @@
-package one.oth3r.directionhud.commands;
+package one.oth3r.directionhud.common;
 
-import one.oth3r.directionhud.DirectionHUD;
-import one.oth3r.directionhud.files.LangReader;
-import one.oth3r.directionhud.files.PlayerData;
-import one.oth3r.directionhud.files.config;
-import one.oth3r.directionhud.utils.Player;
-import one.oth3r.directionhud.utils.CTxT;
-import one.oth3r.directionhud.utils.CUtl;
-import one.oth3r.directionhud.utils.Utl;
-import org.bukkit.Bukkit;
-
-import java.util.Objects;
+import one.oth3r.directionhud.spigot.DirectionHUD;
+import one.oth3r.directionhud.spigot.files.LangReader;
+import one.oth3r.directionhud.spigot.files.PlayerData;
+import one.oth3r.directionhud.spigot.files.config;
+import one.oth3r.directionhud.spigot.utils.CTxT;
+import one.oth3r.directionhud.spigot.utils.CUtl;
+import one.oth3r.directionhud.spigot.utils.Player;
+import one.oth3r.directionhud.spigot.utils.Utl;
 
 public class DirHUD {
     public static void setDefaults(Player player) {
@@ -69,7 +66,6 @@ public class DirHUD {
         player.sendMessage(msg);
     }
     public static void reload(Player player) {
-        if (DirectionHUD.configDir == null) DirectionHUD.configDir = Objects.requireNonNull(Bukkit.getServer().getPluginManager().getPlugin("DirectionHUD")).getDataFolder().getPath()+"/";
         LangReader.loadLanguageFile();
         config.load();
         for (Player pl: Utl.getPlayers()) {
