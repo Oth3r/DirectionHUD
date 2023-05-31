@@ -5,7 +5,8 @@ import one.oth3r.directionhud.commands.HUD;
 import one.oth3r.directionhud.files.PlayerData;
 import one.oth3r.directionhud.files.config;
 import one.oth3r.directionhud.utils.*;
-import org.bukkit.util.Vector;
+
+import java.util.ArrayList;
 
 public class LoopManager {
     public static int rainbowF;
@@ -20,12 +21,11 @@ public class LoopManager {
         if (HUDRefresh >= config.HUDRefresh) {
             HUDRefresh = 0;
             for (Player player :Utl.getPlayers()) {
-                if (PlayerData.get.hud.state(player)) {
-                    HUD.build(player);
-                }
-                if (Destination.getDist(player) <= PlayerData.get.dest.setting.autoclearrad(player)
-                        && PlayerData.get.dest.setting.autoclear(player) && Destination.get(player).hasXYZ())
+                if (PlayerData.get.hud.state(player)) HUD.build(player);
+                if (Destination.get(player).hasXYZ() && PlayerData.get.dest.setting.autoclear(player) &&
+                        Destination.getDist(player) <= PlayerData.get.dest.setting.autoclearrad(player)) {
                     Destination.clear(player, CUtl.lang("dest.changed.cleared.reached").color('7').italic(true));
+                }
             }
         }
         if (rainbowF >= 360) rainbowF = 0;
@@ -43,13 +43,16 @@ public class LoopManager {
     private static void secondLoop(Player player) {
         //PARTICLES
         if (Destination.get(player).hasXYZ()) {
-            if (PlayerData.get.dest.setting.particle.dest(player))
-                Utl.particle.spawnLine(player,
-                        Destination.get(player).getVec3d(player).add(new Vector(0,3,0)),
-                        Destination.get(player).getVec3d(player).add(new Vector(0,-3,0)),
-                        Utl.particle.DEST);
+            if (PlayerData.get.dest.setting.particle.dest(player)) {
+                ArrayList<Double> destVec1 = Destination.get(player).getVec(player);
+                ArrayList<Double> destVec2 = new ArrayList<>(destVec1);
+                destVec1.set(1,destVec1.get(1)+3);
+                destVec2.set(1,destVec2.get(1)-3);
+                Utl.particle.spawnLine(player, destVec1, destVec2, Utl.particle.DEST);
+            }
+
             if (PlayerData.get.dest.setting.particle.line(player))
-                player.spawnParticleLine(Destination.get(player).getVec3d(player),Utl.particle.LINE);
+                player.spawnParticleLine(Destination.get(player).getVec(player),Utl.particle.LINE);
         }
         if (PlayerData.get.dest.getTracking(player) != null && !PlayerData.get.dest.setting.track(player))
             Destination.social.track.clear(player, CUtl.lang("dest.track.clear.tracking_off").color('7').italic(true));
@@ -61,7 +64,7 @@ public class LoopManager {
                 player.sendMessage(CUtl.tag().append(CUtl.lang("dest.track.back")));
                 PlayerData.setOneTime(player, "tracking.offline", null);
             }
-            Vector trackingVec = trackingP.getVector();
+            ArrayList<Double> trackingVec = trackingP.getVec();
             boolean particleState = true;
             //IF NOT IN SAME DIM
             if (!trackingP.getDimension().equals(player.getDimension())) {
@@ -80,7 +83,7 @@ public class LoopManager {
                     particleState = true;
                     Loc tLoc = new Loc(trackingP);
                     tLoc.convertTo(player.getDimension());
-                    trackingVec = tLoc.getVec3d(player);
+                    trackingVec = tLoc.getVec(player);
                 } else if (PlayerData.getOneTime(player, "tracking.dimension") == null) {
                     //NOT CONVERTIBLE OR AUTOCONVERT OFF -- SEND DIM MSG
                     //RESET CONVERT

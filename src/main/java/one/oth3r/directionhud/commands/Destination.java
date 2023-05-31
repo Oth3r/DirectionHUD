@@ -32,11 +32,11 @@ public class Destination {
     }
     public static boolean checkDist(Player player, Loc loc) {
         if (PlayerData.get.dest.setting.autoclear(player))
-            return new Loc(player).getVec3d(player).distance(loc.getVec3d(player)) <= PlayerData.get.dest.setting.autoclearrad(player);
+            return Utl.vec.distance(new Loc(player).getVec(player),loc.getVec(player)) <= PlayerData.get.dest.setting.autoclearrad(player);
         else return false;
     }
     public static int getDist(Player player) {
-        return (int) new Loc(player).getVec3d(player).distance(get(player).getVec3d(player));
+        return (int) Utl.vec.distance(new Loc(player).getVec(player),get(player).getVec(player));
     }
     public static void clear(Player player) {
         PlayerData.set.dest.setDest(player, new Loc());

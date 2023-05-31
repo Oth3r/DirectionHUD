@@ -17,12 +17,12 @@ public class EventManager implements Listener {
     @EventHandler
     public static void playerJoin(PlayerJoinEvent event) {
         PlayerData.addPlayer(Player.of(event.getPlayer()));
-        DirectionHUD.players.put(event.getPlayer(),false);
+        DirectionHUD.players.put(Player.of(event.getPlayer()),false);
     }
     @EventHandler
     public static void playerQuit(PlayerQuitEvent event) {
         PlayerData.removePlayer(Player.of(event.getPlayer()));
-        DirectionHUD.players.remove(event.getPlayer());
+        DirectionHUD.players.remove(Player.of(event.getPlayer()));
     }
     @EventHandler
     public static void switchWorld(PlayerChangedWorldEvent event) {

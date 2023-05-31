@@ -2,6 +2,7 @@ package one.oth3r.directionhud.utils;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
+import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.commands.HUD;
 import one.oth3r.directionhud.files.PlayerData;
 import one.oth3r.directionhud.files.config;
@@ -11,8 +12,8 @@ import org.bukkit.World;
 import org.bukkit.util.Vector;
 
 import java.awt.*;
-import java.util.List;
 import java.util.*;
+import java.util.List;
 
 public class Utl {
     public static class Pair<A, B> {
@@ -134,6 +135,15 @@ public class Utl {
             array.add(Player.of(p));
         return array;
     }
+    public static class vec {
+        public static double distance(ArrayList<Double> from, ArrayList<Double> to)  {
+            return convertTo(from).distance(convertTo(to));
+        }
+        public static Vector convertTo(ArrayList<Double> vec) {
+            if (vec.size() == 3) return new Vector(vec.get(0),vec.get(1),vec.get(2));
+            else return new Vector(0,0,0);
+        }
+    }
     public static class checkEnabled {
         public static boolean destination(Player player) {
             return player.getPlayer().hasPermission("directionhud.destination");
@@ -168,16 +178,19 @@ public class Utl {
         public static final String LINE = "LINE";
         public static final String DEST = "DEST";
         public static final String TRACKING = "TRACKING";
-        public static void spawnLine(Player player, Vector start, Vector end, String particleType) {
-            double distance = start.distance(end);
-            Vector particlePos = start.subtract(new Vector(0, 0.2, 0));
+        public static void spawnLine(Player player, ArrayList<Double> start, ArrayList<Double> end, String particleType) {
+            Vector startV = vec.convertTo(start);
+            Vector endV = vec.convertTo(end);
+            Vector playerV = vec.convertTo(player.getVec());
+            double distance = startV.distance(endV);
+            Vector particlePos = startV.subtract(new Vector(0, 0.2, 0));
             double spacing = 1;
-            Vector segment = end.subtract(start).normalize().multiply(spacing);
+            Vector segment = endV.subtract(startV).normalize().multiply(spacing);
             double distCovered = 0;
             for (; distCovered <= distance; particlePos = particlePos.add(segment)) {
                 distCovered += spacing;
                 if (distCovered >= 50) break;
-                if (!(player.getVector().distance(particlePos) > 0.5 && player.getVector().distance(particlePos) < 50)) continue;
+                if (!(playerV.distance(particlePos) > 0.5 && playerV.distance(particlePos) < 50)) continue;
                 player.getPlayer().spawnParticle(Particle.REDSTONE,particlePos.getX(),particlePos.getY(),particlePos.getZ(),1,getParticle(particleType,player));
             }
         }

@@ -1,7 +1,6 @@
 package one.oth3r.directionhud.utils;
 
 import one.oth3r.directionhud.files.config;
-import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -122,11 +121,16 @@ public class Loc {
         if (this.dimension == null) return Arrays.toString(new String[]{this.x+"",this.y+"",this.z+""});
         return Arrays.toString(new String[]{this.x+"",this.y+"",this.z+"",this.dimension});
     }
-    public Vector getVec3d(Player player) {
+    public ArrayList<Double> getVec(Player player) {
+        ArrayList<Double> vector = new ArrayList<>();
         Integer i = this.y;
         if (i == null) i = player.getBlockY();
-        if (this.x != null && this.z != null) return new Vector(this.x,i,this.z);
-        return new Vector(0,0,0);
+        if (this.x != null && this.z != null) {
+            vector.add((double)this.x);
+            vector.add((double)i);
+            vector.add((double)this.z);
+        }
+        return vector;
     }
     public CTxT getBadge() {
         CTxT msg = CTxT.of("");
