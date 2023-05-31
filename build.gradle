@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'one.oth3r'
-version = '1.19.4-b0.0.0'
+version = 'b0.0.0+1.19.4'
 
 repositories {
     mavenCentral()
