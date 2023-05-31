@@ -4,11 +4,9 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import one.oth3r.directionhud.commands.Destination;
 import one.oth3r.directionhud.files.LangReader;
-import org.bukkit.entity.Player;
 
 public class CUtl {
     public static CTxT tag() {
@@ -33,11 +31,11 @@ public class CUtl {
         ComponentBuilder cb = new ComponentBuilder(text.b());
         return new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(cb.create()));
     }
-    public static TextComponent error(CTxT s) {
-        return tag().append(lang("error").color("#FF4646")).append(" ").append(s).b();
+    public static CTxT error(CTxT s) {
+        return tag().append(lang("error").color("#FF4646")).append(" ").append(s);
     }
-    public static TextComponent usage(String s) {
-        return tag().append(lang("usage").color("#FF4646")).append(" ").append(s).b();
+    public static CTxT usage(String s) {
+        return tag().append(lang("usage").color("#FF4646")).append(" ").append(s);
     }
     public static ChatColor HEX(String s) {
         if (s.contains("#")) return ChatColor.of(s);
@@ -68,6 +66,7 @@ public class CUtl {
         public static String dest = "#29a2ff";
         public static String hud = "#29ff69";
         public static String defaults = "#ff6629";
+        public static String reload = "#69ff29";
         public static String back = "#ff9500";
         public static String sec = "#ffee35";
         public static String pri = "#2993ff";
@@ -161,9 +160,9 @@ public class CUtl {
                 return TBtn("dirhud.defaults").btn(true).color(c.defaults).cEvent(1,"/dirhud defaults").hEvent(
                         CTxT.of(cmdUsage.defaults()).color(c.defaults).append("\n").append(TBtn("dirhud.defaults.hover")));
             }
-            public static CTxT reload() { //todo new color fix, on fabric ver
-                return TBtn("dirhud.reload").btn(true).color(c.defaults).cEvent(1,"/dirhud reload").hEvent(
-                        CTxT.of(cmdUsage.reload()).color(c.defaults).append("\n").append(TBtn("dirhud.reload.hover")));
+            public static CTxT reload() {
+                return TBtn("dirhud.reload").btn(true).color(c.reload).cEvent(1,"/dirhud reload").hEvent(
+                        CTxT.of(cmdUsage.reload()).color(c.reload).append("\n").append(TBtn("dirhud.reload.hover")));
             }
         }
     }

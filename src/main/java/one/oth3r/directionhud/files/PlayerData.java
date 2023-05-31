@@ -6,21 +6,23 @@ import com.google.gson.ToNumberPolicy;
 import com.google.gson.reflect.TypeToken;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.commands.HUD;
+import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Loc;
-import one.oth3r.directionhud.utils.Utl;
-import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class PlayerData {
     public static Map<Player,Map<String,Object>> playerMap = new HashMap<>();
     public static Map<Player,Map<String,String>> oneTimeMap = new HashMap<>();
     public static File getFile(Player player) {
-        if (config.online) return new File(DirectionHUD.playerData+Utl.player.uuid(player)+".json");
-        else return new File(DirectionHUD.playerData+Utl.player.name(player)+".json");
+        if (config.online) return new File(DirectionHUD.playerData+player.getUUID()+".json");
+        else return new File(DirectionHUD.playerData+player.getName()+".json");
     }
     public static Map<String, Object> fileToMap(Player player) {
         File file = getFile(player);
@@ -43,7 +45,7 @@ public class PlayerData {
     }
     @SuppressWarnings("unchecked")
     public static Map<String, Object> updater(Player player, Map<String,Object> map) {
-        map.put("name", Utl.player.name(player));
+        map.put("name", player.getName());
         return map;
     }
     @SuppressWarnings("unchecked")
@@ -69,7 +71,7 @@ public class PlayerData {
         Map<String,Object> mdest = (Map<String, Object>) map.get("destination");
         if (cdest.get("track")!=null) {
             Map<String,Object> track = (Map<String, Object>) cdest.get("track");
-            if (Utl.player.getFromIdentifier((String) track.get("target")) == null) {
+            if (Player.of((String) track.get("target")) == null) {
                 mdest.put("track", null);
             } else mdest.put("track",cdest.get("track"));
         } else if (mdest.get("track") != null) mdest.put("track", null);
@@ -115,7 +117,7 @@ public class PlayerData {
         destination.put("track", null);
         //base
         map.put("version", 1.0);
-        map.put("name", Utl.player.name(player));
+        map.put("name", player.getName());
         map.put("hud", hud);
         map.put("destination", destination);
         return map;
@@ -348,7 +350,7 @@ public class PlayerData {
                 }
             }
             public static class module {
-                public static void byName(Player player,String moduleName,boolean b) {
+                public static void byName(Player player, String moduleName, boolean b) {
                     Map<String,Object> data = get.hud.getModule(player);
                     data.put(moduleName, b);
                     setModule(player, data);

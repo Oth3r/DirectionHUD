@@ -1,20 +1,17 @@
 package one.oth3r.directionhud.commands;
 
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
 import one.oth3r.directionhud.LoopManager;
 import one.oth3r.directionhud.files.PlayerData;
 import one.oth3r.directionhud.files.config;
-import one.oth3r.directionhud.utils.CTxT;
-import one.oth3r.directionhud.utils.CUtl;
-import one.oth3r.directionhud.utils.Loc;
-import one.oth3r.directionhud.utils.Utl;
-import org.bukkit.entity.Player;
+import one.oth3r.directionhud.utils.*;
 
 import java.util.*;
 
 public class HUD {
+    public static int minute;
+    public static int hour;
+    public static String weatherIcon;
     private static CTxT lang(String key) {
         return CUtl.lang("hud."+key);
     }
@@ -24,7 +21,7 @@ public class HUD {
     public static void build(Player player) {
         ArrayList<String> coordinates = new ArrayList<>();
         coordinates.add("pXYZ: ");
-        coordinates.add("s"+player.getLocation().getBlockX()+" "+player.getLocation().getBlockY()+" "+player.getLocation().getBlockZ());
+        coordinates.add("s"+player.getBlockX()+" "+player.getBlockY()+" "+player.getBlockZ());
         ArrayList<String> destination = new ArrayList<>();
         ArrayList<String> distance = new ArrayList<>();
         ArrayList<String> tracking = new ArrayList<>();
@@ -50,7 +47,7 @@ public class HUD {
             time.add("p"+HUD.getAMPM());
         }
         ArrayList<String> weather = new ArrayList<>();
-        weather.add("p"+LoopManager.weatherIcon);
+        weather.add("p"+weatherIcon);
         HashMap<String, ArrayList<String>> modules = new HashMap<>();
         modules.put("coordinates", coordinates);
         modules.put("distance", distance);
@@ -90,10 +87,10 @@ public class HUD {
         }
         if (msg.equals(CTxT.of(""))) return;
         msg.cEvent(3,"https://modrinth.com/mod/directionhud");
-        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, msg.b());
+        player.sendActionBar(msg);
     }
     public static String getPlayerDirection(Player player) {
-        double rotation = (player.getLocation().getYaw() - 180) % 360;
+        double rotation = (player.getYaw() - 180) % 360;
         if (rotation < 0) {
             rotation += 360.0;
         }
@@ -120,28 +117,28 @@ public class HUD {
         }
     }
     public static String getGameTime(boolean t12hr) {
-        int hour = LoopManager.hour;
-        String min = "0" + LoopManager.minute;
+        int hr = hour;
+        String min = "0" + minute;
         min = min.substring(min.length() - 2);
         int minute = Integer.parseInt(min);
 
         if (t12hr) {
             String time = "";
-            if(hour == 0) hour = 12;
-            else if(hour > 12) {hour -= 12;}
-            time += hour;
+            if(hr == 0) hr = 12;
+            else if(hr > 12) {hr -= 12;}
+            time += hr;
             time += ":";
             if(minute < 10) time += "0";
             time += minute;
             return time;
         }
-        return hour + ":" + min;
+        return hr + ":" + min;
     }
     public static String getAMPM() {
-        int hour = LoopManager.hour;
+        int hr = hour;
         String ampm = "AM";
-        if(hour > 12) {ampm = "PM";}
-        else if(hour == 12) ampm = "PM";
+        if(hr > 12) {ampm = "PM";}
+        else if(hr == 12) ampm = "PM";
 
         return ampm;
     }
@@ -150,14 +147,14 @@ public class HUD {
         Player pl = Destination.social.track.getTarget(player);
         if (pl == null) return "???";
         Loc plLoc = new Loc(pl);
-        if (!Utl.player.dim(player).equals(Utl.player.dim(pl))) {
-            if (Utl.dim.canConvert(Utl.player.dim(player),Utl.player.dim(pl))) {
-                plLoc.convertTo(Utl.player.dim(player));
+        if (!player.getDimension().equals(pl.getDimension())) {
+            if (Utl.dim.canConvert(player.getDimension(),pl.getDimension())) {
+                plLoc.convertTo(player.getDimension());
             } else return "-?-";
         }
-        int x = plLoc.getX()-player.getLocation().getBlockX();
-        int z = (plLoc.getZ()-player.getLocation().getBlockZ())*-1;
-        double rotation = (player.getLocation().getYaw() - 180) % 360;
+        int x = plLoc.getX()-player.getBlockX();
+        int z = (plLoc.getZ()-player.getBlockZ())*-1;
+        double rotation = (player.getYaw() - 180) % 360;
         if (rotation < 0) {
             rotation += 360.0;
         }
@@ -190,7 +187,7 @@ public class HUD {
             PlayerData.set.hud.setModule(player, PlayerData.defaults.hudModule());
             CTxT msg = CUtl.tag().append(lang("module.reset", lang("module.reset_2").color('c')));
             if (Return) UI(player, msg, null);
-            else player.spigot().sendMessage(msg.b());
+            else player.sendMessage(msg);
         }
         public static void move(Player player, String module, String direction, boolean Return) {
             ArrayList<String> order = getEnabled(player);
@@ -211,7 +208,7 @@ public class HUD {
                 HUD.order.setOrderC(player, order);
             } else return;
             if (Return) UI(player, msg, module);
-            else player.spigot().sendMessage(msg.b());
+            else player.sendMessage(msg);
         }
         public static void toggle(Player player, String module, boolean toggle, boolean Return) {
             if (!order.validCheck(module)) return;
@@ -221,7 +218,7 @@ public class HUD {
             //ON
             else if (toggle && !order.moduleState(player, module)) order.addModule(player, module);
             if (Return) UI(player, msg, module);
-            else player.spigot().sendMessage(msg.b());
+            else player.sendMessage(msg);
         }
         public static void setting(Player player, String setting, String option, boolean Return) {
             if (setting.equals("time")) {
@@ -230,7 +227,7 @@ public class HUD {
                 PlayerData.set.hud.setting.time24h(player, option.equals("24hr"));
                 CTxT msg = CUtl.tag().append(lang("module.time.change",CUtl.lang("button.time."+option).color(CUtl.sTC())));
                 if (Return) UI(player, msg, "time");
-                else player.spigot().sendMessage(msg.b());
+                else player.sendMessage(msg);
             }
         }
         public static boolean moduleState(Player player, String s) {
@@ -447,7 +444,7 @@ public class HUD {
             msg.append("          ").append(CUtl.TBtn("reset").btn(true).color('c').cEvent(1,"/hud edit reset")
                             .hEvent(CUtl.TBtn("reset.hover_edit").color('c')))
                     .append("  ").append(CUtl.CButton.back("/hud")).append(CTxT.of("\n                                               ").strikethrough(true));
-            player.spigot().sendMessage(msg.b());
+            player.sendMessage(msg);
         }
     }
     public static class color {
@@ -466,7 +463,7 @@ public class HUD {
             } else return;
             CTxT msg = CUtl.tag().append(lang("color.reset",lang("color.reset_2").color('c'),lang("color."+langType)));
             if (Return) UI(player, msg);
-            else player.spigot().sendMessage(msg.b());
+            else player.sendMessage(msg);
         }
         public static void setColor(Player player, String type, String color, boolean Return) {
             if (type.equals("primary")) {
@@ -481,7 +478,7 @@ public class HUD {
             CTxT msg = CUtl.tag().append(lang("color.set",lang("color."+type),
                     addColor(player,Utl.color.formatPlayer(color,true),type.equals("primary")?1:2,15f,20f)));
             if (Return) changeUI(player, type.substring(0,3),msg);
-            else player.spigot().sendMessage(msg.b());
+            else player.sendMessage(msg);
         }
         public static void setBold(Player player, String type, boolean state, boolean Return) {
             if (type.equals("primary")) {
@@ -494,7 +491,7 @@ public class HUD {
             CTxT msg = CUtl.tag().append(lang("color.set.bold",
                     CUtl.lang("button."+(state?"on":"off")).color(state?'a':'c'),lang("color."+type)));
             if (Return) changeUI(player, type.substring(0,3),msg);
-            else player.spigot().sendMessage(msg.b());
+            else player.sendMessage(msg);
         }
         public static void setItalics(Player player, String type, boolean state, boolean Return) {
             if (type.equals("primary")) {
@@ -507,7 +504,7 @@ public class HUD {
             CTxT msg = CUtl.tag().append(lang("color.set.italics",
                             CUtl.lang("button."+(state?"on":"off")).color(state?'a':'c'),lang("color."+type)));
             if (Return) changeUI(player, type.substring(0,3),msg);
-            else player.spigot().sendMessage(msg.b());
+            else player.sendMessage(msg);
         }
         public static void setRGB(Player player, String type, boolean state, boolean Return) {
             if (type.equals("primary")) {
@@ -520,7 +517,7 @@ public class HUD {
             CTxT msg = CUtl.tag().append(lang("color.set.rgb",
                     CUtl.lang("button."+(state?"on":"off")).color(state?'a':'c'),lang("color."+type)));
             if (Return) changeUI(player, type.substring(0,3),msg);
-            else player.spigot().sendMessage(msg.b());
+            else player.sendMessage(msg);
         }
         //"red", "dark_red", "gold", "yellow", "green", "dark_green", "aqua", "dark_aqua",
         // "blue", "dark_blue", "pink", "purple", "white", "gray", "dark_gray", "black"
@@ -635,7 +632,7 @@ public class HUD {
                     .append(boldButton).append(" ").append(italicsButton).append("\n\n ")
                     .append(reset).append(" ").append(back)
                     .append(CTxT.of("\n                           ").strikethrough(true));
-            player.spigot().sendMessage(msg.b());
+            player.sendMessage(msg);
         }
         public static void UI(Player player, CTxT abovemsg) {
             CTxT msg = CTxT.of("");
@@ -653,20 +650,20 @@ public class HUD {
                     .hEvent(CUtl.TBtn("reset.hover_color",CUtl.TBtn("all").color('c'))))
                     .append("  ").append(CUtl.CButton.back("/hud"))
                     .append(CTxT.of("\n                                ").strikethrough(true));
-            player.spigot().sendMessage(msg.b());
+            player.sendMessage(msg);
         }
     }
     public static void toggle(Player player, Boolean state, boolean Return) {
         if (state == null) {
-            if (PlayerData.get.hud.state(player)) player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent());
+            if (PlayerData.get.hud.state(player)) player.sendActionBar(CTxT.of(""));
             PlayerData.set.hud.state(player, !PlayerData.get.hud.state(player));
         } else {
-            if (!state) player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent());
+            if (!state) player.sendActionBar(CTxT.of(""));
             PlayerData.set.hud.state(player, state);
         }
         CTxT msg = CUtl.tag().append(lang("toggle",CUtl.TBtn((PlayerData.get.hud.state(player)?"on":"off")).color(PlayerData.get.hud.state(player)?'a':'c')));
         if (Return) UI(player, msg);
-        else player.spigot().sendMessage(msg.b());
+        else player.sendMessage(msg);
     }
     public static void UI(Player player, CTxT abovemsg) {
         CTxT msg = CTxT.of("");
@@ -684,7 +681,7 @@ public class HUD {
         //BACK
         msg.append(CUtl.CButton.back("/directionhud"));
         msg.append(CTxT.of("\n                                 ").strikethrough(true));
-        player.spigot().sendMessage(msg.b());
+        player.sendMessage(msg);
     }
     //782
 }

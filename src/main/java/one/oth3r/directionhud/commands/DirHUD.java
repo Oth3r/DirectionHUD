@@ -4,10 +4,11 @@ import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.files.LangReader;
 import one.oth3r.directionhud.files.PlayerData;
 import one.oth3r.directionhud.files.config;
+import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.CUtl;
+import one.oth3r.directionhud.utils.Utl;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 
 import java.util.Objects;
 
@@ -46,11 +47,11 @@ public class DirHUD {
         config.HUDSecondaryBold = HUD.color.getHUDBold(player, 2);
         config.HUDSecondaryItalics = HUD.color.getHUDItalics(player, 2);
         config.save();
-        player.spigot().sendMessage(CUtl.tag().append(CUtl.lang("dirhud.defaults.set")).b());
+        player.sendMessage(CUtl.tag().append(CUtl.lang("dirhud.defaults.set")));
     }
     public static void resetDefaults(Player player) {
         config.resetDefaults();
-        player.spigot().sendMessage(CUtl.tag().append(CUtl.lang("dirhud.defaults.reset")).b());
+        player.sendMessage(CUtl.tag().append(CUtl.lang("dirhud.defaults.reset")));
     }
     public static void defaults(Player player) {
         CTxT msg = CTxT.of("");
@@ -65,18 +66,18 @@ public class DirHUD {
                 .append("  ")
                 .append(CUtl.CButton.back("/dirhud"))
                 .append(CTxT.of("\n                                 ").strikethrough(true));
-        player.spigot().sendMessage(msg.b());
+        player.sendMessage(msg);
     }
     public static void reload(Player player) {
         if (DirectionHUD.configDir == null) DirectionHUD.configDir = Objects.requireNonNull(Bukkit.getServer().getPluginManager().getPlugin("DirectionHUD")).getDataFolder().getPath()+"/";
         LangReader.loadLanguageFile();
         config.load();
-        for (Player pl: Bukkit.getOnlinePlayers()) {
+        for (Player pl: Utl.getPlayers()) {
             PlayerData.removePlayer(pl);
             PlayerData.addPlayer(pl);
         }
         if (player == null) DirectionHUD.LOGGER.info(CUtl.lang("dirhud.reload", CUtl.lang("dirhud.reload_2")).getString());
-        else player.spigot().sendMessage(CUtl.tag().append(CUtl.lang("dirhud.reload",CUtl.lang("dirhud.reload_2").color('a'))).b());
+        else player.sendMessage(CUtl.tag().append(CUtl.lang("dirhud.reload",CUtl.lang("dirhud.reload_2").color('a'))));
     }
     public static void UI(Player player) {
         CTxT msg = CTxT.of("")
@@ -85,14 +86,14 @@ public class DirHUD {
                         .hEvent(CUtl.TBtn("version.hover").color(CUtl.sTC())))
                 .append(CTxT.of("\n                                 \n").strikethrough(true)).append(" ");
         //hud
-        if (player.hasPermission("directionhud.hud")) msg.append(CUtl.CButton.dirHUD.hud()).append("  ");
+        if (Utl.checkEnabled.hud(player)) msg.append(CUtl.CButton.dirHUD.hud()).append("  ");
         //dest
-        if (player.hasPermission("directionhud.destination")) msg.append(CUtl.CButton.dirHUD.dest());
-        if (player.hasPermission("directionhud.reload")) { //todo perms
+        if (Utl.checkEnabled.destination(player)) msg.append(CUtl.CButton.dirHUD.dest());
+        if (Utl.checkEnabled.reload(player)) {
             msg.append("\n\n ").append(CUtl.CButton.dirHUD.reload());
-            if (player.hasPermission("directionhud.defaults")) msg.append("  ").append(CUtl.CButton.dirHUD.defaults());
-        } else if (player.hasPermission("directionhud.defaults")) msg.append("\n\n ").append(CUtl.CButton.dirHUD.defaults());
+            if (Utl.checkEnabled.defaults(player)) msg.append("  ").append(CUtl.CButton.dirHUD.defaults());
+        } else if (Utl.checkEnabled.defaults(player)) msg.append("\n\n ").append(CUtl.CButton.dirHUD.defaults());
         msg.append(CTxT.of("\n                                 ").strikethrough(true));
-        player.spigot().sendMessage(msg.b());
+        player.sendMessage(msg);
     }
 }

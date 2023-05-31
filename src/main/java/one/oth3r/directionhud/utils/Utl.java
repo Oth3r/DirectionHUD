@@ -2,11 +2,13 @@ package one.oth3r.directionhud.utils;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
+import one.oth3r.directionhud.commands.HUD;
+import one.oth3r.directionhud.files.PlayerData;
 import one.oth3r.directionhud.files.config;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 import java.awt.*;
 import java.util.List;
@@ -88,19 +90,32 @@ public class Utl {
         System.arraycopy(arr, numToRemove, result, 0, result.length);
         return result;
     }
+    public static void setTime() {
+        World world = Bukkit.getWorlds().get(0);
+        long timeTicks = world.getTime();
+        HUD.hour = (int) ((timeTicks / 1000 + 6) % 24);
+        HUD.minute = (int) ((timeTicks % 1000) * 60 / 1000);
+        if (world.hasStorm()) {
+            String str;
+            if (Utl.inBetween((int) timeTicks, 12010,23992)) str = CUtl.symbols.moon();
+            else str = CUtl.symbols.sun();
+            if (world.isThundering()) HUD.weatherIcon = str + CUtl.symbols.thunder();
+            else HUD.weatherIcon = str + CUtl.symbols.rain();
+        } else if (Utl.inBetween((int) timeTicks, 12010,23992)) HUD.weatherIcon = CUtl.symbols.moon();
+        else HUD.weatherIcon = CUtl.symbols.sun();
+    }
     public static ArrayList<String> xyzSuggester(Player player, String type) {
         ArrayList<String> arr = new ArrayList<>();
-        Location location = player.getLocation();
         if (type.equalsIgnoreCase("x")) {
-            arr.add(location.getBlockX()+"");
-            arr.add(location.getBlockX()+" "+location.getBlockZ());
-            arr.add(location.getBlockX()+" "+location.getBlockY()+" "+location.getBlockZ());
+            arr.add(player.getBlockX()+"");
+            arr.add(player.getBlockX()+" "+player.getBlockZ());
+            arr.add(player.getBlockX()+" "+player.getBlockY()+" "+player.getBlockZ());
         }
         if (type.equalsIgnoreCase("y")) {
-            arr.add(location.getBlockY()+"");
-            arr.add(location.getBlockY()+" "+location.getBlockZ());
+            arr.add(player.getBlockY()+"");
+            arr.add(player.getBlockY()+" "+player.getBlockZ());
         }
-        if (type.equalsIgnoreCase("z")) arr.add(location.getBlockZ()+"");
+        if (type.equalsIgnoreCase("z")) arr.add(player.getBlockZ()+"");
         return arr;
     }
     public static List<String> formatSuggestions(ArrayList<String> suggester, String[] args) {
@@ -113,29 +128,67 @@ public class Utl {
         }
         return filteredCompletions;
     }
-    public static class player {
-        public static List<String> getList() {
-            ArrayList<String> array = new ArrayList<>(List.of());
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                array.add(name(p));
+    public static List<Player> getPlayers() {
+        ArrayList<Player> array = new ArrayList<>(List.of());
+        for (org.bukkit.entity.Player p : Bukkit.getOnlinePlayers())
+            array.add(Player.of(p));
+        return array;
+    }
+    public static class checkEnabled {
+        public static boolean destination(Player player) {
+            return player.getPlayer().hasPermission("directionhud.destination");
+        }
+        public static boolean hud(Player player) {
+            return player.getPlayer().hasPermission("directionhud.hud");
+        }
+        @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+        public static boolean dirhud(Player player) {
+            return player.getPlayer().hasPermission("directionhud.directionhud");
+        }
+        public static boolean reload(Player player) {
+            return player.getPlayer().hasPermission("directionhud.reload");
+        }
+        public static boolean defaults(Player player) {
+            return player.getPlayer().hasPermission("directionhud.defaults");
+        }
+        public static boolean saving(Player player) {
+            return player.getPlayer().hasPermission("directionhud.destination.saving");
+        }
+        public static boolean lastdeath(Player player) {
+            return PlayerData.get.dest.setting.lastdeath(player) && config.deathsaving;
+        }
+        public static boolean send(Player player) {
+            return PlayerData.get.dest.setting.send(player) && config.social;
+        }
+        public static boolean track(Player player) {
+            return PlayerData.get.dest.setting.track(player) && config.social;
+        }
+    }
+    public static class particle {
+        public static final String LINE = "LINE";
+        public static final String DEST = "DEST";
+        public static final String TRACKING = "TRACKING";
+        public static void spawnLine(Player player, Vector start, Vector end, String particleType) {
+            double distance = start.distance(end);
+            Vector particlePos = start.subtract(new Vector(0, 0.2, 0));
+            double spacing = 1;
+            Vector segment = end.subtract(start).normalize().multiply(spacing);
+            double distCovered = 0;
+            for (; distCovered <= distance; particlePos = particlePos.add(segment)) {
+                distCovered += spacing;
+                if (distCovered >= 50) break;
+                if (!(player.getVector().distance(particlePos) > 0.5 && player.getVector().distance(particlePos) < 50)) continue;
+                player.getPlayer().spawnParticle(Particle.REDSTONE,particlePos.getX(),particlePos.getY(),particlePos.getZ(),1,getParticle(particleType,player));
             }
-            return array;
         }
-        public static Player getFromIdentifier(String s) {
-            if (s.contains("-")) return Bukkit.getPlayer(UUID.fromString(s));
-            return Bukkit.getPlayer(s);
-        }
-        public static String uuid(Player player) {
-            return player.getUniqueId().toString();
-        }
-        public static String name(Player player) {
-            return player.getName();
-        }
-        public static String dim(Player player) {
-            return dim.format(player.getWorld().getName());
-        }
-        public static void sendAs(String command, Player player) {
-            player.performCommand(command);
+        public static Particle.DustOptions getParticle(String particleType, Player player) {
+            if (particleType.equals(LINE))
+                return new Particle.DustOptions(org.bukkit.Color.fromRGB(Utl.color.getCodeRGB(PlayerData.get.dest.setting.particle.linecolor(player))), 1);
+            if (particleType.equals(DEST))
+                return new Particle.DustOptions(org.bukkit.Color.fromRGB(Utl.color.getCodeRGB(PlayerData.get.dest.setting.particle.destcolor(player))), 3);
+            if (particleType.equals(TRACKING))
+                return new Particle.DustOptions(org.bukkit.Color.fromRGB(Utl.color.getCodeRGB(PlayerData.get.dest.setting.particle.trackingcolor(player))), 0.5f);
+            return new Particle.DustOptions(org.bukkit.Color.BLACK,1);
         }
     }
     public static class dim {
@@ -231,7 +284,6 @@ public class Utl {
             config.dimensions = output;
         }
     }
-
     public static class color {
         // red, dark_red, gold, yellow, green, dark_green, aqua, dark_aqua, blue, dark_blue, pink, purple, white, gray, dark_gray, black
         public static List<String> getList() {

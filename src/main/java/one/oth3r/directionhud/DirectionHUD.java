@@ -6,8 +6,9 @@ import one.oth3r.directionhud.commands.HUDCommand;
 import one.oth3r.directionhud.files.LangReader;
 import one.oth3r.directionhud.files.PlayerData;
 import one.oth3r.directionhud.files.config;
+import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.Utl;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -22,7 +23,7 @@ import java.util.logging.Logger;
 public class DirectionHUD extends JavaPlugin {
     public static Logger LOGGER;
     public static String VERSION;
-    public static HashMap<Player,Boolean> players = new HashMap<>();
+    public static HashMap<org.bukkit.entity.Player,Boolean> players = new HashMap<>();
     public static String playerData;
     public static String configDir;
 
@@ -60,7 +61,7 @@ public class DirectionHUD extends JavaPlugin {
     @Override
     public void onDisable() {
         LOGGER.info("DirectionHUD: Shutting down...");
-        for (Player player:Bukkit.getOnlinePlayers())
+        for (Player player:Utl.getPlayers())
             PlayerData.removePlayer(player);
     }
 }

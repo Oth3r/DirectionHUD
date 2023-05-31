@@ -1,14 +1,8 @@
 package one.oth3r.directionhud.commands;
 
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.TextComponent;
 import one.oth3r.directionhud.files.PlayerData;
 import one.oth3r.directionhud.files.config;
-import one.oth3r.directionhud.utils.CTxT;
-import one.oth3r.directionhud.utils.CUtl;
-import one.oth3r.directionhud.utils.Loc;
-import one.oth3r.directionhud.utils.Utl;
-import org.bukkit.entity.Player;
+import one.oth3r.directionhud.utils.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,29 +10,23 @@ import java.util.List;
 import java.util.Objects;
 
 public class Destination {
-    public static boolean showSend(Player player) {
-        return PlayerData.get.dest.setting.send(player) && config.social;
-    }
-    public static boolean showTracking(Player player) {
-        return PlayerData.get.dest.setting.track(player) && config.social;
-    }
     private static CTxT lang(String lang) {
         return CUtl.lang("dest."+lang);
     }
     private static CTxT lang(String key, Object... args) {
         return CUtl.lang("dest."+key, args);
     }
-    private static TextComponent error(String key) {
+    private static CTxT error(String key) {
         return CUtl.error(CUtl.lang("error."+key));
     }
-    private static TextComponent error(String key, Object... args) {
+    private static CTxT error(String key, Object... args) {
         return CUtl.error(CUtl.lang("error."+key, args));
     }
     public static Loc get(Player player) {
         Loc loc = PlayerData.get.dest.getDest(player);
         if (loc.getXYZ() == null) return new Loc();
         if (PlayerData.get.dest.setting.ylevel(player) && loc.yExists()) {
-            loc.setY(player.getLocation().getBlockY());
+            loc.setY(player.getBlockY());
         }
         return loc;
     }
@@ -56,15 +44,15 @@ public class Destination {
     public static void clear(Player player, CTxT reason) {
         CTxT msg = CUtl.tag().append(lang("changed", lang("changed.cleared").color('a')));
         if (!get(player).hasXYZ()) {
-            player.spigot().sendMessage(error("dest.already_clear"));
+            player.sendMessage(error("dest.already_clear"));
             return;
         }
         clear(player);
         if (reason == null) {
-            player.spigot().sendMessage(msg.b());
+            player.sendMessage(msg);
             return;
         }
-        player.spigot().sendMessage(msg.append("\n ").append(reason).b());
+        player.sendMessage(msg.append("\n ").append(reason));
     }
     public static CTxT setMSG(Player player) {
         boolean ac = PlayerData.get.dest.setting.autoclear(player);
@@ -79,56 +67,56 @@ public class Destination {
     //convert converts loc dim to player dim
     public static void set(Player player, Loc loc, boolean convert) {
         if (!loc.hasXYZ()) {
-            player.spigot().sendMessage(error("coordinates"));
+            player.sendMessage(error("coordinates"));
             return;
         }
         if (loc.getDIM() == null) {
-            player.spigot().sendMessage(error("dimension"));
+            player.sendMessage(error("dimension"));
             return;
         }
         CTxT convertMsg = CTxT.of("");
-        if (Utl.dim.canConvert(Utl.player.dim(player),loc.getDIM()) && convert) {
+        if (Utl.dim.canConvert(player.getDimension(),loc.getDIM()) && convert) {
             convertMsg.append(" ").append(lang("converted_badge").color('7').italic(true).hEvent(loc.getBadge()));
-            loc.convertTo(Utl.player.dim(player));
+            loc.convertTo(player.getDimension());
         }
         if (checkDist(player,loc)) {
-            player.spigot().sendMessage(error("dest.at"));
+            player.sendMessage(error("dest.at"));
             return;
         }
         silentSet(player, loc);
-        player.spigot().sendMessage(CUtl.tag().append(lang("set",loc.getBadge())).append(convertMsg).b());
-        player.spigot().sendMessage(setMSG(player).b());
+        player.sendMessage(CUtl.tag().append(lang("set",loc.getBadge())).append(convertMsg));
+        player.sendMessage(setMSG(player));
     }
     public static void setName(Player player, String name, boolean convert) {
         if (!saved.getNames(player).contains(name)) {
-            player.spigot().sendMessage(error("dest.invalid"));
+            player.sendMessage(error("dest.invalid"));
             return;
         }
         int key = saved.getNames(player).indexOf(name);
         CTxT convertMsg = CTxT.of("");
         Loc loc = saved.getLocs(player).get(key);
-        if (convert && Utl.dim.canConvert(Utl.player.dim(player),loc.getDIM())) {
+        if (convert && Utl.dim.canConvert(player.getDimension(),loc.getDIM())) {
             convertMsg.append(" ").append(lang("converted_badge").color('7').italic(true).hEvent(loc.getBadge()));
-            loc.convertTo(Utl.player.dim(player));
+            loc.convertTo(player.getDimension());
         }
         if (checkDist(player,loc)) {
-            player.spigot().sendMessage(error("dest.at"));
+            player.sendMessage(error("dest.at"));
             return;
         }
         silentSet(player,loc);
-        player.spigot().sendMessage(CUtl.tag().append(lang("set",
-                CTxT.of("").append(loc.getBadge(saved.getNames(player).get(key),saved.getColors(player).get(key))).append(convertMsg))).b());
-        player.spigot().sendMessage(setMSG(player).b());
+        player.sendMessage(CUtl.tag().append(lang("set",
+                CTxT.of("").append(loc.getBadge(saved.getNames(player).get(key),saved.getColors(player).get(key))).append(convertMsg))));
+        player.sendMessage(setMSG(player));
     }
     public static class commandExecutor {
         public static boolean setCMD(Player player, String[] args) {
             if (!Utl.inBetween(args.length, 2,5)) {
-                player.spigot().sendMessage(CUtl.usage(CUtl.cmdUsage.destSet()));
+                player.sendMessage(CUtl.usage(CUtl.cmdUsage.destSet()));
                 return true;
             }
             // /dest set saved <name> (convert)
             if (args[0].equalsIgnoreCase("saved")) {
-                if (!player.hasPermission("directionhud.destination.saving")) return true;
+                if (!Utl.checkEnabled.saving(player)) return true;
                 if (args.length == 2) Destination.setName(player, args[1], false);
                 if (args.length == 3 && args[2].equalsIgnoreCase("convert")) Destination.setName(player, args[1], true);
                 return true;
@@ -136,13 +124,13 @@ public class Destination {
             if (!Utl.isInt(args[0]) || !Utl.isInt(args[1])) return true;
             // /dest set x z
             if (args.length == 2)
-                Destination.set(player,new Loc(Utl.tryInt(args[0]),Utl.tryInt(args[1]),Utl.player.dim(player)),false);
+                Destination.set(player,new Loc(Utl.tryInt(args[0]),Utl.tryInt(args[1]),player.getDimension()),false);
             // /dest set x z DIM
             if (args.length == 3 && !Utl.isInt(args[2]))
                 Destination.set(player,new Loc(Utl.tryInt(args[0]),Utl.tryInt(args[1]),args[2]),false);
             // /dest set x y z
             if (args.length == 3 && Utl.isInt(args[2]))
-                Destination.set(player,new Loc(Utl.tryInt(args[0]),Utl.tryInt(args[1]),Utl.tryInt(args[2]),Utl.player.dim(player)),false);
+                Destination.set(player,new Loc(Utl.tryInt(args[0]),Utl.tryInt(args[1]),Utl.tryInt(args[2]),player.getDimension()),false);
             // /dest set x z DIM (convert)
             if (args.length == 4 && !Utl.isInt(args[2]))
                 Destination.set(player,new Loc(Utl.tryInt(args[0]),Utl.tryInt(args[1]),args[2]),true);
@@ -161,7 +149,7 @@ public class Destination {
                 return true;
             }
             if (!Utl.inBetween(args.length, 2, 6)) {
-                player.spigot().sendMessage(CUtl.usage(CUtl.cmdUsage.destAdd()));
+                player.sendMessage(CUtl.usage(CUtl.cmdUsage.destAdd()));
                 return true;
             }
             //dest saved add <name> color
@@ -173,12 +161,12 @@ public class Destination {
             }
             //dest saved add <name> x y
             if (args.length == 3) {
-                saved.add(true,player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),Utl.player.dim(player)),null);
+                saved.add(true,player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),player.getDimension()),null);
                 return true;
             }
             //dest saved add <name> x y color
             if (args.length == 4 && !Utl.isInt(args[3]) && !Utl.dim.checkValid(args[3])) {
-                saved.add(true,player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),Utl.player.dim(player)),args[3]);
+                saved.add(true,player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),player.getDimension()),args[3]);
                 return true;
             }
             //dest saved add <name> x y DIM
@@ -188,7 +176,7 @@ public class Destination {
             }
             //dest saved add <name> x y z
             if (args.length == 4 && Utl.isInt(args[3])) {
-                saved.add(true,player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),Utl.tryInt(args[3]),Utl.player.dim(player)),null);
+                saved.add(true,player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),Utl.tryInt(args[3]),player.getDimension()),null);
                 return true;
             }
             //dest saved add <name> x y DIM color
@@ -198,7 +186,7 @@ public class Destination {
             }
             //dest saved add <name> x y z color
             if (args.length == 5 && !Utl.dim.checkValid(args[4])) {
-                saved.add(true,player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),Utl.tryInt(args[3]),Utl.player.dim(player)),args[4]);
+                saved.add(true,player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),Utl.tryInt(args[3]),player.getDimension()),args[4]);
                 return true;
             }
             //dest saved add <name> x y z DIM
@@ -212,12 +200,12 @@ public class Destination {
             return true;
         }
         public static boolean removeCMD(Player player, String[] args) {
-            if (!player.hasPermission("directionhud.destination.saving")) return true;
+            if (!Utl.checkEnabled.saving(player)) return true;
             if (args.length == 1) saved.delete(true, player, args[0]);
             return true;
         }
         public static boolean savedCMD(Player player, String[] args) {
-            if (!player.hasPermission("directionhud.destination.saving")) return true;
+            if (!Utl.checkEnabled.saving(player)) return true;
             if (args.length == 0) {
                 saved.UI(player, 1);
                 return true;
@@ -230,23 +218,23 @@ public class Destination {
                 if (args.length == 1) return true;
                 if (args.length == 2) saved.viewDestinationUI(true, player, args[1]);
                 if (args[1].equalsIgnoreCase("name")) {
-                    if (args.length == 3) player.spigot().sendMessage(error("dest.edit.name"));
+                    if (args.length == 3) player.sendMessage(error("dest.edit.name"));
                     if (args.length == 4) saved.editName(true, player, args[2], args[3]);
                 }
                 if (args[1].equalsIgnoreCase("color")) {
-                    if (args.length == 3) player.spigot().sendMessage(error("dest.edit.color"));
+                    if (args.length == 3) player.sendMessage(error("dest.edit.color"));
                     if (args.length == 4) saved.editColor(true, player, args[2], args[3]);
                 }
                 if (args[1].equalsIgnoreCase("order")) {
-                    if (args.length == 3) player.spigot().sendMessage(error("dest.edit.order"));
+                    if (args.length == 3) player.sendMessage(error("dest.edit.order"));
                     if (args.length == 4) saved.editOrder(true, player, args[2], args[3]);
                 }
                 if (args[1].equalsIgnoreCase("dim")) {
-                    if (args.length == 3) player.spigot().sendMessage(error("dest.edit.dimension"));
+                    if (args.length == 3) player.sendMessage(error("dest.edit.dimension"));
                     if (args.length == 4) saved.editDimension(true, player, args[2], args[3]);
                 }
                 if (args[1].equalsIgnoreCase("loc")) {
-                    if (args.length == 3) player.spigot().sendMessage(error("dest.edit.location"));
+                    if (args.length == 3) player.sendMessage(error("dest.edit.location"));
                     if (args.length == 5) saved.editLocation(true,player,args[2],new Loc(Utl.tryInt(args[3]),Utl.tryInt(args[4])));
                     if (args.length == 6) saved.editLocation(true,player,args[2],new Loc(Utl.tryInt(args[3]),Utl.tryInt(args[4]),Utl.tryInt(args[5])));
                 }
@@ -254,7 +242,7 @@ public class Destination {
             }
             //SEND
             if (args[0].equalsIgnoreCase("send")) {
-                if (args.length == 2) player.spigot().sendMessage(error("dest.send.player"));
+                if (args.length == 2) player.sendMessage(error("dest.send.player"));
                 if (args.length == 3) social.send(player,args[2],null,args[1]);
                 return true;
             }
@@ -262,7 +250,7 @@ public class Destination {
             if (args[0].equalsIgnoreCase("add")) {
                 return addCMD(player,Utl.trimStart(args,1));
             }
-            player.spigot().sendMessage(CUtl.usage(CUtl.cmdUsage.destSaved()));
+            player.sendMessage(CUtl.usage(CUtl.cmdUsage.destSaved()));
             return true;
         }
         public static boolean lastdeathCMD(Player player, String[] args) {
@@ -277,7 +265,7 @@ public class Destination {
                 }
                 return true;
             }
-            player.spigot().sendMessage(CUtl.usage(CUtl.cmdUsage.destLastdeath()));
+            player.sendMessage(CUtl.usage(CUtl.cmdUsage.destLastdeath()));
             return true;
         }
         public static boolean settingsCMD(Player player, String[] args) {
@@ -291,18 +279,18 @@ public class Destination {
             return true;
         }
         public static boolean sendCMD(Player player, String[] args) {
-            if (!showSend(player)) return true;
+            if (!Utl.checkEnabled.send(player)) return true;
             if (!Utl.inBetween(args.length, 3, 6)) {
-                player.spigot().sendMessage(CUtl.usage(CUtl.cmdUsage.destSend()));
+                player.sendMessage(CUtl.usage(CUtl.cmdUsage.destSend()));
                 return true;
             }
             // /dest send <IGN> saved <name>
-            if (args[1].equalsIgnoreCase("saved") && player.hasPermission("directionhud.destination.saving")) {
-                if (args.length > 3) player.spigot().sendMessage(CUtl.usage(CUtl.cmdUsage.destSend()));
+            if (args[1].equalsIgnoreCase("saved") && Utl.checkEnabled.saving(player)) {
+                if (args.length > 3) player.sendMessage(CUtl.usage(CUtl.cmdUsage.destSend()));
                 else social.send(player,args[0],null,args[2]);
                 return true;
             }
-            String pDIM = Utl.player.dim(player);
+            String pDIM = player.getDimension();
             //dest send <IGN> <xyz or xy> (dimension)
             //dest send <IGN> (name) <xyz or xy> (dimension)
             //dest send IGN x z
@@ -344,7 +332,7 @@ public class Destination {
             return true;
         }
         public static boolean trackCMD(Player player, String[] args) {
-            if (!showTracking(player)) return true;
+            if (!Utl.checkEnabled.track(player)) return true;
             //dest track <name>
             if (args.length == 1) {
                 if (args[0].equalsIgnoreCase(".clear")) {
@@ -365,7 +353,7 @@ public class Destination {
                     return true;
                 }
             }
-            player.spigot().sendMessage(CUtl.usage(CUtl.cmdUsage.destTrack()));
+            player.sendMessage(CUtl.usage(CUtl.cmdUsage.destTrack()));
             return true;
         }
     }
@@ -373,15 +361,15 @@ public class Destination {
         public static ArrayList<String> base(Player player) {
             ArrayList<String> suggester = new ArrayList<>();
             if (config.deathsaving && PlayerData.get.dest.setting.lastdeath(player)) suggester.add("lastdeath");
-            if (player.hasPermission("directionhud.destination.saving")) {
+            if (Utl.checkEnabled.saving(player)) {
                 suggester.add("add");
                 suggester.add("saved");
             }
             suggester.add("set");
             suggester.add("clear");
             suggester.add("settings");
-            if (Destination.showSend(player)) suggester.add("send");
-            if (Destination.showTracking(player)) suggester.add("track");
+            if (Utl.checkEnabled.send(player)) suggester.add("send");
+            if (Utl.checkEnabled.track(player)) suggester.add("track");
             return suggester;
         }
         public static ArrayList<String> addCMD(Player player, int pos, String[] args) {
@@ -436,7 +424,7 @@ public class Destination {
         }
         public static ArrayList<String> savedCMD(Player player, int pos, String[] args) {
             ArrayList<String> suggester = new ArrayList<>();
-            if (!player.hasPermission("directionhud.destination.saving")) return suggester;
+            if (!Utl.checkEnabled.saving(player)) return suggester;
             // saved add
             // saved edit type name <arg>
             // saved send name <IGN>
@@ -468,9 +456,9 @@ public class Destination {
             if (args[0].equalsIgnoreCase("send")) {
                 // saved send name (<ign>)
                 if (pos != 2) return suggester;
-                for (String s : Utl.player.getList()) {
-                    if (s.equals(Utl.player.name(player))) continue;
-                    suggester.add(s);
+                for (Player s : Utl.getPlayers()) {
+                    if (s.equals(player)) continue;
+                    suggester.add(s.getName());
                 }
                 return suggester;
             }
@@ -497,13 +485,13 @@ public class Destination {
             // set <saved> <name> (convert)
             // set <x> (y) <z> (dim) (convert)
             if (pos == 0) {
-                if (player.hasPermission("directionhud.destination.saving")) suggester.add("saved");
+                if (Utl.checkEnabled.saving(player)) suggester.add("saved");
                 suggester.addAll(Utl.xyzSuggester(player,"x"));
                 return suggester;
             }
             // set <saved, x> ((name) (y))
             if (pos == 1) {
-                if (args[0].equalsIgnoreCase("saved") && player.hasPermission("directionhud.destination.saving")) {
+                if (args[0].equalsIgnoreCase("saved") && Utl.checkEnabled.saving(player)) {
                     suggester.addAll(saved.getNames(player));
                     return suggester;
                 }
@@ -540,15 +528,15 @@ public class Destination {
             // send <player> <saved> <name>
             // send <player> (name) <x> (y) <z> (dimension)
             if (pos == 0) {
-                for (String p : Utl.player.getList()) {
-                    if (p.equals(Utl.player.name(player))) continue;
-                    suggester.add(p);
+                for (Player p : Utl.getPlayers()) {
+                    if (p.equals(player)) continue;
+                    suggester.add(p.getName());
                 }
                 return suggester;
             }
             // send <player> (<saved>, (name), <x>)
             if (pos == 1) {
-                if (player.hasPermission("directionhud.destination.saving")) suggester.add("saved");
+                if (Utl.checkEnabled.saving(player)) suggester.add("saved");
                 suggester.addAll(Utl.xyzSuggester(player,"x"));
                 suggester.add("name");
                 return suggester;
@@ -557,7 +545,7 @@ public class Destination {
             // send <player> (name) (<x>)
             // send <player> <x> ((y))
             if (pos == 2) {
-                if (args[1].equalsIgnoreCase("saved") && player.hasPermission("directionhud.destination.saving")) {
+                if (args[1].equalsIgnoreCase("saved") && Utl.checkEnabled.saving(player)) {
                     suggester.addAll(saved.getNames(player));
                     return suggester;
                 }
@@ -604,9 +592,9 @@ public class Destination {
             // track <player>
             if (pos == 0) {
                 suggester.add(".clear");
-                for (String p : Utl.player.getList()) {
-                    if (p.equals(Utl.player.name(player))) continue;
-                    suggester.add(p);
+                for (Player p : Utl.getPlayers()) {
+                    if (p.equals(player)) continue;
+                    suggester.add(p.getName());
                 }
             }
             return suggester;
@@ -655,27 +643,27 @@ public class Destination {
             List<String> names = getNames(player);
             List<List<String>> all = getList(player);
             if (getList(player).size() >= config.MAXSaved) {
-                if (send) player.spigot().sendMessage(error("dest.saved.max"));
+                if (send) player.sendMessage(error("dest.saved.max"));
                 return;
             }
             if (names.contains(name)) {
-                if (send) player.spigot().sendMessage(error("dest.saved.duplicate"));
+                if (send) player.sendMessage(error("dest.saved.duplicate"));
                 return;
             }
             if (name.equalsIgnoreCase("saved")) {
-                if (send) player.spigot().sendMessage(error("dest.saved.not_allowed"));
+                if (send) player.sendMessage(error("dest.saved.not_allowed"));
                 return;
             }
             if (name.length() > 16) {
-                if (send) player.spigot().sendMessage(error("dest.saved.length",16));
+                if (send) player.sendMessage(error("dest.saved.length",16));
                 return;
             }
             if (!Utl.dim.checkValid(loc.getDIM())) {
-                if (send) player.spigot().sendMessage(error("dimension"));
+                if (send) player.sendMessage(error("dimension"));
                 return;
             }
             if (!loc.hasXYZ()) {
-                player.spigot().sendMessage(error("coordinates"));
+                player.sendMessage(error("coordinates"));
                 return;
             }
             color = Utl.color.fix(color==null?"white":color,false,"white");
@@ -684,42 +672,42 @@ public class Destination {
             if (send) {
                 CTxT buttons = CTxT.of(" ").append(CUtl.CButton.dest.edit(1,"/dest saved edit " + name))
                         .append(" ").append(CUtl.CButton.dest.set("/dest set saved "+name));
-                if (Utl.dim.canConvert(Utl.player.dim(player),loc.getDIM()))
+                if (Utl.dim.canConvert(player.getDimension(),loc.getDIM()))
                     buttons.append(" ").append(CUtl.CButton.dest.convert("/dest set saved "+name+" convert"));
-                player.spigot().sendMessage(CUtl.tag().append(lang("saved.add",loc.getBadge(name,color).append(buttons))).b());
+                player.sendMessage(CUtl.tag().append(lang("saved.add",loc.getBadge(name,color).append(buttons))));
             }
         }
         public static void delete(boolean send, Player player, String name) {
             List<String> names = getNames(player);
             List<List<String>> all = getList(player);
             if (!names.contains(name)) {
-                if (send) player.spigot().sendMessage(error("dest.invalid"));
+                if (send) player.sendMessage(error("dest.invalid"));
                 return;
             }
             int pg = getPGOf(player, name);
             all.remove(names.indexOf(name));
             setList(player, all);
             if (send) {
-                player.spigot().sendMessage(CUtl.tag().append(lang("saved.delete",CTxT.of(name).color(CUtl.sTC()))).b());
-                Utl.player.sendAs("dest saved "+pg, player);
+                player.sendMessage(CUtl.tag().append(lang("saved.delete",CTxT.of(name).color(CUtl.sTC()))));
+                player.performCommand("dest saved "+pg);
             }
         }
         public static void editName(boolean send, Player player, String name, String newName) {
             List<String> names = getNames(player);
             if (!names.contains(name)) {
-                if (send) player.spigot().sendMessage(error("dest.invalid"));
+                if (send) player.sendMessage(error("dest.invalid"));
                 return;
             }
             if (names.contains(newName)) {
-                if (send) player.spigot().sendMessage(error("dest.saved.duplicat"));
+                if (send) player.sendMessage(error("dest.saved.duplicat"));
                 return;
             }
             if (newName.equalsIgnoreCase("saved")) {
-                if (send) player.spigot().sendMessage(error("dest.saved.not_allowed"));
+                if (send) player.sendMessage(error("dest.saved.not_allowed"));
                 return;
             }
             if (newName.length() > 16) {
-                if (send) player.spigot().sendMessage(error("dest.saved.length", 16));
+                if (send) player.sendMessage(error("dest.saved.length", 16));
                 return;
             }
             int i = names.indexOf(name);
@@ -729,18 +717,18 @@ public class Destination {
             all.set(i,current);
             setList(player, all);
             if (send) {
-                player.spigot().sendMessage(CUtl.tag().append(lang("saved.name",CTxT.of(name).color(CUtl.sTC()),CTxT.of(newName).color(CUtl.sTC()))).b());
-                Utl.player.sendAs("dest saved edit "+newName, player);
+                player.sendMessage(CUtl.tag().append(lang("saved.name",CTxT.of(name).color(CUtl.sTC()),CTxT.of(newName).color(CUtl.sTC()))));
+                player.performCommand("dest saved edit "+newName);
             }
         }
         public static void editOrder(boolean send, Player player, String name, String orderNumber) {
             List<String> names = getNames(player);
             if (!names.contains(name)) {
-                if (send) player.spigot().sendMessage(error("dest.invalid"));
+                if (send) player.sendMessage(error("dest.invalid"));
                 return;
             }
             if (!Utl.isInt(orderNumber)) {
-                if (send) player.spigot().sendMessage(error("number"));
+                if (send) player.sendMessage(error("number"));
                 return;
             }
             int newOrderNum = Integer.parseInt(orderNumber);
@@ -757,23 +745,23 @@ public class Destination {
             }
             setList(player, all);
             if (send) {
-                player.spigot().sendMessage(CUtl.tag().append(lang("saved.order",CTxT.of(name).color(CUtl.sTC()),CTxT.of(""+(getList(player).indexOf(move)+1)).color(CUtl.sTC()))).b());
-                Utl.player.sendAs("dest saved edit "+name, player);
+                player.sendMessage(CUtl.tag().append(lang("saved.order",CTxT.of(name).color(CUtl.sTC()),CTxT.of(""+(getList(player).indexOf(move)+1)).color(CUtl.sTC()))));
+                player.performCommand("dest saved edit "+name);
             }
         }
         public static void editLocation(boolean send, Player player, String name, Loc loc) {
             List<String> names = getNames(player);
             if (!names.contains(name)) {
-                if (send) player.spigot().sendMessage(error("dest.invalid"));
+                if (send) player.sendMessage(error("dest.invalid"));
                 return;
             }
             if (!loc.hasXYZ()) {
-                if (send) player.spigot().sendMessage(error("coordinates"));
+                if (send) player.sendMessage(error("coordinates"));
                 return;
             }
             int i = names.indexOf(name);
             if (getLocs(player).get(i).getXYZ().equals(loc.getXYZ())) {
-                if (send) player.spigot().sendMessage(error("dest.saved.duplicate.coordinates", loc.getXYZ()));
+                if (send) player.sendMessage(error("dest.saved.duplicate.coordinates", loc.getXYZ()));
                 return;
             }
             loc.setDIM(getLocs(player).get(i).getDIM());
@@ -783,24 +771,24 @@ public class Destination {
             all.set(i,current);
             setList(player, all);
             if (send) {
-                player.spigot().sendMessage(CUtl.tag().append(lang("saved.edit",
-                        CTxT.of(name).color(CUtl.sTC()),CTxT.of(loc.getXYZ()).color(CUtl.sTC()))).b());
-                Utl.player.sendAs("dest saved edit "+name, player);
+                player.sendMessage(CUtl.tag().append(lang("saved.edit",
+                        CTxT.of(name).color(CUtl.sTC()),CTxT.of(loc.getXYZ()).color(CUtl.sTC()))));
+                player.performCommand("dest saved edit "+name);
             }
         }
         public static void editDimension(boolean send, Player player, String name, String dimension) {
             List<String> names = getNames(player);
             if (!names.contains(name)) {
-                if (send) player.spigot().sendMessage(error("dest.invalid"));
+                if (send) player.sendMessage(error("dest.invalid"));
                 return;
             }
             int i = names.indexOf(name);
             if (!Utl.dim.checkValid(dimension)) {
-                if (send) player.spigot().sendMessage(error("dimension"));
+                if (send) player.sendMessage(error("dimension"));
                 return;
             }
             if (getLocs(player).get(i).getDIM().equalsIgnoreCase(dimension)) {
-                if (send) player.spigot().sendMessage(error("dest.saved.duplicate.dimension", Utl.dim.getName(dimension).toUpperCase()));
+                if (send) player.sendMessage(error("dest.saved.duplicate.dimension", Utl.dim.getName(dimension).toUpperCase()));
                 return;
             }
             Loc loc = getLocs(player).get(i);
@@ -811,20 +799,20 @@ public class Destination {
             all.set(i,current);
             setList(player, all);
             if (send) {
-                player.spigot().sendMessage(CUtl.tag().append(lang("saved.dimension",CTxT.of(name).color(CUtl.sTC()),CTxT.of(Utl.dim.getName(dimension).toUpperCase()).color(CUtl.sTC()))).b());
-                Utl.player.sendAs("dest saved edit "+name, player);
+                player.sendMessage(CUtl.tag().append(lang("saved.dimension",CTxT.of(name).color(CUtl.sTC()),CTxT.of(Utl.dim.getName(dimension).toUpperCase()).color(CUtl.sTC()))));
+                player.performCommand("dest saved edit "+name);
             }
         }
         public static void editColor(boolean send, Player player, String name, String color) {
             List<String> names = getNames(player);
             if (!names.contains(name)) {
-                if (send) player.spigot().sendMessage(error("dest.invalid"));
+                if (send) player.sendMessage(error("dest.invalid"));
                 return;
             }
             int i = names.indexOf(name);
             color = Utl.color.fix(color,false,"white");
             if (getColors(player).get(i).equals(color.toLowerCase())) {
-                if (send) player.spigot().sendMessage(error("dest.saved.duplicate.color",
+                if (send) player.sendMessage(error("dest.saved.duplicate.color",
                         CTxT.of(getColors(player).get(i)).color(getColors(player).get(i))));
                 return;
             }
@@ -834,14 +822,14 @@ public class Destination {
             all.set(i,current);
             setList(player, all);
             if (send) {
-                player.spigot().sendMessage(CUtl.tag().append(lang("saved.color",CTxT.of(name).color(CUtl.sTC()),CTxT.of(Utl.color.formatPlayer(color,true)).color(color))).b());
-                Utl.player.sendAs("dest saved edit "+name, player);
+                player.sendMessage(CUtl.tag().append(lang("saved.color",CTxT.of(name).color(CUtl.sTC()),CTxT.of(Utl.color.formatPlayer(color,true)).color(color))));
+                player.performCommand("dest saved edit "+name);
             }
         }
         public static void viewDestinationUI(boolean send, Player player, String name) {
             List<String> names = getNames(player);
             if (!names.contains(name)) {
-                if (send) player.spigot().sendMessage(error("dest.invalid"));
+                if (send) player.sendMessage(error("dest.invalid"));
                 return;
             }
             CTxT msg = CTxT.of(" ");
@@ -873,7 +861,7 @@ public class Destination {
             //SET BUTTON
             msg.append(CUtl.CButton.dest.set("/dest set saved " + names.get(i))).append(" ");
             //CONVERT
-            if (Utl.dim.canConvert(Utl.player.dim(player),getLocs(player).get(i).getDIM()))
+            if (Utl.dim.canConvert(player.getDimension(),getLocs(player).get(i).getDIM()))
                 msg.append(CUtl.CButton.dest.convert("/dest set saved " + names.get(i) + " convert"));
             //DELETE
             msg.append("\n\n ")
@@ -882,7 +870,7 @@ public class Destination {
                     //BACK
                     .append(CUtl.CButton.back("/dest saved " + getPGOf(player, name)))
                     .append(CTxT.of("\n                                               ").strikethrough(true));
-            player.spigot().sendMessage(msg.b());
+            player.sendMessage(msg);
         }
         public static void UI(Player player, int pg) {
             CTxT addB = CUtl.TBtn("dest.add").btn(true).color(CUtl.c.add).cEvent(2,"/dest add ").hEvent(
@@ -895,7 +883,7 @@ public class Destination {
                 pg = 1;
             }
             if (pg == 0) pg = 1;
-            String plDimension = Utl.player.dim(player);
+            String plDimension = player.getDimension();
             if (names.size() != 0) {
                 for (int i = 1; i <= 8; i++) {
                     int get = i + ((pg - 1) * 8) - 1;
@@ -921,7 +909,7 @@ public class Destination {
                         .append(CTxT.of(">>").btn(true).color('7')).append(" ").append(addB).append(" ")
                         .append(CUtl.CButton.back("/dest"))
                         .append(CTxT.of("\n                                               ").strikethrough(true));
-                player.spigot().sendMessage(msg.b());
+                player.sendMessage(msg);
                 return;
             }
             int finalPg = pg;
@@ -934,7 +922,7 @@ public class Destination {
             msg.append(" ").append(addB).append(" ")
                     .append(CUtl.CButton.back("/dest"))
                     .append(CTxT.of("\n                                               ").strikethrough(true));
-            player.spigot().sendMessage(msg.b());
+            player.sendMessage(msg);
         }
     }
     public static class lastdeath {
@@ -971,14 +959,14 @@ public class Destination {
                 msg.append(loc.getBadge()).append("\n  ")
                         .append(CUtl.CButton.dest.add("/dest add "+Utl.dim.getName(dim).toLowerCase()+"_death "+loc.getXYZ()+" "+dim+" "+Utl.dim.getHEX(dim).substring(1)))
                         .append(" ").append(CUtl.CButton.dest.set("/dest set "+loc.getXYZ()+" "+loc.getDIM()));
-                if (Utl.dim.canConvert(Utl.player.dim(player),dim)) msg.append(" ").append(CUtl.CButton.dest.convert("/dest set "+loc.getXYZ()+" "+dim+" convert"));
+                if (Utl.dim.canConvert(player.getDimension(),dim)) msg.append(" ").append(CUtl.CButton.dest.convert("/dest set "+loc.getXYZ()+" "+dim+" convert"));
                 msg.append("\n ");
             }
             int reset = 1;
-            ChatColor resetC = CUtl.TC('c');
+            char resetC = 'c';
             if (num == 0) {
                 reset = 0;
-                resetC = CUtl.TC('7');
+                resetC = '7';
                 msg.append(lang("lastdeath.no_deaths").color('c')).append("\n");
             }
             msg.append("\n      ")
@@ -986,36 +974,36 @@ public class Destination {
                     .hEvent(CUtl.TBtn("clear.hover_ld",CUtl.TBtn("all").color('c'))))
                     .append("  ").append(CUtl.CButton.back("/dest"))
                     .append(CTxT.of("\n                                  ").strikethrough(true));
-            player.spigot().sendMessage(msg.b());
+            player.sendMessage(msg);
         }
     }
     public static class social {
         public static void send(Player player, String sendPLayer, Loc loc, String name) {
-            Player pl = Utl.player.getFromIdentifier(sendPLayer);
+            Player pl = Player.of(sendPLayer);
             if (pl == null) {
-                player.spigot().sendMessage(error("player", CTxT.of(sendPLayer).color(CUtl.sTC())));
+                player.sendMessage(error("player", CTxT.of(sendPLayer).color(CUtl.sTC())));
                 return;
             }
             if (!PlayerData.get.dest.setting.send(player)) {
-                player.spigot().sendMessage(error("disabled"));
+                player.sendMessage(error("disabled"));
                 return;
             }
             if (pl == player) {
-                player.spigot().sendMessage(error("dest.send.alone"));
+                player.sendMessage(error("dest.send.alone"));
                 return;
             }
             if (!PlayerData.get.dest.setting.send(pl)) {
-                player.spigot().sendMessage(error("dest.send.disabled_player",CTxT.of(Utl.player.name(pl)).color(CUtl.sTC())));
+                player.sendMessage(error("dest.send.disabled_player",CTxT.of(pl.getName()).color(CUtl.sTC())));
                 return;
             }
             if (name != null && name.length() > 16) {
-                player.spigot().sendMessage(error("dest.saved.length",16));
+                player.sendMessage(error("dest.saved.length",16));
                 return;
             }
             String color = "";
             if (loc == null) {
                 if (!saved.getNames(player).contains(name)) {
-                    player.spigot().sendMessage(error("dest.invalid"));
+                    player.sendMessage(error("dest.invalid"));
                     return;
                 }
                 int i = saved.getNames(player).indexOf(name);
@@ -1023,11 +1011,11 @@ public class Destination {
                 color = saved.getColors(player).get(i);
             }
             if (!loc.hasXYZ()) {
-                player.spigot().sendMessage(error("coordinates"));
+                player.sendMessage(error("coordinates"));
                 return;
             }
             if (!Utl.dim.checkValid(loc.getDIM())) {
-                player.spigot().sendMessage(error("dimension"));
+                player.sendMessage(error("dimension"));
                 return;
             }
             CTxT xyzB = CTxT.of("");
@@ -1035,37 +1023,37 @@ public class Destination {
                 name = lang("send.change_name").getString();
                 xyzB.append(loc.getBadge());
             } else xyzB.append(loc.getBadge(name,color.equals("")?"white":color));
-            String plDimension = Utl.player.dim(pl);
+            String plDimension = pl.getDimension();
 
             CTxT msg = CTxT.of("\n ");
             msg.append(xyzB).append(" ");
-            if (player.hasPermission("directionhud.destination.saving"))
+            if (Utl.checkEnabled.saving(player))
                 msg.append(CUtl.CButton.dest.add("/dest saved add "+name+" "+loc.getXYZ()+" "+loc.getDIM()+" "+color)).append(" ");
             msg.append(CUtl.CButton.dest.set("/dest set "+loc.getXYZ()+" "+loc.getDIM())).append(" ");
             if (Utl.dim.canConvert(plDimension,loc.getDIM()))
                 msg.append(CUtl.CButton.dest.convert("/dest set " +loc.getXYZ()+" "+loc.getDIM()+" convert")).append(" ");
-            player.spigot().sendMessage(CUtl.tag().append(lang("send",CTxT.of(Utl.player.name(pl)).color(CUtl.sTC()),
-                                    CTxT.of("\n ").append(xyzB))).b());
-            pl.spigot().sendMessage(CUtl.tag().append(lang("send_player",CTxT.of(Utl.player.name(player)).color(CUtl.sTC()),msg)).b());
+            player.sendMessage(CUtl.tag().append(lang("send",CTxT.of(pl.getName()).color(CUtl.sTC()),
+                                    CTxT.of("\n ").append(xyzB))));
+            pl.sendMessage(CUtl.tag().append(lang("send_player",CTxT.of(player.getName()).color(CUtl.sTC()),msg)));
         }
         public static class track {
             public static Player getTarget(Player player) {
                 String track = PlayerData.get.dest.getTracking(player);
                 if (track == null) return null;
-                return Utl.player.getFromIdentifier(track);
+                return Player.of(track);
             }
             public static void clear(Player player, CTxT reason) {
                 CTxT msg = CUtl.tag().append(lang("track.clear"));
                 if (PlayerData.get.dest.getTracking(player) == null) {
-                    player.spigot().sendMessage(error("dest.track.cleared"));
+                    player.sendMessage(error("dest.track.cleared"));
                     return;
                 }
                 clear(player);
                 if (reason == null) {
-                    player.spigot().sendMessage(msg.b());
+                    player.sendMessage(msg);
                     return;
                 }
-                player.spigot().sendMessage(msg.append("\n ").append(reason).b());
+                player.sendMessage(msg.append("\n ").append(reason));
             }
             public static void clear(Player player) {
                 for (String s: PlayerData.oneTimeMap.get(player).keySet())
@@ -1073,79 +1061,79 @@ public class Destination {
                 PlayerData.set.dest.setTracking(player,null);
             }
             public static void set(Player player, Player pl, boolean send) {
-                if (config.online) PlayerData.set.dest.setTracking(player,Utl.player.uuid(pl));
-                else PlayerData.set.dest.setTracking(player,Utl.player.name(pl));
+                if (config.online) PlayerData.set.dest.setTracking(player,pl.getUUID());
+                else PlayerData.set.dest.setTracking(player,pl.getName());
                 if (!send) return;
-                player.spigot().sendMessage(CUtl.tag().append(lang("track.accepted",CTxT.of(Utl.player.name(pl)).color(CUtl.sTC()))).b());
-                player.spigot().sendMessage(setMSG(player).b());
-                pl.spigot().sendMessage(CUtl.tag()
-                        .append(lang("track.accept", CTxT.of(Utl.player.name(player)).color(CUtl.sTC())))
+                player.sendMessage(CUtl.tag().append(lang("track.accepted",CTxT.of(pl.getName()).color(CUtl.sTC()))));
+                player.sendMessage(setMSG(player));
+                pl.sendMessage(CUtl.tag()
+                        .append(lang("track.accept", CTxT.of(player.getName()).color(CUtl.sTC())))
                         .append(" ")
                         .append(CUtl.TBtn("off").btn(true).color('c').cEvent(1,"/dest settings track false n").hEvent(
                                 CTxT.of(CUtl.cmdUsage.destSettings()).color('c').append("\n").append(
-                                        CUtl.TBtn("state.hover",CUtl.TBtn("off").color('c'))))).b());
+                                        CUtl.TBtn("state.hover",CUtl.TBtn("off").color('c'))))));
             }
             public static void initialize(Player player, String player2) {
-                Player pl = Utl.player.getFromIdentifier(player2);
+                Player pl = Player.of(player2);
                 if (pl == null) {
-                    player.spigot().sendMessage(error("player",CTxT.of(player2).color(CUtl.sTC())));
+                    player.sendMessage(error("player",CTxT.of(player2).color(CUtl.sTC())));
                     return;
                 }
                 if (pl == player) {
-                    player.spigot().sendMessage(error("dest.track.alone"));
+                    player.sendMessage(error("dest.track.alone"));
                     return;
                 }
                 if (!PlayerData.get.dest.setting.track(player)) {
-                    player.spigot().sendMessage(error("disabled"));
+                    player.sendMessage(error("disabled"));
                     return;
                 }
                 if (!PlayerData.get.dest.setting.track(pl)) {
-                    player.spigot().sendMessage(error("dest.track.disabled",CTxT.of(Utl.player.name(pl)).color(CUtl.sTC())));
+                    player.sendMessage(error("dest.track.disabled",CTxT.of(pl.getName()).color(CUtl.sTC())));
                     return;
                 }
                 if (PlayerData.get.dest.getTrackPending(player)) {
-                    player.spigot().sendMessage(error("dest.track.pending"));
+                    player.sendMessage(error("dest.track.pending"));
                     return;
                 }
                 if (getTarget(player) != null && Objects.equals(getTarget(player), pl)) {
-                    player.spigot().sendMessage(error("dest.track.already_tracking",CTxT.of(Utl.player.name(pl)).color(CUtl.sTC())));
+                    player.sendMessage(error("dest.track.already_tracking",CTxT.of(pl.getName()).color(CUtl.sTC())));
                     return;
                 }
                 String trackID = Utl.createID();
                 PlayerData.set.dest.track.id(player, trackID);
                 PlayerData.set.dest.track.expire(player, 90);
-                PlayerData.set.dest.track.target(player, Utl.player.name(pl));
-                player.spigot().sendMessage(CUtl.tag().append(lang("track",CTxT.of(Utl.player.name(pl)).color(CUtl.sTC())))
-                        .append("\n ").append(lang("track_expire", 90).color('7').italic(true)).b());
-                pl.spigot().sendMessage(CUtl.tag().append(lang("track_player",CTxT.of(Utl.player.name(player)).color(CUtl.sTC()))).append("\n ")
-                        .append(CUtl.TBtn("accept").btn(true).color('a').cEvent(1,"/dest track acp "+Utl.player.name(player)+" "+trackID)
+                PlayerData.set.dest.track.target(player, pl.getName());
+                player.sendMessage(CUtl.tag().append(lang("track",CTxT.of(pl.getName()).color(CUtl.sTC())))
+                        .append("\n ").append(lang("track_expire", 90).color('7').italic(true)));
+                pl.sendMessage(CUtl.tag().append(lang("track_player",CTxT.of(player.getName()).color(CUtl.sTC()))).append("\n ")
+                        .append(CUtl.TBtn("accept").btn(true).color('a').cEvent(1,"/dest track acp "+player.getName()+" "+trackID)
                                 .hEvent(CUtl.TBtn("accept.hover"))).append(" ")
-                        .append(CUtl.TBtn("deny").btn(true).color('c').cEvent(1,"/dest track dny "+Utl.player.name(player)+" "+trackID)
-                                .hEvent(CUtl.TBtn("deny.hover"))).b());
+                        .append(CUtl.TBtn("deny").btn(true).color('c').cEvent(1,"/dest track dny "+player.getName()+" "+trackID)
+                                .hEvent(CUtl.TBtn("deny.hover"))));
             }
             public static void accept(Player pl, String player2, String ID) {
-                Player player = Utl.player.getFromIdentifier(player2);
+                Player player = Player.of(player2);
                 // player is tracker, pl is tracked
                 if (player == null) {
-                    pl.spigot().sendMessage(error("player",CTxT.of(player2).color(CUtl.sTC())));
+                    pl.sendMessage(error("player",CTxT.of(player2).color(CUtl.sTC())));
                     return;
                 }
                 if (pl == player) {
-                    pl.spigot().sendMessage(error("how"));
+                    pl.sendMessage(error("how"));
                     return;
                 }
                 if (!PlayerData.get.dest.getTrackPending(player) || !PlayerData.get.dest.track.id(player).equals(ID)) {
                     //expired
-                    pl.spigot().sendMessage(error("dest.track.expired"));
+                    pl.sendMessage(error("dest.track.expired"));
                     return;
                 }
                 if (!PlayerData.get.dest.setting.track(player)) {
-                    pl.spigot().sendMessage(error("dest.track.disabled",CTxT.of(Utl.player.name(pl)).color(CUtl.sTC())));
+                    pl.sendMessage(error("dest.track.disabled",CTxT.of(pl.getName()).color(CUtl.sTC())));
                     PlayerData.set.dest.setTrackNull(player);
                     return;
                 }
-                if (!Objects.equals(PlayerData.get.dest.track.target(player), Utl.player.name(pl))) {
-                    pl.spigot().sendMessage(error("how"));
+                if (!Objects.equals(PlayerData.get.dest.track.target(player), pl.getName())) {
+                    pl.sendMessage(error("how"));
                     return;
                 }
                 set(player, pl,true);
@@ -1153,26 +1141,26 @@ public class Destination {
             }
             public static void deny(Player pl, String player2, String ID) {
                 // player is tracker, pl is tracked
-                Player player = Utl.player.getFromIdentifier(player2);
+                Player player = Player.of(player2);
                 if (player == null) {
-                    pl.spigot().sendMessage(error("player",CTxT.of(player2).color(CUtl.sTC())));
+                    pl.sendMessage(error("player",CTxT.of(player2).color(CUtl.sTC())));
                     return;
                 }
                 if (pl == player) {
-                    pl.spigot().sendMessage(error("how"));
+                    pl.sendMessage(error("how"));
                     return;
                 }
                 if (PlayerData.get.dest.track.id(player) == null || !PlayerData.get.dest.track.id(player).equals(ID)) {
-                    pl.spigot().sendMessage(error("dest.track.expired"));
+                    pl.sendMessage(error("dest.track.expired"));
                     return;
                 }
-                if (!Objects.equals(PlayerData.get.dest.track.target(player), Utl.player.name(pl))) {
-                    pl.spigot().sendMessage(error("how"));
+                if (!Objects.equals(PlayerData.get.dest.track.target(player), pl.getName())) {
+                    pl.sendMessage(error("how"));
                     return;
                 }
-                player.spigot().sendMessage(CUtl.tag().append(lang("track.denied",CTxT.of(Utl.player.name(pl)).color(CUtl.sTC()))).b());
+                player.sendMessage(CUtl.tag().append(lang("track.denied",CTxT.of(pl.getName()).color(CUtl.sTC()))));
                 PlayerData.set.dest.setTrackNull(player);
-                pl.spigot().sendMessage(CUtl.tag().append(lang("track.deny",CTxT.of(Utl.player.name(player)).color(CUtl.sTC()))).b());
+                pl.sendMessage(CUtl.tag().append(lang("track.deny",CTxT.of(player.getName()).color(CUtl.sTC()))));
             }
         }
     }
@@ -1198,7 +1186,7 @@ public class Destination {
             CTxT msg = CUtl.tag();
             if (type.equals("autoclearrad")) {
                 if (!Utl.isInt(setting)) {
-                    player.spigot().sendMessage(error("number"));
+                    player.sendMessage(error("number"));
                     return;
                 }
                 int i = Integer.parseInt(setting);
@@ -1262,7 +1250,7 @@ public class Destination {
                 msg.append(lang("setting.particle.tracking.set", onoff));
             }
             if (Return) UI(player, msg);
-            else player.spigot().sendMessage(msg.b());
+            else player.sendMessage(msg);
         }
         public static CTxT toggleB(boolean button) {
             return CUtl.TBtn(button?"on":"off").btn(true).color(button?'a':'c').hEvent(CUtl.TBtn("state.hover",
@@ -1338,7 +1326,7 @@ public class Destination {
                             .hEvent(CUtl.TBtn("dest.settings.reset.hover",CUtl.TBtn("all").color('c'))))
                     .append("  ").append(CUtl.CButton.back("/dest")).append("\n")
                     .append(CTxT.of("                              ").strikethrough(true));
-            player.spigot().sendMessage(msg.b());
+            player.sendMessage(msg);
         }
     }
     public static void UI(Player player) {
@@ -1348,9 +1336,9 @@ public class Destination {
         boolean line1Free = false;
         boolean line2Free = !(PlayerData.get.dest.setting.lastdeath(player) && config.deathsaving);
         boolean trackBig = PlayerData.get.dest.getTracking(player) != null;
-        boolean sendThird = showSend(player);
+        boolean sendThird = Utl.checkEnabled.send(player);
         //SAVED + ADD
-        if (player.hasPermission("directionhud.destination.saving")) {
+        if (Utl.checkEnabled.saving(player)) {
             msg.append(CUtl.CButton.dest.saved()).append(CUtl.CButton.dest.add());
             if (!line2Free) msg.append("        ");
             else msg.append("  ");
@@ -1360,7 +1348,7 @@ public class Destination {
         if (line1Free) msg.append(" ");
         else msg.append("\n\n ");
         //LASTDEATH
-        if (PlayerData.get.dest.setting.lastdeath(player) && config.deathsaving) {
+        if (Utl.checkEnabled.lastdeath(player)) {
             msg.append(CUtl.CButton.dest.lastdeath());
             if (line1Free) {
                 line1Free = false;
@@ -1375,7 +1363,7 @@ public class Destination {
         } else if (line2Free) msg.append("  ");
         else msg.append("\n\n ");
         //SEND
-        if (showSend(player)) {
+        if (Utl.checkEnabled.send(player)) {
             msg.append(CUtl.CButton.dest.send());
             if (line2Free && !line1Free) {
                 msg.append("\n\n ");
@@ -1385,13 +1373,13 @@ public class Destination {
             else msg.append("   ");
         }
         //TRACK
-        if (showTracking(player)) {
+        if (Utl.checkEnabled.track(player)) {
             msg.append(CUtl.CButton.dest.track());
             if (trackBig) msg.append(CUtl.CButton.dest.trackX());
             if (line2Free && !line1Free) {
                 msg.append("\n\n ");
             } else if (trackBig && line2Free) {
-                if (showSend(player)) msg.append(" ");
+                if (Utl.checkEnabled.send(player)) msg.append(" ");
                 else msg.append("   ");
             } else if (sendThird && trackBig) {
                 msg.append(" ");
@@ -1399,6 +1387,6 @@ public class Destination {
         }
         //back
         msg.append(CUtl.CButton.back("/directionhud")).append(CTxT.of("\n                                  ").strikethrough(true));
-        player.spigot().sendMessage(msg.b());
+        player.sendMessage(msg);
     }
 }

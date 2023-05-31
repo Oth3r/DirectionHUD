@@ -1,12 +1,12 @@
 package one.oth3r.directionhud.commands;
 
+import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.CUtl;
 import one.oth3r.directionhud.utils.Utl;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,10 +14,12 @@ import java.util.List;
 public class HUDCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player player)) {
+        if (!(sender instanceof org.bukkit.entity.Player plr)) {
             return true;
         }
-        if (!player.hasPermission("directionhud.hud")) return true;
+        Player player = Player.of(plr);
+        assert player != null;
+        if (!Utl.checkEnabled.hud(player)) return true;
         if (args.length == 0) {
             HUD.UI(player, null);
             return true;
@@ -103,17 +105,19 @@ public class HUDCommand implements CommandExecutor, TabCompleter {
             HUD.toggle(player, Boolean.parseBoolean(args[1]), true);
             return true;
         }
-        player.spigot().sendMessage(CUtl.error(CUtl.lang("error.command")));
+        player.sendMessage(CUtl.error(CUtl.lang("error.command")));
         return true;
     }
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         ArrayList<String> suggester = new ArrayList<>();
         int pos = args.length;
-        if (!(sender instanceof Player player)) {
+        if (!(sender instanceof org.bukkit.entity.Player plr)) {
             return new ArrayList<>();
         }
-        if (!player.hasPermission("directionhud.hud")) return suggester;
+        Player player = Player.of(plr);
+        assert player != null;
+        if (!Utl.checkEnabled.hud(player)) return suggester;
         if (pos == 1) {
             suggester.add("edit");
             suggester.add("color");

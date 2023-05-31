@@ -1,8 +1,6 @@
 package one.oth3r.directionhud.utils;
 
 import one.oth3r.directionhud.files.config;
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
@@ -84,17 +82,15 @@ public class Loc {
         this.z = xzBounds(Integer.parseInt(sp.get(2)));
     }
     public Loc(Player player) {
-        Location location = player.getLocation();
-        this.x = xzBounds(location.getBlockX());
-        this.y = yBounds(location.getBlockY());
-        this.z = xzBounds(location.getBlockZ());
-        this.dimension = Utl.player.dim(player);
+        this.x = xzBounds(player.getBlockX());
+        this.y = yBounds(player.getBlockY());
+        this.z = xzBounds(player.getBlockZ());
+        this.dimension = player.getDimension();
     }
     public Loc(Player player, String dimension) {
-        Location location = player.getLocation();
-        this.x = xzBounds(location.getBlockX());
-        this.y = yBounds(location.getBlockY());
-        this.z = xzBounds(location.getBlockZ());
+        this.x = xzBounds(player.getBlockX());
+        this.y = yBounds(player.getBlockY());
+        this.z = xzBounds(player.getBlockZ());
         if (Utl.dim.checkValid(dimension)) this.dimension = dimension;
     }
     public void convertTo(String toDimension) {
@@ -128,7 +124,7 @@ public class Loc {
     }
     public Vector getVec3d(Player player) {
         Integer i = this.y;
-        if (i == null) i = player.getLocation().getBlockY();
+        if (i == null) i = player.getBlockY();
         if (this.x != null && this.z != null) return new Vector(this.x,i,this.z);
         return new Vector(0,0,0);
     }
