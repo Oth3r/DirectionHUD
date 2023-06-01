@@ -118,8 +118,8 @@ public class Utl {
         if (type.equalsIgnoreCase("z")) arr.add(player.getBlockZ()+"");
         return arr;
     }
-    public static List<String> formatSuggestions(ArrayList<String> suggester, String[] args) {
-        List<String> filteredCompletions = new ArrayList<>();
+    public static ArrayList<String> formatSuggestions(ArrayList<String> suggester, String[] args) {
+        ArrayList<String> filteredCompletions = new ArrayList<>();
         String currentInput = args[args.length - 1].toLowerCase();
         for (String completion : suggester) {
             if (completion.toLowerCase().startsWith(currentInput)) {

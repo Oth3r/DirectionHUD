@@ -10,105 +10,28 @@ import java.util.List;
 import java.util.Objects;
 
 public class Destination {
-    private static CTxT lang(String lang) {
-        return CUtl.lang("dest."+lang);
-    }
-    private static CTxT lang(String key, Object... args) {
-        return CUtl.lang("dest."+key, args);
-    }
-    private static CTxT error(String key) {
-        return CUtl.error(CUtl.lang("error."+key));
-    }
-    private static CTxT error(String key, Object... args) {
-        return CUtl.error(CUtl.lang("error."+key, args));
-    }
-    public static Loc get(Player player) {
-        Loc loc = PlayerData.get.dest.getDest(player);
-        if (loc.getXYZ() == null) return new Loc();
-        if (PlayerData.get.dest.setting.ylevel(player) && loc.yExists()) {
-            loc.setY(player.getBlockY());
-        }
-        return loc;
-    }
-    public static boolean checkDist(Player player, Loc loc) {
-        if (PlayerData.get.dest.setting.autoclear(player))
-            return Utl.vec.distance(new Loc(player).getVec(player),loc.getVec(player)) <= PlayerData.get.dest.setting.autoclearrad(player);
-        else return false;
-    }
-    public static int getDist(Player player) {
-        return (int) Utl.vec.distance(new Loc(player).getVec(player),get(player).getVec(player));
-    }
-    public static void clear(Player player) {
-        PlayerData.set.dest.setDest(player, new Loc());
-    }
-    public static void clear(Player player, CTxT reason) {
-        CTxT msg = CUtl.tag().append(lang("changed", lang("changed.cleared").color('a')));
-        if (!get(player).hasXYZ()) {
-            player.sendMessage(error("dest.already_clear"));
-            return;
-        }
-        clear(player);
-        if (reason == null) {
-            player.sendMessage(msg);
-            return;
-        }
-        player.sendMessage(msg.append("\n ").append(reason));
-    }
-    public static CTxT setMSG(Player player) {
-        boolean ac = PlayerData.get.dest.setting.autoclear(player);
-        CTxT btn = CUtl.TBtn(ac?"off":"on").btn(true).color(ac?'c':'a').cEvent(1,"/dest settings autoclear "+!ac+" n").hEvent(
-                CTxT.of(CUtl.cmdUsage.destSettings()).color(ac?'c':'a').append("\n").append(CUtl.TBtn("state.hover",
-                        CUtl.TBtn(ac?"off":"on").color(ac?'c':'a'))));
-        return CTxT.of(" ").append(lang("set.autoclear_"+(ac?"on":"off"),btn).color('7').italic(true));
-    }
-    public static void silentSet(Player player, Loc loc) {
-        if (!checkDist(player, loc)) PlayerData.set.dest.setDest(player, loc);
-    }
-    //convert converts loc dim to player dim
-    public static void set(Player player, Loc loc, boolean convert) {
-        if (!loc.hasXYZ()) {
-            player.sendMessage(error("coordinates"));
-            return;
-        }
-        if (loc.getDIM() == null) {
-            player.sendMessage(error("dimension"));
-            return;
-        }
-        CTxT convertMsg = CTxT.of("");
-        if (Utl.dim.canConvert(player.getDimension(),loc.getDIM()) && convert) {
-            convertMsg.append(" ").append(lang("converted_badge").color('7').italic(true).hEvent(loc.getBadge()));
-            loc.convertTo(player.getDimension());
-        }
-        if (checkDist(player,loc)) {
-            player.sendMessage(error("dest.at"));
-            return;
-        }
-        silentSet(player, loc);
-        player.sendMessage(CUtl.tag().append(lang("set",loc.getBadge())).append(convertMsg));
-        player.sendMessage(setMSG(player));
-    }
-    public static void setName(Player player, String name, boolean convert) {
-        if (!saved.getNames(player).contains(name)) {
-            player.sendMessage(error("dest.invalid"));
-            return;
-        }
-        int key = saved.getNames(player).indexOf(name);
-        CTxT convertMsg = CTxT.of("");
-        Loc loc = saved.getLocs(player).get(key);
-        if (convert && Utl.dim.canConvert(player.getDimension(),loc.getDIM())) {
-            convertMsg.append(" ").append(lang("converted_badge").color('7').italic(true).hEvent(loc.getBadge()));
-            loc.convertTo(player.getDimension());
-        }
-        if (checkDist(player,loc)) {
-            player.sendMessage(error("dest.at"));
-            return;
-        }
-        silentSet(player,loc);
-        player.sendMessage(CUtl.tag().append(lang("set",
-                CTxT.of("").append(loc.getBadge(saved.getNames(player).get(key),saved.getColors(player).get(key))).append(convertMsg))));
-        player.sendMessage(setMSG(player));
-    }
     public static class commandExecutor {
+        public static void logic(Player player, String[] args) {
+            if (!Utl.checkEnabled.destination(player)) return;
+            if (args.length == 0) {
+                UI(player);
+                return;
+            }
+            String type = args[0].toLowerCase();
+            String[] trimmedArgs = Utl.trimStart(args, 1);
+            switch (type) {
+                case "set" -> setCMD(player, trimmedArgs);
+                case "clear" -> clear(player, null);
+                case "saved" -> savedCMD(player, trimmedArgs);
+                case "add" -> addCMD(player, trimmedArgs);
+                case "remove" -> removeCMD(player, trimmedArgs);
+                case "lastdeath" -> lastdeathCMD(player, trimmedArgs);
+                case "settings" -> settingsCMD(player, trimmedArgs);
+                case "send" -> sendCMD(player, trimmedArgs);
+                case "track" -> trackCMD(player, trimmedArgs);
+                default -> player.sendMessage(CUtl.error(CUtl.lang("error.command")));
+            }
+        }
         public static void setCMD(Player player, String[] args) {
             if (!Utl.inBetween(args.length, 2,5)) {
                 player.sendMessage(CUtl.usage(CUtl.cmdUsage.destSet()));
@@ -117,29 +40,29 @@ public class Destination {
             // /dest set saved <name> (convert)
             if (args[0].equalsIgnoreCase("saved")) {
                 if (!Utl.checkEnabled.saving(player)) return;
-                if (args.length == 2) Destination.setName(player, args[1], false);
-                if (args.length == 3 && args[2].equalsIgnoreCase("convert")) Destination.setName(player, args[1], true);
+                if (args.length == 2) setName(player, args[1], false);
+                if (args.length == 3 && args[2].equalsIgnoreCase("convert")) setName(player, args[1], true);
                 return;
             }
             if (!Utl.isInt(args[0]) || !Utl.isInt(args[1])) return;
             // /dest set x z
             if (args.length == 2)
-                Destination.set(player,new Loc(Utl.tryInt(args[0]),Utl.tryInt(args[1]),player.getDimension()),false);
+                set(player,new Loc(Utl.tryInt(args[0]),Utl.tryInt(args[1]),player.getDimension()),false);
             // /dest set x z DIM
             if (args.length == 3 && !Utl.isInt(args[2]))
-                Destination.set(player,new Loc(Utl.tryInt(args[0]),Utl.tryInt(args[1]),args[2]),false);
+                set(player,new Loc(Utl.tryInt(args[0]),Utl.tryInt(args[1]),args[2]),false);
             // /dest set x y z
             if (args.length == 3 && Utl.isInt(args[2]))
-                Destination.set(player,new Loc(Utl.tryInt(args[0]),Utl.tryInt(args[1]),Utl.tryInt(args[2]),player.getDimension()),false);
+                set(player,new Loc(Utl.tryInt(args[0]),Utl.tryInt(args[1]),Utl.tryInt(args[2]),player.getDimension()),false);
             // /dest set x z DIM (convert)
             if (args.length == 4 && !Utl.isInt(args[2]))
-                Destination.set(player,new Loc(Utl.tryInt(args[0]),Utl.tryInt(args[1]),args[2]),true);
+                set(player,new Loc(Utl.tryInt(args[0]),Utl.tryInt(args[1]),args[2]),true);
             // /dest set x y z DIM
             if (args.length == 4 && Utl.isInt(args[2]))
-                Destination.set(player,new Loc(Utl.tryInt(args[0]),Utl.tryInt(args[1]),Utl.tryInt(args[2]),args[3]),false);
+                set(player,new Loc(Utl.tryInt(args[0]),Utl.tryInt(args[1]),Utl.tryInt(args[2]),args[3]),false);
             // /dest set x y z DIM (convert)
             if (args.length == 5)
-                Destination.set(player,new Loc(Utl.tryInt(args[0]),Utl.tryInt(args[1]),Utl.tryInt(args[2]),args[3]),true);
+                set(player,new Loc(Utl.tryInt(args[0]),Utl.tryInt(args[1]),Utl.tryInt(args[2]),args[3]),true);
         }
         public static void addCMD(Player player, String[] args) {
             //dest saved add <name>
@@ -351,6 +274,25 @@ public class Destination {
         }
     }
     public static class commandSuggester {
+        public static ArrayList<String> logic(Player player, int pos, String[] args) {
+            ArrayList<String> suggester = new ArrayList<>();
+            if (!Utl.checkEnabled.destination(player)) return suggester;
+            if (pos == 1) suggester.addAll(commandSuggester.base(player));
+            if (args.length >= 1) {
+                String command = args[0].toLowerCase();
+                String[] trimmedArgs = Utl.trimStart(args, 1);
+                pos -= 2;
+                switch (command) {
+                    case "saved" -> suggester.addAll(commandSuggester.savedCMD(player,pos,trimmedArgs));
+                    case "add" -> suggester.addAll(commandSuggester.addCMD(player,pos,trimmedArgs));
+                    case "settings" -> suggester.addAll(commandSuggester.settingsCMD(pos,trimmedArgs));
+                    case "set" -> suggester.addAll(commandSuggester.setCMD(player,pos,trimmedArgs));
+                    case "send" -> suggester.addAll(commandSuggester.sendCMD(player,pos,trimmedArgs));
+                    case "track" -> suggester.addAll(commandSuggester.trackCMD(player,pos));
+                }
+            }
+            return Utl.formatSuggestions(suggester,args);
+        }
         public static ArrayList<String> base(Player player) {
             ArrayList<String> suggester = new ArrayList<>();
             if (config.deathsaving && PlayerData.get.dest.setting.lastdeath(player)) suggester.add("lastdeath");
@@ -592,6 +534,103 @@ public class Destination {
             }
             return suggester;
         }
+    }
+    private static CTxT lang(String lang) {
+        return CUtl.lang("dest."+lang);
+    }
+    private static CTxT lang(String key, Object... args) {
+        return CUtl.lang("dest."+key, args);
+    }
+    private static CTxT error(String key) {
+        return CUtl.error(CUtl.lang("error."+key));
+    }
+    private static CTxT error(String key, Object... args) {
+        return CUtl.error(CUtl.lang("error."+key, args));
+    }
+    public static Loc get(Player player) {
+        Loc loc = PlayerData.get.dest.getDest(player);
+        if (loc.getXYZ() == null) return new Loc();
+        if (PlayerData.get.dest.setting.ylevel(player) && loc.yExists())
+            loc.setY(player.getBlockY());
+        return loc;
+    }
+    public static boolean checkDist(Player player, Loc loc) {
+        if (PlayerData.get.dest.setting.autoclear(player))
+            return Utl.vec.distance(new Loc(player).getVec(player),loc.getVec(player)) <= PlayerData.get.dest.setting.autoclearrad(player);
+        else return false;
+    }
+    public static int getDist(Player player) {
+        return (int) Utl.vec.distance(new Loc(player).getVec(player),get(player).getVec(player));
+    }
+    public static void clear(Player player) {
+        PlayerData.set.dest.setDest(player, new Loc());
+    }
+    public static void clear(Player player, CTxT reason) {
+        CTxT msg = CUtl.tag().append(lang("changed", lang("changed.cleared").color('a')));
+        if (!get(player).hasXYZ()) {
+            player.sendMessage(error("dest.already_clear"));
+            return;
+        }
+        clear(player);
+        if (reason == null) {
+            player.sendMessage(msg);
+            return;
+        }
+        player.sendMessage(msg.append("\n ").append(reason));
+    }
+    public static CTxT setMSG(Player player) {
+        boolean ac = PlayerData.get.dest.setting.autoclear(player);
+        CTxT btn = CUtl.TBtn(ac?"off":"on").btn(true).color(ac?'c':'a').cEvent(1,"/dest settings autoclear "+!ac+" n").hEvent(
+                CTxT.of(CUtl.cmdUsage.destSettings()).color(ac?'c':'a').append("\n").append(CUtl.TBtn("state.hover",
+                        CUtl.TBtn(ac?"off":"on").color(ac?'c':'a'))));
+        return CTxT.of(" ").append(lang("set.autoclear_"+(ac?"on":"off"),btn).color('7').italic(true));
+    }
+    public static void silentSet(Player player, Loc loc) {
+        if (!checkDist(player, loc)) PlayerData.set.dest.setDest(player, loc);
+    }
+    //convert converts loc dim to player dim
+    public static void set(Player player, Loc loc, boolean convert) {
+        if (!loc.hasXYZ()) {
+            player.sendMessage(error("coordinates"));
+            return;
+        }
+        if (loc.getDIM() == null) {
+            player.sendMessage(error("dimension"));
+            return;
+        }
+        CTxT convertMsg = CTxT.of("");
+        if (Utl.dim.canConvert(player.getDimension(),loc.getDIM()) && convert) {
+            convertMsg.append(" ").append(lang("converted_badge").color('7').italic(true).hEvent(loc.getBadge()));
+            loc.convertTo(player.getDimension());
+        }
+        if (checkDist(player,loc)) {
+            player.sendMessage(error("dest.at"));
+            return;
+        }
+        silentSet(player, loc);
+        player.sendMessage(CUtl.tag().append(lang("set",loc.getBadge())).append(convertMsg));
+        player.sendMessage(setMSG(player));
+    }
+    public static void setName(Player player, String name, boolean convert) {
+        if (!saved.getNames(player).contains(name)) {
+            player.sendMessage(error("dest.invalid"));
+            return;
+        }
+        int key = saved.getNames(player).indexOf(name);
+        CTxT convertMsg = CTxT.of("");
+        Loc loc = saved.getLocs(player).get(key);
+        if (convert && Utl.dim.canConvert(player.getDimension(),loc.getDIM())) {
+            convertMsg.append(" ").append(lang("converted_badge").color('7').italic(true).hEvent(loc.getBadge()));
+            loc.convertTo(player.getDimension());
+        }
+        if (checkDist(player,loc)) {
+            player.sendMessage(error("dest.at"));
+            return;
+        }
+        silentSet(player,loc);
+        player.sendMessage(CUtl.tag().append(lang("set",
+                CTxT.of("").append(loc.getBadge(saved.getNames(player).get(key),saved.getColors(player).get(key))).append(convertMsg))));
+        player.sendMessage(setMSG(player));
     }
     public static class saved {
         public static List<List<String>> getList(Player player) {
