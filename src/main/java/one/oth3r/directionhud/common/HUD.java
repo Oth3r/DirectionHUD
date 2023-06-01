@@ -11,6 +11,82 @@ public class HUD {
     public static int minute;
     public static int hour;
     public static String weatherIcon;
+    public static class commandExecutor {
+        public static void logic(Player player, String[] args) {
+            if (!Utl.checkEnabled.hud(player)) return;
+            if (args.length == 0) {
+                UI(player,null);
+                return;
+            }
+            String type = args[0].toLowerCase();
+            String[] trimmedArgs = Utl.trimStart(args, 1);
+            switch (type) {
+                case "order" -> orderCMD(player, trimmedArgs);
+                case "color" -> colorCMD(player, trimmedArgs);
+                case "toggle" -> toggleCMD(player, trimmedArgs);
+                default -> player.sendMessage(CUtl.error(CUtl.lang("error.command")));
+            }
+        }
+        public static void orderCMD(Player player, String[] args) {
+            //UI
+            if (args.length == 0)
+                HUD.order.UI(player, null, null);
+            //RESET
+            if (args[0].equals("reset") && args.length == 1)
+                HUD.order.reset(player, true);
+            if (args.length != 3) return;
+            String type = args[0].toLowerCase();
+            switch (type) {
+                case "move" -> HUD.order.move(player, args[1], args[2], true);
+                case "state" -> HUD.order.toggle(player, args[1], Boolean.parseBoolean(args[2]), true);
+                case "setting" -> HUD.order.setting(player, args[1], args[2], true);
+            }
+        }
+        public static void colorCMD(Player player, String[] args) {
+            if (args.length == 0) {
+                HUD.color.UI(player, null);
+            }
+            //COLOR
+            if (args.length == 2 && args[0].equals("edt")) {
+                if (args[1].equals("pri")) HUD.color.changeUI(player, "pri", null);
+                if (args[1].equals("sec")) HUD.color.changeUI(player, "sec", null);
+            }
+            //RESET
+            if (args[0].equals("rset")) {
+                if (args.length == 1) HUD.color.reset(player, null, true);
+                if (args.length == 2) HUD.color.reset(player, args[1], true);
+            }
+            //CHANGE COLOR
+            if (args.length != 3) return;
+            String type = args[0].toLowerCase();
+            switch (type) {
+                case "set" -> HUD.color.setColor(player, args[1], args[2], true);
+                case "bold" -> HUD.color.setBold(player, args[1], Boolean.parseBoolean(args[2]), true);
+                case "italics" -> HUD.color.setItalics(player, args[1], Boolean.parseBoolean(args[2]), true);
+                case "rgb" -> HUD.color.setRGB(player, args[1], Boolean.parseBoolean(args[2]), true);
+            }
+        }
+        public static void toggleCMD(Player player, String[] args) {
+            if (args.length == 0) HUD.toggle(player, null, false);
+            if (args.length != 1) return;
+            HUD.toggle(player, Boolean.parseBoolean(args[0]), true);
+        }
+    }
+    public static class commandSuggester {
+        public static ArrayList<String> logic(Player player, int pos, String[] args) {
+            ArrayList<String> suggester = new ArrayList<>();
+            if (!Utl.checkEnabled.hud(player)) return suggester;
+            if (pos == 1) {
+                suggester.add("edit");
+                suggester.add("color");
+                suggester.add("toggle");
+            }
+            if (pos == 4 && args[2].equals("set")) {
+                suggester.add("ffffff");
+            }
+            return Utl.formatSuggestions(suggester,args);
+        }
+    }
     private static CTxT lang(String key) {
         return CUtl.lang("hud."+key);
     }
