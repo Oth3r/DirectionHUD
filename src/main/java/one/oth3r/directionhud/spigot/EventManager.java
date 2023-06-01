@@ -1,7 +1,7 @@
 package one.oth3r.directionhud.spigot;
 
 import one.oth3r.directionhud.common.Destination;
-import one.oth3r.directionhud.spigot.files.PlayerData;
+import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.spigot.files.config;
 import one.oth3r.directionhud.spigot.utils.*;
 import org.bukkit.event.EventHandler;

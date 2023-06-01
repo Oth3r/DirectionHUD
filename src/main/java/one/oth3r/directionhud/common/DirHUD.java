@@ -2,7 +2,7 @@ package one.oth3r.directionhud.common;
 
 import one.oth3r.directionhud.spigot.DirectionHUD;
 import one.oth3r.directionhud.spigot.files.LangReader;
-import one.oth3r.directionhud.spigot.files.PlayerData;
+import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.spigot.files.config;
 import one.oth3r.directionhud.spigot.utils.CTxT;
 import one.oth3r.directionhud.spigot.utils.CUtl;
@@ -66,6 +66,7 @@ public class DirHUD {
         player.sendMessage(msg);
     }
     public static void reload(Player player) {
+        //todo add back reloading config file location & maybe playerdata location
         LangReader.loadLanguageFile();
         config.load();
         for (Player pl: Utl.getPlayers()) {

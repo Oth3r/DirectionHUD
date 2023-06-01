@@ -4,7 +4,7 @@ import one.oth3r.directionhud.spigot.commands.DestinationCommand;
 import one.oth3r.directionhud.spigot.commands.DirHUDCommand;
 import one.oth3r.directionhud.spigot.commands.HUDCommand;
 import one.oth3r.directionhud.spigot.files.LangReader;
-import one.oth3r.directionhud.spigot.files.PlayerData;
+import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.spigot.files.config;
 import one.oth3r.directionhud.spigot.utils.Player;
 import one.oth3r.directionhud.spigot.utils.Utl;

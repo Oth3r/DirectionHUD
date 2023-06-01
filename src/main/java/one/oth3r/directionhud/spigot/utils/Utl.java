@@ -3,7 +3,7 @@ package one.oth3r.directionhud.spigot.utils;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import one.oth3r.directionhud.common.HUD;
-import one.oth3r.directionhud.spigot.files.PlayerData;
+import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.spigot.files.config;
 import org.bukkit.Bukkit;
 import org.bukkit.Particle;
