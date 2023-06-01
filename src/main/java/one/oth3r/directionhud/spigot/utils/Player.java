@@ -5,6 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Particle;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -32,11 +33,9 @@ public class Player {
         return "DirectionHUD Player: "+player.getName();
     }
     public Player() {}
-    @Nullable
-    public static Player of(org.bukkit.entity.Player player) {
+    public static Player of(@Nonnull org.bukkit.entity.Player player) {
         Player instance = new Player();
         instance.player = player;
-        if (instance.player == null) return null;
         return instance;
     }
     @Nullable
@@ -77,6 +76,10 @@ public class Player {
         vec.add(player.getLocation().toVector().getY());
         vec.add(player.getLocation().toVector().getZ());
         return vec;
+    }
+    public Loc getLoc() {
+        if (player == null) return new Loc();
+        else return new Loc(Player.of(player));
     }
     public int getBlockX() {
         return player.getLocation().getBlockX();
