@@ -1,0 +1,9 @@
+apply plugin: 'java'
+
+repositories {
+    mavenCentral()
+    // Add any other repositories you need
+}
+
+dependencies {
+}
