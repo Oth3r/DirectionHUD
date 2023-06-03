@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class Destination {
+    //todo this might actually work, as we are importing the files, you dont need to change the import names or anything right?
     public static class commandExecutor {
         public static void logic(Player player, String[] args) {
             if (!Utl.checkEnabled.destination(player)) return;
