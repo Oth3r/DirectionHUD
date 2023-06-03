@@ -1,6 +1,7 @@
 package one.oth3r.directionhud.spigot.utils;
 
 import net.md_5.bungee.api.ChatMessageType;
+import one.oth3r.directionhud.common.utils.Loc;
 import org.bukkit.Bukkit;
 import org.bukkit.Particle;
 import org.bukkit.util.Vector;

@@ -1,6 +1,9 @@
-package one.oth3r.directionhud.spigot.utils;
+package one.oth3r.directionhud.common.utils;
 
 import one.oth3r.directionhud.spigot.files.config;
+import one.oth3r.directionhud.spigot.utils.CTxT;
+import one.oth3r.directionhud.spigot.utils.Player;
+import one.oth3r.directionhud.spigot.utils.Utl;
 
 import java.util.ArrayList;
 import java.util.Arrays;

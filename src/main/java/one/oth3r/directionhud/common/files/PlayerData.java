@@ -8,7 +8,7 @@ import one.oth3r.directionhud.spigot.DirectionHUD;
 import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.spigot.files.config;
 import one.oth3r.directionhud.spigot.utils.Player;
-import one.oth3r.directionhud.spigot.utils.Loc;
+import one.oth3r.directionhud.common.utils.Loc;
 
 import java.io.File;
 import java.io.FileReader;

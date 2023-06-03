@@ -1,5 +1,6 @@
 package one.oth3r.directionhud.common;
 
+import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.spigot.LoopManager;
 import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.spigot.files.config;
