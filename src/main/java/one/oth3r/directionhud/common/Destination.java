@@ -1,9 +1,12 @@
 package one.oth3r.directionhud.common;
 
 import one.oth3r.directionhud.common.files.PlayerData;
+import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.utils.Loc;
-import one.oth3r.directionhud.spigot.files.config;
-import one.oth3r.directionhud.spigot.utils.*;
+import one.oth3r.directionhud.utils.CTxT;
+import one.oth3r.directionhud.utils.CUtl;
+import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.Utl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -139,23 +142,23 @@ public class Destination {
                 if (args.length == 1) return;
                 if (args.length == 2) saved.viewDestinationUI(true, player, args[1]);
                 if (args[1].equalsIgnoreCase("name")) {
-                    if (args.length == 3) player.sendMessage(error("dest.edit.name"));
+                    if (args.length == 3) player.sendMessage(error("dest.saved.set",lang("saved.name")));
                     if (args.length == 4) saved.editName(true, player, args[2], args[3]);
                 }
                 if (args[1].equalsIgnoreCase("color")) {
-                    if (args.length == 3) player.sendMessage(error("dest.edit.color"));
+                    if (args.length == 3) player.sendMessage(error("dest.saved.set",lang("saved.color")));
                     if (args.length == 4) saved.editColor(true, player, args[2], args[3]);
                 }
                 if (args[1].equalsIgnoreCase("order")) {
-                    if (args.length == 3) player.sendMessage(error("dest.edit.order"));
+                    if (args.length == 3) player.sendMessage(error("dest.saved.set",lang("saved.order")));
                     if (args.length == 4) saved.editOrder(true, player, args[2], args[3]);
                 }
                 if (args[1].equalsIgnoreCase("dim")) {
-                    if (args.length == 3) player.sendMessage(error("dest.edit.dimension"));
+                    if (args.length == 3) player.sendMessage(error("dest.saved.set",lang("saved.dimension")));
                     if (args.length == 4) saved.editDimension(true, player, args[2], args[3]);
                 }
                 if (args[1].equalsIgnoreCase("loc")) {
-                    if (args.length == 3) player.sendMessage(error("dest.edit.location"));
+                    if (args.length == 3) player.sendMessage(error("dest.saved.set",lang("saved.location")));
                     if (args.length == 5) saved.editLocation(true,player,args[2],new Loc(Utl.tryInt(args[3]),Utl.tryInt(args[4])));
                     if (args.length == 6) saved.editLocation(true,player,args[2],new Loc(Utl.tryInt(args[3]),Utl.tryInt(args[4]),Utl.tryInt(args[5])));
                 }
@@ -279,20 +282,21 @@ public class Destination {
             ArrayList<String> suggester = new ArrayList<>();
             if (!Utl.checkEnabled.destination(player)) return suggester;
             if (pos == 1) suggester.addAll(commandSuggester.base(player));
-            if (args.length >= 1) {
+            if (pos > 1) {
                 String command = args[0].toLowerCase();
                 String[] trimmedArgs = Utl.trimStart(args, 1);
-                pos -= 2;
+                int fixedPos = pos - 2;
                 switch (command) {
-                    case "saved" -> suggester.addAll(commandSuggester.savedCMD(player,pos,trimmedArgs));
-                    case "add" -> suggester.addAll(commandSuggester.addCMD(player,pos,trimmedArgs));
-                    case "settings" -> suggester.addAll(commandSuggester.settingsCMD(pos,trimmedArgs));
-                    case "set" -> suggester.addAll(commandSuggester.setCMD(player,pos,trimmedArgs));
-                    case "send" -> suggester.addAll(commandSuggester.sendCMD(player,pos,trimmedArgs));
-                    case "track" -> suggester.addAll(commandSuggester.trackCMD(player,pos));
+                    case "saved" -> suggester.addAll(commandSuggester.savedCMD(player,fixedPos,trimmedArgs));
+                    case "add" -> suggester.addAll(commandSuggester.addCMD(player,fixedPos,trimmedArgs));
+                    case "settings" -> suggester.addAll(commandSuggester.settingsCMD(fixedPos,trimmedArgs));
+                    case "set" -> suggester.addAll(commandSuggester.setCMD(player,fixedPos,trimmedArgs));
+                    case "send" -> suggester.addAll(commandSuggester.sendCMD(player,fixedPos,trimmedArgs));
+                    case "track" -> suggester.addAll(commandSuggester.trackCMD(player,fixedPos));
                 }
             }
-            return Utl.formatSuggestions(suggester,args);
+            if (pos == args.length) return Utl.formatSuggestions(suggester,args);
+            return suggester;
         }
         public static ArrayList<String> base(Player player) {
             ArrayList<String> suggester = new ArrayList<>();
@@ -584,7 +588,7 @@ public class Destination {
         CTxT btn = CUtl.TBtn(ac?"off":"on").btn(true).color(ac?'c':'a').cEvent(1,"/dest settings autoclear "+!ac+" n").hEvent(
                 CTxT.of(CUtl.cmdUsage.destSettings()).color(ac?'c':'a').append("\n").append(CUtl.TBtn("state.hover",
                         CUtl.TBtn(ac?"off":"on").color(ac?'c':'a'))));
-        return CTxT.of(" ").append(lang("set.autoclear_"+(ac?"on":"off"),btn).color('7').italic(true));
+        return CTxT.of(" ").append(lang("set.autoclear",CUtl.lang(ac?"on":"off").italic(true),btn).color('7').italic(true));
     }
     public static void silentSet(Player player, Loc loc) {
         if (!checkDist(player, loc)) PlayerData.set.dest.setDest(player, loc);
@@ -634,6 +638,9 @@ public class Destination {
         player.sendMessage(setMSG(player));
     }
     public static class saved {
+        public static int getIndexFromName(Player player, String name) {
+            return getNames(player).indexOf(name);
+        }
         public static List<List<String>> getList(Player player) {
             return PlayerData.get.dest.getSaved(player);
         }
@@ -673,14 +680,13 @@ public class Destination {
             return (int) Math.round(i) + 1;
         }
         public static void add(boolean send, Player player, String name, Loc loc, String color) {
-            List<String> names = getNames(player);
             List<List<String>> all = getList(player);
             if (getList(player).size() >= config.MAXSaved) {
                 if (send) player.sendMessage(error("dest.saved.max"));
                 return;
             }
-            if (names.contains(name)) {
-                if (send) player.sendMessage(error("dest.saved.duplicate"));
+            if (getNames(player).contains(name)) {
+                if (send) player.sendMessage(error("dest.saved.duplicate",lang("saved.name"),name));
                 return;
             }
             if (name.equalsIgnoreCase("saved")) {
@@ -717,11 +723,14 @@ public class Destination {
                 if (send) player.sendMessage(error("dest.invalid"));
                 return;
             }
+            int index = getIndexFromName(player,name);
+            Loc loc = getLocs(player).get(index);
+            String color = getColors(player).get(index);
             int pg = getPGOf(player, name);
             all.remove(names.indexOf(name));
             setList(player, all);
             if (send) {
-                player.sendMessage(CUtl.tag().append(lang("saved.delete",CTxT.of(name).color(CUtl.sTC()))));
+                player.sendMessage(CUtl.tag().append(lang("saved.delete",loc.getBadge(name,color))));
                 player.performCommand("dest saved "+pg);
             }
         }
@@ -732,7 +741,7 @@ public class Destination {
                 return;
             }
             if (names.contains(newName)) {
-                if (send) player.sendMessage(error("dest.saved.duplicat"));
+                if (send) player.sendMessage(error("dest.saved.duplicate",lang("saved.name"),CTxT.of(newName).color(CUtl.s())));
                 return;
             }
             if (newName.equalsIgnoreCase("saved")) {
@@ -750,7 +759,7 @@ public class Destination {
             all.set(i,current);
             setList(player, all);
             if (send) {
-                player.sendMessage(CUtl.tag().append(lang("saved.name",CTxT.of(name).color(CUtl.sTC()),CTxT.of(newName).color(CUtl.sTC()))));
+                player.sendMessage(CUtl.tag().append(lang("saved.set",CTxT.of(name).color(CUtl.s()),lang("saved.name"),CTxT.of(newName).color(CUtl.s()))));
                 player.performCommand("dest saved edit "+newName);
             }
         }
@@ -765,6 +774,10 @@ public class Destination {
                 return;
             }
             int newOrderNum = Integer.parseInt(orderNumber);
+            if (getIndexFromName(player, name)+1==newOrderNum) {
+                if (send) player.sendMessage(error("dest.saved.duplicate",lang("saved.order"),CTxT.of(orderNumber).color(CUtl.s())));
+                return;
+            }
             if (newOrderNum == 0) newOrderNum = 1;
             List<List<String>> all = getList(player);
             List<String> move = all.get(names.indexOf(name));
@@ -778,7 +791,7 @@ public class Destination {
             }
             setList(player, all);
             if (send) {
-                player.sendMessage(CUtl.tag().append(lang("saved.order",CTxT.of(name).color(CUtl.sTC()),CTxT.of(""+(getList(player).indexOf(move)+1)).color(CUtl.sTC()))));
+                player.sendMessage(CUtl.tag().append(lang("saved.set",CTxT.of(name).color(CUtl.s()),lang("saved.order"),CTxT.of(""+(getList(player).indexOf(move)+1)).color(CUtl.s()))));
                 player.performCommand("dest saved edit "+name);
             }
         }
@@ -794,7 +807,7 @@ public class Destination {
             }
             int i = names.indexOf(name);
             if (getLocs(player).get(i).getXYZ().equals(loc.getXYZ())) {
-                if (send) player.sendMessage(error("dest.saved.duplicate.coordinates", loc.getXYZ()));
+                if (send) player.sendMessage(error("dest.saved.duplicate",lang("saved.location"),CTxT.of(loc.getXYZ()).color(CUtl.s())));
                 return;
             }
             loc.setDIM(getLocs(player).get(i).getDIM());
@@ -804,24 +817,22 @@ public class Destination {
             all.set(i,current);
             setList(player, all);
             if (send) {
-                player.sendMessage(CUtl.tag().append(lang("saved.edit",
-                        CTxT.of(name).color(CUtl.sTC()),CTxT.of(loc.getXYZ()).color(CUtl.sTC()))));
+                player.sendMessage(CUtl.tag().append(lang("saved.set",CTxT.of(name).color(CUtl.s()),lang("saved.location"),CTxT.of(loc.getXYZ()).color(CUtl.s()))));
                 player.performCommand("dest saved edit "+name);
             }
         }
         public static void editDimension(boolean send, Player player, String name, String dimension) {
-            List<String> names = getNames(player);
-            if (!names.contains(name)) {
+            if (!getNames(player).contains(name)) {
                 if (send) player.sendMessage(error("dest.invalid"));
                 return;
             }
-            int i = names.indexOf(name);
+            int i = getIndexFromName(player,name);
             if (!Utl.dim.checkValid(dimension)) {
                 if (send) player.sendMessage(error("dimension"));
                 return;
             }
             if (getLocs(player).get(i).getDIM().equalsIgnoreCase(dimension)) {
-                if (send) player.sendMessage(error("dest.saved.duplicate.dimension", Utl.dim.getName(dimension).toUpperCase()));
+                if (send) player.sendMessage(error("dest.saved.duplicate",lang("saved.dimension"),CTxT.of(Utl.dim.getName(dimension).toUpperCase()).color(Utl.dim.getHEX(dimension))));
                 return;
             }
             Loc loc = getLocs(player).get(i);
@@ -832,7 +843,7 @@ public class Destination {
             all.set(i,current);
             setList(player, all);
             if (send) {
-                player.sendMessage(CUtl.tag().append(lang("saved.dimension",CTxT.of(name).color(CUtl.sTC()),CTxT.of(Utl.dim.getName(dimension).toUpperCase()).color(CUtl.sTC()))));
+                player.sendMessage(CUtl.tag().append(lang("saved.set",CTxT.of(name).color(CUtl.s()),lang("saved.dimension"),CTxT.of(Utl.dim.getName(dimension).toUpperCase()).color(Utl.dim.getHEX(dimension)))));
                 player.performCommand("dest saved edit "+name);
             }
         }
@@ -845,8 +856,7 @@ public class Destination {
             int i = names.indexOf(name);
             color = Utl.color.fix(color,false,"white");
             if (getColors(player).get(i).equals(color.toLowerCase())) {
-                if (send) player.sendMessage(error("dest.saved.duplicate.color",
-                        CTxT.of(getColors(player).get(i)).color(getColors(player).get(i))));
+                if (send) player.sendMessage(error("dest.saved.duplicate",lang("saved.color"),CTxT.of(Utl.color.formatPlayer(color,true)).color(color)));
                 return;
             }
             List<List<String>> all = getList(player);
@@ -855,50 +865,55 @@ public class Destination {
             all.set(i,current);
             setList(player, all);
             if (send) {
-                player.sendMessage(CUtl.tag().append(lang("saved.color",CTxT.of(name).color(CUtl.sTC()),CTxT.of(Utl.color.formatPlayer(color,true)).color(color))));
+                player.sendMessage(CUtl.tag().append(lang("saved.set",CTxT.of(name).color(CUtl.s()),lang("saved.color"),CTxT.of(Utl.color.formatPlayer(color,true)).color(color))));
                 player.performCommand("dest saved edit "+name);
             }
         }
         public static void viewDestinationUI(boolean send, Player player, String name) {
-            List<String> names = getNames(player);
-            if (!names.contains(name)) {
+            int i = getIndexFromName(player,name);
+            if (!getNames(player).contains(name)) {
                 if (send) player.sendMessage(error("dest.invalid"));
                 return;
             }
+            String dName = Utl.capitalizeFirst(lang("saved.name").getString());
+            String dColor = Utl.capitalizeFirst(lang("saved.color").getString());
+            String dOrder = Utl.capitalizeFirst(lang("saved.order").getString());
+            String dDimension = Utl.capitalizeFirst(lang("saved.dimension").getString());
+            String dLocation = Utl.capitalizeFirst(lang("saved.location").getString());
+            Loc loc = getLocs(player).get(i);
             CTxT msg = CTxT.of(" ");
             msg.append(lang("ui.saved.edit").color(CUtl.c.saved)).append(CTxT.of("\n                                               \n").strikethrough(true));
-            int i = names.indexOf(name);
             msg.append(" ")
                     //NAME
-                    .append(CUtl.CButton.dest.edit(2,"/dest saved edit name " + names.get(i) + " ")).append(" ")
-                    .append(lang("saved.edit.name").color(CUtl.pTC())).append(" "+names.get(i)).append("\n ")
+                    .append(CUtl.CButton.dest.edit(2,"/dest saved edit name "+name+ " ")).append(" ")
+                    .append(CTxT.of(dName).color(CUtl.p())).append(" "+name).append("\n ")
                     //COLOR
-                    .append(CUtl.CButton.dest.edit(2,"/dest saved edit color " + names.get(i) + " ")).append(" ")
-                    .append(lang("saved.edit.color").color(CUtl.pTC())).append(" ")
+                    .append(CUtl.CButton.dest.edit(2,"/dest saved edit color " +name+ " ")).append(" ")
+                    .append(CTxT.of(dColor).color(CUtl.p())).append(" ")
                     .append(CTxT.of(Utl.color.formatPlayer(getColors(player).get(i),true)).color(getColors(player).get(i))).append("\n ")
                     //ORDER
-                    .append(CUtl.CButton.dest.edit(2,"/dest saved edit order " + names.get(i) + " ")).append(" ")
-                    .append(lang("saved.edit.order").color(CUtl.pTC())).append(" "+(i + 1)).append("\n ")
+                    .append(CUtl.CButton.dest.edit(2,"/dest saved edit order " +name+ " ")).append(" ")
+                    .append(CTxT.of(dOrder).color(CUtl.p())).append(" "+(i + 1)).append("\n ")
                     //DIMENSION
-                    .append(CUtl.CButton.dest.edit(2,"/dest saved edit dim " + names.get(i) + " ")).append(" ")
-                    .append(lang("saved.edit.dimension").color(CUtl.pTC())).append(" "+Utl.dim.getName(getLocs(player).get(i).getDIM())).append("\n ")
+                    .append(CUtl.CButton.dest.edit(2,"/dest saved edit dim " +name+ " ")).append(" ")
+                    .append(CTxT.of(dDimension).color(CUtl.p())).append(" ").append(CTxT.of(Utl.dim.getName(loc.getDIM())).color(Utl.dim.getHEX(loc.getDIM()))).append("\n ")
                     //LOCATION
-                    .append(CUtl.CButton.dest.edit(2,"/dest saved edit loc " + names.get(i) + " ")).append(" ")
-                    .append(lang("saved.edit.location").color(CUtl.pTC())).append(" "+getLocs(player).get(i).getXYZ()).append("\n       ");
+                    .append(CUtl.CButton.dest.edit(2,"/dest saved edit loc " +name+ " ")).append(" ")
+                    .append(CTxT.of(dLocation).color(CUtl.p())).append(" "+loc.getXYZ()).append("\n       ");
             //SEND BUTTON
             if (PlayerData.get.dest.setting.send(player)) {
-                msg.append(CUtl.TBtn("dest.send").btn(true).color(CUtl.c.send).cEvent(2,"/dest saved send "+names.get(i)+" ")
-                        .hEvent(CTxT.of("/dest saved send "+names.get(i)+" <player>").color(CUtl.c.send)
+                msg.append(CUtl.TBtn("dest.send").btn(true).color(CUtl.c.send).cEvent(2,"/dest saved send "+name+" ")
+                        .hEvent(CTxT.of("/dest saved send "+name+" <player>").color(CUtl.c.send)
                                 .append("\n").append(CUtl.TBtn("dest.send.hover_saved")))).append(" ");
             }
             //SET BUTTON
-            msg.append(CUtl.CButton.dest.set("/dest set saved " + names.get(i))).append(" ");
+            msg.append(CUtl.CButton.dest.set("/dest set saved " +name)).append(" ");
             //CONVERT
             if (Utl.dim.canConvert(player.getDimension(),getLocs(player).get(i).getDIM()))
-                msg.append(CUtl.CButton.dest.convert("/dest set saved " + names.get(i) + " convert"));
+                msg.append(CUtl.CButton.dest.convert("/dest set saved " +name+ " convert"));
             //DELETE
             msg.append("\n\n ")
-                    .append(CUtl.TBtn("delete").btn(true).color('c').cEvent(2,"/dest remove "+names.get(i))
+                    .append(CUtl.TBtn("delete").btn(true).color('c').cEvent(2,"/dest remove "+name)
                             .hEvent(CUtl.TBtn("delete.hover_dest").color('c'))).append(" ")
                     //BACK
                     .append(CUtl.CButton.back("/dest saved " + getPGOf(player, name)))
@@ -938,7 +953,7 @@ public class Destination {
                 msg.append(" ").append(lang("saved.none")).append("\n ").append(lang("saved.none_2", addB)).append("\n\n ");
                 msg
                         .append(CTxT.of("<<").btn(true).color('7')).append(" ")
-                        .append(CUtl.TBtn("dest.saved.page.hover", 1).color(CUtl.sTC())).append(" ")
+                        .append(CUtl.TBtn("dest.saved.page.hover", 1).color(CUtl.s())).append(" ")
                         .append(CTxT.of(">>").btn(true).color('7')).append(" ").append(addB).append(" ")
                         .append(CUtl.CButton.back("/dest"))
                         .append(CTxT.of("\n                                               ").strikethrough(true));
@@ -948,10 +963,10 @@ public class Destination {
             int finalPg = pg;
             msg.append(" ");
             if (pg == 1) msg.append(CTxT.of("<<").btn(true).color('7'));
-            else msg.append(CTxT.of("<<").btn(true).color(CUtl.pTC()).cEvent(1,"/dest saved " + (finalPg-1)));
-            msg.append(" ").append(CUtl.TBtn("dest.saved.page.hover", pg).color(CUtl.sTC())).append(" ");
+            else msg.append(CTxT.of("<<").btn(true).color(CUtl.p()).cEvent(1,"/dest saved " + (finalPg-1)));
+            msg.append(" ").append(CUtl.TBtn("dest.saved.page.hover", pg).color(CUtl.s())).append(" ");
             if (pg == getMaxPage(player)) msg.append(CTxT.of(">>").btn(true).color('7'));
-            else msg.append(CTxT.of(">>").btn(true).color(CUtl.pTC()).cEvent(1,"/dest saved " + (finalPg+1)));
+            else msg.append(CTxT.of(">>").btn(true).color(CUtl.p()).cEvent(1,"/dest saved " + (finalPg+1)));
             msg.append(" ").append(addB).append(" ")
                     .append(CUtl.CButton.back("/dest"))
                     .append(CTxT.of("\n                                               ").strikethrough(true));
@@ -1004,7 +1019,7 @@ public class Destination {
             }
             msg.append("\n      ")
                     .append(CUtl.TBtn("clear").btn(true).color(resetC).cEvent(reset,"/dest lastdeath clear_all")
-                    .hEvent(CUtl.TBtn("clear.hover_ld",CUtl.TBtn("all").color('c'))))
+                            .hEvent(CUtl.TBtn("clear.hover_ld",CUtl.TBtn("all").color('c'))))
                     .append("  ").append(CUtl.CButton.back("/dest"))
                     .append(CTxT.of("\n                                  ").strikethrough(true));
             player.sendMessage(msg);
@@ -1014,7 +1029,7 @@ public class Destination {
         public static void send(Player player, String sendPLayer, Loc loc, String name) {
             Player pl = Player.of(sendPLayer);
             if (pl == null) {
-                player.sendMessage(error("player", CTxT.of(sendPLayer).color(CUtl.sTC())));
+                player.sendMessage(error("player", CTxT.of(sendPLayer).color(CUtl.s())));
                 return;
             }
             if (!PlayerData.get.dest.setting.send(player)) {
@@ -1026,7 +1041,7 @@ public class Destination {
                 return;
             }
             if (!PlayerData.get.dest.setting.send(pl)) {
-                player.sendMessage(error("dest.send.disabled_player",CTxT.of(pl.getName()).color(CUtl.sTC())));
+                player.sendMessage(error("dest.send.disabled_player",CTxT.of(pl.getName()).color(CUtl.s())));
                 return;
             }
             if (name != null && name.length() > 16) {
@@ -1065,9 +1080,9 @@ public class Destination {
             msg.append(CUtl.CButton.dest.set("/dest set "+loc.getXYZ()+" "+loc.getDIM())).append(" ");
             if (Utl.dim.canConvert(plDimension,loc.getDIM()))
                 msg.append(CUtl.CButton.dest.convert("/dest set " +loc.getXYZ()+" "+loc.getDIM()+" convert")).append(" ");
-            player.sendMessage(CUtl.tag().append(lang("send",CTxT.of(pl.getName()).color(CUtl.sTC()),
-                                    CTxT.of("\n ").append(xyzB))));
-            pl.sendMessage(CUtl.tag().append(lang("send_player",CTxT.of(player.getName()).color(CUtl.sTC()),msg)));
+            player.sendMessage(CUtl.tag().append(lang("send",CTxT.of(pl.getName()).color(CUtl.s()),
+                    CTxT.of("\n ").append(xyzB))));
+            pl.sendMessage(CUtl.tag().append(lang("send_player",CTxT.of(player.getName()).color(CUtl.s()),msg)));
         }
         public static class track {
             public static Player getTarget(Player player) {
@@ -1097,19 +1112,19 @@ public class Destination {
                 if (config.online) PlayerData.set.dest.setTracking(player,pl.getUUID());
                 else PlayerData.set.dest.setTracking(player,pl.getName());
                 if (!send) return;
-                player.sendMessage(CUtl.tag().append(lang("track.accepted",CTxT.of(pl.getName()).color(CUtl.sTC()))));
+                player.sendMessage(CUtl.tag().append(lang("track.accepted",CTxT.of(pl.getName()).color(CUtl.s()))));
                 player.sendMessage(setMSG(player));
                 pl.sendMessage(CUtl.tag()
-                        .append(lang("track.accept", CTxT.of(player.getName()).color(CUtl.sTC())))
+                        .append(lang("track.accept", CTxT.of(player.getName()).color(CUtl.s())))
                         .append(" ")
-                        .append(CUtl.TBtn("off").btn(true).color('c').cEvent(1,"/dest settings track false n").hEvent(
+                        .append(CUtl.TBtn("dest.settings").btn(true).color(CUtl.c.setting).cEvent(1,"/dest settings ").hEvent(
                                 CTxT.of(CUtl.cmdUsage.destSettings()).color('c').append("\n").append(
                                         CUtl.TBtn("state.hover",CUtl.TBtn("off").color('c'))))));
             }
             public static void initialize(Player player, String player2) {
                 Player pl = Player.of(player2);
                 if (pl == null) {
-                    player.sendMessage(error("player",CTxT.of(player2).color(CUtl.sTC())));
+                    player.sendMessage(error("player",CTxT.of(player2).color(CUtl.s())));
                     return;
                 }
                 if (pl == player) {
@@ -1121,7 +1136,7 @@ public class Destination {
                     return;
                 }
                 if (!PlayerData.get.dest.setting.track(pl)) {
-                    player.sendMessage(error("dest.track.disabled",CTxT.of(pl.getName()).color(CUtl.sTC())));
+                    player.sendMessage(error("dest.track.disabled",CTxT.of(pl.getName()).color(CUtl.s())));
                     return;
                 }
                 if (PlayerData.get.dest.getTrackPending(player)) {
@@ -1129,16 +1144,16 @@ public class Destination {
                     return;
                 }
                 if (getTarget(player) != null && Objects.equals(getTarget(player), pl)) {
-                    player.sendMessage(error("dest.track.already_tracking",CTxT.of(pl.getName()).color(CUtl.sTC())));
+                    player.sendMessage(error("dest.track.already_tracking",CTxT.of(pl.getName()).color(CUtl.s())));
                     return;
                 }
                 String trackID = Utl.createID();
                 PlayerData.set.dest.track.id(player, trackID);
                 PlayerData.set.dest.track.expire(player, 90);
                 PlayerData.set.dest.track.target(player, pl.getName());
-                player.sendMessage(CUtl.tag().append(lang("track",CTxT.of(pl.getName()).color(CUtl.sTC())))
+                player.sendMessage(CUtl.tag().append(lang("track",CTxT.of(pl.getName()).color(CUtl.s())))
                         .append("\n ").append(lang("track_expire", 90).color('7').italic(true)));
-                pl.sendMessage(CUtl.tag().append(lang("track_player",CTxT.of(player.getName()).color(CUtl.sTC()))).append("\n ")
+                pl.sendMessage(CUtl.tag().append(lang("track_player",CTxT.of(player.getName()).color(CUtl.s()))).append("\n ")
                         .append(CUtl.TBtn("accept").btn(true).color('a').cEvent(1,"/dest track acp "+player.getName()+" "+trackID)
                                 .hEvent(CUtl.TBtn("accept.hover"))).append(" ")
                         .append(CUtl.TBtn("deny").btn(true).color('c').cEvent(1,"/dest track dny "+player.getName()+" "+trackID)
@@ -1148,7 +1163,7 @@ public class Destination {
                 Player player = Player.of(player2);
                 // player is tracker, pl is tracked
                 if (player == null) {
-                    pl.sendMessage(error("player",CTxT.of(player2).color(CUtl.sTC())));
+                    pl.sendMessage(error("player",CTxT.of(player2).color(CUtl.s())));
                     return;
                 }
                 if (pl == player) {
@@ -1161,7 +1176,7 @@ public class Destination {
                     return;
                 }
                 if (!PlayerData.get.dest.setting.track(player)) {
-                    pl.sendMessage(error("dest.track.disabled",CTxT.of(pl.getName()).color(CUtl.sTC())));
+                    pl.sendMessage(error("dest.track.disabled",CTxT.of(pl.getName()).color(CUtl.s())));
                     PlayerData.set.dest.setTrackNull(player);
                     return;
                 }
@@ -1176,7 +1191,7 @@ public class Destination {
                 // player is tracker, pl is tracked
                 Player player = Player.of(player2);
                 if (player == null) {
-                    pl.sendMessage(error("player",CTxT.of(player2).color(CUtl.sTC())));
+                    pl.sendMessage(error("player",CTxT.of(player2).color(CUtl.s())));
                     return;
                 }
                 if (pl == player) {
@@ -1191,9 +1206,9 @@ public class Destination {
                     pl.sendMessage(error("how"));
                     return;
                 }
-                player.sendMessage(CUtl.tag().append(lang("track.denied",CTxT.of(pl.getName()).color(CUtl.sTC()))));
+                player.sendMessage(CUtl.tag().append(lang("track.denied",CTxT.of(pl.getName()).color(CUtl.s()))));
                 PlayerData.set.dest.setTrackNull(player);
-                pl.sendMessage(CUtl.tag().append(lang("track.deny",CTxT.of(player.getName()).color(CUtl.sTC()))));
+                pl.sendMessage(CUtl.tag().append(lang("track.deny",CTxT.of(player.getName()).color(CUtl.s()))));
             }
         }
     }
@@ -1229,19 +1244,34 @@ public class Destination {
                 msg.append(lang("setting.autoclear_rad.set",CTxT.of(i+"").color(PlayerData.get.dest.setting.autoclear(player)?'a':'c')));
             }
             if (type.equals("particlesdestc")) {
-                setting = Utl.color.fix(setting,false, config.defaults.DESTDestParticleColor);
-                PlayerData.set.dest.setting.particles.destcolor(player, setting);
-                msg.append(lang("setting.particle.dest_color.set",CTxT.of(Utl.color.formatPlayer(setting,true)).color(setting)));
+                String Nsetting = Utl.color.fix(setting,false, PlayerData.get.dest.setting.particle.destcolor(player));
+                if (("#"+setting).equals(Nsetting)) {
+                    PlayerData.set.dest.setting.particles.destcolor(player, setting);
+                    msg.append(lang("setting.particle.dest_color.set",CTxT.of(Utl.color.formatPlayer(setting,true)).color(setting)));
+                } else {
+                    Return = false;
+                    msg = error("color", CTxT.of("#" + setting).color(CUtl.s()));
+                }
             }
             if (type.equals("particleslinec")) {
-                setting = Utl.color.fix(setting,false, config.defaults.DESTLineParticleColor);
-                PlayerData.set.dest.setting.particles.linecolor(player, setting);
-                msg.append(lang("setting.particle.line_color.set",CTxT.of(Utl.color.formatPlayer(setting,true)).color(setting)));
+                String Nsetting = Utl.color.fix(setting,false, PlayerData.get.dest.setting.particle.linecolor(player));
+                if (("#"+setting).equals(Nsetting)) {
+                    PlayerData.set.dest.setting.particles.linecolor(player, setting);
+                    msg.append(lang("setting.particle.line_color.set", CTxT.of(Utl.color.formatPlayer(setting, true)).color(setting)));
+                } else {
+                    Return = false;
+                    msg = error("color", CTxT.of("#" + setting).color(CUtl.s()));
+                }
             }
             if (type.equals("particlestrackingc")) {
-                setting = Utl.color.fix(setting,false, config.defaults.DESTLineParticleColor);
-                PlayerData.set.dest.setting.particles.trackingcolor(player, setting);
-                msg.append(lang("setting.particle.tracking_color.set",CTxT.of(Utl.color.formatPlayer(setting,true)).color(setting)));
+                String Nsetting = Utl.color.fix(setting,false, PlayerData.get.dest.setting.particle.trackingcolor(player));
+                if (("#"+setting).equals(Nsetting)) {
+                    PlayerData.set.dest.setting.particles.trackingcolor(player, setting);
+                    msg.append(lang("setting.particle.tracking_color.set", CTxT.of(Utl.color.formatPlayer(setting, true)).color(setting)));
+                } else {
+                    Return = false;
+                    msg = error("color", CTxT.of("#" + setting).color(CUtl.s()));
+                }
             }
             boolean state = setting.equals("true");
             CTxT onoff = CTxT.of("ON").color('a');
@@ -1287,7 +1317,7 @@ public class Destination {
         }
         public static CTxT toggleB(boolean button) {
             return CUtl.TBtn(button?"on":"off").btn(true).color(button?'a':'c').hEvent(CUtl.TBtn("state.hover",
-                            CUtl.TBtn(button?"off":"on").color(button?'c':'a')));
+                    CUtl.TBtn(button?"off":"on").color(button?'c':'a')));
         }
         public static void UI(Player player, CTxT abovemsg) {
             CTxT msg = CTxT.of("");
@@ -1295,7 +1325,7 @@ public class Destination {
             msg.append(" ").append(lang("ui.settings").color(CUtl.c.setting)).append(CTxT.of("\n                              \n").strikethrough(true));
             char c;
             if (PlayerData.get.dest.setting.autoclear(player)) c = 'a'; else c = 'c';
-            msg.append(" ").append(lang("setting.destination").color(CUtl.pTC())).append(":\n  ")
+            msg.append(" ").append(lang("setting.destination").color(CUtl.p())).append(":\n  ")
                     //AUTOCLEAR
                     .append(lang("setting.autoclear").hEvent(lang("setting.autoclear.info").append("\n")
                             .append(lang("setting.autoclear.info_2").color('7').italic(true)))).append(": ")
@@ -1311,11 +1341,11 @@ public class Destination {
                     .append("\n  ")
                     //YLEVEL
                     .append(lang("setting.ylevel").hEvent(lang("setting.ylevel.info",
-                            lang("setting.ylevel.info_2").color(CUtl.sTC()),lang("setting.ylevel.info_2").color(CUtl.sTC())))).append(": ")
+                            lang("setting.ylevel.info_2").color(CUtl.s()),lang("setting.ylevel.info_2").color(CUtl.s())))).append(": ")
                     .append(toggleB(PlayerData.get.dest.setting.ylevel(player)).cEvent(1,"/dest settings ylevel "+!PlayerData.get.dest.setting.ylevel(player)))
                     .append("\n ")
                     //PARTICLES
-                    .append(lang("setting.particle").color(CUtl.pTC())).append(":\n  ")
+                    .append(lang("setting.particle").color(CUtl.p())).append(":\n  ")
                     //DESTINATION
                     .append(lang("setting.particle.dest").hEvent(lang("setting.particle.dest.info"))).append(": ")
                     .append(toggleB(PlayerData.get.dest.setting.particle.dest(player)).cEvent(1,"/dest settings particlesdest "+!PlayerData.get.dest.setting.particle.dest(player)))
@@ -1338,14 +1368,14 @@ public class Destination {
                     .append(CUtl.TBtn("particle").btn(true).color(PlayerData.get.dest.setting.particle.trackingcolor(player)).cEvent(2,"/dest settings particlestrackingc ").hEvent(CUtl.TBtn("particle.hover")))
                     .append("\n ");
             if (config.social || config.deathsaving) {
-                msg.append(lang("setting.features").color(CUtl.pTC())).append(":\n  ");
+                msg.append(lang("setting.features").color(CUtl.p())).append(":\n  ");
                 if (config.social) msg
                         //SEND
-                        .append(lang("setting.send").hEvent(lang("setting.send.info"))).append(": ")
+                        .append(lang("setting.send").hEvent(lang("setting.send.info").append("\n").append(lang("setting.send.info_2").italic(true).color('7')))).append(": ")
                         .append(toggleB(PlayerData.get.dest.setting.send(player)).cEvent(1,"/dest settings send "+!PlayerData.get.dest.setting.send(player)))
                         .append("\n  ")
                         //TRACK
-                        .append(lang("setting.track").hEvent(lang("setting.track.info"))).append(": ")
+                        .append(lang("setting.track").hEvent(lang("setting.track.info").append("\n").append(lang("setting.track.info_2").italic(true).color('7')))).append(": ")
                         .append(toggleB(PlayerData.get.dest.setting.track(player)).cEvent(1,"/dest settings track "+!PlayerData.get.dest.setting.track(player)))
                         .append("\n  ");
                 if (config.deathsaving) msg

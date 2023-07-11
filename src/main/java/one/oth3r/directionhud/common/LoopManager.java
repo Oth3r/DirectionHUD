@@ -1,11 +1,12 @@
-package one.oth3r.directionhud.spigot;
+package one.oth3r.directionhud.common;
 
-import one.oth3r.directionhud.common.Destination;
-import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.files.PlayerData;
+import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.utils.Loc;
-import one.oth3r.directionhud.spigot.files.config;
-import one.oth3r.directionhud.spigot.utils.*;
+import one.oth3r.directionhud.utils.CTxT;
+import one.oth3r.directionhud.utils.CUtl;
+import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.Utl;
 
 import java.util.ArrayList;
 
@@ -21,7 +22,7 @@ public class LoopManager {
         HUDRefresh++;
         if (HUDRefresh >= config.HUDRefresh) {
             HUDRefresh = 0;
-            for (Player player :Utl.getPlayers()) {
+            for (Player player : Utl.getPlayers()) {
                 if (PlayerData.get.hud.state(player)) HUD.build(player);
                 if (Destination.get(player).hasXYZ() && PlayerData.get.dest.setting.autoclear(player) &&
                         Destination.getDist(player) <= PlayerData.get.dest.setting.autoclearrad(player)) {
@@ -91,7 +92,7 @@ public class LoopManager {
                     PlayerData.setOneTime(player, "tracking.converted", null);
                     player.sendMessage(CUtl.tag().append(CUtl.lang("dest.track.dimension").append("\n ")
                             .append(CUtl.lang("dest.track.dimension_2",
-                                    CTxT.of(trackingP.getName()).color(CUtl.sTC())).color('7').italic(true))));
+                                    CTxT.of(trackingP.getName()).color(CUtl.s())).color('7').italic(true))));
                     PlayerData.setOneTime(player, "tracking.dimension", "1");
                 }
             } else if (PlayerData.getOneTime(player, "tracking.converted") != null) {
@@ -133,7 +134,7 @@ public class LoopManager {
                 PlayerData.set.dest.setTrackNull(player);
             } else if (PlayerData.get.dest.track.expire(player) > 0) { //TICK DOWN
                 PlayerData.set.dest.track.expire(player, PlayerData.get.dest.track.expire(player) - 1);
-                if (trackingP == null) { //TARGET PLAYER LEFT
+                if (Player.of(PlayerData.get.dest.track.target(player)) == null) { //TARGET PLAYER LEFT
                     player.sendMessage(CUtl.tag().append(CUtl.lang("dest.track.expired")));
                     PlayerData.set.dest.setTrackNull(player);
                 }

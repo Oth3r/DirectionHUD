@@ -1,70 +1,69 @@
-package one.oth3r.directionhud.spigot.files;
+package one.oth3r.directionhud.common.files;
 
-import net.md_5.bungee.api.chat.TextComponent;
-import one.oth3r.directionhud.spigot.DirectionHUD;
-import one.oth3r.directionhud.spigot.utils.CTxT;
+import one.oth3r.directionhud.DirectionHUD;
+import one.oth3r.directionhud.utils.CTxT;
+import one.oth3r.directionhud.utils.Utl;
 
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class LangReader {
     private static final Map<String, String> languageMap = new HashMap<>();
     private final String translationKey;
     private final Object[] placeholders;
-
     public LangReader(String translationKey, Object... placeholders) {
         this.translationKey = translationKey;
         this.placeholders = placeholders;
     }
-
     public CTxT getTxT() {
         String translated = getLanguageValue(translationKey);
         if (placeholders != null && placeholders.length > 0) {
             //removed all double \\ and replaces with \
             translated = translated.replaceAll("\\\\\\\\", "\\\\");
-            //SPLITS the text at each %(dfs) and removes the %(dfs)
-            String[] parts = translated.split("%[dfs]");
-            // calculates the total amount of %(dfs) in the translated object
-            int max = (translated.length() - String.join("", parts).length())/2;
-            // If the last element of the array ends with %(dfs), remove it and add an empty string to the end of the array
-            if (translated.matches(".*%[dfs]$")) {
+            String regex = "%\\d*\\$?[dfs]";
+            Matcher anyMatch = Pattern.compile(regex).matcher(translated);
+            Matcher endMatch = Pattern.compile(regex+"$").matcher(translated);
+            //Arraylist with all the %(#$)[dfs]
+            ArrayList<String> matches = new ArrayList<>();
+            while (anyMatch.find()) {
+                String match = anyMatch.group();
+                matches.add(match);
+            }
+            //SPLITS the text at each regex and remove the regex
+            String[] parts = translated.split(regex);
+            //if the last element of the array ends with regex, remove it and add an empty string to the end of the array
+            if (endMatch.find()) {
                 String[] newParts = Arrays.copyOf(parts, parts.length + 1);
                 newParts[parts.length] = "";
                 parts = newParts;
             }
             //if there are placeholders specified, and the split is more than 1, it will replace %(dfs) with the placeholder objects
             if (parts.length > 1) {
-                TextComponent mutableText = new TextComponent();
+                CTxT txt = CTxT.of("");
                 int i = 0;
-                for (Object placeholder : placeholders) {
-                    // if it keeps looping after the max, stop the loop
-                    if (i == max) break;
-                    if (parts.length != i) mutableText.addExtra(parts[i]);
-                    //if the placeholder object is a text, it will append the text
-                    //otherwise it will try to turn the object into a string and append that
-                    if (placeholder instanceof CTxT) {
-                        mutableText.addExtra(((CTxT) placeholder).b());
-                    } else if (placeholder instanceof TextComponent) {
-                        mutableText.addExtra((TextComponent) placeholder);
-                    } else {
-                        mutableText.addExtra(String.valueOf(placeholder));
+                for (String match : matches) {
+                    int get = i;
+                    //if the match is numbered, change GET to the number it wants
+                    if (match.contains("$")) {
+                        match = match.substring(1,match.indexOf('$'));
+                        get = Integer.parseInt(match)-1;
                     }
+                    if (parts.length != i) txt.append(parts[i]);
+                    //convert the obj into txt
+                    txt.append(Utl.getTxTFromObj(placeholders[get]));
                     i++;
                 }
-                if (parts.length != i) mutableText.addExtra(parts[i]);
-                return CTxT.of(mutableText);
+                if (parts.length != i) txt.append(parts[i]);
+                return CTxT.of(txt);
             }
         }
         return CTxT.of(translated);
     }
-
     public static LangReader of(String translationKey, Object... placeholders) {
         return new LangReader(translationKey, placeholders);
     }
-
     public static void loadLanguageFile() {
         try {
             ClassLoader classLoader = DirectionHUD.class.getClassLoader();
@@ -91,7 +90,6 @@ public class LangReader {
             e.printStackTrace();
         }
     }
-
     public static String getLanguageValue(String key) {
         return languageMap.getOrDefault(key, key);
     }

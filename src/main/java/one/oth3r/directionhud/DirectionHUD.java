@@ -1,10 +1,11 @@
-package one.oth3r.directionhud.spigot;
+package one.oth3r.directionhud;
 
 import one.oth3r.directionhud.common.Events;
-import one.oth3r.directionhud.spigot.commands.DestinationCommand;
-import one.oth3r.directionhud.spigot.commands.DirHUDCommand;
-import one.oth3r.directionhud.spigot.commands.HUDCommand;
-import one.oth3r.directionhud.spigot.utils.Player;
+import one.oth3r.directionhud.commands.DestinationCommand;
+import one.oth3r.directionhud.commands.DirHUDCommand;
+import one.oth3r.directionhud.commands.HUDCommand;
+import one.oth3r.directionhud.common.LoopManager;
+import one.oth3r.directionhud.utils.Player;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -15,8 +16,8 @@ import java.util.Objects;
 import java.util.logging.Logger;
 
 public class DirectionHUD extends JavaPlugin {
-    public static final String PLAYERDATA_DIR = Objects.requireNonNull(Bukkit.getServer().getPluginManager().getPlugin("DirectionHUD")).getDataFolder().getPath()+"/";
-    public static final String CONFIG_DIR = Objects.requireNonNull(Bukkit.getServer().getPluginManager().getPlugin("DirectionHUD")).getDataFolder().getPath()+"/";
+    public static String PLAYERDATA_DIR;
+    public static String CONFIG_DIR;
     public static Logger LOGGER;
     public static String VERSION;
     public static HashMap<Player,Boolean> players = new HashMap<>();
@@ -25,6 +26,8 @@ public class DirectionHUD extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        PLAYERDATA_DIR = this.getDataFolder().getPath()+"/playerdata/";
+        CONFIG_DIR = this.getDataFolder().getPath()+"/";
         PluginDescriptionFile pdf = Objects.requireNonNull(Bukkit.getServer().getPluginManager().getPlugin("DirectionHUD")).getDescription();
         VERSION = pdf.getVersion();
         LOGGER = this.getLogger();

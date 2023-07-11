@@ -1,7 +1,9 @@
-package one.oth3r.directionhud.spigot.commands;
+package one.oth3r.directionhud.commands;
 
+import one.oth3r.directionhud.common.DirHUD;
 import one.oth3r.directionhud.common.HUD;
-import one.oth3r.directionhud.spigot.utils.Player;
+import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.Utl;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -10,15 +12,17 @@ import org.bukkit.command.TabCompleter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HUDCommand implements CommandExecutor, TabCompleter {
+public class DirHUDCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof org.bukkit.entity.Player plr)) {
+            if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
+                DirHUD.reload(null);
+            }
             return true;
         }
         Player player = Player.of(plr);
-        assert player != null;
-        HUD.commandExecutor.logic(player,args);
+        DirHUD.commandExecutor.logic(player,args);
         return true;
     }
     @Override
@@ -28,7 +32,6 @@ public class HUDCommand implements CommandExecutor, TabCompleter {
             return new ArrayList<>();
         }
         Player player = Player.of(plr);
-        assert player != null;
         return HUD.commandSuggester.logic(player,pos,args);
     }
 }

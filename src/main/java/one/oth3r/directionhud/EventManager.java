@@ -1,8 +1,8 @@
-package one.oth3r.directionhud.spigot;
+package one.oth3r.directionhud;
 
 import one.oth3r.directionhud.common.Events;
-import one.oth3r.directionhud.spigot.utils.Player;
-import one.oth3r.directionhud.spigot.utils.Utl;
+import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.Utl;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;

@@ -1,15 +1,15 @@
 package one.oth3r.directionhud.common.utils;
 
-import one.oth3r.directionhud.spigot.files.config;
-import one.oth3r.directionhud.spigot.utils.CTxT;
-import one.oth3r.directionhud.spigot.utils.Player;
-import one.oth3r.directionhud.spigot.utils.Utl;
+import one.oth3r.directionhud.common.files.config;
+import one.oth3r.directionhud.utils.CTxT;
+import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.Utl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static one.oth3r.directionhud.spigot.utils.Utl.dim.conversionRatios;
-import static one.oth3r.directionhud.spigot.utils.Utl.isInt;
+import static one.oth3r.directionhud.utils.Utl.dim.conversionRatios;
+import static one.oth3r.directionhud.utils.Utl.isInt;
 
 public class Loc {
     private Integer x = null;
@@ -129,9 +129,9 @@ public class Loc {
         Integer i = this.y;
         if (i == null) i = player.getBlockY();
         if (this.x != null && this.z != null) {
-            vector.add((double)this.x);
-            vector.add((double)i);
-            vector.add((double)this.z);
+            vector.add((double)this.x+0.5);
+            vector.add((double)i+0.5);
+            vector.add((double)this.z+0.5);
         }
         return vector;
     }

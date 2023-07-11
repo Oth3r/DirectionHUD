@@ -1,7 +1,7 @@
-package one.oth3r.directionhud.spigot.commands;
+package one.oth3r.directionhud.commands;
 
 import one.oth3r.directionhud.common.Destination;
-import one.oth3r.directionhud.spigot.utils.Player;
+import one.oth3r.directionhud.utils.Player;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -29,7 +29,6 @@ public class DestinationCommand implements CommandExecutor, TabCompleter {
             return new ArrayList<>();
         }
         Player player = Player.of(plr);
-        assert player != null;
         return Destination.commandSuggester.logic(player,pos,args);
     }
 }

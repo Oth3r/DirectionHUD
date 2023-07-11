@@ -1,8 +1,8 @@
 name: DirectionHUD
 version: '${version}'
 author: "Oth3r"
-main: one.oth3r.directionhud.spigot.DirectionHUD
-api-version: 1.19
+main: one.oth3r.directionhud.DirectionHUD
+api-version: 1.18
 commands:
   destination:
     description: "Handles everything to do with destinations, tracking, and sharing."

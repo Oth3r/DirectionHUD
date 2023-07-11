@@ -1,4 +1,4 @@
-package one.oth3r.directionhud.spigot.utils;
+package one.oth3r.directionhud.utils;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -43,11 +43,11 @@ public class CTxT {
         return this;
     }
     public CTxT color(String color) {
-        this.color = Utl.color.getTC(color);
+        this.color = ChatColor.of(Utl.color.getFromTextString(color));
         return this;
     }
     public CTxT color(Character color) {
-        this.color = CUtl.TC(color);
+        this.color = ChatColor.getByChar(color);
         return this;
     }
     public CTxT color(ChatColor color) {
@@ -103,6 +103,12 @@ public class CTxT {
         TextComponent output = new TextComponent();
         TextComponent text = this.name;
         text.setColor(this.color);
+        text.setClickEvent(this.clickEvent);
+        text.setHoverEvent(this.hoverEvent);
+        text.setItalic(this.italic);
+        text.setBold(this.bold);
+        text.setStrikethrough(this.strikethrough);
+        text.setUnderlined(this.underline);
 
         if (this.button) output.addExtra("[");
         if (this.rainbow) output.addExtra(Utl.color.rainbow(this.name.toPlainText(),this.start,this.step));

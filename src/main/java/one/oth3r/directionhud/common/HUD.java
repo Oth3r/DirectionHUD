@@ -1,17 +1,19 @@
 package one.oth3r.directionhud.common;
 
-import one.oth3r.directionhud.common.utils.Loc;
-import one.oth3r.directionhud.spigot.LoopManager;
 import one.oth3r.directionhud.common.files.PlayerData;
-import one.oth3r.directionhud.spigot.files.config;
-import one.oth3r.directionhud.spigot.utils.*;
+import one.oth3r.directionhud.common.files.config;
+import one.oth3r.directionhud.common.utils.Loc;
+import one.oth3r.directionhud.utils.CTxT;
+import one.oth3r.directionhud.utils.CUtl;
+import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.Utl;
 
 import java.util.*;
 
 public class HUD {
     public static int minute;
     public static int hour;
-    public static String weatherIcon;
+    public static String weatherIcon = "?";
     public static class commandExecutor {
         public static void logic(Player player, String[] args) {
             if (!Utl.checkEnabled.hud(player)) return;
@@ -22,7 +24,7 @@ public class HUD {
             String type = args[0].toLowerCase();
             String[] trimmedArgs = Utl.trimStart(args, 1);
             switch (type) {
-                case "order" -> orderCMD(player, trimmedArgs);
+                case "edit" -> orderCMD(player, trimmedArgs);
                 case "color" -> colorCMD(player, trimmedArgs);
                 case "toggle" -> toggleCMD(player, trimmedArgs);
                 default -> player.sendMessage(CUtl.error(CUtl.lang("error.command")));
@@ -31,40 +33,41 @@ public class HUD {
         public static void orderCMD(Player player, String[] args) {
             //UI
             if (args.length == 0)
-                HUD.order.UI(player, null, null);
+                order.UI(player, null, null);
             //RESET
-            if (args[0].equals("reset") && args.length == 1)
-                HUD.order.reset(player, true);
+            if (args.length == 1 && args[0].equals("reset"))
+                order.reset(player, true);
             if (args.length != 3) return;
             String type = args[0].toLowerCase();
             switch (type) {
-                case "move" -> HUD.order.move(player, args[1], args[2], true);
-                case "state" -> HUD.order.toggle(player, args[1], Boolean.parseBoolean(args[2]), true);
-                case "setting" -> HUD.order.setting(player, args[1], args[2], true);
+                case "move" -> order.move(player, args[1], args[2], true);
+                case "state" -> order.toggle(player, args[1], Boolean.parseBoolean(args[2]), true);
+                case "setting" -> order.setting(player, args[1], args[2], true);
             }
         }
         public static void colorCMD(Player player, String[] args) {
             if (args.length == 0) {
-                HUD.color.UI(player, null);
+                color.UI(player, null);
+                return;
             }
             //COLOR
             if (args.length == 2 && args[0].equals("edt")) {
-                if (args[1].equals("pri")) HUD.color.changeUI(player, "pri", null);
-                if (args[1].equals("sec")) HUD.color.changeUI(player, "sec", null);
+                if (args[1].equals("pri")) color.changeUI(player, "pri", null);
+                if (args[1].equals("sec")) color.changeUI(player, "sec", null);
             }
             //RESET
             if (args[0].equals("rset")) {
-                if (args.length == 1) HUD.color.reset(player, null, true);
-                if (args.length == 2) HUD.color.reset(player, args[1], true);
+                if (args.length == 1) color.reset(player, null, true);
+                if (args.length == 2) color.reset(player, args[1], true);
             }
             //CHANGE COLOR
             if (args.length != 3) return;
             String type = args[0].toLowerCase();
             switch (type) {
-                case "set" -> HUD.color.setColor(player, args[1], args[2], true);
-                case "bold" -> HUD.color.setBold(player, args[1], Boolean.parseBoolean(args[2]), true);
-                case "italics" -> HUD.color.setItalics(player, args[1], Boolean.parseBoolean(args[2]), true);
-                case "rgb" -> HUD.color.setRGB(player, args[1], Boolean.parseBoolean(args[2]), true);
+                case "set" -> color.setColor(player, args[1], args[2], true);
+                case "bold" -> color.setBold(player, args[1], Boolean.parseBoolean(args[2]), true);
+                case "italics" -> color.setItalics(player, args[1], Boolean.parseBoolean(args[2]), true);
+                case "rgb" -> color.setRGB(player, args[1], Boolean.parseBoolean(args[2]), true);
             }
         }
         public static void toggleCMD(Player player, String[] args) {
@@ -85,7 +88,8 @@ public class HUD {
             if (pos == 4 && args[2].equals("set")) {
                 suggester.add("ffffff");
             }
-            return Utl.formatSuggestions(suggester,args);
+            if (pos == args.length) return Utl.formatSuggestions(suggester,args);
+            return suggester;
         }
     }
     private static CTxT lang(String key) {
@@ -163,7 +167,7 @@ public class HUD {
         }
         if (msg.equals(CTxT.of(""))) return;
         msg.cEvent(3,"https://modrinth.com/mod/directionhud");
-        player.sendActionBar(msg);
+        player.buildHUD(msg);
     }
     public static String getPlayerDirection(Player player) {
         double rotation = (player.getYaw() - 180) % 360;
@@ -197,7 +201,6 @@ public class HUD {
         String min = "0" + minute;
         min = min.substring(min.length() - 2);
         int minute = Integer.parseInt(min);
-
         if (t12hr) {
             String time = "";
             if(hr == 0) hr = 12;
@@ -215,7 +218,6 @@ public class HUD {
         String ampm = "AM";
         if(hr > 12) {ampm = "PM";}
         else if(hr == 12) ampm = "PM";
-
         return ampm;
     }
     public static String getTracking(Player player) {
@@ -269,7 +271,7 @@ public class HUD {
             ArrayList<String> order = getEnabled(player);
             int pos = order.indexOf(module.toLowerCase());
             if (!validCheck(module)) return;
-            CTxT msg = CUtl.tag().append(lang("module.move",CTxT.of(langName(module)).color(CUtl.sTC()),lang("module.move_"+direction)));
+            CTxT msg = CUtl.tag().append(lang("module.move",CTxT.of(langName(module)).color(CUtl.s()),lang("module.move_"+direction)));
             if (direction.equals("down")) {
                 if (pos == order.size() - 1) return;
                 order.remove(pos);
@@ -288,10 +290,10 @@ public class HUD {
         }
         public static void toggle(Player player, String module, boolean toggle, boolean Return) {
             if (!order.validCheck(module)) return;
-            CTxT msg = CUtl.tag().append(lang("module.toggle",CUtl.TBtn(toggle ? "on" : "off"),CTxT.of(langName(module)).color(CUtl.sTC())));
+            CTxT msg = CUtl.tag().append(lang("module.toggle",CUtl.TBtn(toggle ? "on" : "off"),CTxT.of(langName(module)).color(CUtl.s())));
             //OFF
             if (!toggle && order.moduleState(player, module)) order.removeModule(player, module);
-            //ON
+                //ON
             else if (toggle && !order.moduleState(player, module)) order.addModule(player, module);
             if (Return) UI(player, msg, module);
             else player.sendMessage(msg);
@@ -301,33 +303,26 @@ public class HUD {
                 if (!PlayerData.get.hud.module.time(player)) return;
                 if (!(option.equals("12hr") || option.equals("24hr"))) return;
                 PlayerData.set.hud.setting.time24h(player, option.equals("24hr"));
-                CTxT msg = CUtl.tag().append(lang("module.time.change",CUtl.lang("button.time."+option).color(CUtl.sTC())));
+                CTxT msg = CUtl.tag().append(lang("module.time.change",CUtl.lang("button.time."+option).color(CUtl.s())));
                 if (Return) UI(player, msg, "time");
                 else player.sendMessage(msg);
             }
         }
         public static boolean moduleState(Player player, String s) {
-            if (s.equalsIgnoreCase("coordinates")) {
+            if (s.equalsIgnoreCase("coordinates"))
                 return PlayerData.get.hud.module.coordinates(player);
-            }
-            if (s.equalsIgnoreCase("distance")) {
+            if (s.equalsIgnoreCase("distance"))
                 return PlayerData.get.hud.module.distance(player);
-            }
-            if (s.equalsIgnoreCase("destination")) {
+            if (s.equalsIgnoreCase("destination"))
                 return PlayerData.get.hud.module.destination(player);
-            }
-            if (s.equalsIgnoreCase("direction")) {
+            if (s.equalsIgnoreCase("direction"))
                 return PlayerData.get.hud.module.direction(player);
-            }
-            if (s.equalsIgnoreCase("tracking")) {
+            if (s.equalsIgnoreCase("tracking"))
                 return PlayerData.get.hud.module.tracking(player);
-            }
-            if (s.equalsIgnoreCase("time")) {
+            if (s.equalsIgnoreCase("time"))
                 return PlayerData.get.hud.module.time(player);
-            }
-            if (s.equalsIgnoreCase("weather")) {
+            if (s.equalsIgnoreCase("weather"))
                 return PlayerData.get.hud.module.weather(player);
-            }
             return false;
         }
         public static String allModules() {
@@ -391,10 +386,10 @@ public class HUD {
         public static CTxT arrow(boolean up, boolean gray, String name) {
             if (up) {
                 if (gray) return CTxT.of(CUtl.symbols.up()).btn(true).color('7');
-                return CTxT.of(CUtl.symbols.up()).btn(true).color(CUtl.pTC()).cEvent(1,"/hud edit move "+name+" up");
+                return CTxT.of(CUtl.symbols.up()).btn(true).color(CUtl.p()).cEvent(1,"/hud edit move "+name+" up");
             }
             if (gray) return CTxT.of(CUtl.symbols.down()).btn(true).color('7');
-            return CTxT.of(CUtl.symbols.down()).btn(true).color(CUtl.pTC()).cEvent(1,"/hud edit move "+name+" down");
+            return CTxT.of(CUtl.symbols.down()).btn(true).color(CUtl.p()).cEvent(1,"/hud edit move "+name+" down");
         }
         public static CTxT xButton(String name) {
             return CTxT.of(CUtl.symbols.x()).btn(true).color('c').cEvent(1,"/hud edit state "+name+" false")
@@ -471,7 +466,7 @@ public class HUD {
                 for (int i = 0; i < getEnabled(player).size(); i++) {
                     String moduleName = getEnabled(player).get(i);
                     CTxT moduleNameText = moduleName(player, moduleName, null);
-                    if (highlight.equals(moduleName)) moduleNameText.color(CUtl.sTC());
+                    if (highlight.equals(moduleName)) moduleNameText.color(CUtl.s());
                     if (i == 0) {
                         modules.put(moduleName, modules.get(moduleName).append(arrow(true, true, moduleName)).append(" "));
                         modules.put(moduleName, modules.get(moduleName).append(xButton(moduleName)).append(" "));
@@ -490,9 +485,9 @@ public class HUD {
                     if (moduleName.equals("time")) {
                         boolean hr = PlayerData.get.hud.setting.time24h(player);
                         modules.put(moduleName, modules.get(moduleName)
-                                .append(CUtl.TBtn("time."+(hr?"24hr":"12hr")).btn(true).color(CUtl.sTC())
+                                .append(CUtl.TBtn("time."+(hr?"24hr":"12hr")).btn(true).color(CUtl.s())
                                         .cEvent(1,"/hud edit setting time "+(hr?"12hr":"24hr"))
-                                        .hEvent(CUtl.TBtn("time.hover",CUtl.TBtn("time."+(hr?"12hr":"24hr")).color(CUtl.sTC())))));
+                                        .hEvent(CUtl.TBtn("time.hover",CUtl.TBtn("time."+(hr?"12hr":"24hr")).color(CUtl.s())))));
                     }
                 }
             }
@@ -542,13 +537,20 @@ public class HUD {
             else player.sendMessage(msg);
         }
         public static void setColor(Player player, String type, String color, boolean Return) {
+            String ogColor = "#"+color;
             if (type.equals("primary")) {
-                color = Utl.color.fix(color,true,config.defaults.HUDPrimaryColor);
-                if (getHUDColors(player)[0].equals(color)) return;
+                color = Utl.color.fix(color,true,HUD.color.getHUDColors(player)[0]);
+                if (!color.equals(ogColor)) {
+                    player.sendMessage(CUtl.error(CUtl.lang("error.color",CTxT.of(ogColor).color(CUtl.s()))));
+                    return;
+                }
                 PlayerData.set.hud.primary(player, color+"-"+getHUDBold(player,1)+"-"+getHUDItalics(player,1)+"-"+getHUDRGB(player,1));
             } else if (type.equals("secondary")) {
-                color = Utl.color.fix(color,true,config.defaults.HUDSecondaryColor);
-                if (getHUDColors(player)[1].equals(color)) return;
+                color = Utl.color.fix(color,true,HUD.color.getHUDColors(player)[1]);
+                if (!color.equals(ogColor)) {
+                    player.sendMessage(CUtl.error(CUtl.lang("error.color",CTxT.of(ogColor).color(CUtl.s()))));
+                    return;
+                }
                 PlayerData.set.hud.secondary(player, color+"-"+getHUDBold(player,2)+"-"+getHUDItalics(player,2)+"-"+getHUDRGB(player,2));
             } else return;
             CTxT msg = CUtl.tag().append(lang("color.set",lang("color."+type),
@@ -578,7 +580,7 @@ public class HUD {
                 PlayerData.set.hud.secondary(player, getHUDColors(player)[1]+"-"+getHUDBold(player,2)+"-"+state+"-"+getHUDRGB(player,2));
             } else return;
             CTxT msg = CUtl.tag().append(lang("color.set.italics",
-                            CUtl.lang("button."+(state?"on":"off")).color(state?'a':'c'),lang("color."+type)));
+                    CUtl.lang("button."+(state?"on":"off")).color(state?'a':'c'),lang("color."+type)));
             if (Return) changeUI(player, type.substring(0,3),msg);
             else player.sendMessage(msg);
         }
@@ -661,14 +663,14 @@ public class HUD {
             int typ;
             if (type.equalsIgnoreCase("pri")) {
                 typ = 1;
-                msg.append(" ").append(addColor(player,lang("ui.color.primary").getString(),typ,15,20))
+                msg.append(" ").append(addColor(player,Utl.capitalizeFirst(lang("color.primary").getString()),typ,15,20))
                         .append(CTxT.of("\n                           \n").strikethrough(true));
                 reset.cEvent(1, "/hud color rset pri").hEvent(CUtl.lang("button.reset.hover_color",addColor(player,lang("color.primary").getString(),typ,15,20)));
                 for (int i = 0; i < allObj.size(); i++)
                     allObj.set(i, allObj.get(i).cEvent(1,"/hud color set primary "+allStr.get(i)));
             } else if (type.equalsIgnoreCase("sec")) {
                 typ = 2;
-                msg.append(" ").append(addColor(player,lang("ui.color.secondary").getString(),typ,15,20))
+                msg.append(" ").append(addColor(player,Utl.capitalizeFirst(lang("color.secondary").getString()),typ,15,20))
                         .append(CTxT.of("\n                           \n").strikethrough(true));
                 reset.cEvent(1,"/hud color rset sec").hEvent(CUtl.lang("button.reset.hover_color",addColor(player,lang("color.secondary").getString(),typ,15,20)));
                 for (int i = 0; i < allObj.size(); i++)
@@ -718,20 +720,15 @@ public class HUD {
                     .hEvent(CUtl.TBtn("color.edit.hover",addColor(player,CUtl.TBtn("color.secondary").getString(),2,15,20)))).append("\n\n      ");
             //RESET
             msg.append(CUtl.TBtn("reset").btn(true).color('c').cEvent(1,"/hud color rset")
-                    .hEvent(CUtl.TBtn("reset.hover_color",CUtl.TBtn("all").color('c'))))
+                            .hEvent(CUtl.TBtn("reset.hover_color",CUtl.TBtn("all").color('c'))))
                     .append("  ").append(CUtl.CButton.back("/hud"))
                     .append(CTxT.of("\n                                ").strikethrough(true));
             player.sendMessage(msg);
         }
     }
     public static void toggle(Player player, Boolean state, boolean Return) {
-        if (state == null) {
-            if (PlayerData.get.hud.state(player)) player.sendActionBar(CTxT.of(""));
-            PlayerData.set.hud.state(player, !PlayerData.get.hud.state(player));
-        } else {
-            if (!state) player.sendActionBar(CTxT.of(""));
-            PlayerData.set.hud.state(player, state);
-        }
+        PlayerData.set.hud.state(player, Objects.requireNonNullElseGet(state, () -> !PlayerData.get.hud.state(player)));
+        player.updateHUD();
         CTxT msg = CUtl.tag().append(lang("toggle",CUtl.TBtn((PlayerData.get.hud.state(player)?"on":"off")).color(PlayerData.get.hud.state(player)?'a':'c')));
         if (Return) UI(player, msg);
         else player.sendMessage(msg);
@@ -739,7 +736,7 @@ public class HUD {
     public static void UI(Player player, CTxT abovemsg) {
         CTxT msg = CTxT.of("");
         if (abovemsg != null) msg.append(abovemsg).append("\n");
-        msg.append(" ").append(lang("ui").color(CUtl.pTC())).append(CTxT.of("\n                                 \n").strikethrough(true)).append(" ");
+        msg.append(" ").append(lang("ui").color(CUtl.p())).append(CTxT.of("\n                                 \n").strikethrough(true)).append(" ");
         //COLOR
         msg.append(CUtl.CButton.hud.color()).append(" ");
         //EDIT
@@ -754,5 +751,4 @@ public class HUD {
         msg.append(CTxT.of("\n                                 ").strikethrough(true));
         player.sendMessage(msg);
     }
-    //782
 }

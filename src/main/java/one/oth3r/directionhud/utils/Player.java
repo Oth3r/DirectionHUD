@@ -1,6 +1,8 @@
-package one.oth3r.directionhud.spigot.utils;
+package one.oth3r.directionhud.utils;
 
 import net.md_5.bungee.api.ChatMessageType;
+import one.oth3r.directionhud.DirectionHUD;
+import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.common.utils.Loc;
 import org.bukkit.Bukkit;
 import org.bukkit.Particle;
@@ -56,6 +58,13 @@ public class Player {
     public void sendActionBar(CTxT message) {
         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, message.b());
     }
+    // Call after toggling the hud.
+    public void updateHUD() {
+        if (!PlayerData.get.hud.state(this)) this.sendActionBar(CTxT.of(""));
+    }
+    public void buildHUD(CTxT message) {
+        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, message.b());
+    }
     public String getName() {
         return player.getName();
     }
@@ -64,6 +73,9 @@ public class Player {
     }
     public String getUUID() {
         return player.getUniqueId().toString();
+    }
+    public String getSpawnDimension() {
+        return Utl.dim.format(Bukkit.getWorlds().get(0).getName());
     }
     public String getDimension() {
         return Utl.dim.format(player.getWorld().getName());
@@ -74,7 +86,7 @@ public class Player {
     public ArrayList<Double> getVec() {
         ArrayList<Double> vec = new ArrayList<>();
         vec.add(player.getLocation().toVector().getX());
-        vec.add(player.getLocation().toVector().getY());
+        vec.add(player.getLocation().toVector().getY()+1);
         vec.add(player.getLocation().toVector().getZ());
         return vec;
     }

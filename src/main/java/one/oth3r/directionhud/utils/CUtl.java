@@ -1,4 +1,4 @@
-package one.oth3r.directionhud.spigot.utils;
+package one.oth3r.directionhud.utils;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -6,17 +6,17 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import one.oth3r.directionhud.common.Destination;
-import one.oth3r.directionhud.spigot.files.LangReader;
+import one.oth3r.directionhud.common.files.LangReader;
 
 public class CUtl {
     public static CTxT tag() {
-        return CTxT.of("").append(CTxT.of("DirectionHUD").btn(true).color(pTC())).append(" ");
+        return CTxT.of("").append(CTxT.of("DirectionHUD").btn(true).color(p())).append(" ");
     }
-    public static ChatColor pTC() {
-        return HEX(c.pri);
+    public static String p() {
+        return c.pri;
     }
-    public static ChatColor sTC() {
-        return HEX(c.sec);
+    public static String s() {
+        return c.sec;
     }
     public static ChatColor TC(Character code) {
         return ChatColor.getByChar(code);
@@ -36,10 +36,6 @@ public class CUtl {
     }
     public static CTxT usage(String s) {
         return tag().append(lang("usage").color("#FF4646")).append(" ").append(s);
-    }
-    public static ChatColor HEX(String s) {
-        if (s.contains("#")) return ChatColor.of(s);
-        return ChatColor.of("#"+s);
     }
     public static CTxT lang(String key) {
         return LangReader.of("key.directionhud."+key).getTxT();

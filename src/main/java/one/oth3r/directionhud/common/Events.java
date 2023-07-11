@@ -1,29 +1,31 @@
 package one.oth3r.directionhud.common;
 
+import one.oth3r.directionhud.DirectionHUD;
+import one.oth3r.directionhud.common.files.LangReader;
 import one.oth3r.directionhud.common.files.PlayerData;
+import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.utils.Loc;
-import one.oth3r.directionhud.spigot.DirectionHUD;
-import one.oth3r.directionhud.spigot.files.LangReader;
-import one.oth3r.directionhud.spigot.files.config;
-import one.oth3r.directionhud.spigot.utils.*;
+import one.oth3r.directionhud.utils.CTxT;
+import one.oth3r.directionhud.utils.CUtl;
+import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.Utl;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Objects;
 
 public class Events {
     public static void serverStart() {
         DirectionHUD.configDir = DirectionHUD.CONFIG_DIR;
         DirectionHUD.playerData = DirectionHUD.PLAYERDATA_DIR;
-        config.load();
-        LangReader.loadLanguageFile();
         Path dirPath = Paths.get(DirectionHUD.playerData);
         try {
             Files.createDirectories(dirPath);
         } catch (Exception e) {
             DirectionHUD.LOGGER.info("Failed to create playerdata directory:\n" + e.getMessage());
         }
+        config.load();
+        LangReader.loadLanguageFile();
     }
     public static void serverEnd() {
         for (Player player: Utl.getPlayers()) PlayerData.removePlayer(player);
@@ -61,8 +63,7 @@ public class Events {
         CTxT msg = CUtl.tag().append(CUtl.lang("dest.lastdeath.save"))
                 .append(" ").append(death.getBadge())
                 .append(" ").append(CUtl.CButton.dest.set("/dest set "+death.getXYZ()+" "+death.getDIM()));
-        if (Utl.dim.canConvert(Utl.dim.format(Objects.requireNonNull(Objects.requireNonNull(
-                player.getPlayer().getBedSpawnLocation()).getWorld()).getName()),death.getDIM()))
+        if (Utl.dim.canConvert(player.getSpawnDimension(),death.getDIM()))
             msg.append(" ").append(CUtl.CButton.dest.convert("/dest set "+death.getXYZ()+" "+death.getDIM()+" convert"));
         player.sendMessage(msg);
     }
