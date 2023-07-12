@@ -1244,33 +1244,33 @@ public class Destination {
                 msg.append(lang("setting.autoclear_rad.set",CTxT.of(i+"").color(PlayerData.get.dest.setting.autoclear(player)?'a':'c')));
             }
             if (type.equals("particlesdestc")) {
-                String Nsetting = Utl.color.fix(setting,false, PlayerData.get.dest.setting.particle.destcolor(player));
-                if (("#"+setting).equals(Nsetting)) {
-                    PlayerData.set.dest.setting.particles.destcolor(player, setting);
-                    msg.append(lang("setting.particle.dest_color.set",CTxT.of(Utl.color.formatPlayer(setting,true)).color(setting)));
-                } else {
+                String Nsetting = Utl.color.fix(setting,false,config.DESTDestParticleColor);
+                if (Nsetting.contains("#") && !setting.equals(Nsetting)) {
                     Return = false;
                     msg = error("color", CTxT.of("#" + setting).color(CUtl.s()));
+                } else {
+                    PlayerData.set.dest.setting.particles.destcolor(player, setting);
+                    msg.append(lang("setting.particle.dest_color.set",CTxT.of(Utl.color.formatPlayer(setting,true)).color(setting)));
                 }
             }
             if (type.equals("particleslinec")) {
                 String Nsetting = Utl.color.fix(setting,false, PlayerData.get.dest.setting.particle.linecolor(player));
-                if (("#"+setting).equals(Nsetting)) {
-                    PlayerData.set.dest.setting.particles.linecolor(player, setting);
-                    msg.append(lang("setting.particle.line_color.set", CTxT.of(Utl.color.formatPlayer(setting, true)).color(setting)));
-                } else {
+                if (Nsetting.contains("#") && !setting.equals(Nsetting)) {
                     Return = false;
                     msg = error("color", CTxT.of("#" + setting).color(CUtl.s()));
+                } else {
+                    PlayerData.set.dest.setting.particles.linecolor(player, setting);
+                    msg.append(lang("setting.particle.line_color.set", CTxT.of(Utl.color.formatPlayer(setting, true)).color(setting)));
                 }
             }
             if (type.equals("particlestrackingc")) {
                 String Nsetting = Utl.color.fix(setting,false, PlayerData.get.dest.setting.particle.trackingcolor(player));
-                if (("#"+setting).equals(Nsetting)) {
-                    PlayerData.set.dest.setting.particles.trackingcolor(player, setting);
-                    msg.append(lang("setting.particle.tracking_color.set", CTxT.of(Utl.color.formatPlayer(setting, true)).color(setting)));
-                } else {
+                if (Nsetting.contains("#") && !setting.equals(Nsetting)) {
                     Return = false;
                     msg = error("color", CTxT.of("#" + setting).color(CUtl.s()));
+                } else {
+                    PlayerData.set.dest.setting.particles.trackingcolor(player, setting);
+                    msg.append(lang("setting.particle.tracking_color.set", CTxT.of(Utl.color.formatPlayer(setting, true)).color(setting)));
                 }
             }
             boolean state = setting.equals("true");

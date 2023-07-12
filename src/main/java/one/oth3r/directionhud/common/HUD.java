@@ -539,15 +539,15 @@ public class HUD {
         public static void setColor(Player player, String type, String color, boolean Return) {
             String ogColor = "#"+color;
             if (type.equals("primary")) {
-                color = Utl.color.fix(color,true,HUD.color.getHUDColors(player)[0]);
-                if (!color.equals(ogColor)) {
+                color = Utl.color.fix(color,true,config.HUDPrimaryColor);
+                if (color.contains("#") && !color.equals(ogColor)) {
                     player.sendMessage(CUtl.error(CUtl.lang("error.color",CTxT.of(ogColor).color(CUtl.s()))));
                     return;
                 }
                 PlayerData.set.hud.primary(player, color+"-"+getHUDBold(player,1)+"-"+getHUDItalics(player,1)+"-"+getHUDRGB(player,1));
             } else if (type.equals("secondary")) {
-                color = Utl.color.fix(color,true,HUD.color.getHUDColors(player)[1]);
-                if (!color.equals(ogColor)) {
+                color = Utl.color.fix(color,true,config.HUDSecondaryColor);
+                if (color.contains("#") && !color.equals(ogColor)) {
                     player.sendMessage(CUtl.error(CUtl.lang("error.color",CTxT.of(ogColor).color(CUtl.s()))));
                     return;
                 }
