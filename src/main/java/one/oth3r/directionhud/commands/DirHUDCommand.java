@@ -32,6 +32,6 @@ public class DirHUDCommand implements CommandExecutor, TabCompleter {
             return new ArrayList<>();
         }
         Player player = Player.of(plr);
-        return HUD.commandSuggester.logic(player,pos,args);
+        return DirHUD.commandSuggester.logic(player,pos,args);
     }
 }
