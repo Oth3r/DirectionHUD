@@ -1,4 +1,6 @@
 name: DirectionHUD
+description: On screen HUD plugin that has many customizable features. Save coordinates, see death locations, track players, all at a glance!
+website: https://github.com/Oth3r/DirectionHUD
 version: '${version}'
 author: "Oth3r"
 main: one.oth3r.directionhud.DirectionHUD
