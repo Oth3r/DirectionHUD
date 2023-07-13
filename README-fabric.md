@@ -4,7 +4,7 @@
 DirectionHUD is a fully customizable Minecraft Fabric mod that enhances the vanilla navigation experience.
 With the mod, you can save coordinates, track other players, see death locations, all with full customization with the **/hud** and **/destination** commands.
 \
-![overview](https://github.com/Oth3r/DirectionHUD/blob/master/media/directionhud%20overview.gif)
+![overview](https://github.com/Oth3r/DirectionHUD/blob/master/media/directionhud%20overview.gif?raw=true)
 \
 ***Where does the mod work?*** - DirectionHUD both works on client and server, but for now the client side only supports single player & DirectionHUD servers. As with anything, that can change with time.
 \
@@ -18,37 +18,37 @@ Ever wanted everything to be RGB?
 \
 Toggle and sort HUD modules to your liking, change the colors and style.
 \
-![hud customization](https://github.com/Oth3r/DirectionHUD/blob/master/media/hud%20customization.gif)
+![hud customization](https://github.com/Oth3r/DirectionHUD/blob/master/media/hud%20customization.gif?raw=true)
 
 ### Saving Coordinates
 Tired of writing down base locations?
 \
 Save, set, convert, and edit coordinates easily using the chat UI.
 \
-![dest saving](https://github.com/Oth3r/DirectionHUD/blob/master/media/dest%20saving.gif)
+![dest saving](https://github.com/Oth3r/DirectionHUD/blob/master/media/dest%20saving.gif?raw=true)
 
 ### Tracking
 Having trouble ~~hunting down~~ keeping up with your friends?
 \
 Send a tracking request and start your adventures!
 \
-![dest tracking](https://github.com/Oth3r/DirectionHUD/blob/master/media/tracking.gif)
+![dest tracking](https://github.com/Oth3r/DirectionHUD/blob/master/media/tracking.gif?raw=true)
 
 ### Death Saving
 *Which cave did i die in...*
 \
 See your last deaths in each dimension.
 \
-![lastdeath](https://github.com/Oth3r/DirectionHUD/blob/master/media/lastdeath.gif)
+![lastdeath](https://github.com/Oth3r/DirectionHUD/blob/master/media/lastdeath.gif?raw=true)
 
 ### Destination Customization
 MORE CUSTOMIZATION
 \
 Toggle destination settings, like auto clearing and particles.
 \
-![adaptive dest](https://github.com/Oth3r/DirectionHUD/blob/master/media/adaptive%20dest.gif)
+![adaptive dest](https://github.com/Oth3r/DirectionHUD/blob/master/media/adaptive%20dest.gif?raw=true)
 \
-![dest customization](https://github.com/Oth3r/DirectionHUD/blob/master/media/dest%20customization.gif)
+![dest customization](https://github.com/Oth3r/DirectionHUD/blob/master/media/dest%20customization.gif?raw=true)
 
 ### Config Settings
 Change default HUD configurations and settings using the **config file** when running on server, or use **[ModMenu](https://modrinth.com/mod/modmenu)** & **[YetAnotherConfigLib](https://modrinth.com/mod/yacl)** when running on client.
