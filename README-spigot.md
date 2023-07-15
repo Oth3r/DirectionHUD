@@ -1,5 +1,5 @@
 # DirectionHUD (SPIGOT)
-[![github](https://img.shields.io/github/v/release/oth3r/DirectionHUD?color=blueviolet&logo=github)](https://github.com/Oth3r/DirectionHUD/releases)  [![discord](https://dcbadge.vercel.app/api/server/Mec6yNQ9B7?style=flat)](https://discord.gg/Mec6yNQ9B7) [![modrinth](https://img.shields.io/modrinth/dt/directionhud-plugin?label=Modrinth&logo=modrinth)](https://modrinth.com/mod/directionhud-spigot)
+[![github](https://img.shields.io/github/v/release/oth3r/DirectionHUD?color=blueviolet&logo=github)](https://github.com/Oth3r/DirectionHUD/releases)  [![discord](https://dcbadge.vercel.app/api/server/Mec6yNQ9B7?style=flat)](https://discord.gg/Mec6yNQ9B7) [![modrinth](https://img.shields.io/modrinth/dt/directionhud-plugin?label=Modrinth&logo=modrinth)](https://modrinth.com/mod/directionhud-plugin)
 \
 DirectionHUD is a fully customizable Minecraft plugin that enhances the vanilla navigation experience.
 With the plugin, you can save coordinates, track other players, see death locations, all with full customization with the **/hud** and **/destination** commands.
