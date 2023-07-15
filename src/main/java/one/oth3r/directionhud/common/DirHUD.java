@@ -100,7 +100,7 @@ public class DirHUD {
     public static void UI(Player player) {
         CTxT msg = CTxT.of("")
                 .append(CTxT.of(" DirectionHUD ").color(CUtl.p()))
-                .append(CTxT.of(DirectionHUD.VERSION+CUtl.symbols.link()).color(CUtl.s()).cEvent(3,"https://modrinth.com/mod/directionhud/changelog")
+                .append(CTxT.of(DirectionHUD.VERSION+CUtl.symbols.link()).color(CUtl.s()).cEvent(3,"https://modrinth.com/mod/directionhud-plugin/changelog")
                         .hEvent(CUtl.TBtn("version.hover").color(CUtl.s())))
                 .append(CTxT.of("\n                                 \n").strikethrough(true)).append(" ");
         //hud

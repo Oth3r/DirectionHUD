@@ -64,8 +64,8 @@ public class CUtl {
         public static String defaults = "#ff6629";
         public static String reload = "#69ff29";
         public static String back = "#ff9500";
-        public static String sec = "#ffee35";
-        public static String pri = "#2993ff";
+        public static String sec = "#42a0ff";
+        public static String pri = "#ff8e16";
     }
     public static class CButton {
         public static CTxT back(String cmd) {
