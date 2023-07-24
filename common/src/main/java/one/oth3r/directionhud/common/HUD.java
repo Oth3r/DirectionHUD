@@ -4,7 +4,7 @@ import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.utils.CTxT;
-import one.oth3r.directionhud.utils.CUtl;
+import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
 
@@ -238,14 +238,14 @@ public class HUD {
         }
         double d = Math.toDegrees(Math.atan2(x, z));
         if (d < 0) d = d + 360;
-        if (Utl.inBetweenD(rotation, Utl.sub(d, 15, 360), (d+15)%360)) return "-"+CUtl.symbols.up()+"-";
-        if (Utl.inBetweenD(rotation, d, (d+65)%360)) return CUtl.symbols.left()+CUtl.symbols.up()+"-";
-        if (Utl.inBetweenD(rotation, d, (d+115)%360)) return CUtl.symbols.left()+"--";
-        if (Utl.inBetweenD(rotation, d, (d+165)%360)) return CUtl.symbols.left()+CUtl.symbols.down()+"-";
-        if (Utl.inBetweenD(rotation, Utl.sub(d, 65, 360), d)) return "-"+CUtl.symbols.up()+CUtl.symbols.right();
-        if (Utl.inBetweenD(rotation, Utl.sub(d, 115, 360), d)) return "--"+CUtl.symbols.right();
-        if (Utl.inBetweenD(rotation, Utl.sub(d, 165, 360), d)) return "-"+CUtl.symbols.down()+CUtl.symbols.right();
-        return "-"+CUtl.symbols.down()+"-";
+        if (Utl.inBetweenD(rotation, Utl.sub(d, 15, 360), (d+15)%360)) return "-"+Assets.symbols.up+"-";
+        if (Utl.inBetweenD(rotation, d, (d+65)%360)) return Assets.symbols.left+Assets.symbols.up+"-";
+        if (Utl.inBetweenD(rotation, d, (d+115)%360)) return Assets.symbols.left+"--";
+        if (Utl.inBetweenD(rotation, d, (d+165)%360)) return Assets.symbols.left+Assets.symbols.down+"-";
+        if (Utl.inBetweenD(rotation, Utl.sub(d, 65, 360), d)) return "-"+Assets.symbols.up+Assets.symbols.right;
+        if (Utl.inBetweenD(rotation, Utl.sub(d, 115, 360), d)) return "--"+Assets.symbols.right;
+        if (Utl.inBetweenD(rotation, Utl.sub(d, 165, 360), d)) return "-"+Assets.symbols.down+Assets.symbols.right;
+        return "-"+Assets.symbols.down+"-";
     }
     public static class order {
         //has to be lowercase
@@ -385,14 +385,14 @@ public class HUD {
         }
         public static CTxT arrow(boolean up, boolean gray, String name) {
             if (up) {
-                if (gray) return CTxT.of(CUtl.symbols.up()).btn(true).color('7');
-                return CTxT.of(CUtl.symbols.up()).btn(true).color(CUtl.p()).cEvent(1,"/hud edit move "+name+" up");
+                if (gray) return CTxT.of(Assets.symbols.up).btn(true).color('7');
+                return CTxT.of(Assets.symbols.up).btn(true).color(CUtl.p()).cEvent(1,"/hud edit move "+name+" up");
             }
-            if (gray) return CTxT.of(CUtl.symbols.down()).btn(true).color('7');
-            return CTxT.of(CUtl.symbols.down()).btn(true).color(CUtl.p()).cEvent(1,"/hud edit move "+name+" down");
+            if (gray) return CTxT.of(Assets.symbols.down).btn(true).color('7');
+            return CTxT.of(Assets.symbols.down).btn(true).color(CUtl.p()).cEvent(1,"/hud edit move "+name+" down");
         }
         public static CTxT xButton(String name) {
-            return CTxT.of(CUtl.symbols.x()).btn(true).color('c').cEvent(1,"/hud edit state "+name+" false")
+            return CTxT.of(Assets.symbols.x).btn(true).color('c').cEvent(1,"/hud edit state "+name+" false")
                     .hEvent(CUtl.TBtn("module.disable.hover").color('c'));
         }
         public static String langName(String s) {
@@ -430,7 +430,7 @@ public class HUD {
             if (s.equalsIgnoreCase("tracking")) {
                 hoverT.append(lang("module.tracking.info")).append("\n")
                         .append(color.addColor(player,"[",1,15,20).strikethrough(true))
-                        .append(color.addColor(player,"-"+CUtl.symbols.up()+CUtl.symbols.right(),2,35,20))
+                        .append(color.addColor(player,"-"+Assets.symbols.up+Assets.symbols.right,2,35,20))
                         .append(color.addColor(player,"]",1,55,20).strikethrough(true));
             }
             if (s.equalsIgnoreCase("time")) {
@@ -445,7 +445,7 @@ public class HUD {
             }
             if (s.equalsIgnoreCase("weather")) {
                 hoverT.append(lang("module.weather.info")).append("\n")
-                        .append(color.addColor(player,CUtl.symbols.sun(),1,15,20));
+                        .append(color.addColor(player,Assets.symbols.sun,1,15,20));
             }
             if (addStart == null) return CTxT.of(langName(s)).hEvent(hoverT);
             return CTxT.of(langName(s)).hEvent(addStart.append("\n").append(hoverT));
@@ -499,12 +499,12 @@ public class HUD {
             }
             CTxT msg = CTxT.of("");
             if (abovemsg != null) msg.append(abovemsg).append("\n");
-            msg.append(" ").append(lang("ui.edit").color(CUtl.c.edit)).append(CTxT.of("\n                                               \n").strikethrough(true));
+            msg.append(" ").append(lang("ui.edit").color(Assets.mainColors.edit)).append(CTxT.of("\n                                               \n").strikethrough(true));
             if (!getEnabled(player).isEmpty()) for (String s: getEnabled(player)) msg.append(modules.get(s)).append("\n");
             else msg.append(" ").append(lang("module.none").color('c')).append("\n ").append(lang("module.none_2").color('c')).append("\n");
             if (!getDisabled(player).isEmpty()) {
                 msg.append(CTxT.of("                                               ").strikethrough(true)).append("\n")
-                        .append(lang("ui.edit.disabled").color(CUtl.c.edit)).append("\n");
+                        .append(lang("ui.edit.disabled").color(Assets.mainColors.edit)).append("\n");
                 CTxT disabled = CTxT.of("");
                 for (int i = 0; i < getDisabled(player).size(); i++) {
                     if (i==3) disabled.append("\n");

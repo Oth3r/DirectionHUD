@@ -3,9 +3,9 @@ package one.oth3r.directionhud.common.files;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.DirectionHUD;
-import one.oth3r.directionhud.utils.CUtl;
+import one.oth3r.directionhud.common.Assets;
+import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
 
@@ -315,7 +315,7 @@ public class config {
         public static boolean HUDTime = true;
         public static boolean HUDWeather = true;
         public static boolean HUD24HR = false;
-        public static String HUDPrimaryColor = CUtl.c.pri;
+        public static String HUDPrimaryColor = Assets.mainColors.pri;
         public static boolean HUDPrimaryBold = false;
         public static boolean HUDPrimaryItalics = false;
         public static boolean HUDPrimaryRainbow = false;
@@ -328,15 +328,15 @@ public class config {
         public static boolean DESTAutoConvert = false;
         public static boolean DESTYLevel = false;
         public static boolean DESTLineParticles = true;
-        public static String DESTLineParticleColor = CUtl.c.sec;
+        public static String DESTLineParticleColor = Assets.mainColors.sec;
         public static boolean DESTDestParticles = true;
-        public static String DESTDestParticleColor = CUtl.c.pri;
+        public static String DESTDestParticleColor = Assets.mainColors.pri;
         public static boolean DESTTrackingParticles = true;
-        public static String DESTTrackingParticleColor = CUtl.c.track;
+        public static String DESTTrackingParticleColor = Assets.mainColors.track;
         public static boolean DESTSend = true;
         public static boolean DESTTrack = true;
         public static boolean DESTLastdeath = true;
-        public static List<String> dimensions = List.of("minecraft.overworld|Overworld|#55FF55","minecraft.the_nether|Nether|#e8342e","minecraft.the_end|End|#edffb0");
-        public static List<String> dimensionRatios = List.of("minecraft.overworld=1|minecraft.the_nether=8");
+        public static List<String> dimensions = Utl.dim.DEFAULT_DIMENSIONS;
+        public static List<String> dimensionRatios = Utl.dim.DEFAULT_RATIOS;
     }
 }

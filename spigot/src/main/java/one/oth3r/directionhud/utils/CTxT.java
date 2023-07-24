@@ -2,8 +2,10 @@ package one.oth3r.directionhud.utils;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +24,16 @@ public class CTxT {
     private Boolean rainbow = false;
     private Float start = null;
     private Float step = null;
+    private static ClickEvent click(int typ, String arg) {
+        if (typ == 1) return new ClickEvent(ClickEvent.Action.RUN_COMMAND,arg);
+        if (typ == 2) return new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND,arg);
+        if (typ == 3) return new ClickEvent(ClickEvent.Action.OPEN_URL,arg);
+        return null;
+    }
+    private static HoverEvent hover(CTxT text) {
+        ComponentBuilder cb = new ComponentBuilder(text.b());
+        return new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(cb.create()));
+    }
     private CTxT() {}
     public static CTxT of(String of) {
         CTxT instance = new CTxT();
@@ -55,11 +67,11 @@ public class CTxT {
         return this;
     }
     public CTxT cEvent(int typ, String arg) {
-        this.clickEvent = CUtl.cEvent(typ, arg);
+        this.clickEvent = click(typ, arg);
         return this;
     }
     public CTxT hEvent(CTxT hEvent) {
-        this.hoverEvent = CUtl.hEvent(hEvent);
+        this.hoverEvent = hover(hEvent);
         return this;
     }
     public CTxT bold(Boolean bold) {

@@ -10,6 +10,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import one.oth3r.directionhud.DirectionHUD;
+import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.common.files.config;
@@ -47,6 +48,9 @@ public class Utl {
         public int hashCode() {
             return Objects.hash(first, second);
         }
+    }
+    public static CTxT getTranslation(String key, Object... args) {
+        return CTxT.of(Text.translatable(key, args));
     }
     public static boolean isInt(String string) {
         try {
@@ -106,12 +110,12 @@ public class Utl {
         HUD.minute = (int) ((timeTicks % 1000) * 60 / 1000);
         if (world.isRaining()) {
             String str;
-            if (world.isNight()) str = CUtl.symbols.moon();
-            else str = CUtl.symbols.sun();
-            if (world.isThundering()) HUD.weatherIcon = str + CUtl.symbols.thunder();
-            else HUD.weatherIcon = str + CUtl.symbols.rain();
-        } else if (world.isNight()) HUD.weatherIcon = CUtl.symbols.moon();
-        else HUD.weatherIcon = CUtl.symbols.sun();
+            if (world.isNight()) str = Assets.symbols.moon;
+            else str = Assets.symbols.sun;
+            if (world.isThundering()) HUD.weatherIcon = str + Assets.symbols.thunder;
+            else HUD.weatherIcon = str + Assets.symbols.rain;
+        } else if (world.isNight()) HUD.weatherIcon = Assets.symbols.moon;
+        else HUD.weatherIcon = Assets.symbols.sun;
     }
     public static ArrayList<String> xyzSuggester(Player player, String type) {
         ArrayList<String> arr = new ArrayList<>();
@@ -216,6 +220,8 @@ public class Utl {
         }
     }
     public static class dim {
+        public static final List<String> DEFAULT_DIMENSIONS = List.of("minecraft.overworld|Overworld|#55FF55","minecraft.the_nether|Nether|#e8342e","minecraft.the_end|End|#edffb0");
+        public static final List<String> DEFAULT_RATIOS = List.of("overworld=1|nether=8");
         public static String format(Identifier identifier) {
             return identifier.toString().replace(":",".");
         }

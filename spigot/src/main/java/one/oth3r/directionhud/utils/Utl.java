@@ -2,7 +2,9 @@ package one.oth3r.directionhud.utils;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
+import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.HUD;
+import one.oth3r.directionhud.common.files.LangReader;
 import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.common.files.config;
 import org.bukkit.Bukkit;
@@ -41,6 +43,9 @@ public class Utl {
         public int hashCode() {
             return Objects.hash(first, second);
         }
+    }
+    public static CTxT getTranslation(String key,Object... args) {
+        return LangReader.of("key.directionhud."+key, args).getTxT();
     }
     public static boolean isInt(String string) {
         try {
@@ -108,12 +113,12 @@ public class Utl {
         HUD.minute = (int) ((timeTicks % 1000) * 60 / 1000);
         if (world.hasStorm()) {
             String str;
-            if (Utl.inBetween((int) timeTicks, 12010,23992)) str = CUtl.symbols.moon();
-            else str = CUtl.symbols.sun();
-            if (world.isThundering()) HUD.weatherIcon = str + CUtl.symbols.thunder();
-            else HUD.weatherIcon = str + CUtl.symbols.rain();
-        } else if (Utl.inBetween((int) timeTicks, 12010,23992)) HUD.weatherIcon = CUtl.symbols.moon();
-        else HUD.weatherIcon = CUtl.symbols.sun();
+            if (Utl.inBetween((int) timeTicks, 12010,23992)) str = Assets.symbols.moon;
+            else str = Assets.symbols.sun;
+            if (world.isThundering()) HUD.weatherIcon = str + Assets.symbols.thunder;
+            else HUD.weatherIcon = str + Assets.symbols.rain;
+        } else if (Utl.inBetween((int) timeTicks, 12010,23992)) HUD.weatherIcon = Assets.symbols.moon;
+        else HUD.weatherIcon = Assets.symbols.sun;
     }
     public static ArrayList<String> xyzSuggester(Player player, String type) {
         ArrayList<String> arr = new ArrayList<>();

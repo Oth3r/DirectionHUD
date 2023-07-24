@@ -4,7 +4,7 @@ import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.utils.CTxT;
-import one.oth3r.directionhud.utils.CUtl;
+import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
 
@@ -38,7 +38,7 @@ public class Destination {
         }
         public static void setCMD(Player player, String[] args) {
             if (!Utl.inBetween(args.length, 2,5)) {
-                player.sendMessage(CUtl.usage(CUtl.cmdUsage.destSet()));
+                player.sendMessage(CUtl.usage(Assets.cmdUsage.destSet));
                 return;
             }
             // /dest set saved <name> (convert)
@@ -75,7 +75,7 @@ public class Destination {
                 return;
             }
             if (!Utl.inBetween(args.length, 2, 6)) {
-                player.sendMessage(CUtl.usage(CUtl.cmdUsage.destAdd()));
+                player.sendMessage(CUtl.usage(Assets.cmdUsage.destAdd));
                 return;
             }
             //dest saved add <name> color
@@ -175,7 +175,7 @@ public class Destination {
                 addCMD(player,Utl.trimStart(args,1));
                 return;
             }
-            player.sendMessage(CUtl.usage(CUtl.cmdUsage.destSaved()));
+            player.sendMessage(CUtl.usage(Assets.cmdUsage.destSaved));
         }
         public static void lastdeathCMD(Player player, String[] args) {
             if (!config.deathsaving || !PlayerData.get.dest.setting.lastdeath(player)) return;
@@ -189,7 +189,7 @@ public class Destination {
                 }
                 return;
             }
-            player.sendMessage(CUtl.usage(CUtl.cmdUsage.destLastdeath()));
+            player.sendMessage(CUtl.usage(Assets.cmdUsage.destLastdeath));
         }
         public static void settingsCMD(Player player, String[] args) {
             if (args.length == 0) settings.UI(player, null);
@@ -203,12 +203,12 @@ public class Destination {
         public static void sendCMD(Player player, String[] args) {
             if (!Utl.checkEnabled.send(player)) return;
             if (!Utl.inBetween(args.length, 3, 6)) {
-                player.sendMessage(CUtl.usage(CUtl.cmdUsage.destSend()));
+                player.sendMessage(CUtl.usage(Assets.cmdUsage.destSend));
                 return;
             }
             // /dest send <IGN> saved <name>
             if (args[1].equalsIgnoreCase("saved") && Utl.checkEnabled.saving(player)) {
-                if (args.length > 3) player.sendMessage(CUtl.usage(CUtl.cmdUsage.destSend()));
+                if (args.length > 3) player.sendMessage(CUtl.usage(Assets.cmdUsage.destSend));
                 else social.send(player,args[0],null,args[2]);
                 return;
             }
@@ -274,7 +274,7 @@ public class Destination {
                     return;
                 }
             }
-            player.sendMessage(CUtl.usage(CUtl.cmdUsage.destTrack()));
+            player.sendMessage(CUtl.usage(Assets.cmdUsage.destTrack));
         }
     }
     public static class commandSuggester {
@@ -586,7 +586,7 @@ public class Destination {
     public static CTxT setMSG(Player player) {
         boolean ac = PlayerData.get.dest.setting.autoclear(player);
         CTxT btn = CUtl.TBtn(ac?"off":"on").btn(true).color(ac?'c':'a').cEvent(1,"/dest settings autoclear "+!ac+" n").hEvent(
-                CTxT.of(CUtl.cmdUsage.destSettings()).color(ac?'c':'a').append("\n").append(CUtl.TBtn("state.hover",
+                CTxT.of(Assets.cmdUsage.destSettings).color(ac?'c':'a').append("\n").append(CUtl.TBtn("state.hover",
                         CUtl.TBtn(ac?"off":"on").color(ac?'c':'a'))));
         return CTxT.of(" ").append(lang("set.autoclear",CUtl.lang(ac?"on":"off").italic(true),btn).color('7').italic(true));
     }
@@ -882,7 +882,7 @@ public class Destination {
             String dLocation = Utl.capitalizeFirst(lang("saved.location").getString());
             Loc loc = getLocs(player).get(i);
             CTxT msg = CTxT.of(" ");
-            msg.append(lang("ui.saved.edit").color(CUtl.c.saved)).append(CTxT.of("\n                                               \n").strikethrough(true));
+            msg.append(lang("ui.saved.edit").color(Assets.mainColors.saved)).append(CTxT.of("\n                                               \n").strikethrough(true));
             msg.append(" ")
                     //NAME
                     .append(CUtl.CButton.dest.edit(2,"/dest saved edit name "+name+ " ")).append(" ")
@@ -902,8 +902,8 @@ public class Destination {
                     .append(CTxT.of(dLocation).color(CUtl.p())).append(" "+loc.getXYZ()).append("\n       ");
             //SEND BUTTON
             if (PlayerData.get.dest.setting.send(player)) {
-                msg.append(CUtl.TBtn("dest.send").btn(true).color(CUtl.c.send).cEvent(2,"/dest saved send "+name+" ")
-                        .hEvent(CTxT.of("/dest saved send "+name+" <player>").color(CUtl.c.send)
+                msg.append(CUtl.TBtn("dest.send").btn(true).color(Assets.mainColors.send).cEvent(2,"/dest saved send "+name+" ")
+                        .hEvent(CTxT.of("/dest saved send "+name+" <player>").color(Assets.mainColors.send)
                                 .append("\n").append(CUtl.TBtn("dest.send.hover_saved")))).append(" ");
             }
             //SET BUTTON
@@ -921,11 +921,11 @@ public class Destination {
             player.sendMessage(msg);
         }
         public static void UI(Player player, int pg) {
-            CTxT addB = CUtl.TBtn("dest.add").btn(true).color(CUtl.c.add).cEvent(2,"/dest add ").hEvent(
-                    CTxT.of(CUtl.cmdUsage.destAdd()).color(CUtl.c.add).append("\n").append(CUtl.TBtn("dest.add.hover",
-                            CUtl.TBtn("dest.add.hover_2").color(CUtl.c.add))));
+            CTxT addB = CUtl.TBtn("dest.add").btn(true).color(Assets.mainColors.add).cEvent(2,"/dest add ").hEvent(
+                    CTxT.of(Assets.cmdUsage.destAdd).color(Assets.mainColors.add).append("\n").append(CUtl.TBtn("dest.add.hover",
+                            CUtl.TBtn("dest.add.hover_2").color(Assets.mainColors.add))));
             CTxT msg = CTxT.of(" ");
-            msg.append(lang("ui.saved").color(CUtl.c.saved)).append(CTxT.of("\n                                               \n").strikethrough(true));
+            msg.append(lang("ui.saved").color(Assets.mainColors.saved)).append(CTxT.of("\n                                               \n").strikethrough(true));
             List<String> names = getNames(player);
             if (pg > getMaxPage(player)) {
                 pg = 1;
@@ -996,7 +996,7 @@ public class Destination {
         public static void UI(Player player, CTxT abovemsg) {
             CTxT msg = CTxT.of("");
             if (abovemsg != null) msg.append(abovemsg).append("\n");
-            msg.append(" ").append(lang("ui.lastdeath").color(CUtl.c.lastdeath)).append(CTxT.of("\n                                  \n").strikethrough(true));
+            msg.append(" ").append(lang("ui.lastdeath").color(Assets.mainColors.lastdeath)).append(CTxT.of("\n                                  \n").strikethrough(true));
             int num = 0;
             msg.append(" ");
             for (String s: PlayerData.get.dest.getLastdeaths(player)) {
@@ -1117,8 +1117,8 @@ public class Destination {
                 pl.sendMessage(CUtl.tag()
                         .append(lang("track.accept", CTxT.of(player.getName()).color(CUtl.s())))
                         .append(" ")
-                        .append(CUtl.TBtn("dest.settings").btn(true).color(CUtl.c.setting).cEvent(1,"/dest settings ").hEvent(
-                                CTxT.of(CUtl.cmdUsage.destSettings()).color('c').append("\n").append(
+                        .append(CUtl.TBtn("dest.settings").btn(true).color(Assets.mainColors.setting).cEvent(1,"/dest settings ").hEvent(
+                                CTxT.of(Assets.cmdUsage.destSettings).color('c').append("\n").append(
                                         CUtl.TBtn("state.hover",CUtl.TBtn("off").color('c'))))));
             }
             public static void initialize(Player player, String player2) {
@@ -1322,7 +1322,7 @@ public class Destination {
         public static void UI(Player player, CTxT abovemsg) {
             CTxT msg = CTxT.of("");
             if (abovemsg != null) msg.append(abovemsg).append("\n");
-            msg.append(" ").append(lang("ui.settings").color(CUtl.c.setting)).append(CTxT.of("\n                              \n").strikethrough(true));
+            msg.append(" ").append(lang("ui.settings").color(Assets.mainColors.setting)).append(CTxT.of("\n                              \n").strikethrough(true));
             char c;
             if (PlayerData.get.dest.setting.autoclear(player)) c = 'a'; else c = 'c';
             msg.append(" ").append(lang("setting.destination").color(CUtl.p())).append(":\n  ")
@@ -1394,7 +1394,7 @@ public class Destination {
     }
     public static void UI(Player player) {
         CTxT msg = CTxT.of(" ");
-        msg.append(lang("ui").color(CUtl.c.dest)).append(CTxT.of("\n                                  ").strikethrough(true)).append("\n ");
+        msg.append(lang("ui").color(Assets.mainColors.dest)).append(CTxT.of("\n                                  ").strikethrough(true)).append("\n ");
         // lmao this is a mess but is it the best way to do it? dunno
         boolean line1Free = false;
         boolean line2Free = !(PlayerData.get.dest.setting.lastdeath(player) && config.deathsaving);

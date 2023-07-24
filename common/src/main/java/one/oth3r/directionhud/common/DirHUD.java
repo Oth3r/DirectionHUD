@@ -5,7 +5,7 @@ import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.utils.CTxT;
-import one.oth3r.directionhud.utils.CUtl;
+import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
 
@@ -74,7 +74,7 @@ public class DirHUD {
             msg.append(CUtl.lang("dirhud.ui.defaults").color(CUtl.p()))
                     .append(CTxT.of("\n                                 \n").strikethrough(true))
                     .append(" ")
-                    .append(CUtl.TBtn("dirhud.defaults.set").btn(true).color(CUtl.c.set).cEvent(1,"/dirhud defaults set")
+                    .append(CUtl.TBtn("dirhud.defaults.set").btn(true).color(Assets.mainColors.set).cEvent(1,"/dirhud defaults set")
                             .hEvent(CUtl.TBtn("dirhud.defaults.set.hover")))
                     .append("  ")
                     .append(CUtl.TBtn("dirhud.defaults.reset").btn(true).color('c').cEvent(1,"/dirhud defaults reset")
@@ -100,7 +100,7 @@ public class DirHUD {
     public static void UI(Player player) {
         CTxT msg = CTxT.of("")
                 .append(CTxT.of(" DirectionHUD ").color(CUtl.p()))
-                .append(CTxT.of(DirectionHUD.VERSION+CUtl.symbols.link()).color(CUtl.s()).cEvent(3,"https://modrinth.com/mod/directionhud/changelog")
+                .append(CTxT.of(DirectionHUD.VERSION+Assets.symbols.link).color(CUtl.s()).cEvent(3,"https://modrinth.com/mod/directionhud/changelog")
                         .hEvent(CUtl.TBtn("version.hover").color(CUtl.s())))
                 .append(CTxT.of("\n                                 \n").strikethrough(true)).append(" ");
         //hud

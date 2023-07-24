@@ -1,10 +1,13 @@
 plugins {
+    id 'base'
     id 'java'
 }
 
-group = project.maven_group
+base {
+    archivesName = project.archives_base_name_spigot
+}
 version = project.plugin_version
-archivesBaseName = project.archives_base_name_spigot
+group = project.maven_group
 
 repositories {
     mavenCentral()

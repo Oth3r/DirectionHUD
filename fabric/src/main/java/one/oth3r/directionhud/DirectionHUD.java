@@ -14,6 +14,7 @@ import net.minecraft.util.WorldSavePath;
 import one.oth3r.directionhud.commands.DestinationCommand;
 import one.oth3r.directionhud.commands.DirHUDCommand;
 import one.oth3r.directionhud.commands.HUDCommand;
+import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.Events;
 import one.oth3r.directionhud.common.LoopManager;
 import one.oth3r.directionhud.common.files.PlayerData;
@@ -39,6 +40,8 @@ public class DirectionHUD {
 	public static MinecraftServer server;
 	public static CommandManager commandManager;
 	public static void initializeCommon() {
+		Assets.mainColors.pri = "#2993ff";
+		Assets.mainColors.sec = "#ffee35";
 		//todo LATER save cmd color support and '/dest send <IGN>' support
 		configDir = FabricLoader.getInstance().getConfigDir().toFile()+"/";
 		config.load();

@@ -23,6 +23,7 @@ public class DirectionHUD extends JavaPlugin {
     public static HashMap<Player,Boolean> players = new HashMap<>();
     public static String playerData;
     public static String configDir;
+    public static boolean isClient = false;
 
     @Override
     public void onEnable() {
