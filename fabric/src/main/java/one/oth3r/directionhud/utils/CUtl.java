@@ -3,8 +3,8 @@ package one.oth3r.directionhud.utils;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import one.oth3r.directionhud.DirectionHUD;
-import src.main.java.one.oth3r.directionhud.common.Destination;
-import src.main.java.one.oth3r.directionhud.common.files.LangReader;
+import one.oth3r.directionhud.common.Destination;
+import one.oth3r.directionhud.common.files.LangReader;
 
 public class CUtl {
     public static CTxT tag() {

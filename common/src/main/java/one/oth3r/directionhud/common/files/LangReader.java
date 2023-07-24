@@ -1,4 +1,4 @@
-package src.main.java.one.oth3r.directionhud.common.files;
+package one.oth3r.directionhud.common.files;
 
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.utils.CTxT;

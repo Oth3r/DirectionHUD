@@ -1,9 +1,9 @@
-package src.main.java.one.oth3r.directionhud.common.files;
+package one.oth3r.directionhud.common.files;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import src.main.java.one.oth3r.directionhud.common.HUD;
+import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.utils.CUtl;
 import one.oth3r.directionhud.utils.Player;

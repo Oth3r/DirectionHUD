@@ -1,6 +1,6 @@
-package src.main.java.one.oth3r.directionhud.common.utils;
+package one.oth3r.directionhud.common.utils;
 
-import src.main.java.one.oth3r.directionhud.common.files.config;
+import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;

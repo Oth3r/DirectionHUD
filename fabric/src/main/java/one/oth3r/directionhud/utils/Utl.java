@@ -10,9 +10,9 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import one.oth3r.directionhud.DirectionHUD;
-import src.main.java.one.oth3r.directionhud.common.HUD;
-import src.main.java.one.oth3r.directionhud.common.files.PlayerData;
-import src.main.java.one.oth3r.directionhud.common.files.config;
+import one.oth3r.directionhud.common.HUD;
+import one.oth3r.directionhud.common.files.PlayerData;
+import one.oth3r.directionhud.common.files.config;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.joml.Vector3f;
 

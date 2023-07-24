@@ -2,8 +2,8 @@ package one.oth3r.directionhud.mixin;
 
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import src.main.java.one.oth3r.directionhud.common.Events;
-import src.main.java.one.oth3r.directionhud.common.utils.Loc;
+import one.oth3r.directionhud.common.Events;
+import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.utils.Player;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

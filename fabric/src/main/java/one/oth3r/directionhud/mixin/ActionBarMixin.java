@@ -7,7 +7,7 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.DirectionHUDClient;
-import src.main.java.one.oth3r.directionhud.common.files.PlayerData;
+import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.CUtl;
 import one.oth3r.directionhud.utils.Player;

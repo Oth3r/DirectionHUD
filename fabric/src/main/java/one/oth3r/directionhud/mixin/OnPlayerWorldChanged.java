@@ -2,7 +2,7 @@ package one.oth3r.directionhud.mixin;
 
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import src.main.java.one.oth3r.directionhud.common.Events;
+import one.oth3r.directionhud.common.Events;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
 import org.spongepowered.asm.mixin.Mixin;
