@@ -1,5 +1,42 @@
-# Project exclude paths
-/.gradle/
-/build/
-/build/classes/java/main/
-/run/
+# gradle
+
+spigot/.gradle/
+spigot/build/
+fabric/.gradle/
+fabric/build/
+out/
+classes/
+
+# eclipse
+
+*.launch
+
+# idea
+
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# vscode
+
+.settings/
+.vscode/
+bin/
+.classpath
+.project
+
+# macos
+
+*.DS_Store
+
+# fabric
+
+fabric/run/
+
+# java
+
+hs_err_*.log
+replay_*.log
+*.hprof
+*.jfr
