@@ -306,7 +306,7 @@ public class Destination {
                 suggester.add("saved");
             }
             suggester.add("set");
-            suggester.add("clear");
+            if (get(player).hasXYZ()) suggester.add("clear");
             suggester.add("settings");
             if (Utl.checkEnabled.send(player)) suggester.add("send");
             if (Utl.checkEnabled.track(player)) suggester.add("track");
