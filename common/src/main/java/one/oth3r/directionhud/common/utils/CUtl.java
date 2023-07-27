@@ -80,7 +80,7 @@ public class CUtl {
             }
             public static CTxT clear(Player player) {
                 boolean o = Destination.get(player).hasXYZ();
-                return CTxT.of("✕").btn(true).color(o?'c':'7').cEvent(o?1:0,"/dest clear").hEvent(
+                return CTxT.of(Assets.symbols.x).btn(true).color(o?'c':'7').cEvent(o?1:0,"/dest clear").hEvent(
                         CTxT.of(Assets.cmdUsage.destClear).color(o?'c':'7').append("\n").append(TBtn("dest.clear.hover")));
             }
             public static CTxT clear() {
