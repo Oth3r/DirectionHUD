@@ -1231,6 +1231,7 @@ public class Destination {
             else UI(player, null);
         }
         public static void change(Player player, String type, String setting, boolean Return) {
+            setting = setting.toLowerCase();
             CTxT msg = CUtl.tag();
             if (type.equals("autoclearrad")) {
                 if (!Utl.isInt(setting)) {

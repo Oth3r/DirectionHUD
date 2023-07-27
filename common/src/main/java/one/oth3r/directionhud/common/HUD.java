@@ -537,6 +537,7 @@ public class HUD {
             else player.sendMessage(msg);
         }
         public static void setColor(Player player, String type, String color, boolean Return) {
+            color = color.toLowerCase();
             String ogColor = "#"+color;
             if (color.contains("#")) ogColor = color;
             if (type.equals("primary")) {
