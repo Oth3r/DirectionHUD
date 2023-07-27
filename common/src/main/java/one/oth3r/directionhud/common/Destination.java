@@ -1245,6 +1245,7 @@ public class Destination {
             }
             if (type.equals("particlesdestc")) {
                 String Nsetting = Utl.color.fix(setting,false, config.DESTDestParticleColor);
+                if (Nsetting.contains("#") && !setting.contains("#")) setting = "#"+setting;
                 if (Nsetting.contains("#") && !setting.equals(Nsetting)) {
                     Return = false;
                     msg = error("color", CTxT.of("#" + setting).color(CUtl.s()));
@@ -1255,6 +1256,7 @@ public class Destination {
             }
             if (type.equals("particleslinec")) {
                 String Nsetting = Utl.color.fix(setting,false, PlayerData.get.dest.setting.particle.linecolor(player));
+                if (Nsetting.contains("#") && !setting.contains("#")) setting = "#"+setting;
                 if (Nsetting.contains("#") && !setting.equals(Nsetting)) {
                     Return = false;
                     msg = error("color", CTxT.of("#" + setting).color(CUtl.s()));
@@ -1265,6 +1267,7 @@ public class Destination {
             }
             if (type.equals("particlestrackingc")) {
                 String Nsetting = Utl.color.fix(setting,false, PlayerData.get.dest.setting.particle.trackingcolor(player));
+                if (Nsetting.contains("#") && !setting.contains("#")) setting = "#"+setting;
                 if (Nsetting.contains("#") && !setting.equals(Nsetting)) {
                     Return = false;
                     msg = error("color", CTxT.of("#" + setting).color(CUtl.s()));
