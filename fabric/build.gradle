@@ -5,7 +5,7 @@ plugins {
 }
 
 base {
-	archivesName = project.archives_base_name
+	archivesName = project.file_name_fabric
 }
 version = project.mod_version
 group = project.maven_group
