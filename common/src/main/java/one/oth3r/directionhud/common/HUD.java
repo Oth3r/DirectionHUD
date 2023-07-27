@@ -538,6 +538,7 @@ public class HUD {
         }
         public static void setColor(Player player, String type, String color, boolean Return) {
             String ogColor = "#"+color;
+            if (color.contains("#")) ogColor = color;
             if (type.equals("primary")) {
                 color = Utl.color.fix(color,true, config.HUDPrimaryColor);
                 if (color.contains("#") && !color.equals(ogColor)) {
