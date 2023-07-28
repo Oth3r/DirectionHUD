@@ -116,7 +116,7 @@ public class Player {
         return player.getBlockZ();
     }
     public void spawnParticle(String particleType, Vec3d vec) {
-        player.getServerWorld().spawnParticles(player,Utl.particle.getParticle(particleType,this),
+        player.getWorld().spawnParticles(player,Utl.particle.getParticle(particleType,this),
                 true,vec.getX(),vec.getY(),vec.getZ(),1,0,0,0,1);
     }
     public void spawnParticleLine(ArrayList<Double> end, String particleType) {
