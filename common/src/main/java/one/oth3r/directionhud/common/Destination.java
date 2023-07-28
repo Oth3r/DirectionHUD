@@ -540,14 +540,8 @@ public class Destination {
             return suggester;
         }
     }
-    private static CTxT lang(String lang) {
-        return CUtl.lang("dest."+lang);
-    }
     private static CTxT lang(String key, Object... args) {
         return CUtl.lang("dest."+key, args);
-    }
-    private static CTxT error(String key) {
-        return CUtl.error(CUtl.lang("error."+key));
     }
     private static CTxT error(String key, Object... args) {
         return CUtl.error(CUtl.lang("error."+key, args));
@@ -791,7 +785,7 @@ public class Destination {
             }
             setList(player, all);
             if (send) {
-                player.sendMessage(CUtl.tag().append(lang("saved.set",CTxT.of(name).color(CUtl.s()),lang("saved.order"),CTxT.of(""+(getList(player).indexOf(move)+1)).color(CUtl.s()))));
+                player.sendMessage(CUtl.tag().append(lang("saved.set",CTxT.of(name).color(CUtl.s()),lang("saved.order"),CTxT.of(String.valueOf(getList(player).indexOf(move) + 1)).color(CUtl.s()))));
                 player.performCommand("dest saved edit "+name);
             }
         }
@@ -1242,7 +1236,7 @@ public class Destination {
                 if (i > 15) i = 15;
                 if (i < 2) i = 2;
                 PlayerData.set.dest.setting.autoclearrad(player, i);
-                msg.append(lang("setting.autoclear_rad.set",CTxT.of(i+"").color(PlayerData.get.dest.setting.autoclear(player)?'a':'c')));
+                msg.append(lang("setting.autoclear_rad.set",CTxT.of(String.valueOf(i)).color(PlayerData.get.dest.setting.autoclear(player)?'a':'c')));
             }
             if (type.equals("particlesdestc")) {
                 String Nsetting = Utl.color.fix(setting,false, config.DESTDestParticleColor);
@@ -1335,7 +1329,7 @@ public class Destination {
                             .append(lang("setting.autoclear.info_2").color('7').italic(true)))).append(": ")
                     .append(toggleB(PlayerData.get.dest.setting.autoclear(player)).cEvent(1,"/dest settings autoclear "+!PlayerData.get.dest.setting.autoclear(player)))
                     .append(" ")
-                    .append(CTxT.of(PlayerData.get.dest.setting.autoclearrad(player)+"").btn(true).color(c).cEvent(2,"/dest settings autoclearrad ")
+                    .append(CTxT.of(String.valueOf(PlayerData.get.dest.setting.autoclearrad(player))).btn(true).color(c).cEvent(2,"/dest settings autoclearrad ")
                             .hEvent(CUtl.TBtn("autoclear_rad.hover").append("\n").append(CUtl.TBtn("autoclear_rad.hover_2").color('7').italic(true))))
                     .append("\n  ")
                     //AUTOCLEAR
