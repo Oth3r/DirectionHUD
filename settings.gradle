@@ -9,4 +9,3 @@ pluginManagement {
     }
 }
 include('fabric')
-include('spigot')
