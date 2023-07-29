@@ -164,9 +164,9 @@ public class PlayerData {
             //ADD NEW PARTICLES & AUTOCONVERT
             Map<String,Object> setting = (Map<String, Object>) dest.get("setting");
             Map<String,Object> particles = (Map<String, Object>) setting.get("particles");
-            particles.put("tracking", config.defaults.DESTTrackingParticles);
-            particles.put("trackingcolor", config.defaults.DESTTrackingParticleColor);
-            setting.put("autoconvert", config.defaults.DESTAutoConvert);
+            particles.put("tracking", config.DESTTrackingParticles);
+            particles.put("trackingcolor", config.DESTTrackingParticleColor);
+            setting.put("autoconvert", config.DESTAutoConvert);
             setting.put("particles",particles);
             dest.put("setting",setting);
             map.put("destination",dest);
