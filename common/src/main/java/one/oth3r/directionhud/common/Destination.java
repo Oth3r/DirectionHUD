@@ -554,7 +554,7 @@ public class Destination {
     }
     public static Loc get(Player player) {
         Loc loc = PlayerData.get.dest.getDest(player);
-        if (loc.hasXYZ()) return new Loc();
+        if (!loc.hasXYZ()) return new Loc();
         if (PlayerData.get.dest.setting.ylevel(player) && loc.yExists())
             loc.setY(player.getBlockY());
         return loc;
