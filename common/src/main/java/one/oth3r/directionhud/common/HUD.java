@@ -499,22 +499,29 @@ public class HUD {
             }
             CTxT msg = CTxT.of("");
             if (abovemsg != null) msg.append(abovemsg).append("\n");
-            msg.append(" ").append(lang("ui.edit").color(Assets.mainColors.edit)).append(CTxT.of("\n                                               \n").strikethrough(true));
+            msg.append(" ").append(lang("ui.edit").color(Assets.mainColors.edit))
+                    .append(CTxT.of("\n                                       \n").strikethrough(true));
             if (!getEnabled(player).isEmpty()) for (String s: getEnabled(player)) msg.append(modules.get(s)).append("\n");
             else msg.append(" ").append(lang("module.none").color('c')).append("\n ").append(lang("module.none_2").color('c')).append("\n");
             if (!getDisabled(player).isEmpty()) {
-                msg.append(CTxT.of("                                               ").strikethrough(true)).append("\n")
+                msg.append(CTxT.of("                                       ").strikethrough(true)).append("\n")
                         .append(lang("ui.edit.disabled").color(Assets.mainColors.edit)).append("\n");
                 CTxT disabled = CTxT.of("");
+                int chars = 0;
                 for (int i = 0; i < getDisabled(player).size(); i++) {
-                    if (i==3) disabled.append("\n");
+                    if (chars >= 20) {
+                        chars = 0;
+                        disabled.append("\n");
+                    }
                     disabled.append(" ").append(modules.get(getDisabled(player).get(i)));
+                    chars += modules.get(getDisabled(player).get(i)).getString().length()+1;
                 }
                 msg.append(disabled).append("\n");
             }
             msg.append("          ").append(CUtl.TBtn("reset").btn(true).color('c').cEvent(1,"/hud edit reset")
                             .hEvent(CUtl.TBtn("reset.hover_edit").color('c')))
-                    .append("  ").append(CUtl.CButton.back("/hud")).append(CTxT.of("\n                                               ").strikethrough(true));
+                    .append("  ").append(CUtl.CButton.back("/hud"))
+                    .append(CTxT.of("\n                                       ").strikethrough(true));
             player.sendMessage(msg);
         }
     }
