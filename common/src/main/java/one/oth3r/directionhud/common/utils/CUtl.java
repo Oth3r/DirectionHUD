@@ -36,11 +36,8 @@ public class CUtl {
             return LangReader.of("key.directionhud."+key, args).getTxT();
         }
     }
-    public static CTxT TBtn(String TBtn) {
-        return lang("button."+TBtn);
-    }
-    public static CTxT TBtn(String TBtn, Object... args) {
-        return lang("button."+TBtn,args);
+    public static CTxT TBtn(String key, Object... args) {
+        return lang("button."+key,args);
     }
     public static class CButton {
         public static CTxT back(String cmd) {

@@ -281,7 +281,7 @@ public class Destination {
         public static ArrayList<String> logic(Player player, int pos, String[] args) {
             ArrayList<String> suggester = new ArrayList<>();
             if (!Utl.checkEnabled.destination(player)) return suggester;
-            if (pos == 1) suggester.addAll(commandSuggester.base(player));
+            if (pos == 1) suggester.addAll(base(player));
             if (pos > 1) {
                 String command = args[0].toLowerCase();
                 String[] trimmedArgs = Utl.trimStart(args, 1);
