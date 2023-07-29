@@ -6,6 +6,7 @@ import com.google.gson.reflect.TypeToken;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.HUD;
+import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
 
@@ -112,7 +113,7 @@ public class config {
         save();
     }
     public static void setToPlayer(Player player) {
-        //one.oth3r.directionhud.common.HUD SETTINGS
+        //HUD SETTINGS
         HUDEnabled = PlayerData.get.hud.state(player);
         HUDOrder = PlayerData.get.hud.order(player);
         HUDCoordinates = PlayerData.get.hud.module.coordinates(player);
@@ -124,12 +125,12 @@ public class config {
         HUDWeather = PlayerData.get.hud.module.weather(player);
         HUD24HR = PlayerData.get.hud.setting.time24h(player);
         //HUD COLORS
-        HUDPrimaryColor = HUD.color.getHUDColors(player)[0];
+        HUDPrimaryColor = HUD.color.getHUDColor(player,1);
         HUDPrimaryBold = HUD.color.getHUDBold(player,1);
         HUDPrimaryItalics = HUD.color.getHUDItalics(player, 1);
         HUDPrimaryRainbow = HUD.color.getHUDRGB(player,1);
         //SEC
-        HUDSecondaryColor = HUD.color.getHUDColors(player)[1];
+        HUDSecondaryColor = HUD.color.getHUDColor(player,2);
         HUDSecondaryBold = HUD.color.getHUDBold(player,2);
         HUDSecondaryItalics = HUD.color.getHUDItalics(player, 2);
         HUDSecondaryRainbow = HUD.color.getHUDRGB(player,2);
@@ -162,7 +163,9 @@ public class config {
         try (FileInputStream fileStream = new FileInputStream(configFile())) {
             Properties properties = new Properties();
             properties.load(fileStream);
-            loadVersion(properties,(String) properties.computeIfAbsent("version", a -> defaults.version+""));
+            String version = (String) properties.computeIfAbsent("version", a -> String.valueOf(defaults.version));
+            if (version.contains("v")) version = version.substring(1);
+            loadVersion(properties,Float.parseFloat(version));
             Utl.dim.loadConfig();
             save();
         } catch (Exception f) {
@@ -171,61 +174,70 @@ public class config {
             resetDefaults();
         }
     }
-    public static void loadVersion(Properties properties, String version) {
+    public static void loadVersion(Properties properties, float version) {
         //CONFIG
-        DESTSaving = Boolean.parseBoolean((String) properties.computeIfAbsent("destination-saving", a -> defaults.DESTSaving+""));
-        MAXSaved = Integer.parseInt((String) properties.computeIfAbsent("destination-max-saved", a -> defaults.MAXSaved+""));
-        deathsaving = Boolean.parseBoolean((String) properties.computeIfAbsent("death-saving", a -> defaults.deathsaving +""));
-        HUDEditing = Boolean.parseBoolean((String) properties.computeIfAbsent("hud-editing", a -> defaults.HUDEditing +""));
-        HUDRefresh = Math.min(20, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("hud-refresh", a -> defaults.HUDRefresh+""))));
-        online = Boolean.parseBoolean((String) properties.computeIfAbsent("online-mode", a -> defaults.online +""));
+        DESTSaving = Boolean.parseBoolean((String) properties.computeIfAbsent("destination-saving", a -> String.valueOf(defaults.DESTSaving)));
+        MAXSaved = Integer.parseInt((String) properties.computeIfAbsent("destination-max-saved", a -> String.valueOf(defaults.MAXSaved)));
+        deathsaving = Boolean.parseBoolean((String) properties.computeIfAbsent("death-saving", a -> String.valueOf(defaults.deathsaving)));
+        HUDEditing = Boolean.parseBoolean((String) properties.computeIfAbsent("hud-editing", a -> String.valueOf(defaults.HUDEditing)));
+        HUDRefresh = Math.min(20, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("hud-refresh", a -> String.valueOf(defaults.HUDRefresh)))));
+        online = Boolean.parseBoolean((String) properties.computeIfAbsent("online-mode", a -> String.valueOf(defaults.online)));
         //one.oth3r.directionhud.common.HUD
-        HUDEnabled = Boolean.parseBoolean((String) properties.computeIfAbsent("enabled", a -> defaults.HUDEnabled+""));
+        HUDEnabled = Boolean.parseBoolean((String) properties.computeIfAbsent("enabled", a -> String.valueOf(defaults.HUDEnabled)));
         HUDOrder = HUD.order.fixOrder((String) properties.computeIfAbsent("order", a -> defaults.HUDOrder));
-        HUD24HR = Boolean.parseBoolean((String) properties.computeIfAbsent("time24hr", a -> defaults.HUD24HR+""));
-        HUDPrimaryColor = Utl.color.fix((String) properties.computeIfAbsent("primary-color", a -> defaults.HUDPrimaryColor),true,defaults.HUDPrimaryColor);
-        HUDPrimaryBold = Boolean.parseBoolean((String) properties.computeIfAbsent("primary-bold", a -> defaults.HUDPrimaryBold+""));
-        HUDPrimaryItalics = Boolean.parseBoolean((String) properties.computeIfAbsent("primary-italics", a -> defaults.HUDPrimaryItalics+""));
-        HUDPrimaryRainbow = Boolean.parseBoolean((String) properties.computeIfAbsent("primary-rainbow", a -> defaults.HUDPrimaryRainbow+""));
-        HUDSecondaryColor = Utl.color.fix((String) properties.computeIfAbsent("secondary-color", a -> defaults.HUDSecondaryColor),true,defaults.HUDSecondaryColor);
-        HUDSecondaryBold = Boolean.parseBoolean((String) properties.computeIfAbsent("secondary-bold", a -> defaults.HUDSecondaryBold+""));
-        HUDSecondaryItalics = Boolean.parseBoolean((String) properties.computeIfAbsent("secondary-italics", a -> defaults.HUDSecondaryItalics+""));
-        HUDSecondaryRainbow = Boolean.parseBoolean((String) properties.computeIfAbsent("secondary-rainbow", a -> defaults.HUDSecondaryRainbow+""));
+        HUD24HR = Boolean.parseBoolean((String) properties.computeIfAbsent("time24hr", a -> String.valueOf(defaults.HUD24HR)));
+        HUDPrimaryBold = Boolean.parseBoolean((String) properties.computeIfAbsent("primary-bold", a -> String.valueOf(defaults.HUDPrimaryBold)));
+        HUDPrimaryItalics = Boolean.parseBoolean((String) properties.computeIfAbsent("primary-italics", a -> String.valueOf(defaults.HUDPrimaryItalics)));
+        HUDPrimaryRainbow = Boolean.parseBoolean((String) properties.computeIfAbsent("primary-rainbow", a -> String.valueOf(defaults.HUDPrimaryRainbow)));
+        HUDSecondaryBold = Boolean.parseBoolean((String) properties.computeIfAbsent("secondary-bold", a -> String.valueOf(defaults.HUDSecondaryBold)));
+        HUDSecondaryItalics = Boolean.parseBoolean((String) properties.computeIfAbsent("secondary-italics", a -> String.valueOf(defaults.HUDSecondaryItalics)));
+        HUDSecondaryRainbow = Boolean.parseBoolean((String) properties.computeIfAbsent("secondary-rainbow", a -> String.valueOf(defaults.HUDSecondaryRainbow)));
         //MODULES
-        HUDCoordinates = Boolean.parseBoolean((String) properties.computeIfAbsent("coordinates", a -> defaults.HUDCoordinates+""));
-        HUDDistance = Boolean.parseBoolean((String) properties.computeIfAbsent("distance", a -> defaults.HUDDistance+""));
-        HUDDestination = Boolean.parseBoolean((String) properties.computeIfAbsent("destination", a -> defaults.HUDDestination+""));
-        HUDDirection = Boolean.parseBoolean((String) properties.computeIfAbsent("direction", a -> defaults.HUDDirection+""));
-        HUDTime = Boolean.parseBoolean((String) properties.computeIfAbsent("time", a -> defaults.HUDTime+""));
-        HUDWeather = Boolean.parseBoolean((String) properties.computeIfAbsent("weather", a -> defaults.HUDWeather+""));
+        HUDCoordinates = Boolean.parseBoolean((String) properties.computeIfAbsent("coordinates", a -> String.valueOf(defaults.HUDCoordinates)));
+        HUDDistance = Boolean.parseBoolean((String) properties.computeIfAbsent("distance", a -> String.valueOf(defaults.HUDDistance)));
+        HUDDestination = Boolean.parseBoolean((String) properties.computeIfAbsent("destination", a -> String.valueOf(defaults.HUDDestination)));
+        HUDDirection = Boolean.parseBoolean((String) properties.computeIfAbsent("direction", a -> String.valueOf(defaults.HUDDirection)));
+        HUDTime = Boolean.parseBoolean((String) properties.computeIfAbsent("time", a -> String.valueOf(defaults.HUDTime)));
+        HUDWeather = Boolean.parseBoolean((String) properties.computeIfAbsent("weather", a -> String.valueOf(defaults.HUDWeather)));
         //DEST
-        DESTAutoClear = Boolean.parseBoolean((String) properties.computeIfAbsent("autoclear", a -> defaults.DESTAutoClear+""));
-        DESTAutoClearRad = Math.min(15, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("autoclear-radius", a -> defaults.DESTAutoClearRad+""))));
-        DESTYLevel = Boolean.parseBoolean((String) properties.computeIfAbsent("y-level", a -> defaults.DESTYLevel+""));
-        DESTLineParticles = Boolean.parseBoolean((String) properties.computeIfAbsent("line-particles", a -> defaults.DESTLineParticles+""));
-        DESTLineParticleColor = Utl.color.fix((String) properties.computeIfAbsent("line-particle-color", a -> defaults.DESTLineParticleColor),false,defaults.DESTLineParticleColor);
-        DESTDestParticles = Boolean.parseBoolean((String) properties.computeIfAbsent("dest-particles", a -> defaults.DESTDestParticles+""));
-        DESTDestParticleColor = Utl.color.fix((String) properties.computeIfAbsent("dest-particle-color", a -> defaults.DESTDestParticleColor),false,defaults.DESTDestParticleColor);
-        DESTSend = Boolean.parseBoolean((String) properties.computeIfAbsent("send", a -> defaults.DESTSend+""));
-        DESTTrack = Boolean.parseBoolean((String) properties.computeIfAbsent("track", a -> defaults.DESTTrack+""));
+        DESTAutoClear = Boolean.parseBoolean((String) properties.computeIfAbsent("autoclear", a -> String.valueOf(defaults.DESTAutoClear)));
+        DESTAutoClearRad = Math.min(15, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("autoclear-radius", a -> String.valueOf(defaults.DESTAutoClearRad)))));
+        DESTYLevel = Boolean.parseBoolean((String) properties.computeIfAbsent("y-level", a -> String.valueOf(defaults.DESTYLevel)));
+        DESTLineParticles = Boolean.parseBoolean((String) properties.computeIfAbsent("line-particles", a -> String.valueOf(defaults.DESTLineParticles)));
+        DESTDestParticles = Boolean.parseBoolean((String) properties.computeIfAbsent("dest-particles", a -> String.valueOf(defaults.DESTDestParticles)));
+        DESTSend = Boolean.parseBoolean((String) properties.computeIfAbsent("send", a -> String.valueOf(defaults.DESTSend)));
+        DESTTrack = Boolean.parseBoolean((String) properties.computeIfAbsent("track", a -> String.valueOf(defaults.DESTTrack)));
         //DIM
         Type mapType = new TypeToken<ArrayList<String>>() {}.getType();
         dimensionRatios = new Gson().fromJson((String)
-                properties.computeIfAbsent("dimension-ratios", a -> defaults.dimensionRatios+""),mapType);
+                properties.computeIfAbsent("dimension-ratios", a -> String.valueOf(defaults.dimensionRatios)),mapType);
         dimensions = new Gson().fromJson((String)
-                properties.computeIfAbsent("dimensions", a -> defaults.dimensions+""),mapType);
+                properties.computeIfAbsent("dimensions", a -> String.valueOf(defaults.dimensions)),mapType);
 
-        if (version.equalsIgnoreCase("v1.1")) {
-            HUDTracking = Boolean.parseBoolean((String) properties.computeIfAbsent("compass", a -> defaults.HUDTracking+""));
+        if (version == 1.1) {
+            HUDTracking = Boolean.parseBoolean((String) properties.computeIfAbsent("compass", a -> String.valueOf(defaults.HUDTracking)));
         }
-        if (version.equalsIgnoreCase("v1.2")) {
-            MAXxz = Integer.parseInt((String) properties.computeIfAbsent("max-xz", a -> defaults.MAXxz+""));
-            MAXy = Integer.parseInt((String) properties.computeIfAbsent("max-y", a -> defaults.MAXy+""));
-            social = Boolean.parseBoolean((String) properties.computeIfAbsent("social-commands", a -> defaults.social+""));
-            DESTAutoConvert = Boolean.parseBoolean((String) properties.computeIfAbsent("autoconvert", a -> defaults.DESTAutoConvert+""));
-            HUDTracking = Boolean.parseBoolean((String) properties.computeIfAbsent("tracking", a -> defaults.HUDTracking+""));
-            DESTTrackingParticles = Boolean.parseBoolean((String) properties.computeIfAbsent("tracking-particles", a -> defaults.DESTTrackingParticles+""));
-            DESTTrackingParticleColor = Utl.color.fix((String) properties.computeIfAbsent("tracking-particle-color", a -> defaults.DESTTrackingParticleColor),false,defaults.DESTDestParticleColor);
+        if (version >= 1.2) {
+            HUDPrimaryColor = CUtl.color.updateOld((String) properties.computeIfAbsent("primary-color", a -> defaults.HUDPrimaryColor),defaults.HUDPrimaryColor);
+            HUDSecondaryColor = CUtl.color.updateOld((String) properties.computeIfAbsent("secondary-color", a -> defaults.HUDSecondaryColor),defaults.HUDSecondaryColor);
+            DESTLineParticleColor = CUtl.color.updateOld((String) properties.computeIfAbsent("line-particle-color", a -> defaults.DESTLineParticleColor),defaults.DESTLineParticleColor);
+            DESTDestParticleColor = CUtl.color.updateOld((String) properties.computeIfAbsent("dest-particle-color", a -> defaults.DESTDestParticleColor),defaults.DESTDestParticleColor);
+            DESTTrackingParticleColor = CUtl.color.updateOld((String) properties.computeIfAbsent("tracking-particle-color", a -> defaults.DESTTrackingParticleColor),defaults.DESTDestParticleColor);
+        }
+        if (version >= 1.2) {
+            MAXxz = Integer.parseInt((String) properties.computeIfAbsent("max-xz", a -> String.valueOf(defaults.MAXxz)));
+            MAXy = Integer.parseInt((String) properties.computeIfAbsent("max-y", a -> String.valueOf(defaults.MAXy)));
+            social = Boolean.parseBoolean((String) properties.computeIfAbsent("social-commands", a -> String.valueOf(defaults.social)));
+            DESTAutoConvert = Boolean.parseBoolean((String) properties.computeIfAbsent("autoconvert", a -> String.valueOf(defaults.DESTAutoConvert)));
+            HUDTracking = Boolean.parseBoolean((String) properties.computeIfAbsent("tracking", a -> String.valueOf(defaults.HUDTracking)));
+            DESTTrackingParticles = Boolean.parseBoolean((String) properties.computeIfAbsent("tracking-particles", a -> String.valueOf(defaults.DESTTrackingParticles)));
+        }
+        if (version >= 1.3) {
+            HUDPrimaryColor = CUtl.color.format((String) properties.computeIfAbsent("primary-color", a -> defaults.HUDPrimaryColor),defaults.HUDPrimaryColor);
+            HUDSecondaryColor = CUtl.color.format((String) properties.computeIfAbsent("secondary-color", a -> defaults.HUDSecondaryColor),defaults.HUDSecondaryColor);
+            DESTLineParticleColor = CUtl.color.format((String) properties.computeIfAbsent("line-particle-color", a -> defaults.DESTLineParticleColor),defaults.DESTLineParticleColor);
+            DESTDestParticleColor = CUtl.color.format((String) properties.computeIfAbsent("dest-particle-color", a -> defaults.DESTDestParticleColor),defaults.DESTDestParticleColor);
+            DESTTrackingParticleColor = CUtl.color.format((String) properties.computeIfAbsent("tracking-particle-color", a -> defaults.DESTTrackingParticleColor),defaults.DESTDestParticleColor);
         }
     }
     public static void save() {
@@ -294,7 +306,7 @@ public class config {
         }
     }
     public static class defaults {
-        public static String version = "v1.2";
+        public static float version = 1.3f;
         public static String lang = "en_us";
         public static boolean DESTSaving = true;
         public static int MAXSaved = 50;
@@ -319,7 +331,7 @@ public class config {
         public static boolean HUDPrimaryBold = false;
         public static boolean HUDPrimaryItalics = false;
         public static boolean HUDPrimaryRainbow = false;
-        public static String HUDSecondaryColor = "white";
+        public static String HUDSecondaryColor = "#ffffff";
         public static boolean HUDSecondaryBold = false;
         public static boolean HUDSecondaryItalics = false;
         public static boolean HUDSecondaryRainbow = false;

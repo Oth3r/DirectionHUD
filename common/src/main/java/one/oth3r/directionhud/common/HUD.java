@@ -24,11 +24,16 @@ public class HUD {
             String type = args[0].toLowerCase();
             String[] trimmedArgs = Utl.trimStart(args, 1);
             switch (type) {
+                case "preset" -> presetCMD(player,trimmedArgs);
                 case "edit" -> orderCMD(player, trimmedArgs);
                 case "color" -> colorCMD(player, trimmedArgs);
                 case "toggle" -> toggleCMD(player, trimmedArgs);
                 default -> player.sendMessage(CUtl.error(CUtl.lang("error.command")));
             }
+        }
+        public static void presetCMD(Player player, String[] args) {
+            if (args.length != 3) return;
+            CUtl.color.presetUI(player,args[0],"/"+args[1].replace("_"," "),"/"+args[2].replace("_"," "));
         }
         public static void orderCMD(Player player, String[] args) {
             //UI
@@ -51,23 +56,26 @@ public class HUD {
                 return;
             }
             //COLOR
-            if (args.length == 2 && args[0].equals("edt")) {
-                if (args[1].equals("pri")) color.changeUI(player, "pri", null);
-                if (args[1].equals("sec")) color.changeUI(player, "sec", null);
+            if (args.length == 3 && args[0].equals("edit")) {
+                if (args[2].equals("primary")) color.changeUI(player, args[1], args[2], null);
+                if (args[2].equals("secondary")) color.changeUI(player, args[1], args[2], null);
             }
             //RESET
-            if (args[0].equals("rset")) {
-                if (args.length == 1) color.reset(player, null, true);
-                if (args.length == 2) color.reset(player, args[1], true);
+            if (args[0].equals("reset")) {
+                if (args.length == 1) color.reset(player,null,null,true);
+                if (args.length == 3) color.reset(player,args[1],args[2],true);
+            }
+            if (args[0].equals("preset") && args.length == 3) {
+                color.presets(player,args[1],args[2]);
             }
             //CHANGE COLOR
-            if (args.length != 3) return;
+            if (args.length < 4) return;
             String type = args[0].toLowerCase();
             switch (type) {
-                case "set" -> color.setColor(player, args[1], args[2], true);
-                case "bold" -> color.setBold(player, args[1], Boolean.parseBoolean(args[2]), true);
-                case "italics" -> color.setItalics(player, args[1], Boolean.parseBoolean(args[2]), true);
-                case "rgb" -> color.setRGB(player, args[1], Boolean.parseBoolean(args[2]), true);
+                case "set" -> color.setColor(player, args[1], args[2], args[3], true);
+                case "bold" -> color.setBold(player, args[1], args[2], Boolean.parseBoolean(args[3]), true);
+                case "italics" -> color.setItalics(player, args[1], args[2], Boolean.parseBoolean(args[3]), true);
+                case "rgb" -> color.setRGB(player, args[1], args[2], Boolean.parseBoolean(args[3]), true);
             }
         }
         public static void toggleCMD(Player player, String[] args) {
@@ -85,8 +93,8 @@ public class HUD {
                 suggester.add("color");
                 suggester.add("toggle");
             }
-            if (pos == 4 && args[2].equals("set")) {
-                suggester.add("ffffff");
+            if (pos == 5 && args[1].equals("set")) {
+                suggester.add("#ffffff");
             }
             if (pos == args.length) return Utl.formatSuggestions(suggester,args);
             return suggester;
@@ -151,12 +159,12 @@ public class HUD {
                 if (str.charAt(0) == 'p') {
                     msg.append(color.addColor(player,string,1, LoopManager.rainbowF+start,5)
                             .strikethrough(strike));
-                    if (color.getHUDColors(player)[0].equals("rainbow"))
+                    if (color.getHUDColor(player,1).equals("rainbow"))
                         start = start + (string.replaceAll("\\s", "").length()*5);
                 } else if (str.charAt(0) == 's') {
                     msg.append(color.addColor(player,string,2, LoopManager.rainbowF+start,5)
                             .strikethrough(strike));
-                    if (color.getHUDColors(player)[1].equals("rainbow"))
+                    if (color.getHUDColor(player,2).equals("rainbow"))
                         start = start + (string.replaceAll("\\s", "").length()*5);
                 }
             }
@@ -523,96 +531,95 @@ public class HUD {
         }
     }
     public static class color {
-        public static void reset(Player player, String type, boolean Return) {
-            String langType;
+        public static void reset(Player player,String setting, String type, boolean Return) {
             if (type == null) {
                 PlayerData.set.hud.primary(player, defaultFormat(1));
                 PlayerData.set.hud.secondary(player, defaultFormat(2));
-                langType = "all";
-            } else if (type.equals("pri")) {
+                type = "all";
+            } else if (type.equals("primary")) {
                 PlayerData.set.hud.primary(player, defaultFormat(1));
-                langType = "primary";
-            } else if (type.equals("sec")) {
+            } else if (type.equals("secondary")) {
                 PlayerData.set.hud.secondary(player, defaultFormat(2));
-                langType = "secondary";
             } else return;
-            CTxT msg = CUtl.tag().append(lang("color.reset",lang("color.reset_2").color('c'),lang("color."+langType)));
-            if (Return) UI(player, msg);
+            CTxT msg = CUtl.tag().append(lang("color.reset",CUtl.TBtn("reset").color('c'),lang("color."+type)));
+            if (Return && type.equals("all")) UI(player,msg);
+            else if (Return) changeUI(player,setting,type,msg);
             else player.sendMessage(msg);
         }
-        public static void setColor(Player player, String type, String color, boolean Return) {
+        public static void presets(Player player, String setting, String type) {
+            CUtl.color.presetUI(player,"custom","/hud color set "+setting+" "+type+" ","/hud color edit "+setting+" "+type);
+        }
+        public static void setColor(Player player, String setting, String type, String color, boolean Return) {
             color = color.toLowerCase();
             String ogColor = "#"+color;
             if (color.contains("#")) ogColor = color;
             if (type.equals("primary")) {
-                color = Utl.color.fix(color,true, config.HUDPrimaryColor);
-                if (color.contains("#") && !color.equals(ogColor)) {
+                color = CUtl.color.format(color,config.HUDPrimaryColor);
+                if (!color.equals(ogColor)) {
                     player.sendMessage(CUtl.error(CUtl.lang("error.color",CTxT.of(ogColor).color(CUtl.s()))));
                     return;
                 }
                 PlayerData.set.hud.primary(player, color+"-"+getHUDBold(player,1)+"-"+getHUDItalics(player,1)+"-"+getHUDRGB(player,1));
             } else if (type.equals("secondary")) {
-                color = Utl.color.fix(color,true, config.HUDSecondaryColor);
-                if (color.contains("#") && !color.equals(ogColor)) {
+                color = CUtl.color.format(color,config.HUDSecondaryColor);
+                if (!color.equals(ogColor)) {
                     player.sendMessage(CUtl.error(CUtl.lang("error.color",CTxT.of(ogColor).color(CUtl.s()))));
                     return;
                 }
                 PlayerData.set.hud.secondary(player, color+"-"+getHUDBold(player,2)+"-"+getHUDItalics(player,2)+"-"+getHUDRGB(player,2));
             } else return;
-            CTxT msg = CUtl.tag().append(lang("color.set",lang("color."+type),
-                    addColor(player,Utl.color.formatPlayer(color,true),type.equals("primary")?1:2,15f,20f)));
-            if (Return) changeUI(player, type.substring(0,3),msg);
+            CTxT msg = CUtl.tag().append(lang("color.set",lang("color."+type),CUtl.color.getBadge(color)));
+            if (Return) changeUI(player,setting, type,msg);
             else player.sendMessage(msg);
         }
-        public static void setBold(Player player, String type, boolean state, boolean Return) {
+        public static void setBold(Player player, String setting, String type, boolean state, boolean Return) {
             if (type.equals("primary")) {
                 if (getHUDBold(player, 1)==state) return;
-                PlayerData.set.hud.primary(player, getHUDColors(player)[0]+"-"+state+"-"+getHUDItalics(player,1)+"-"+getHUDRGB(player,1));
-            } else if (type.equals("secondary")){
+                PlayerData.set.hud.primary(player, getHUDColor(player,1)+"-"+state+"-"+getHUDItalics(player,1)+"-"+getHUDRGB(player,1));
+            } else if (type.equals("secondary")) {
                 if (getHUDBold(player, 2)==state) return;
-                PlayerData.set.hud.secondary(player, getHUDColors(player)[1]+"-"+state+"-"+getHUDItalics(player,2)+"-"+getHUDRGB(player,2));
+                PlayerData.set.hud.secondary(player, getHUDColor(player,2)+"-"+state+"-"+getHUDItalics(player,2)+"-"+getHUDRGB(player,2));
             } else return;
             CTxT msg = CUtl.tag().append(lang("color.set.bold",
                     CUtl.lang("button."+(state?"on":"off")).color(state?'a':'c'),lang("color."+type)));
-            if (Return) changeUI(player, type.substring(0,3),msg);
+            if (Return) changeUI(player,setting,type,msg);
             else player.sendMessage(msg);
         }
-        public static void setItalics(Player player, String type, boolean state, boolean Return) {
+        public static void setItalics(Player player, String setting, String type, boolean state, boolean Return) {
             if (type.equals("primary")) {
                 if (getHUDItalics(player, 1)==state) return;
-                PlayerData.set.hud.primary(player, getHUDColors(player)[0]+"-"+getHUDBold(player,1)+"-"+state+"-"+getHUDRGB(player,1));
+                PlayerData.set.hud.primary(player, getHUDColor(player,1)+"-"+getHUDBold(player,1)+"-"+state+"-"+getHUDRGB(player,1));
             } else if (type.equals("secondary")){
                 if (getHUDItalics(player, 2)==state) return;
-                PlayerData.set.hud.secondary(player, getHUDColors(player)[1]+"-"+getHUDBold(player,2)+"-"+state+"-"+getHUDRGB(player,2));
+                PlayerData.set.hud.secondary(player, getHUDColor(player,2)+"-"+getHUDBold(player,2)+"-"+state+"-"+getHUDRGB(player,2));
             } else return;
             CTxT msg = CUtl.tag().append(lang("color.set.italics",
                     CUtl.lang("button."+(state?"on":"off")).color(state?'a':'c'),lang("color."+type)));
-            if (Return) changeUI(player, type.substring(0,3),msg);
+            if (Return) changeUI(player,setting,type,msg);
             else player.sendMessage(msg);
         }
-        public static void setRGB(Player player, String type, boolean state, boolean Return) {
+        public static void setRGB(Player player, String setting, String type, boolean state, boolean Return) {
             if (type.equals("primary")) {
                 if (getHUDRGB(player, 1)==state) return;
-                PlayerData.set.hud.primary(player, getHUDColors(player)[0]+"-"+getHUDBold(player,1)+"-"+getHUDItalics(player,1)+"-"+state);
+                PlayerData.set.hud.primary(player, getHUDColor(player,1)+"-"+getHUDBold(player,1)+"-"+getHUDItalics(player,1)+"-"+state);
             } else if (type.equals("secondary")){
                 if (getHUDRGB(player, 2)==state) return;
-                PlayerData.set.hud.secondary(player, getHUDColors(player)[1]+"-"+getHUDBold(player,2)+"-"+getHUDItalics(player,1)+"-"+state);
+                PlayerData.set.hud.secondary(player, getHUDColor(player,2)+"-"+getHUDBold(player,2)+"-"+getHUDItalics(player,1)+"-"+state);
             } else return;
             CTxT msg = CUtl.tag().append(lang("color.set.rgb",
                     CUtl.lang("button."+(state?"on":"off")).color(state?'a':'c'),lang("color."+type)));
-            if (Return) changeUI(player, type.substring(0,3),msg);
+            if (Return) changeUI(player,setting,type,msg);
             else player.sendMessage(msg);
         }
-        //"red", "dark_red", "gold", "yellow", "green", "dark_green", "aqua", "dark_aqua",
-        // "blue", "dark_blue", "pink", "purple", "white", "gray", "dark_gray", "black"
         public static String defaultFormat(int i) {
             if (i==1) return config.HUDPrimaryColor+"-"+ config.HUDPrimaryBold+"-"+ config.HUDPrimaryItalics+"-"+ config.HUDPrimaryRainbow;
             return config.HUDSecondaryColor+"-"+ config.HUDSecondaryBold+"-"+ config.HUDSecondaryItalics+"-"+ config.HUDSecondaryRainbow;
         }
-        public static String[] getHUDColors(Player player) {
+        public static String getHUDColor(Player player, int i) {
             String[] p = PlayerData.get.hud.primary(player).split("-");
             String[] s = PlayerData.get.hud.secondary(player).split("-");
-            return (p[0]+" "+s[0]).split(" ");
+            if (i==1) return p[0];
+            return s[0];
         }
         public static Boolean getHUDBold(Player player, int i) {
             String[] p = PlayerData.get.hud.primary(player).split("-");
@@ -634,98 +641,57 @@ public class HUD {
         }
         public static CTxT addColor(Player player, String txt, int i, float start, float step) {
             if (getHUDRGB(player,i)) return CTxT.of(txt).rainbow(true,start,step).italic(getHUDItalics(player,i)).bold(getHUDBold(player,i));
-            return CTxT.of(txt).color(getHUDColors(player)[i-1]).italic(getHUDItalics(player,i)).bold(getHUDBold(player,i));
+            return CTxT.of(txt).color(getHUDColor(player,i)).italic(getHUDItalics(player,i)).bold(getHUDBold(player,i));
         }
-        public static void changeUI(Player player, String type, CTxT abovemsg) {
+        public static void changeUI(Player player, String setting, String type, CTxT abovemsg) {
             CTxT msg = CTxT.of("");
             if (abovemsg != null) msg.append(abovemsg).append("\n");
-            ArrayList<String> allStr = new ArrayList<>(Arrays.asList(
-                    "red", "dark_red", "gold", "yellow", "green", "dark_green", "aqua", "dark_aqua",
-                    "blue", "dark_blue", "pink", "purple", "white", "gray", "dark_gray", "black"));
-            CTxT red = CTxT.of("RED").btn(true).color('c');
-            CTxT dark_red = CTxT.of("D").btn(true).color('4');
-            CTxT gold = CTxT.of("G").btn(true).color('6');
-            CTxT yellow =  CTxT.of("YELLOW").btn(true).color('e');
-            CTxT green = CTxT.of("GREEN").btn(true).color('a');
-            CTxT dark_green = CTxT.of("D").btn(true).color('2');
-            CTxT aqua = CTxT.of("AQUA").btn(true).color('b');
-            CTxT dark_aqua = CTxT.of("D").btn(true).color('3');
-            CTxT blue = CTxT.of("BLUE").btn(true).color('9');
-            CTxT dark_blue = CTxT.of("D").btn(true).color('1');
-            CTxT pink = CTxT.of("PINK").btn(true).color('d');
-            CTxT purple = CTxT.of("P").btn(true).color('5');
-            CTxT white = CTxT.of("WHITE").btn(true).color('f');
-            CTxT gray = CTxT.of("GRAY").btn(true).color('7');
-            CTxT dark_gray = CTxT.of("D").btn(true).color('8');
-            CTxT black = CTxT.of("B").btn(true).color('0');
-
-            CTxT reset = CUtl.TBtn("reset").btn(true).color('c');
             CTxT back = CUtl.CButton.back("/hud color");
-
-            ArrayList<CTxT> allObj = new ArrayList<>(Arrays.asList(
-                    red, dark_red, gold, yellow, green, dark_green, aqua, dark_aqua, blue, dark_blue, pink, purple, white, gray, dark_gray, black));
-            for (int i = 0; i < allObj.size(); i++)
-                allObj.set(i, allObj.get(i).hEvent(CUtl.lang("button.color.hover",CTxT.of(Utl.color.formatPlayer(allStr.get(i),true)).color(allStr.get(i)))));
             int typ;
-            if (type.equalsIgnoreCase("pri")) {
-                typ = 1;
-                msg.append(" ").append(addColor(player,Utl.capitalizeFirst(lang("color.primary").getString()),typ,15,20))
-                        .append(CTxT.of("\n                           \n").strikethrough(true));
-                reset.cEvent(1, "/hud color rset pri").hEvent(CUtl.lang("button.reset.hover_color",addColor(player,lang("color.primary").getString(),typ,15,20)));
-                for (int i = 0; i < allObj.size(); i++)
-                    allObj.set(i, allObj.get(i).cEvent(1,"/hud color set primary "+allStr.get(i)));
-            } else if (type.equalsIgnoreCase("sec")) {
-                typ = 2;
-                msg.append(" ").append(addColor(player,Utl.capitalizeFirst(lang("color.secondary").getString()),typ,15,20))
-                        .append(CTxT.of("\n                           \n").strikethrough(true));
-                reset.cEvent(1,"/hud color rset sec").hEvent(CUtl.lang("button.reset.hover_color",addColor(player,lang("color.secondary").getString(),typ,15,20)));
-                for (int i = 0; i < allObj.size(); i++)
-                    allObj.set(i, allObj.get(i).cEvent(1,"/hud color set secondary "+allStr.get(i)));
-            } else return;
-            CTxT rgbButton = CTxT.of(Utl.color.rainbow(CUtl.TBtn("color.rgb").getString(),15,95)).btn(true).bold(getHUDRGB(player,typ))
-                    .cEvent(1,"/hud color rgb "+(typ==1?"primary":"secondary")+" "+(getHUDRGB(player,typ)?"false":"true"))
-                    .hEvent(CUtl.TBtn("color.rgb.hover",CUtl.TBtn(getHUDRGB(player,typ)?"off":"on").color(getHUDBold(player,typ)?'c':'a'),
-                            lang("color."+(typ==1?"primary":"secondary"))));
-            String customColor = getHUDColors(player)[typ-1].contains("#")?getHUDColors(player)[typ-1]:"#ff97e0";
-            CTxT customButton = CUtl.TBtn("color.custom").btn(true).color(customColor)
-                    .cEvent(2,"/hud color set "+(typ==1?"primary":"secondary")+" ")
-                    .hEvent(CUtl.TBtn("color.custom.hover",CUtl.TBtn("color.custom.hover_2").color(customColor)));
+            if (type.equals("primary")) typ = 1;
+            else if (type.equals("secondary")) typ = 2;
+            else return;
+            String currentColor = getHUDColor(player,typ);
+            msg.append(" ").append(addColor(player,Utl.capitalizeFirst(lang("color."+type).getString()),typ,15,20))
+                    .append(CTxT.of("\n                               \n").strikethrough(true));
+            CTxT reset = CUtl.TBtn("reset").btn(true).color('c').cEvent(1, "/hud color reset "+setting+" "+type)
+                    .hEvent(CUtl.lang("button.reset.hover_color_hud",addColor(player,lang("color."+type).getString().toUpperCase(),typ,15,20)));
+            CTxT presetsButton = CUtl.TBtn("color.presets").color(Assets.mainColors.presets)
+                    .cEvent(1,"/hud color preset "+setting+" "+type).btn(true)
+                    .hEvent(CUtl.TBtn("color.presets.hover",CUtl.TBtn("color.presets.hover_2").color(Assets.mainColors.presets)));
+            CTxT customButton = CUtl.TBtn("color.custom").btn(true).color(Assets.mainColors.custom)
+                    .cEvent(2,"/hud color set "+setting+" "+type+" ")
+                    .hEvent(CUtl.TBtn("color.custom.hover",CUtl.TBtn("color.custom.hover_2").color(Assets.mainColors.custom)));
             CTxT boldButton = CUtl.TBtn("color.bold").btn(true).color(getHUDBold(player, typ)?'a':'c')
-                    .cEvent(1,"/hud color bold "+(typ==1?"primary":"secondary")+" "+(getHUDBold(player,typ)?"false":"true"))
-                    .hEvent(CUtl.TBtn("color.bold.hover",CUtl.TBtn(getHUDBold(player,typ)?"off":"on").color(getHUDBold(player,typ)?'c':'a'),
-                            lang("color."+(typ==1?"primary":"secondary"))));
+                    .cEvent(1,"/hud color bold "+setting+" "+type+" "+(getHUDBold(player,typ)?"false":"true"))
+                    .hEvent(CUtl.TBtn("color.bold.hover",CUtl.TBtn(getHUDBold(player,typ)?"off":"on").color(getHUDBold(player, typ)?'a':'c'),lang("color."+type)));
             CTxT italicsButton = CUtl.TBtn("color.italics").btn(true).color(getHUDItalics(player, typ)?'a':'c')
-                    .cEvent(1,"/hud color italics "+(typ==1?"primary":"secondary")+" "+(getHUDItalics(player,typ)?"false":"true"))
-                    .hEvent(CUtl.TBtn("color.italics.hover",CUtl.TBtn(getHUDItalics(player,typ)?"off":"on").color(getHUDItalics(player,typ)?'c':'a'),
-                            lang("color."+(typ==1?"primary":"secondary"))));
-            msg.append(" ")
-                    .append(allObj.get(0)).append(" ").append(allObj.get(1)).append("\n ")
-                    .append(allObj.get(3)).append(" ").append(allObj.get(2)).append("\n ")
-                    .append(allObj.get(4)).append(" ").append(allObj.get(5)).append("\n ")
-                    .append(allObj.get(6)).append(" ").append(allObj.get(7)).append("\n ")
-                    .append(allObj.get(8)).append(" ").append(allObj.get(9)).append("\n ")
-                    .append(allObj.get(10)).append(" ").append(allObj.get(11)).append("\n ")
-                    .append(allObj.get(13)).append(" ").append(allObj.get(14)).append("\n ")
-                    .append(allObj.get(12)).append(" ").append(allObj.get(15)).append("\n\n ")
-                    .append(rgbButton).append(" ").append(customButton).append("\n\n ")
-                    .append(boldButton).append(" ").append(italicsButton).append("\n\n ")
+                    .cEvent(1,"/hud color italics "+setting+" "+type+" "+(getHUDItalics(player,typ)?"false":"true"))
+                    .hEvent(CUtl.TBtn("color.italics.hover",CUtl.TBtn(getHUDItalics(player,typ)?"off":"on").color(getHUDItalics(player, typ)?'a':'c'),lang("color."+type)));
+            CTxT rgbButton = CTxT.of(CUtl.color.rainbow(CUtl.TBtn("color.rgb").getString(),15,95)).btn(true).bold(getHUDRGB(player,typ))
+                    .cEvent(1,"/hud color rgb "+setting+" "+type+" "+(getHUDRGB(player,typ)?"false":"true"))
+                    .hEvent(CUtl.TBtn("color.rgb.hover",CUtl.TBtn(getHUDRGB(player,typ)?"off":"on").color(getHUDRGB(player, typ)?'a':'c'),lang("color."+type)));
+            msg.append("   ")
+                    .append(presetsButton).append(" ").append(customButton).append("\n\n")
+                    .append(CUtl.color.colorEditor(currentColor,setting,"/hud color set "+setting+" "+type+" ","/hud color edit big "+type)).append("\n\n ")
+                    .append(boldButton).append(" ").append(italicsButton).append(" ").append(rgbButton).append("\n\n     ")
                     .append(reset).append(" ").append(back)
-                    .append(CTxT.of("\n                           ").strikethrough(true));
+                    .append(CTxT.of("\n                               ").strikethrough(true));
             player.sendMessage(msg);
         }
         public static void UI(Player player, CTxT abovemsg) {
             CTxT msg = CTxT.of("");
             if (abovemsg != null) msg.append(abovemsg).append("\n");
-            msg.append(" ").append(Utl.color.rainbow(lang("ui.color").getString(),15f,45f))
+            msg.append(" ").append(CUtl.color.rainbow(lang("ui.color").getString(),15f,45f))
                     .append(CTxT.of("\n                                \n").strikethrough(true)).append(" ");
             //PRIMARY
-            msg.append(CTxT.of(addColor(player,CUtl.TBtn("color.primary").getString(),1,15,20)).btn(true).cEvent(1,"/hud color edt pri")
+            msg.append(CTxT.of(addColor(player,CUtl.TBtn("color.primary").getString(),1,15,20)).btn(true).cEvent(1,"/hud color edit normal primary")
                     .hEvent(CUtl.TBtn("color.edit.hover",addColor(player,CUtl.TBtn("color.primary").getString(),1,15,20)))).append(" ");
             //SECONDARY
-            msg.append(CTxT.of(addColor(player,CUtl.TBtn("color.secondary").getString(),2,15,20)).btn(true).cEvent(1,"/hud color edt sec")
+            msg.append(CTxT.of(addColor(player,CUtl.TBtn("color.secondary").getString(),2,15,20)).btn(true).cEvent(1,"/hud color edit normal secondary")
                     .hEvent(CUtl.TBtn("color.edit.hover",addColor(player,CUtl.TBtn("color.secondary").getString(),2,15,20)))).append("\n\n      ");
             //RESET
-            msg.append(CUtl.TBtn("reset").btn(true).color('c').cEvent(1,"/hud color rset")
+            msg.append(CUtl.TBtn("reset").btn(true).color('c').cEvent(1,"/hud color reset")
                             .hEvent(CUtl.TBtn("reset.hover_color",CUtl.TBtn("all").color('c'))))
                     .append("  ").append(CUtl.CButton.back("/hud"))
                     .append(CTxT.of("\n                                ").strikethrough(true));

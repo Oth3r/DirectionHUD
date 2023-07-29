@@ -18,6 +18,9 @@ public class Assets {
         public static final String back = "#ff9500";
         public static final String usage = "#ff8b38";
         public static final String error = "#ff4646";
+        public static final String gray = "#8d8d8d";
+        public static final String custom = "#c4ff14";
+        public static final String presets = "#2dedff";
         public static String sec;
         public static String pri;
     }
@@ -40,6 +43,7 @@ public class Assets {
         public static final String reload = "/dirhud reload";
     }
     public static class symbols {
+        public static final String square = "\u2588";
         public static final String up = "\u25b2";
         public static final String down = "\u25bc";
         public static final String left = "\u25c0";

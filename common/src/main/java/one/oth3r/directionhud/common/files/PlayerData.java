@@ -4,7 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.ToNumberPolicy;
 import com.google.gson.reflect.TypeToken;
+import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.HUD;
+import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.utils.Player;
@@ -170,6 +172,26 @@ public class PlayerData {
             setting.put("particles",particles);
             dest.put("setting",setting);
             map.put("destination",dest);
+        }
+        if (map.get("version").equals(1.4)) {
+            map.put("version",1.41);
+            //UPDATE DEST PARTICLE COLORS TO NEW SYSTEM
+            Map<String,Object> dest = (Map<String, Object>) map.get("destination");
+            Map<String,Object> setting = (Map<String, Object>) dest.get("setting");
+            Map<String,Object> particles = (Map<String, Object>) setting.get("particles");
+            particles.put("linecolor", CUtl.color.updateOld((String) particles.get("linecolor"),config.DESTLineParticleColor));
+            particles.put("destcolor", CUtl.color.updateOld((String) particles.get("destcolor"),config.DESTDestParticleColor));
+            particles.put("trackingcolor", CUtl.color.updateOld((String) particles.get("trackingcolor"),config.DESTTrackingParticleColor));
+            setting.put("particles",particles);
+            dest.put("setting",setting);
+            //UPDATE HUD COLORS TO NEW SYSTEM
+            Map<String,Object> hud = (Map<String, Object>) map.get("hud");
+            String[] primary = ((String) hud.get("primary")).split("-");
+            primary[0] = CUtl.color.updateOld(primary[0],config.HUDPrimaryColor);
+            hud.put("primary",String.join("-",primary));
+            String[] secondary = ((String) hud.get("secondary")).split("-");
+            secondary[0] = CUtl.color.updateOld(secondary[0],config.HUDSecondaryColor);
+            hud.put("secondary",String.join("-",secondary));
         }
         return map;
     }
@@ -397,6 +419,9 @@ public class PlayerData {
                     return (boolean) getSetting(player, false).get("lastdeath");
                 }
                 public static class particles {
+                    public static String color(Player player, String type) {
+                        return (String) getParticleSetting(player).get(type);
+                    }
                     public static boolean line(Player player) {
                         return (boolean) getParticleSetting(player).get("line");
                     }
@@ -572,6 +597,13 @@ public class PlayerData {
                     setSetting(player, data);
                 }
                 public static class particles {
+                    public static void color(Player player, String type, String b) {
+                        Map<String,Object> data = get.dest.getParticleSetting(player);
+                        if (Destination.settings.colorTypes.contains(type)) {
+                            data.put(type, b);
+                            setParticleSetting(player, data);
+                        }
+                    }
                     public static void line(Player player, boolean b) {
                         Map<String,Object> data = get.dest.getParticleSetting(player);
                         data.put("line", b);

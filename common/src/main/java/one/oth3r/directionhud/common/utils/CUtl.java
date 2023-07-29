@@ -8,6 +8,12 @@ import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
 
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class CUtl {
     public static CTxT tag() {
         return CTxT.of("").append(CTxT.of("DirectionHUD").btn(true).color(p())).append(" ");
@@ -103,8 +109,8 @@ public class CUtl {
         }
         public static class hud {
             public static CTxT color() {
-                return CTxT.of(Utl.color.rainbow(TBtn("hud.color").getString(),15,45)).btn(true).cEvent(1,"/hud color")
-                        .hEvent(CTxT.of(Utl.color.rainbow(Assets.cmdUsage.hudColor,10f,23f)).append("\n").append(TBtn("hud.color.hover")));
+                return CTxT.of(CUtl.color.rainbow(TBtn("hud.color").getString(),15,45)).btn(true).cEvent(1,"/hud color")
+                        .hEvent(CTxT.of(CUtl.color.rainbow(Assets.cmdUsage.hudColor,10f,23f)).append("\n").append(TBtn("hud.color.hover")));
             }
             public static CTxT edit() {
                 return TBtn("hud.edit").btn(true).color(Assets.mainColors.edit).cEvent(1,"/hud edit").hEvent(
@@ -132,6 +138,182 @@ public class CUtl {
                 return TBtn("dirhud.reload").btn(true).color(Assets.mainColors.reload).cEvent(1,"/dirhud reload").hEvent(
                         CTxT.of(Assets.cmdUsage.reload).color(Assets.mainColors.reload).append("\n").append(TBtn("dirhud.reload.hover")));
             }
+        }
+    }
+    public static class color {
+        public static String updateOld(String string,String defaultColor) {
+            if (string.equals("red")) return "#FF5555";
+            if (string.equals("dark_red")) return "#AA0000";
+            if (string.equals("gold")) return "#FFAA00";
+            if (string.equals("yellow")) return "#FFFF55";
+            if (string.equals("green")) return "#55FF55";
+            if (string.equals("dark_green")) return "#00AA00";
+            if (string.equals("aqua")) return "#55FFFF";
+            if (string.equals("dark_aqua")) return "#00AAAA";
+            if (string.equals("blue")) return "#5555FF";
+            if (string.equals("dark_blue")) return "#0000AA";
+            if (string.equals("pink")) return "#FF55FF";
+            if (string.equals("purple")) return "#AA00AA";
+            if (string.equals("white")) return "#FFFFFF";
+            if (string.equals("gray")) return "#AAAAAA";
+            if (string.equals("dark_gray")) return "#555555";
+            if (string.equals("black")) return "#000000";
+            if (string.charAt(0)=='#') return string;
+            return defaultColor;
+        }
+        public static String format(String hex, String defaultColor) {
+            if (hex == null) return defaultColor;
+            if (hex.length() == 6) hex = "#"+hex;
+            if (hex.length() == 7) {
+                String regex = "^#([A-Fa-f0-9]{6})$";
+                Pattern pattern = Pattern.compile(regex);
+                Matcher matcher = pattern.matcher(hex);
+                if (matcher.matches()) return hex.toLowerCase();
+            }
+            return defaultColor;
+        }
+        public static String format(String hex) {
+            return format(hex,"#ffffff");
+        }
+        public static CTxT getBadge(String hex) {
+            return CTxT.of(Assets.symbols.square+" "+format(hex).toUpperCase()).color(hex);
+        }
+        public static float[] HSB(String hex) {
+            Color color = Color.decode(format(hex));
+            int r = color.getRed();
+            int g = color.getGreen();
+            int b = color.getBlue();
+            float[] hsb = new float[3];
+            Color.RGBtoHSB(r, g, b, hsb);
+            return hsb;
+        }
+        public static int RGB(String hex) {
+            return Color.decode(format(hex)).getRGB();
+        }
+        public static String HSBtoHEX(float[] hsb) {
+            Color color = new Color(Color.HSBtoRGB(hsb[0],hsb[1],hsb[2]));
+            return String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
+        }
+        public static String editHSB(int type, String hex, float change) {
+            float[] hsb = HSB(hex);
+            hsb[type] = Math.max(Math.min(hsb[type]+change,1),0);
+            return HSBtoHEX(hsb);
+        }
+        public static void presetUI(Player player, String type, String setCMD, String backCMD) {
+            String formattedReturnCMDArgs = setCMD.substring(1).replace(" ","_")+" "+backCMD.substring(1).replace(" ","_");
+            CTxT customButton = CTxT.of("CUSTOM").color(CUtl.s()).cEvent(1,"/hud preset custom "+formattedReturnCMDArgs).btn(true);
+            CTxT minecraftButton = CTxT.of("MINECRAFT").color(CUtl.s()).cEvent(1,"/hud preset minecraft "+formattedReturnCMDArgs).btn(true);
+            List<String> colorStrings;
+            List<String> colors;
+            int rowAmt;
+            if (type.equals("custom")) {
+                customButton.color(Assets.mainColors.gray).cEvent(1,null).hEvent(null);
+                colorStrings = List.of("red","orange","yellow","green","blue","purple","gray");
+                colors = List.of("#ff6666","#ff0000","#cc0000",
+                        "#ffa64d","#ff8c1a","e67300",
+                        "#ffff66","#ffff1a","#e6e600",
+                        "#8aff66","#3cff00","#30cc00",
+                        "#66c2ff","#0099ff","#006bb3",
+                        "#e066ff","#cc00ff","#8f00b3",
+                        "#d9d9d9","#808080","#404040");
+                rowAmt = 3;
+            } else {
+                minecraftButton.color(Assets.mainColors.gray).cEvent(1,null).hEvent(null);
+                colorStrings = List.of("red","yellow","green","aqua","blue","purple","gray");
+                colors = List.of("#FF5555","#AA0000",
+                        "#FFFF55","#FFAA00",
+                        "#55FF55","#00AA00",
+                        "#55FFFF","#00AAAA",
+                        "#5555FF","#0000AA",
+                        "#FF55FF","#AA00AA",
+                        "#AAAAAA","#555555");
+                rowAmt = 2;
+            }
+            CTxT list = CTxT.of("");
+            int colorIndex = 0;
+            for (String s:colorStrings) {
+                list.append("\n ");
+                for (int i = 0; i < rowAmt;i++) {
+                    String color = colors.get(colorIndex);
+                    list.append(CTxT.of(Assets.symbols.square).btn(true).color(color).cEvent(1,setCMD+color)
+                            .hEvent(TBtn("color.hover",getBadge(color))));
+                    colorIndex++;
+                }
+                list.append(" ").append(lang("color.presets."+s));
+            }
+            CTxT msg = CTxT.of(" ").append(lang("color.presets.ui").color(Assets.mainColors.presets))
+                    .append(CTxT.of("\n                             \n").strikethrough(true))
+                    .append(" ").append(customButton).append(" ").append(minecraftButton).append("\n").append(list)
+                    .append("\n\n ").append(CButton.back(backCMD))
+                    .append(CTxT.of("\n                             ").strikethrough(true));
+
+            player.sendMessage(msg);
+        }
+        public static CTxT colorEditor(String color,String step,String setCMD,String stepBigCMD) {
+            CTxT defaultSquare = CTxT.of(Assets.symbols.square).color(color).hEvent(getBadge(color));
+            CTxT smallButton = CUtl.TBtn("color.size.small").color(CUtl.s()).cEvent(1,stepBigCMD.replace("big","small"))
+                    .hEvent(CUtl.TBtn("color.size.hover",CUtl.TBtn("color.size.small").color(CUtl.s()))).btn(true);
+            CTxT normalButton = CUtl.TBtn("color.size.normal").color(CUtl.s()).cEvent(1,stepBigCMD.replace("big","normal"))
+                    .hEvent(CUtl.TBtn("color.size.hover",CUtl.TBtn("color.size.normal").color(CUtl.s()))).btn(true);
+            CTxT bigButton = CUtl.TBtn("color.size.big").color(CUtl.s()).cEvent(1,stepBigCMD)
+                    .hEvent(CUtl.TBtn("color.size.hover",CUtl.TBtn("color.size.big").color(CUtl.s()))).btn(true);
+            float[] changeAmounts = new float[3];
+            if (step == null || step.equals("normal")) {
+                normalButton.color(Assets.mainColors.gray).cEvent(1,null).hEvent(null);
+                changeAmounts[0] = 0.02f;
+                changeAmounts[1] = 0.05f;
+                changeAmounts[2] = 0.1f;
+            } else if (step.equals("small")) {
+                smallButton.color(Assets.mainColors.gray).cEvent(1,null).hEvent(null);
+                changeAmounts[0] = 0.005f;
+                changeAmounts[1] = 0.0125f;
+                changeAmounts[2] = 0.025f;
+            } else if (step.equals("big")) {
+                bigButton.color(Assets.mainColors.gray).cEvent(1,null).hEvent(null);
+                changeAmounts[0] = 0.04f;
+                changeAmounts[1] = 0.1f;
+                changeAmounts[2] = 0.2f;
+            }
+            ArrayList<CTxT> hsbList = new ArrayList<>();
+            for (int i = 0; i < 3; i++) {
+                hsbList.add(CTxT.of("-").btn(true));
+                hsbList.add(CTxT.of("+").btn(true));
+            }
+            int i = 0;
+            for (int changeAmt = 0; changeAmt < 3;changeAmt++) {
+                for (int plus = i;plus < i+2;plus++) {
+                    String editedColor = CUtl.color.editHSB(changeAmt,color,(plus%2==0)?changeAmounts[changeAmt]*-1:(changeAmounts[changeAmt]));
+                    hsbList.get(plus).color(editedColor.equals(color)?Assets.mainColors.gray:editedColor);
+                    if (!editedColor.equals(color)) {
+                        hsbList.get(plus).hEvent(CUtl.TBtn("color.hover",getBadge(editedColor)));
+                        hsbList.get(plus).cEvent(1,setCMD+editedColor);
+                    }
+                }
+                i = i+2;
+            }
+            return CTxT.of("  ")
+                    .append(hsbList.get(0)).append(" ").append(defaultSquare).append(" ").append(hsbList.get(1)).append(" ").append(lang("color.hue")).append("\n  ")
+                    .append(hsbList.get(2)).append(" ").append(defaultSquare).append(" ").append(hsbList.get(3)).append(" ").append(lang("color.saturation")).append("\n  ")
+                    .append(hsbList.get(4)).append(" ").append(defaultSquare).append(" ").append(hsbList.get(5)).append(" ").append(lang("color.brightness")).append("\n\n ")
+                    .append(smallButton).append(" ").append(normalButton).append(" ").append(bigButton);
+        }
+        public static CTxT rainbow(String string, float start, float step) {
+            float hue = start % 360f;
+            CTxT text = CTxT.of("");
+            for (int i = 0; i < string.codePointCount(0, string.length()); i++) {
+                if (string.charAt(i) == ' ') {
+                    text.append(" ");
+                    continue;
+                }
+                Color color = Color.getHSBColor(hue / 360.0f, 1.0f, 1.0f);
+                int red = color.getRed();
+                int green = color.getGreen();
+                int blue = color.getBlue();
+                String hexColor = String.format("#%02x%02x%02x", red, green, blue);
+                text.append(CTxT.of(Character.toString(string.codePointAt(i))).color(hexColor));
+                hue = ((hue % 360f)+step)%360f;
+            }
+            return text;
         }
     }
 }
