@@ -396,7 +396,7 @@ public class PlayerData {
                 public static boolean lastdeath(Player player) {
                     return (boolean) getSetting(player, false).get("lastdeath");
                 }
-                public static class particle {
+                public static class particles {
                     public static boolean line(Player player) {
                         return (boolean) getParticleSetting(player).get("line");
                     }

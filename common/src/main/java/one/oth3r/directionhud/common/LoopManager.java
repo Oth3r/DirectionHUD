@@ -45,7 +45,7 @@ public class LoopManager {
     private static void secondLoop(Player player) {
         //PARTICLES
         if (Destination.get(player).hasXYZ()) {
-            if (PlayerData.get.dest.setting.particle.dest(player)) {
+            if (PlayerData.get.dest.setting.particles.dest(player)) {
                 ArrayList<Double> destVec1 = Destination.get(player).getVec(player);
                 ArrayList<Double> destVec2 = new ArrayList<>(destVec1);
                 destVec1.set(1,destVec1.get(1)+3);
@@ -53,7 +53,7 @@ public class LoopManager {
                 Utl.particle.spawnLine(player, destVec1, destVec2, Utl.particle.DEST);
             }
 
-            if (PlayerData.get.dest.setting.particle.line(player))
+            if (PlayerData.get.dest.setting.particles.line(player))
                 player.spawnParticleLine(Destination.get(player).getVec(player),Utl.particle.LINE);
         }
         if (PlayerData.get.dest.getTracking(player) != null && !PlayerData.get.dest.setting.track(player))
@@ -109,7 +109,7 @@ public class LoopManager {
                 PlayerData.setOneTime(player, "tracking.dimension", null);
             }
             //PARTICLES
-            if (PlayerData.get.dest.setting.particle.tracking(player) && particleState) {
+            if (PlayerData.get.dest.setting.particles.tracking(player) && particleState) {
                 player.spawnParticleLine(trackingVec,Utl.particle.TRACKING);
             }
         } else if (trackingP != null) {
