@@ -1250,7 +1250,7 @@ public class Destination {
                 }
             }
             if (type.equals("particleslinec")) {
-                String Nsetting = Utl.color.fix(setting,false, PlayerData.get.dest.setting.particle.linecolor(player));
+                String Nsetting = Utl.color.fix(setting,false, PlayerData.get.dest.setting.particles.linecolor(player));
                 if (Nsetting.contains("#") && !setting.contains("#")) setting = "#"+setting;
                 if (Nsetting.contains("#") && !setting.equals(Nsetting)) {
                     Return = false;
@@ -1261,7 +1261,7 @@ public class Destination {
                 }
             }
             if (type.equals("particlestrackingc")) {
-                String Nsetting = Utl.color.fix(setting,false, PlayerData.get.dest.setting.particle.trackingcolor(player));
+                String Nsetting = Utl.color.fix(setting,false, PlayerData.get.dest.setting.particles.trackingcolor(player));
                 if (Nsetting.contains("#") && !setting.contains("#")) setting = "#"+setting;
                 if (Nsetting.contains("#") && !setting.equals(Nsetting)) {
                     Return = false;
@@ -1346,24 +1346,24 @@ public class Destination {
                     .append(lang("setting.particle").color(CUtl.p())).append(":\n  ")
                     //DESTINATION
                     .append(lang("setting.particle.dest").hEvent(lang("setting.particle.dest.info"))).append(": ")
-                    .append(toggleB(PlayerData.get.dest.setting.particle.dest(player)).cEvent(1,"/dest settings particlesdest "+!PlayerData.get.dest.setting.particle.dest(player)))
+                    .append(toggleB(PlayerData.get.dest.setting.particles.dest(player)).cEvent(1,"/dest settings particlesdest "+!PlayerData.get.dest.setting.particles.dest(player)))
                     .append(" ")
                     //COLOR
-                    .append(CUtl.TBtn("particle").btn(true).color(PlayerData.get.dest.setting.particle.destcolor(player)).cEvent(2,"/dest settings particlesdestc ").hEvent(CUtl.TBtn("particle.hover")))
+                    .append(CUtl.TBtn("particle").btn(true).color(PlayerData.get.dest.setting.particles.destcolor(player)).cEvent(2,"/dest settings particlesdestc ").hEvent(CUtl.TBtn("particle.hover")))
                     .append("\n  ")
                     //LINE
                     .append(lang("setting.particle.line").hEvent(lang("setting.particle.line.info"))).append(": ")
-                    .append(toggleB(PlayerData.get.dest.setting.particle.line(player)).cEvent(1,"/dest settings particlesline "+!PlayerData.get.dest.setting.particle.line(player)))
+                    .append(toggleB(PlayerData.get.dest.setting.particles.line(player)).cEvent(1,"/dest settings particlesline "+!PlayerData.get.dest.setting.particles.line(player)))
                     .append(" ")
                     //COLOR
-                    .append(CUtl.TBtn("particle").btn(true).color(PlayerData.get.dest.setting.particle.linecolor(player)).cEvent(2,"/dest settings particleslinec ").hEvent(CUtl.TBtn("particle.hover")))
+                    .append(CUtl.TBtn("particle").btn(true).color(PlayerData.get.dest.setting.particles.linecolor(player)).cEvent(2,"/dest settings particleslinec ").hEvent(CUtl.TBtn("particle.hover")))
                     .append("\n  ")
                     //TRACK
                     .append(lang("setting.particle.tracking").hEvent(lang("setting.particle.tracking.info"))).append(": ")
-                    .append(toggleB(PlayerData.get.dest.setting.particle.tracking(player)).cEvent(1,"/dest settings particlestracking "+!PlayerData.get.dest.setting.particle.tracking(player)))
+                    .append(toggleB(PlayerData.get.dest.setting.particles.tracking(player)).cEvent(1,"/dest settings particlestracking "+!PlayerData.get.dest.setting.particles.tracking(player)))
                     .append(" ")
                     //COLOR
-                    .append(CUtl.TBtn("particle").btn(true).color(PlayerData.get.dest.setting.particle.trackingcolor(player)).cEvent(2,"/dest settings particlestrackingc ").hEvent(CUtl.TBtn("particle.hover")))
+                    .append(CUtl.TBtn("particle").btn(true).color(PlayerData.get.dest.setting.particles.trackingcolor(player)).cEvent(2,"/dest settings particlestrackingc ").hEvent(CUtl.TBtn("particle.hover")))
                     .append("\n ");
             if (config.social || config.deathsaving) {
                 msg.append(lang("setting.features").color(CUtl.p())).append(":\n  ");

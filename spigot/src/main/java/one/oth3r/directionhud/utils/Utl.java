@@ -211,11 +211,11 @@ public class Utl {
         }
         public static Particle.DustOptions getParticle(String particleType, Player player) {
             if (particleType.equals(LINE))
-                return new Particle.DustOptions(org.bukkit.Color.fromRGB(Utl.color.getCodeRGB(PlayerData.get.dest.setting.particle.linecolor(player))), 1);
+                return new Particle.DustOptions(org.bukkit.Color.fromRGB(Utl.color.getCodeRGB(PlayerData.get.dest.setting.particles.linecolor(player))), 1);
             if (particleType.equals(DEST))
-                return new Particle.DustOptions(org.bukkit.Color.fromRGB(Utl.color.getCodeRGB(PlayerData.get.dest.setting.particle.destcolor(player))), 3);
+                return new Particle.DustOptions(org.bukkit.Color.fromRGB(Utl.color.getCodeRGB(PlayerData.get.dest.setting.particles.destcolor(player))), 3);
             if (particleType.equals(TRACKING))
-                return new Particle.DustOptions(org.bukkit.Color.fromRGB(Utl.color.getCodeRGB(PlayerData.get.dest.setting.particle.trackingcolor(player))), 0.5f);
+                return new Particle.DustOptions(org.bukkit.Color.fromRGB(Utl.color.getCodeRGB(PlayerData.get.dest.setting.particles.trackingcolor(player))), 0.5f);
             return new Particle.DustOptions(org.bukkit.Color.BLACK,1);
         }
     }

@@ -16,7 +16,7 @@ public class CTxT {
     private Boolean italic = false;
     private Boolean strikethrough = false;
     private Boolean underline = false;
-    private List<MutableText> append = new ArrayList<>();
+    private final List<MutableText> append = new ArrayList<>();
     private Boolean rainbow = false;
     private Float start = null;
     private Float step = null;
