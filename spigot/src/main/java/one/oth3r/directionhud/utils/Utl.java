@@ -208,12 +208,12 @@ public class Utl {
             }
         }
         public static Particle.DustOptions getParticle(String particleType, Player player) {
-            if (particleType.equals(LINE))
-                return new Particle.DustOptions(Color.fromRGB(CUtl.color.RGB(PlayerData.get.dest.setting.particles.linecolor(player))), 1);
-            if (particleType.equals(DEST))
-                return new Particle.DustOptions(Color.fromRGB(CUtl.color.RGB(PlayerData.get.dest.setting.particles.destcolor(player))), 3);
-            if (particleType.equals(TRACKING))
-                return new Particle.DustOptions(Color.fromRGB(CUtl.color.RGB(PlayerData.get.dest.setting.particles.trackingcolor(player))), 0.5f);
+            int[] i = CUtl.color.RGB(PlayerData.get.dest.setting.particles.linecolor(player));
+            if (particleType.equals(LINE)) return new Particle.DustOptions(Color.fromRGB(i[0],i[1],i[2]), 1);
+            i = CUtl.color.RGB(PlayerData.get.dest.setting.particles.destcolor(player));
+            if (particleType.equals(DEST)) return new Particle.DustOptions(Color.fromRGB(i[0],i[1],i[2]), 3);
+            i = CUtl.color.RGB(PlayerData.get.dest.setting.particles.trackingcolor(player));
+            if (particleType.equals(TRACKING)) return new Particle.DustOptions(Color.fromRGB(i[0],i[1],i[2]), 0.5f);
             return new Particle.DustOptions(Color.BLACK,1);
         }
     }

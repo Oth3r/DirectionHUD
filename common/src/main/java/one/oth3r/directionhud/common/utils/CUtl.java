@@ -187,8 +187,13 @@ public class CUtl {
             Color.RGBtoHSB(r, g, b, hsb);
             return hsb;
         }
-        public static int RGB(String hex) {
-            return Color.decode(format(hex)).getRGB();
+        public static int[] RGB(String hex) {
+            Color color = Color.decode(format(hex));
+            int[] i = new int[3];
+            i[0] = color.getRed();
+            i[1] = color.getGreen();
+            i[2] = color.getBlue();
+            return i;
         }
         public static String HSBtoHEX(float[] hsb) {
             Color color = new Color(Color.HSBtoRGB(hsb[0],hsb[1],hsb[2]));
