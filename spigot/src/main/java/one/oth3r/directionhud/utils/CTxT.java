@@ -20,7 +20,7 @@ public class CTxT {
     private Boolean italic = false;
     private Boolean strikethrough = false;
     private Boolean underline = false;
-    private List<TextComponent> append = new ArrayList<>();
+    private final List<TextComponent> append = new ArrayList<>();
     private Boolean rainbow = false;
     private Float start = null;
     private Float step = null;

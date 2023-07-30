@@ -54,3 +54,6 @@ processResources {
         expand props
     }
 }
+//jar {
+//    destinationDirectory = file("R:/Coding/1 Servers/2Latest Paper/plugins")
+//}

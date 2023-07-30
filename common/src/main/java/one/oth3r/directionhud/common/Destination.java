@@ -281,7 +281,7 @@ public class Destination {
         public static ArrayList<String> logic(Player player, int pos, String[] args) {
             ArrayList<String> suggester = new ArrayList<>();
             if (!Utl.checkEnabled.destination(player)) return suggester;
-            if (pos == 1) suggester.addAll(commandSuggester.base(player));
+            if (pos == 1) suggester.addAll(base(player));
             if (pos > 1) {
                 String command = args[0].toLowerCase();
                 String[] trimmedArgs = Utl.trimStart(args, 1);
@@ -540,21 +540,15 @@ public class Destination {
             return suggester;
         }
     }
-    private static CTxT lang(String lang) {
-        return CUtl.lang("dest."+lang);
-    }
     private static CTxT lang(String key, Object... args) {
         return CUtl.lang("dest."+key, args);
-    }
-    private static CTxT error(String key) {
-        return CUtl.error(CUtl.lang("error."+key));
     }
     private static CTxT error(String key, Object... args) {
         return CUtl.error(CUtl.lang("error."+key, args));
     }
     public static Loc get(Player player) {
         Loc loc = PlayerData.get.dest.getDest(player);
-        if (loc.hasXYZ()) return new Loc();
+        if (!loc.hasXYZ()) return new Loc();
         if (PlayerData.get.dest.setting.ylevel(player) && loc.yExists())
             loc.setY(player.getBlockY());
         return loc;
@@ -791,7 +785,7 @@ public class Destination {
             }
             setList(player, all);
             if (send) {
-                player.sendMessage(CUtl.tag().append(lang("saved.set",CTxT.of(name).color(CUtl.s()),lang("saved.order"),CTxT.of(""+(getList(player).indexOf(move)+1)).color(CUtl.s()))));
+                player.sendMessage(CUtl.tag().append(lang("saved.set",CTxT.of(name).color(CUtl.s()),lang("saved.order"),CTxT.of(String.valueOf(getList(player).indexOf(move) + 1)).color(CUtl.s()))));
                 player.performCommand("dest saved edit "+name);
             }
         }
@@ -1231,6 +1225,7 @@ public class Destination {
             else UI(player, null);
         }
         public static void change(Player player, String type, String setting, boolean Return) {
+            setting = setting.toLowerCase();
             CTxT msg = CUtl.tag();
             if (type.equals("autoclearrad")) {
                 if (!Utl.isInt(setting)) {
@@ -1241,7 +1236,7 @@ public class Destination {
                 if (i > 15) i = 15;
                 if (i < 2) i = 2;
                 PlayerData.set.dest.setting.autoclearrad(player, i);
-                msg.append(lang("setting.autoclear_rad.set",CTxT.of(i+"").color(PlayerData.get.dest.setting.autoclear(player)?'a':'c')));
+                msg.append(lang("setting.autoclear_rad.set",CTxT.of(String.valueOf(i)).color(PlayerData.get.dest.setting.autoclear(player)?'a':'c')));
             }
             if (type.equals("particlesdestc")) {
                 String Nsetting = Utl.color.fix(setting,false, config.DESTDestParticleColor);
@@ -1255,7 +1250,7 @@ public class Destination {
                 }
             }
             if (type.equals("particleslinec")) {
-                String Nsetting = Utl.color.fix(setting,false, PlayerData.get.dest.setting.particle.linecolor(player));
+                String Nsetting = Utl.color.fix(setting,false, PlayerData.get.dest.setting.particles.linecolor(player));
                 if (Nsetting.contains("#") && !setting.contains("#")) setting = "#"+setting;
                 if (Nsetting.contains("#") && !setting.equals(Nsetting)) {
                     Return = false;
@@ -1266,7 +1261,7 @@ public class Destination {
                 }
             }
             if (type.equals("particlestrackingc")) {
-                String Nsetting = Utl.color.fix(setting,false, PlayerData.get.dest.setting.particle.trackingcolor(player));
+                String Nsetting = Utl.color.fix(setting,false, PlayerData.get.dest.setting.particles.trackingcolor(player));
                 if (Nsetting.contains("#") && !setting.contains("#")) setting = "#"+setting;
                 if (Nsetting.contains("#") && !setting.equals(Nsetting)) {
                     Return = false;
@@ -1334,7 +1329,7 @@ public class Destination {
                             .append(lang("setting.autoclear.info_2").color('7').italic(true)))).append(": ")
                     .append(toggleB(PlayerData.get.dest.setting.autoclear(player)).cEvent(1,"/dest settings autoclear "+!PlayerData.get.dest.setting.autoclear(player)))
                     .append(" ")
-                    .append(CTxT.of(PlayerData.get.dest.setting.autoclearrad(player)+"").btn(true).color(c).cEvent(2,"/dest settings autoclearrad ")
+                    .append(CTxT.of(String.valueOf(PlayerData.get.dest.setting.autoclearrad(player))).btn(true).color(c).cEvent(2,"/dest settings autoclearrad ")
                             .hEvent(CUtl.TBtn("autoclear_rad.hover").append("\n").append(CUtl.TBtn("autoclear_rad.hover_2").color('7').italic(true))))
                     .append("\n  ")
                     //AUTOCLEAR
@@ -1351,24 +1346,24 @@ public class Destination {
                     .append(lang("setting.particle").color(CUtl.p())).append(":\n  ")
                     //DESTINATION
                     .append(lang("setting.particle.dest").hEvent(lang("setting.particle.dest.info"))).append(": ")
-                    .append(toggleB(PlayerData.get.dest.setting.particle.dest(player)).cEvent(1,"/dest settings particlesdest "+!PlayerData.get.dest.setting.particle.dest(player)))
+                    .append(toggleB(PlayerData.get.dest.setting.particles.dest(player)).cEvent(1,"/dest settings particlesdest "+!PlayerData.get.dest.setting.particles.dest(player)))
                     .append(" ")
                     //COLOR
-                    .append(CUtl.TBtn("particle").btn(true).color(PlayerData.get.dest.setting.particle.destcolor(player)).cEvent(2,"/dest settings particlesdestc ").hEvent(CUtl.TBtn("particle.hover")))
+                    .append(CUtl.TBtn("particle").btn(true).color(PlayerData.get.dest.setting.particles.destcolor(player)).cEvent(2,"/dest settings particlesdestc ").hEvent(CUtl.TBtn("particle.hover")))
                     .append("\n  ")
                     //LINE
                     .append(lang("setting.particle.line").hEvent(lang("setting.particle.line.info"))).append(": ")
-                    .append(toggleB(PlayerData.get.dest.setting.particle.line(player)).cEvent(1,"/dest settings particlesline "+!PlayerData.get.dest.setting.particle.line(player)))
+                    .append(toggleB(PlayerData.get.dest.setting.particles.line(player)).cEvent(1,"/dest settings particlesline "+!PlayerData.get.dest.setting.particles.line(player)))
                     .append(" ")
                     //COLOR
-                    .append(CUtl.TBtn("particle").btn(true).color(PlayerData.get.dest.setting.particle.linecolor(player)).cEvent(2,"/dest settings particleslinec ").hEvent(CUtl.TBtn("particle.hover")))
+                    .append(CUtl.TBtn("particle").btn(true).color(PlayerData.get.dest.setting.particles.linecolor(player)).cEvent(2,"/dest settings particleslinec ").hEvent(CUtl.TBtn("particle.hover")))
                     .append("\n  ")
                     //TRACK
                     .append(lang("setting.particle.tracking").hEvent(lang("setting.particle.tracking.info"))).append(": ")
-                    .append(toggleB(PlayerData.get.dest.setting.particle.tracking(player)).cEvent(1,"/dest settings particlestracking "+!PlayerData.get.dest.setting.particle.tracking(player)))
+                    .append(toggleB(PlayerData.get.dest.setting.particles.tracking(player)).cEvent(1,"/dest settings particlestracking "+!PlayerData.get.dest.setting.particles.tracking(player)))
                     .append(" ")
                     //COLOR
-                    .append(CUtl.TBtn("particle").btn(true).color(PlayerData.get.dest.setting.particle.trackingcolor(player)).cEvent(2,"/dest settings particlestrackingc ").hEvent(CUtl.TBtn("particle.hover")))
+                    .append(CUtl.TBtn("particle").btn(true).color(PlayerData.get.dest.setting.particles.trackingcolor(player)).cEvent(2,"/dest settings particlestrackingc ").hEvent(CUtl.TBtn("particle.hover")))
                     .append("\n ");
             if (config.social || config.deathsaving) {
                 msg.append(lang("setting.features").color(CUtl.p())).append(":\n  ");

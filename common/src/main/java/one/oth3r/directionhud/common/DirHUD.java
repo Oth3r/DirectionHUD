@@ -77,8 +77,8 @@ public class DirHUD {
                     .append(CUtl.TBtn("dirhud.defaults.set").btn(true).color(Assets.mainColors.set).cEvent(1,"/dirhud defaults set")
                             .hEvent(CUtl.TBtn("dirhud.defaults.set.hover")))
                     .append("  ")
-                    .append(CUtl.TBtn("dirhud.defaults.reset").btn(true).color('c').cEvent(1,"/dirhud defaults reset")
-                            .hEvent(CUtl.TBtn("dirhud.defaults.reset.hover")))
+                    .append(CUtl.TBtn("reset").btn(true).color('c').cEvent(1,"/dirhud defaults reset")
+                            .hEvent(CUtl.TBtn("reset.hover_defaults_dirhud")))
                     .append("  ")
                     .append(CUtl.CButton.back("/dirhud"))
                     .append(CTxT.of("\n                                 ").strikethrough(true));

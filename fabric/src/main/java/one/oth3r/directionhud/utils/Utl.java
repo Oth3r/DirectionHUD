@@ -120,15 +120,15 @@ public class Utl {
     public static ArrayList<String> xyzSuggester(Player player, String type) {
         ArrayList<String> arr = new ArrayList<>();
         if (type.equalsIgnoreCase("x")) {
-            arr.add(player.getBlockX()+"");
+            arr.add(String.valueOf(player.getBlockX()));
             arr.add(player.getBlockX()+" "+player.getBlockZ());
             arr.add(player.getBlockX()+" "+player.getBlockY()+" "+player.getBlockZ());
         }
         if (type.equalsIgnoreCase("y")) {
-            arr.add(player.getBlockY()+"");
+            arr.add(String.valueOf(player.getBlockY()));
             arr.add(player.getBlockY()+" "+player.getBlockZ());
         }
-        if (type.equalsIgnoreCase("z")) arr.add(player.getBlockZ()+"");
+        if (type.equalsIgnoreCase("z")) arr.add(String.valueOf(player.getBlockZ()));
         return arr;
     }
     public static ArrayList<String> formatSuggestions(ArrayList<String> suggester, String[] args) {
@@ -209,13 +209,13 @@ public class Utl {
         public static DustParticleEffect getParticle(String particleType, Player player) {
             if (particleType.equals(LINE))
                 return new DustParticleEffect(new Vector3f(Vec3d.unpackRgb(
-                        Utl.color.hexToRGB(Utl.color.getFromTextString(PlayerData.get.dest.setting.particle.linecolor(player)))).toVector3f()),1);
+                        Utl.color.hexToRGB(Utl.color.getFromTextString(PlayerData.get.dest.setting.particles.linecolor(player)))).toVector3f()),1);
             if (particleType.equals(DEST))
                 return new DustParticleEffect(new Vector3f(Vec3d.unpackRgb(
-                        Utl.color.hexToRGB(Utl.color.getFromTextString(PlayerData.get.dest.setting.particle.destcolor(player)))).toVector3f()),3);
+                        Utl.color.hexToRGB(Utl.color.getFromTextString(PlayerData.get.dest.setting.particles.destcolor(player)))).toVector3f()),3);
             if (particleType.equals(TRACKING))
                 return new DustParticleEffect(new Vector3f(Vec3d.unpackRgb(
-                        Utl.color.hexToRGB(Utl.color.getFromTextString(PlayerData.get.dest.setting.particle.trackingcolor(player)))).toVector3f()),0.5f);
+                        Utl.color.hexToRGB(Utl.color.getFromTextString(PlayerData.get.dest.setting.particles.trackingcolor(player)))).toVector3f()),0.5f);
             return new DustParticleEffect(new Vector3f(Vec3d.unpackRgb(Utl.color.hexToRGB("#000000")).toVector3f()),1);
         }
     }

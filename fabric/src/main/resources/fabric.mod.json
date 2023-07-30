@@ -10,8 +10,8 @@
   ],
   "contact": {
     "homepage": "https://modrinth.com/mod/directionhud",
-    "issues": "https://github.com/Oth3r/DirectionHUD-F/issues",
-    "sources": "https://github.com/Oth3r/DirectionHUD-F"
+    "issues": "https://github.com/Oth3r/DirectionHUD/issues",
+    "sources": "https://github.com/Oth3r/DirectionHUD"
   },
 
   "license": "LGPL-3.0-only",

@@ -71,9 +71,9 @@ public class HUD {
             }
         }
         public static void toggleCMD(Player player, String[] args) {
-            if (args.length == 0) HUD.toggle(player, null, false);
+            if (args.length == 0) toggle(player, null, false);
             if (args.length != 1) return;
-            HUD.toggle(player, Boolean.parseBoolean(args[0]), true);
+            toggle(player, Boolean.parseBoolean(args[0]), true);
         }
     }
     public static class commandSuggester {
@@ -91,9 +91,6 @@ public class HUD {
             if (pos == args.length) return Utl.formatSuggestions(suggester,args);
             return suggester;
         }
-    }
-    private static CTxT lang(String key) {
-        return CUtl.lang("hud."+key);
     }
     private static CTxT lang(String key, Object... args) {
         return CUtl.lang("hud."+key, args);
@@ -118,13 +115,13 @@ public class HUD {
             tracking.add("/p]");
         }
         ArrayList<String> direction = new ArrayList<>();
-        direction.add("p"+HUD.getPlayerDirection(player));
+        direction.add("p"+getPlayerDirection(player));
         ArrayList<String> time = new ArrayList<>();
         if (PlayerData.get.hud.setting.time24h(player)) {
-            time.add("s"+HUD.getGameTime(false));
+            time.add("s"+getGameTime(false));
         } else {
-            time.add("s"+HUD.getGameTime(true)+" ");
-            time.add("p"+HUD.getAMPM());
+            time.add("s"+getGameTime(true)+" ");
+            time.add("p"+getAMPM());
         }
         ArrayList<String> weather = new ArrayList<>();
         weather.add("p"+weatherIcon);
@@ -263,7 +260,7 @@ public class HUD {
             PlayerData.set.hud.order(player, config.HUDOrder);
             PlayerData.set.hud.setting.time24h(player, config.HUD24HR);
             PlayerData.set.hud.setModule(player, PlayerData.defaults.hudModule());
-            CTxT msg = CUtl.tag().append(lang("module.reset", lang("module.reset_2").color('c')));
+            CTxT msg = CUtl.tag().append(lang("module.reset",CUtl.TBtn("reset").color('c')));
             if (Return) UI(player, msg, null);
             else player.sendMessage(msg);
         }
@@ -276,25 +273,25 @@ public class HUD {
                 if (pos == order.size() - 1) return;
                 order.remove(pos);
                 order.add(pos + 1, module);
-                order.addAll(HUD.order.getDisabled(player));
-                HUD.order.setOrderC(player, order);
+                order.addAll(getDisabled(player));
+                setOrderC(player, order);
             } else if (direction.equals("up")) {
                 if (pos == 0) return;
                 order.remove(pos);
                 order.add(pos - 1, module);
-                order.addAll(HUD.order.getDisabled(player));
-                HUD.order.setOrderC(player, order);
+                order.addAll(getDisabled(player));
+                setOrderC(player, order);
             } else return;
             if (Return) UI(player, msg, module);
             else player.sendMessage(msg);
         }
         public static void toggle(Player player, String module, boolean toggle, boolean Return) {
-            if (!order.validCheck(module)) return;
+            if (!validCheck(module)) return;
             CTxT msg = CUtl.tag().append(lang("module.toggle",CUtl.TBtn(toggle ? "on" : "off"),CTxT.of(langName(module)).color(CUtl.s())));
             //OFF
-            if (!toggle && order.moduleState(player, module)) order.removeModule(player, module);
+            if (!toggle && moduleState(player, module)) removeModule(player, module);
                 //ON
-            else if (toggle && !order.moduleState(player, module)) order.addModule(player, module);
+            else if (toggle && !moduleState(player, module)) addModule(player, module);
             if (Return) UI(player, msg, module);
             else player.sendMessage(msg);
         }
@@ -499,22 +496,29 @@ public class HUD {
             }
             CTxT msg = CTxT.of("");
             if (abovemsg != null) msg.append(abovemsg).append("\n");
-            msg.append(" ").append(lang("ui.edit").color(Assets.mainColors.edit)).append(CTxT.of("\n                                               \n").strikethrough(true));
+            msg.append(" ").append(lang("ui.edit").color(Assets.mainColors.edit))
+                    .append(CTxT.of("\n                                       \n").strikethrough(true));
             if (!getEnabled(player).isEmpty()) for (String s: getEnabled(player)) msg.append(modules.get(s)).append("\n");
             else msg.append(" ").append(lang("module.none").color('c')).append("\n ").append(lang("module.none_2").color('c')).append("\n");
             if (!getDisabled(player).isEmpty()) {
-                msg.append(CTxT.of("                                               ").strikethrough(true)).append("\n")
+                msg.append(CTxT.of("                                       ").strikethrough(true)).append("\n")
                         .append(lang("ui.edit.disabled").color(Assets.mainColors.edit)).append("\n");
                 CTxT disabled = CTxT.of("");
+                int chars = 0;
                 for (int i = 0; i < getDisabled(player).size(); i++) {
-                    if (i==3) disabled.append("\n");
+                    if (chars >= 20) {
+                        chars = 0;
+                        disabled.append("\n");
+                    }
                     disabled.append(" ").append(modules.get(getDisabled(player).get(i)));
+                    chars += modules.get(getDisabled(player).get(i)).getString().length()+1;
                 }
                 msg.append(disabled).append("\n");
             }
             msg.append("          ").append(CUtl.TBtn("reset").btn(true).color('c').cEvent(1,"/hud edit reset")
                             .hEvent(CUtl.TBtn("reset.hover_edit").color('c')))
-                    .append("  ").append(CUtl.CButton.back("/hud")).append(CTxT.of("\n                                               ").strikethrough(true));
+                    .append("  ").append(CUtl.CButton.back("/hud"))
+                    .append(CTxT.of("\n                                       ").strikethrough(true));
             player.sendMessage(msg);
         }
     }
@@ -537,6 +541,7 @@ public class HUD {
             else player.sendMessage(msg);
         }
         public static void setColor(Player player, String type, String color, boolean Return) {
+            color = color.toLowerCase();
             String ogColor = "#"+color;
             if (color.contains("#")) ogColor = color;
             if (type.equals("primary")) {

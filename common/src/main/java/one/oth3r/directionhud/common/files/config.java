@@ -123,7 +123,7 @@ public class config {
         HUDTime = PlayerData.get.hud.module.time(player);
         HUDWeather = PlayerData.get.hud.module.weather(player);
         HUD24HR = PlayerData.get.hud.setting.time24h(player);
-        //one.oth3r.directionhud.common.HUD COLORS
+        //HUD COLORS
         HUDPrimaryColor = HUD.color.getHUDColors(player)[0];
         HUDPrimaryBold = HUD.color.getHUDBold(player,1);
         HUDPrimaryItalics = HUD.color.getHUDItalics(player, 1);
@@ -142,12 +142,12 @@ public class config {
         DESTTrack = PlayerData.get.dest.setting.track(player);
         DESTLastdeath = PlayerData.get.dest.setting.lastdeath(player);
         //DEST PARTICLES
-        DESTLineParticles = PlayerData.get.dest.setting.particle.line(player);
-        DESTLineParticleColor = PlayerData.get.dest.setting.particle.linecolor(player);
-        DESTDestParticles = PlayerData.get.dest.setting.particle.dest(player);
-        DESTDestParticleColor = PlayerData.get.dest.setting.particle.destcolor(player);
-        DESTTrackingParticles = PlayerData.get.dest.setting.particle.tracking(player);
-        DESTTrackingParticleColor = PlayerData.get.dest.setting.particle.trackingcolor(player);
+        DESTLineParticles = PlayerData.get.dest.setting.particles.line(player);
+        DESTLineParticleColor = PlayerData.get.dest.setting.particles.linecolor(player);
+        DESTDestParticles = PlayerData.get.dest.setting.particles.dest(player);
+        DESTDestParticleColor = PlayerData.get.dest.setting.particles.destcolor(player);
+        DESTTrackingParticles = PlayerData.get.dest.setting.particles.tracking(player);
+        DESTTrackingParticleColor = PlayerData.get.dest.setting.particles.trackingcolor(player);
         save();
     }
     public static File configFile() {

@@ -123,15 +123,15 @@ public class Utl {
     public static ArrayList<String> xyzSuggester(Player player, String type) {
         ArrayList<String> arr = new ArrayList<>();
         if (type.equalsIgnoreCase("x")) {
-            arr.add(player.getBlockX()+"");
+            arr.add(String.valueOf(player.getBlockX()));
             arr.add(player.getBlockX()+" "+player.getBlockZ());
             arr.add(player.getBlockX()+" "+player.getBlockY()+" "+player.getBlockZ());
         }
         if (type.equalsIgnoreCase("y")) {
-            arr.add(player.getBlockY()+"");
+            arr.add(String.valueOf(player.getBlockY()));
             arr.add(player.getBlockY()+" "+player.getBlockZ());
         }
-        if (type.equalsIgnoreCase("z")) arr.add(player.getBlockZ()+"");
+        if (type.equalsIgnoreCase("z")) arr.add(String.valueOf(player.getBlockZ()));
         return arr;
     }
     public static ArrayList<String> formatSuggestions(ArrayList<String> suggester, String[] args) {
@@ -211,11 +211,11 @@ public class Utl {
         }
         public static Particle.DustOptions getParticle(String particleType, Player player) {
             if (particleType.equals(LINE))
-                return new Particle.DustOptions(org.bukkit.Color.fromRGB(Utl.color.getCodeRGB(PlayerData.get.dest.setting.particle.linecolor(player))), 1);
+                return new Particle.DustOptions(org.bukkit.Color.fromRGB(Utl.color.getCodeRGB(PlayerData.get.dest.setting.particles.linecolor(player))), 1);
             if (particleType.equals(DEST))
-                return new Particle.DustOptions(org.bukkit.Color.fromRGB(Utl.color.getCodeRGB(PlayerData.get.dest.setting.particle.destcolor(player))), 3);
+                return new Particle.DustOptions(org.bukkit.Color.fromRGB(Utl.color.getCodeRGB(PlayerData.get.dest.setting.particles.destcolor(player))), 3);
             if (particleType.equals(TRACKING))
-                return new Particle.DustOptions(org.bukkit.Color.fromRGB(Utl.color.getCodeRGB(PlayerData.get.dest.setting.particle.trackingcolor(player))), 0.5f);
+                return new Particle.DustOptions(org.bukkit.Color.fromRGB(Utl.color.getCodeRGB(PlayerData.get.dest.setting.particles.trackingcolor(player))), 0.5f);
             return new Particle.DustOptions(org.bukkit.Color.BLACK,1);
         }
     }
@@ -285,10 +285,6 @@ public class Utl {
             //ADD MISSING DIMS TO MAP
             String defaultWorld = Bukkit.getWorlds().get(0).getName();
             for (World world : Bukkit.getWorlds()) {
-                //todo
-                // ok so worlds are like world_overworld, world_nether, world_end...
-                // so we can split by underscore and save the last split part and add it to a arraylist or sm
-                // if already in list dont add, becuase spigot can load multiple worlds with the same dimensions
                 String currentDIM = format(world.getName());
                 if (!dims.containsKey(currentDIM) && !currentDIM.equals(defaultWorld)) {
                     HashMap<String,String> map = new HashMap<>();

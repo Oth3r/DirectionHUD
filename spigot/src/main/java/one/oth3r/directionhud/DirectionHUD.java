@@ -1,5 +1,6 @@
 package one.oth3r.directionhud;
 
+import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.Events;
 import one.oth3r.directionhud.commands.DestinationCommand;
 import one.oth3r.directionhud.commands.DirHUDCommand;
@@ -27,6 +28,8 @@ public class DirectionHUD extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        Assets.mainColors.pri = "#ff8e16";
+        Assets.mainColors.sec = "#42a0ff";
         PLAYERDATA_DIR = this.getDataFolder().getPath()+"/playerdata/";
         CONFIG_DIR = this.getDataFolder().getPath()+"/";
         PluginDescriptionFile pdf = Objects.requireNonNull(Bukkit.getServer().getPluginManager().getPlugin("DirectionHUD")).getDescription();
