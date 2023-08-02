@@ -26,7 +26,7 @@ public class PlayerData {
     }
     public static Map<String, Object> fileToMap(Player player) {
         File file = getFile(player);
-        if (!file.exists()) return getDefaults(player);
+        if (!file.exists()) return defaults.get(player);
         try (FileReader reader = new FileReader(file)) {
             Gson gson = new GsonBuilder().setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE).create();
             return gson.fromJson(reader,new TypeToken<Map<String, Object>>() {}.getType());
@@ -244,32 +244,32 @@ public class PlayerData {
         map.put(key,value);
         oneTimeMap.put(player,map);
     }
-    public static Map<String,Object> getDefaults(Player player) {
-        Map<String,Object> map = new HashMap<>();
-        //hud
-        Map<String,Object> hud = new HashMap<>();
-        hud.put("enabled", config.HUDEnabled);
-        hud.put("setting", defaults.hudSetting());
-        hud.put("module", defaults.hudModule());
-        hud.put("order", config.HUDOrder);
-        hud.put("primary", HUD.color.defaultFormat(1));
-        hud.put("secondary", HUD.color.defaultFormat(2));
-        //dest
-        Map<String,Object> destination = new HashMap<>();
-        destination.put("dest", "null");
-        destination.put("setting", defaults.destSetting());
-        destination.put("saved", new ArrayList<String>());
-        destination.put("lastdeath", new ArrayList<String>());
-        destination.put("tracking", null);
-        destination.put("track", null);
-        //base
-        map.put("version", 1.4);
-        map.put("name", player.getName());
-        map.put("hud", hud);
-        map.put("destination", destination);
-        return map;
-    }
     public static class defaults {
+        public static Map<String,Object> get(Player player) {
+            Map<String,Object> map = new HashMap<>();
+            //hud
+            Map<String,Object> hud = new HashMap<>();
+            hud.put("enabled", config.HUDEnabled);
+            hud.put("setting", defaults.hudSetting());
+            hud.put("module", defaults.hudModule());
+            hud.put("order", config.HUDOrder);
+            hud.put("primary", HUD.color.defaultFormat(1));
+            hud.put("secondary", HUD.color.defaultFormat(2));
+            //dest
+            Map<String,Object> destination = new HashMap<>();
+            destination.put("dest", "null");
+            destination.put("setting", defaults.destSetting());
+            destination.put("saved", new ArrayList<String>());
+            destination.put("lastdeath", new ArrayList<String>());
+            destination.put("tracking", null);
+            destination.put("track", null);
+            //base
+            map.put("version", 1.4);
+            map.put("name", player.getName());
+            map.put("hud", hud);
+            map.put("destination", destination);
+            return map;
+        }
         public static Map<String,Object> hudSetting() {
             Map<String,Object> hudSetting = new HashMap<>();
             hudSetting.put("time24h", config.HUD24HR);
