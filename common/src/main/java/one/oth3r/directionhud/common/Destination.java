@@ -1383,8 +1383,8 @@ public class Destination {
                         .append("\n");
             }
             msg.append("\n    ")
-                    .append(CUtl.TBtn("dest.settings.reset").btn(true).color('c').cEvent(1,"/dest settings reset return")
-                            .hEvent(CUtl.TBtn("dest.settings.reset.hover",CUtl.TBtn("all").color('c'))))
+                    .append(CUtl.TBtn("reset").btn(true).color('c').cEvent(1,"/dest settings reset return")
+                            .hEvent(CUtl.TBtn("reset.hover_settings_dest",CUtl.TBtn("all").color('c'))))
                     .append("  ").append(CUtl.CButton.back("/dest")).append("\n")
                     .append(CTxT.of("                              ").strikethrough(true));
             player.sendMessage(msg);
