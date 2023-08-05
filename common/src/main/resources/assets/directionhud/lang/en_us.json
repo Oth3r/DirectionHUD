@@ -99,6 +99,7 @@
   "key.directionhud.button.reset": "RESET",
   "key.directionhud.button.reset.hover_edit": "Click to reset modules back to default.",
   "key.directionhud.button.reset.hover_color": "Click to reset %s styles.",
+  "key.directionhud.button.reset.hover_settings_dest": "Click to reset %s settings.",
   "key.directionhud.button.color.primary": "PRIMARY",
   "key.directionhud.button.color.secondary": "SECONDARY",
   "key.directionhud.button.color.edit.hover": "Click to edit %s color.",
