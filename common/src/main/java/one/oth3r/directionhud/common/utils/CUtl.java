@@ -103,7 +103,7 @@ public class CUtl {
                         CTxT.of(Assets.cmdUsage.destTrack).color(Assets.mainColors.track).append("\n").append(TBtn("dest.track.hover")));
             }
             public static CTxT trackX() {
-                return CTxT.of("✕").btn(true).color('c').cEvent(1,"/dest track .clear").hEvent(
+                return CTxT.of(Assets.symbols.x).btn(true).color('c').cEvent(1,"/dest track .clear").hEvent(
                         CTxT.of(Assets.cmdUsage.destTrackClear).color('c').append("\n").append(TBtn("dest.track_clear.hover")));
             }
         }
