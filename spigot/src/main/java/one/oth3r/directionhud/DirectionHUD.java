@@ -6,6 +6,7 @@ import one.oth3r.directionhud.commands.DestinationCommand;
 import one.oth3r.directionhud.commands.DirHUDCommand;
 import one.oth3r.directionhud.commands.HUDCommand;
 import one.oth3r.directionhud.common.LoopManager;
+import one.oth3r.directionhud.utils.BossBarManager;
 import one.oth3r.directionhud.utils.Player;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -17,6 +18,7 @@ import java.util.Objects;
 import java.util.logging.Logger;
 
 public class DirectionHUD extends JavaPlugin {
+    public static BossBarManager bossBarManager = new BossBarManager();
     public static String PLAYERDATA_DIR;
     public static String CONFIG_DIR;
     public static Logger LOGGER;
