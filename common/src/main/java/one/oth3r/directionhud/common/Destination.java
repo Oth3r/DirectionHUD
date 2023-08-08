@@ -301,7 +301,7 @@ public class Destination {
                         if (fixedPos == 0) suggester.add("reset");
                     }
                     case "color" -> {
-                        if (fixedPos == 3 && trimmedArgs[0].equals("set")) suggester.add("#ffffff");
+                        if (fixedPos == 3 && trimmedArgs[0].equals("set")) suggester.add("ffffff");
                     }
                     case "set" -> suggester.addAll(setCMD(player,fixedPos,trimmedArgs));
                     case "send" -> suggester.addAll(sendCMD(player,fixedPos,trimmedArgs));
@@ -336,7 +336,7 @@ public class Destination {
             if (pos == 1) {
                 suggester.addAll(Utl.xyzSuggester(player,"x"));
                 if (args.length == 2 && !Utl.isInt(args[1]) && !args[1].equals("")) {
-                    suggester.add("#ffffff");
+                    suggester.add("ffffff");
                     suggester.addAll(Utl.dim.getList());
                     return suggester;
                 }
@@ -349,7 +349,7 @@ public class Destination {
             if (pos == 3) {
                 if (Utl.isInt(args[1])) suggester.addAll(Utl.xyzSuggester(player,"z"));
                 if (args.length == 4 && !Utl.isInt(args[3])) {
-                    suggester.add("#ffffff");
+                    suggester.add("ffffff");
                     suggester.addAll(Utl.dim.getList());
                 }
                 return suggester;
@@ -359,17 +359,17 @@ public class Destination {
                 if (Utl.isInt(args[3])) {
                     suggester.addAll(Utl.dim.getList());
                     if (args.length == 5 && !Utl.dim.checkValid(args[4]))
-                        suggester.add("#ffffff");
+                        suggester.add("ffffff");
                     return suggester;
                 }
                 if (Utl.dim.checkValid(args[3]))
-                    suggester.add("#ffffff");
+                    suggester.add("ffffff");
                 return suggester;
             }
             // add <name> <x> (y) <z> (dim) ((color))
             if (pos == 5) {
                 if (Utl.isInt(args[3]) && Utl.dim.checkValid(args[4])) {
-                    suggester.add("#ffffff");
+                    suggester.add("ffffff");
                     return suggester;
                 }
             }
@@ -400,7 +400,7 @@ public class Destination {
                 }
                 if (pos == 3) {
                     if (args[1].equalsIgnoreCase("name")) suggester.add("name");
-                    if (args[1].equalsIgnoreCase("color")) suggester.add("#ffffff");
+                    if (args[1].equalsIgnoreCase("color")) suggester.add("ffffff");
                     if (args[1].equalsIgnoreCase("dim")) suggester.addAll(Utl.dim.getList());
                     return suggester;
                 }
@@ -545,7 +545,7 @@ public class Destination {
     }
     public static Loc get(Player player) {
         Loc loc = PlayerData.get.dest.getDest(player);
-        if (loc.hasXYZ()) return new Loc();
+        if (!loc.hasXYZ()) return new Loc();
         if (PlayerData.get.dest.setting.ylevel(player) && loc.yExists())
             loc.setY(player.getBlockY());
         return loc;
@@ -696,7 +696,7 @@ public class Destination {
                 player.sendMessage(error("coordinates"));
                 return;
             }
-            color = CUtl.color.format(color,"#ffffff");
+            color = CUtl.color.format(color,"ffffff");
             all.add(Arrays.asList(name,loc.getLocC(),color));
             setList(player, all);
             if (send) {
@@ -1130,7 +1130,7 @@ public class Destination {
                     player.sendMessage(error("dest.track.disabled",CTxT.of(pl.getName()).color(CUtl.s())));
                     return;
                 }
-                if (PlayerData.get.dest.getTrackPending(player)) {
+                if (PlayerData.get.temp.track.exists(player)) {
                     player.sendMessage(error("dest.track.pending"));
                     return;
                 }
@@ -1139,9 +1139,9 @@ public class Destination {
                     return;
                 }
                 String trackID = Utl.createID();
-                PlayerData.set.dest.track.id(player, trackID);
-                PlayerData.set.dest.track.expire(player, 90);
-                PlayerData.set.dest.track.target(player, pl.getName());
+                PlayerData.set.temp.track.id(player, trackID);
+                PlayerData.set.temp.track.expire(player, 90);
+                PlayerData.set.temp.track.target(player, pl.getName());
                 player.sendMessage(CUtl.tag().append(lang("track",CTxT.of(pl.getName()).color(CUtl.s())))
                         .append("\n ").append(lang("track_expire", 90).color('7').italic(true)));
                 pl.sendMessage(CUtl.tag().append(lang("track_player",CTxT.of(player.getName()).color(CUtl.s()))).append("\n ")
@@ -1161,22 +1161,22 @@ public class Destination {
                     pl.sendMessage(error("how"));
                     return;
                 }
-                if (!PlayerData.get.dest.getTrackPending(player) || !PlayerData.get.dest.track.id(player).equals(ID)) {
+                if (!PlayerData.get.temp.track.exists(player) || !PlayerData.get.temp.track.id(player).equals(ID)) {
                     //expired
                     pl.sendMessage(error("dest.track.expired"));
                     return;
                 }
                 if (!PlayerData.get.dest.setting.track(player)) {
                     pl.sendMessage(error("dest.track.disabled",CTxT.of(pl.getName()).color(CUtl.s())));
-                    PlayerData.set.dest.setTrackNull(player);
+                    PlayerData.set.temp.track.remove(player);
                     return;
                 }
-                if (!Objects.equals(PlayerData.get.dest.track.target(player), pl.getName())) {
+                if (!Objects.equals(PlayerData.get.temp.track.target(player), pl.getName())) {
                     pl.sendMessage(error("how"));
                     return;
                 }
                 set(player, pl,true);
-                PlayerData.set.dest.setTrackNull(player);
+                PlayerData.set.temp.track.remove(player);
             }
             public static void deny(Player pl, String player2, String ID) {
                 // player is tracker, pl is tracked
@@ -1189,16 +1189,16 @@ public class Destination {
                     pl.sendMessage(error("how"));
                     return;
                 }
-                if (PlayerData.get.dest.track.id(player) == null || !PlayerData.get.dest.track.id(player).equals(ID)) {
+                if (PlayerData.get.temp.track.id(player) == null || !PlayerData.get.temp.track.id(player).equals(ID)) {
                     pl.sendMessage(error("dest.track.expired"));
                     return;
                 }
-                if (!Objects.equals(PlayerData.get.dest.track.target(player), pl.getName())) {
+                if (!Objects.equals(PlayerData.get.temp.track.target(player), pl.getName())) {
                     pl.sendMessage(error("how"));
                     return;
                 }
                 player.sendMessage(CUtl.tag().append(lang("track.denied",CTxT.of(pl.getName()).color(CUtl.s()))));
-                PlayerData.set.dest.setTrackNull(player);
+                PlayerData.set.temp.track.remove(player);
                 pl.sendMessage(CUtl.tag().append(lang("track.deny",CTxT.of(player.getName()).color(CUtl.s()))));
             }
         }
@@ -1449,6 +1449,8 @@ public class Destination {
                         .append("\n");
             }
             CTxT reset = CUtl.TBtn("reset").btn(true).color('7');
+            //todo
+            // recode but remove the things from the list if they are removed
             List<String> types = List.of("autoclear","autoconvert","ylevel","dest","line","tracking","track","send","lastdeath");
             boolean resetOn = false;
             for (String s:types) if (!resetOn) resetOn = canBeReset(player,s);
