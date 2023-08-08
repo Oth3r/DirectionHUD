@@ -38,6 +38,7 @@ public class Events {
     public static void playerLeave(Player player) {
         PlayerData.removePlayer(player);
         DirectionHUD.players.remove(player);
+        DirectionHUD.bossBarManager.removePlayer(player);
     }
     public static void playerChangeWorld(Player player, String fromDIM, String toDIM) {
         if (Destination.get(player).hasXYZ()) {
