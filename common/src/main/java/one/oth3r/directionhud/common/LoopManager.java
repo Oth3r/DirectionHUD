@@ -125,18 +125,18 @@ public class LoopManager {
             PlayerData.setOneTime(player, "tracking.dimension", null);
         }
         //TRACK TIMER
-        if (PlayerData.get.dest.getTrackPending(player)) {
+        if (PlayerData.get.temp.track.exists(player)) {
             //REMOVE IF TRACKING IS OFF
             if (!PlayerData.get.dest.setting.track(player)) {
-                PlayerData.set.dest.setTrackNull(player);
-            } else if (PlayerData.get.dest.track.expire(player) == 0) { //RAN OUT OF TIME
+                PlayerData.set.temp.track.remove(player);
+            } else if (PlayerData.get.temp.track.expire(player) == 0) { //RAN OUT OF TIME
                 player.sendMessage(CUtl.tag().append(CUtl.lang("dest.track.expired")));
-                PlayerData.set.dest.setTrackNull(player);
-            } else if (PlayerData.get.dest.track.expire(player) > 0) { //TICK DOWN
-                PlayerData.set.dest.track.expire(player, PlayerData.get.dest.track.expire(player) - 1);
-                if (Player.of(PlayerData.get.dest.track.target(player)) == null) { //TARGET PLAYER LEFT
+                PlayerData.set.temp.track.remove(player);
+            } else if (PlayerData.get.temp.track.expire(player) > 0) { //TICK DOWN
+                PlayerData.set.temp.track.expire(player, PlayerData.get.temp.track.expire(player) - 1);
+                if (Player.of(PlayerData.get.temp.track.target(player)) == null) { //TARGET PLAYER LEFT
                     player.sendMessage(CUtl.tag().append(CUtl.lang("dest.track.expired")));
-                    PlayerData.set.dest.setTrackNull(player);
+                    PlayerData.set.temp.track.remove(player);
                 }
             }
         }
