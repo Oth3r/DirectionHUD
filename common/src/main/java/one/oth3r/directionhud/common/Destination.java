@@ -1108,7 +1108,7 @@ public class Destination {
                 pl.sendMessage(CUtl.tag()
                         .append(lang("track.accept", CTxT.of(player.getName()).color(CUtl.s())))
                         .append(" ")
-                        .append(CUtl.TBtn("dest.settings").btn(true).color(Assets.mainColors.setting).cEvent(1,"/dest settings ").hEvent(
+                        .append(CUtl.TBtn("settings").btn(true).color(Assets.mainColors.setting).cEvent(1,"/dest settings ").hEvent(
                                 CTxT.of(Assets.cmdUsage.destSettings).color('c').append("\n").append(
                                         CUtl.TBtn("state.hover",CUtl.TBtn("off").color('c'))))));
             }

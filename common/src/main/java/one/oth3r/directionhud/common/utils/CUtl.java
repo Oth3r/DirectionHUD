@@ -62,8 +62,8 @@ public class CUtl {
                 return CTxT.of(Assets.symbols.pencil).btn(true).color(Assets.mainColors.edit).cEvent(t,cmd).hEvent(TBtn("dest.edit.hover").color(Assets.mainColors.edit)).color(Assets.mainColors.edit);
             }
             public static CTxT settings() {
-                return TBtn("dest.settings").btn(true).color(Assets.mainColors.setting).cEvent(1,"/dest settings")
-                        .hEvent(CTxT.of(Assets.cmdUsage.destSettings).color(Assets.mainColors.setting).append("\n").append(TBtn("dest.settings.hover")));
+                return TBtn("settings").btn(true).color(Assets.mainColors.setting).cEvent(1,"/dest settings")
+                        .hEvent(CTxT.of(Assets.cmdUsage.destSettings).color(Assets.mainColors.setting).append("\n").append(TBtn("settings.hover",lang("dest"))));
             }
             public static CTxT saved() {
                 return TBtn("dest.saved").btn(true).color(Assets.mainColors.saved).cEvent(1,"/dest saved").hEvent(
