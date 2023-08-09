@@ -29,6 +29,27 @@ public class config {
     public static boolean HUDEditing = defaults.HUDEditing;
     public static int HUDRefresh = defaults.HUDRefresh;
     public static boolean online = defaults.online;
+    public enum HUDTypes {
+        actionbar,
+        bossbar;
+        public static final HUDTypes[] values = values();
+        public HUDTypes next() {
+            return values[(ordinal() + 1) % values.length];
+        }
+    }
+    public static String HUDType = defaults.HUDType;
+    public enum BarColors {
+        pink,
+        blue,
+        red,
+        green,
+        yellow,
+        purple,
+        white
+    }
+    public static String HUDBarColor = defaults.HUDBarColor;
+    public static boolean HUDBarShowDistance = defaults.HUDBarShowDistance;
+    public static int HUDBarDistanceMax = defaults.HUDBarDistanceMax;
     public static boolean HUDEnabled = defaults.HUDEnabled;
     public static String HUDOrder = defaults.HUDOrder;
     public static boolean HUDCoordinates = defaults.HUDCoordinates;
@@ -38,7 +59,16 @@ public class config {
     public static boolean HUDDirection = defaults.HUDDirection;
     public static boolean HUDTime = defaults.HUDTime;
     public static boolean HUDWeather = defaults.HUDWeather;
-    public static boolean HUD24HR = defaults.HUD24HR;
+    public static boolean HUDTime24HR = defaults.HUDTime24HR;
+    public enum HUDTrackingTargets {
+        player,
+        dest;
+        public static final HUDTrackingTargets[] values = values();
+        public HUDTrackingTargets next() {
+            return values[(ordinal() + 1) % values.length];
+        }
+    }
+    public static String HUDTrackingTarget = defaults.HUDTrackingTarget;
     public static String HUDPrimaryColor = defaults.HUDPrimaryColor;
     public static boolean HUDPrimaryBold = defaults.HUDPrimaryBold;
     public static boolean HUDPrimaryItalics = defaults.HUDPrimaryItalics;
@@ -84,7 +114,7 @@ public class config {
         HUDDirection = defaults.HUDDirection;
         HUDTime = defaults.HUDTime;
         HUDWeather = defaults.HUDWeather;
-        HUD24HR = defaults.HUD24HR;
+//        HUD24HR = defaults.HUD24HR;
         //one.oth3r.directionhud.common.HUD COLORS
         HUDPrimaryColor = defaults.HUDPrimaryColor;
         HUDPrimaryBold = defaults.HUDPrimaryBold;
@@ -123,7 +153,7 @@ public class config {
         HUDDirection = PlayerData.get.hud.module.direction(player);
         HUDTime = PlayerData.get.hud.module.time(player);
         HUDWeather = PlayerData.get.hud.module.weather(player);
-        HUD24HR = PlayerData.get.hud.setting.time24h(player);
+//        HUD24HR = PlayerData.get.hud.setting.time24h(player);
         //HUD COLORS
         HUDPrimaryColor = HUD.color.getHUDColor(player,1);
         HUDPrimaryBold = HUD.color.getHUDBold(player,1);
@@ -182,10 +212,10 @@ public class config {
         HUDEditing = Boolean.parseBoolean((String) properties.computeIfAbsent("hud-editing", a -> String.valueOf(defaults.HUDEditing)));
         HUDRefresh = Math.min(20, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("hud-refresh", a -> String.valueOf(defaults.HUDRefresh)))));
         online = Boolean.parseBoolean((String) properties.computeIfAbsent("online-mode", a -> String.valueOf(defaults.online)));
-        //one.oth3r.directionhud.common.HUD
+        //HUD
         HUDEnabled = Boolean.parseBoolean((String) properties.computeIfAbsent("enabled", a -> String.valueOf(defaults.HUDEnabled)));
-        HUDOrder = HUD.order.fixOrder((String) properties.computeIfAbsent("order", a -> defaults.HUDOrder));
-        HUD24HR = Boolean.parseBoolean((String) properties.computeIfAbsent("time24hr", a -> String.valueOf(defaults.HUD24HR)));
+        HUDOrder = HUD.modules.fixOrder((String) properties.computeIfAbsent("order", a -> defaults.HUDOrder));
+//        HUD24HR = Boolean.parseBoolean((String) properties.computeIfAbsent("time24hr", a -> String.valueOf(defaults.HUD24HR)));
         HUDPrimaryBold = Boolean.parseBoolean((String) properties.computeIfAbsent("primary-bold", a -> String.valueOf(defaults.HUDPrimaryBold)));
         HUDPrimaryItalics = Boolean.parseBoolean((String) properties.computeIfAbsent("primary-italics", a -> String.valueOf(defaults.HUDPrimaryItalics)));
         HUDPrimaryRainbow = Boolean.parseBoolean((String) properties.computeIfAbsent("primary-rainbow", a -> String.valueOf(defaults.HUDPrimaryRainbow)));
@@ -239,6 +269,9 @@ public class config {
             DESTDestParticleColor = CUtl.color.format((String) properties.computeIfAbsent("dest-particle-color", a -> defaults.DESTDestParticleColor),defaults.DESTDestParticleColor);
             DESTTrackingParticleColor = CUtl.color.format((String) properties.computeIfAbsent("tracking-particle-color", a -> defaults.DESTTrackingParticleColor),defaults.DESTDestParticleColor);
         }
+        //todo
+        // update config to update config
+        //  lang file
     }
     public static void save() {
         try (var file = new FileOutputStream(configFile(), false)) {
@@ -261,7 +294,7 @@ public class config {
             file.write(("\nenabled=" + HUDEnabled).getBytes());
             file.write(("\n# one.oth3r.directionhud.common.HUD Module order, all modules don't have to be listed:").getBytes());
             file.write(("\norder=" + HUDOrder).getBytes());
-            file.write(("\ntime24hr=" + HUD24HR).getBytes());
+//            file.write(("\ntime24hr=" + HUDTime24HR).getBytes());
             file.write(("\nprimary-color=" + HUDPrimaryColor).getBytes());
             file.write(("\nprimary-bold=" + HUDPrimaryBold).getBytes());
             file.write(("\nprimary-italics=" + HUDPrimaryItalics).getBytes());
@@ -306,49 +339,54 @@ public class config {
         }
     }
     public static class defaults {
-        public static float version = 1.3f;
-        public static String lang = "en_us";
-        public static boolean DESTSaving = true;
-        public static int MAXSaved = 50;
-        public static int MAXy = 512;
-        public static int MAXxz = 30000000;
-        public static boolean deathsaving = true;
-        public static boolean social = true;
-        public static boolean HUDEditing = true;
-        public static int HUDRefresh = 1;
-        public static boolean online = true;
-        public static boolean HUDEnabled = true;
-        public static String HUDOrder = HUD.order.allModules();
-        public static boolean HUDCoordinates = true;
-        public static boolean HUDDistance = true;
-        public static boolean HUDTracking = false;
-        public static boolean HUDDestination = true;
-        public static boolean HUDDirection = true;
-        public static boolean HUDTime = true;
-        public static boolean HUDWeather = true;
-        public static boolean HUD24HR = false;
-        public static String HUDPrimaryColor = Assets.mainColors.pri;
-        public static boolean HUDPrimaryBold = false;
-        public static boolean HUDPrimaryItalics = false;
-        public static boolean HUDPrimaryRainbow = false;
-        public static String HUDSecondaryColor = "#ffffff";
-        public static boolean HUDSecondaryBold = false;
-        public static boolean HUDSecondaryItalics = false;
-        public static boolean HUDSecondaryRainbow = false;
-        public static boolean DESTAutoClear = true;
-        public static int DESTAutoClearRad = 2;
-        public static boolean DESTAutoConvert = false;
-        public static boolean DESTYLevel = false;
-        public static boolean DESTLineParticles = true;
-        public static String DESTLineParticleColor = Assets.mainColors.sec;
-        public static boolean DESTDestParticles = true;
-        public static String DESTDestParticleColor = Assets.mainColors.pri;
-        public static boolean DESTTrackingParticles = true;
-        public static String DESTTrackingParticleColor = Assets.mainColors.track;
-        public static boolean DESTSend = true;
-        public static boolean DESTTrack = true;
-        public static boolean DESTLastdeath = true;
-        public static List<String> dimensions = Utl.dim.DEFAULT_DIMENSIONS;
-        public static List<String> dimensionRatios = Utl.dim.DEFAULT_RATIOS;
+        public static final float version = 1.3f;
+        public static final String lang = "en_us";
+        public static final boolean DESTSaving = true;
+        public static final int MAXSaved = 50;
+        public static final int MAXy = 512;
+        public static final int MAXxz = 30000000;
+        public static final boolean deathsaving = true;
+        public static final boolean social = true;
+        public static final boolean HUDEditing = true;
+        public static final int HUDRefresh = 1;
+        public static final boolean online = true;
+        public static final String HUDType = HUDTypes.actionbar.toString();
+        public static final String HUDBarColor = BarColors.white.toString();
+        public static final boolean HUDBarShowDistance = true;
+        public static final int HUDBarDistanceMax = 0;
+        public static final boolean HUDEnabled = true;
+        public static final String HUDOrder = HUD.modules.allModules();
+        public static final boolean HUDCoordinates = true;
+        public static final boolean HUDDistance = true;
+        public static final boolean HUDTracking = false;
+        public static final boolean HUDDestination = true;
+        public static final boolean HUDDirection = true;
+        public static final boolean HUDTime = true;
+        public static final boolean HUDWeather = true;
+        public static final boolean HUDTime24HR = false;
+        public static final String HUDTrackingTarget = HUDTrackingTargets.player.toString();
+        public static final String HUDPrimaryColor = Assets.mainColors.pri;
+        public static final boolean HUDPrimaryBold = false;
+        public static final boolean HUDPrimaryItalics = false;
+        public static final boolean HUDPrimaryRainbow = false;
+        public static final String HUDSecondaryColor = "#ffffff";
+        public static final boolean HUDSecondaryBold = false;
+        public static final boolean HUDSecondaryItalics = false;
+        public static final boolean HUDSecondaryRainbow = false;
+        public static final boolean DESTAutoClear = true;
+        public static final int DESTAutoClearRad = 2;
+        public static final boolean DESTAutoConvert = false;
+        public static final boolean DESTYLevel = false;
+        public static final boolean DESTLineParticles = true;
+        public static final String DESTLineParticleColor = Assets.mainColors.sec;
+        public static final boolean DESTDestParticles = true;
+        public static final String DESTDestParticleColor = Assets.mainColors.pri;
+        public static final boolean DESTTrackingParticles = true;
+        public static final String DESTTrackingParticleColor = Assets.mainColors.track;
+        public static final boolean DESTSend = true;
+        public static final boolean DESTTrack = true;
+        public static final boolean DESTLastdeath = true;
+        public static final List<String> dimensions = Utl.dim.DEFAULT_DIMENSIONS;
+        public static final List<String> dimensionRatios = Utl.dim.DEFAULT_RATIOS;
     }
 }
