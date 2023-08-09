@@ -1,5 +1,7 @@
 package one.oth3r.directionhud.common;
 
+import one.oth3r.directionhud.common.files.config;
+
 public class Assets {
     public static class mainColors {
         public static final String convert = "#ffa93f";
@@ -24,11 +26,25 @@ public class Assets {
         public static String sec;
         public static String pri;
     }
+    public static String barColor(config.BarColors color) {
+        StringBuilder output = new StringBuilder();
+        switch (color) {
+            case pink -> output.append("#ec00b8");
+            case blue -> output.append("#008fb9");
+            case red -> output.append("#ec3500");
+            case green -> output.append("#1dec00");
+            case yellow -> output.append("#e9ec00");
+            case purple -> output.append("#7b00ec");
+            default -> output.append("ffffff");
+        }
+        return output.toString();
+    }
     public static class cmdUsage {
         public static final String hud = "/hud";
         public static final String hudToggle = "/hud toggle";
         public static final String hudColor = "/hud color";
-        public static final String hudEdit = "/hud edit";
+        public static final String hudModules = "/hud modules";
+        public static final String hudSettings = "/hud settings";
         public static final String dest = "/dest | /destination";
         public static final String destAdd = "/dest (saved) add <name> <x> (y) <z> (dimension) (color)";
         public static final String destSet = "/dest set <x> (y) <z> (dimension) (convert) | /dest set saved <name> (convert)";
