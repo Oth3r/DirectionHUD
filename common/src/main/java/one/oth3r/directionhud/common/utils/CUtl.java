@@ -42,6 +42,10 @@ public class CUtl {
             return LangReader.of("key.directionhud."+key, args).getTxT();
         }
     }
+    public static CTxT toggleBtn(boolean button, String cmd) {
+        return CUtl.TBtn(button?"on":"off").btn(true).color(button?'a':'c').hEvent(CUtl.TBtn("state.hover",
+                CUtl.TBtn(button?"off":"on").color(button?'c':'a'))).cEvent(1,cmd+(button?"off":"on"));
+    }
     public static CTxT TBtn(String key, Object... args) {
         return lang("button."+key,args);
     }
@@ -112,9 +116,13 @@ public class CUtl {
                 return CTxT.of(CUtl.color.rainbow(TBtn("hud.color").getString(),15,45)).btn(true).cEvent(1,"/hud color")
                         .hEvent(CTxT.of(CUtl.color.rainbow(Assets.cmdUsage.hudColor,10f,23f)).append("\n").append(TBtn("hud.color.hover")));
             }
-            public static CTxT edit() {
-                return TBtn("hud.edit").btn(true).color(Assets.mainColors.edit).cEvent(1,"/hud edit").hEvent(
-                        CTxT.of(Assets.cmdUsage.hudEdit).color(Assets.mainColors.edit).append("\n").append(TBtn("hud.edit.hover")));
+            public static CTxT modules() {
+                return TBtn("hud.modules").btn(true).color(Assets.mainColors.edit).cEvent(1,"/hud modules").hEvent(
+                        CTxT.of(Assets.cmdUsage.hudModules).color(Assets.mainColors.edit).append("\n").append(TBtn("hud.modules.hover")));
+            }
+            public static CTxT settings() {
+                return TBtn("settings").btn(true).color(Assets.mainColors.setting).cEvent(1,"/hud settings").hEvent(
+                        CTxT.of(Assets.cmdUsage.hudSettings).color(Assets.mainColors.setting).append("\n").append(TBtn("settings.hover",lang("hud"))));
             }
             public static CTxT toggle(Character color, String type) {
                 return TBtn("hud.toggle").btn(true).color(color).cEvent(1,"/hud toggle "+type).hEvent(
