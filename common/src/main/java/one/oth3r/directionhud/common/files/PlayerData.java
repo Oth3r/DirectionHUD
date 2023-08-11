@@ -407,30 +407,6 @@ public class PlayerData {
                 }
             }
         }
-        public static class temp {
-            private static Map<String,Object> get(Player player) {
-                if (fromMap(player).get("temp") == null) return new HashMap<>();
-                return (Map<String,Object>) fromMap(player).get("temp");
-            }
-            public static class track {
-                public static boolean exists(Player player) {
-                    return get(player).get("track") != null;
-                }
-                private static Map<String,Object> map(Player player) {
-                    if (get(player).get("track") == null) return new HashMap<>();
-                    return (Map<String,Object>) get(player).get("track");
-                }
-                public static String id(Player player) {
-                    return (String) map(player).get("id");
-                }
-                public static int expire(Player player) {
-                    return ((Long) map(player).get("expire")).intValue();
-                }
-                public static String target(Player player) {
-                    return (String) map(player).get("target");
-                }
-            }
-        }
         public static class dest {
             private static Map<String,Object> get(Player player, boolean map) {
                 if (map) return (Map<String,Object>) fromMap(player).get("destination");
@@ -501,6 +477,30 @@ public class PlayerData {
                 }
             }
         }
+        public static class temp {
+            private static Map<String,Object> get(Player player) {
+                if (fromMap(player).get("temp") == null) return new HashMap<>();
+                return (Map<String,Object>) fromMap(player).get("temp");
+            }
+            public static class track {
+                public static boolean exists(Player player) {
+                    return get(player).get("track") != null;
+                }
+                private static Map<String,Object> map(Player player) {
+                    if (get(player).get("track") == null) return new HashMap<>();
+                    return (Map<String,Object>) get(player).get("track");
+                }
+                public static String id(Player player) {
+                    return (String) map(player).get("id");
+                }
+                public static int expire(Player player) {
+                    return ((Long) map(player).get("expire")).intValue();
+                }
+                public static String target(Player player) {
+                    return (String) map(player).get("target");
+                }
+            }
+        }
     }
     @SuppressWarnings("unchecked")
     public static class set {
@@ -560,40 +560,6 @@ public class PlayerData {
                     Map<String,Object> data = get.hud.getModule(player);
                     data.put(moduleName, b);
                     map(player, data);
-                }
-            }
-        }
-        public static class temp {
-            public static void setM(Player player, Map<String,Object> temp) {
-                Map<String,Object> map = get.fromMap(player);
-                map.put("temp",temp);
-                playerMap.put(player,map);
-            }
-            public static class track {
-                private static void set(Player player, Map<String,Object> setting) {
-                    Map<String,Object> data = get.temp.get(player);
-                    data.put("track", setting);
-                    setM(player, data);
-                }
-                public static void remove(Player player) {
-                    Map<String,Object> data = get.temp.get(player);
-                    data.put("track", null);
-                    setM(player, data);
-                }
-                public static void id(Player player, String b) {
-                    Map<String,Object> data = get.temp.track.map(player);
-                    data.put("id", b);
-                    set(player, data);
-                }
-                public static void expire(Player player, long b) {
-                    Map<String,Object> data = get.temp.track.map(player);
-                    data.put("expire", b);
-                    set(player, data);
-                }
-                public static void target(Player player, String b) {
-                    Map<String,Object> data = get.temp.track.map(player);
-                    data.put("target", b);
-                    set(player, data);
                 }
             }
         }
@@ -708,6 +674,40 @@ public class PlayerData {
                         data.put("trackingcolor", b);
                         setParticleSetting(player, data);
                     }
+                }
+            }
+        }
+        public static class temp {
+            public static void setM(Player player, Map<String,Object> temp) {
+                Map<String,Object> map = get.fromMap(player);
+                map.put("temp",temp);
+                playerMap.put(player,map);
+            }
+            public static class track {
+                private static void set(Player player, Map<String,Object> setting) {
+                    Map<String,Object> data = get.temp.get(player);
+                    data.put("track", setting);
+                    setM(player, data);
+                }
+                public static void remove(Player player) {
+                    Map<String,Object> data = get.temp.get(player);
+                    data.put("track", null);
+                    setM(player, data);
+                }
+                public static void id(Player player, String b) {
+                    Map<String,Object> data = get.temp.track.map(player);
+                    data.put("id", b);
+                    set(player, data);
+                }
+                public static void expire(Player player, long b) {
+                    Map<String,Object> data = get.temp.track.map(player);
+                    data.put("expire", b);
+                    set(player, data);
+                }
+                public static void target(Player player, String b) {
+                    Map<String,Object> data = get.temp.track.map(player);
+                    data.put("target", b);
+                    set(player, data);
                 }
             }
         }
