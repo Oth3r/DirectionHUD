@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.Assets;
+import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.utils.Player;
@@ -19,6 +20,25 @@ import java.util.List;
 import java.util.Properties;
 
 public class config {
+    public static Object getDestSetting(Destination.Settings type) {
+        Object output = false;
+        switch (type) {
+            case autoclear -> output = DESTAutoClear;
+            case autoclear_rad -> output = DESTAutoClearRad;
+            case autoconvert -> output = DESTAutoConvert;
+            case ylevel -> output = DESTYLevel;
+            case particles__dest -> output = DESTDestParticles;
+            case particles__dest_color -> output = DESTDestParticleColor;
+            case particles__line -> output = DESTLineParticles;
+            case particles__line_color -> output = DESTLineParticleColor;
+            case particles__tracking -> output =DESTTrackingParticles;
+            case particles__tracking_color -> output=DESTTrackingParticleColor;
+            case features__send -> output=DESTSend;
+            case features__track -> output=DESTTrack;
+            case features__lastdeath -> output=DESTLastdeath;
+        }
+        return output;
+    }
     public static String lang = defaults.lang;
     public static boolean DESTSaving = defaults.DESTSaving;
     public static int MAXSaved = defaults.MAXSaved;
@@ -143,6 +163,7 @@ public class config {
         save();
     }
     public static void setToPlayer(Player player) {
+        //todo this
         //HUD SETTINGS
         HUDEnabled = PlayerData.get.hud.state(player);
         HUDOrder = PlayerData.get.hud.order(player);
@@ -165,20 +186,20 @@ public class config {
         HUDSecondaryItalics = HUD.color.getHUDItalics(player, 2);
         HUDSecondaryRainbow = HUD.color.getHUDRGB(player,2);
         //DEST SETTINGS
-        DESTAutoClear = PlayerData.get.dest.setting.autoclear(player);
-        DESTAutoClearRad = PlayerData.get.dest.setting.autoclearrad(player);
-        DESTAutoConvert = PlayerData.get.dest.setting.autoconvert(player);
-        DESTYLevel = PlayerData.get.dest.setting.ylevel(player);
-        DESTSend = PlayerData.get.dest.setting.send(player);
-        DESTTrack = PlayerData.get.dest.setting.track(player);
-        DESTLastdeath = PlayerData.get.dest.setting.lastdeath(player);
-        //DEST PARTICLES
-        DESTLineParticles = PlayerData.get.dest.setting.particles.line(player);
-        DESTLineParticleColor = PlayerData.get.dest.setting.particles.linecolor(player);
-        DESTDestParticles = PlayerData.get.dest.setting.particles.dest(player);
-        DESTDestParticleColor = PlayerData.get.dest.setting.particles.destcolor(player);
-        DESTTrackingParticles = PlayerData.get.dest.setting.particles.tracking(player);
-        DESTTrackingParticleColor = PlayerData.get.dest.setting.particles.trackingcolor(player);
+//        DESTAutoClear = PlayerData.get.dest.setting.autoclear(player);
+//        DESTAutoClearRad = PlayerData.get.dest.setting.autoclearrad(player);
+//        DESTAutoConvert = PlayerData.get.dest.setting.autoconvert(player);
+//        DESTYLevel = PlayerData.get.dest.setting.ylevel(player);
+//        DESTSend = PlayerData.get.dest.setting.send(player);
+//        DESTTrack = PlayerData.get.dest.setting.track(player);
+//        DESTLastdeath = PlayerData.get.dest.setting.lastdeath(player);
+//        //DEST PARTICLES
+//        DESTLineParticles = PlayerData.get.dest.setting.particles.line(player);
+//        DESTLineParticleColor = PlayerData.get.dest.setting.particles.linecolor(player);
+//        DESTDestParticles = PlayerData.get.dest.setting.particles.dest(player);
+//        DESTDestParticleColor = PlayerData.get.dest.setting.particles.destcolor(player);
+//        DESTTrackingParticles = PlayerData.get.dest.setting.particles.tracking(player);
+//        DESTTrackingParticleColor = PlayerData.get.dest.setting.particles.trackingcolor(player);
         save();
     }
     public static File configFile() {

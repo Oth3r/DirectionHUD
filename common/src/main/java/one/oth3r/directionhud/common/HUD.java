@@ -872,7 +872,7 @@ public class HUD {
             boolean resetOn = false;
             for (String s:TYPE) if (!resetOn) resetOn = canBeReset(player,s);
             if (resetOn) reset.color('c').cEvent(1,"/hud settings reset all")
-                    .hEvent(CUtl.TBtn("reset.hover_settings_dest",CUtl.TBtn("all").color('c')));
+                    .hEvent(CUtl.TBtn("reset.hover_settings",CUtl.TBtn("all").color('c')));
             msg.append("\n    ").append(reset).append("  ").append(CUtl.CButton.back("/hud")).append("\n")
                     .append(CTxT.of("                              ").strikethrough(true));
             player.sendMessage(msg);

@@ -174,7 +174,7 @@ public class PlayerData {
             map.put("destination",dest);
         }
         if (map.get("version").equals(1.4)) {
-            map.put("version",1.42);
+            map.put("version",1.43);
             Map<String,Object> temp = new HashMap<>();
             Map<String,Object> dest = (Map<String, Object>) map.get("destination");
             //MOVE COUNTDOWN FROM DEST TO TEMP
@@ -183,10 +183,23 @@ public class PlayerData {
             //UPDATE DEST PARTICLE COLORS TO NEW SYSTEM
             Map<String,Object> destSetting = (Map<String, Object>) dest.get("setting");
             Map<String,Object> particles = (Map<String, Object>) destSetting.get("particles");
-            particles.put("linecolor",CUtl.color.updateOld((String) particles.get("linecolor"),config.DESTLineParticleColor));
-            particles.put("destcolor",CUtl.color.updateOld((String) particles.get("destcolor"),config.DESTDestParticleColor));
-            particles.put("trackingcolor",CUtl.color.updateOld((String) particles.get("trackingcolor"),config.DESTTrackingParticleColor));
+            particles.put("dest_color",CUtl.color.updateOld((String) particles.get("destcolor"),config.DESTDestParticleColor));
+            particles.put("line_color",CUtl.color.updateOld((String) particles.get("linecolor"),config.DESTLineParticleColor));
+            particles.put("tracking_color",CUtl.color.updateOld((String) particles.get("trackingcolor"),config.DESTTrackingParticleColor));
+            particles.remove("destcolor");
+            particles.remove("linecolor");
+            particles.remove("trackingcolor");
             destSetting.put("particles",particles);
+            destSetting.put("autoclear_rad",destSetting.get("autoclearradius"));
+            destSetting.remove("autoclearradius");
+            Map<String,Object> destFeatures = new HashMap<>();
+            destFeatures.put("send",destSetting.get("send"));
+            destFeatures.put("track",destSetting.get("track"));
+            destFeatures.put("lastdeath",destSetting.get("lastdeath"));
+            destSetting.remove("send");
+            destSetting.remove("track");
+            destSetting.remove("lastdeath");
+            destSetting.put("features",destFeatures);
             dest.put("setting",destSetting);
             //UPDATE HUD COLORS TO NEW SYSTEM
             Map<String,Object> hud = (Map<String, Object>) map.get("hud");
@@ -214,12 +227,9 @@ public class PlayerData {
     @SuppressWarnings("unchecked")
     public static Map<String,Object> removeUnnecessary(Map<String,Object> map) {
         Map<String,Object> dest = (Map<String, Object>) map.get("destination");
-        Map<String,Object> dSet = (Map<String, Object>) dest.get("setting");
-        dSet.remove("send");
-        dSet.remove("lastdeath");
+        // todo remove the hud presets when they get done
         dest.remove("saved");
         dest.remove("lastdeath");
-        dest.put("setting",dSet);
         map.put("destination",dest);
         map.remove("name");
         //removes map.name, map.destination.saved, map.destination.setting.send, map.destination.lastdeath
@@ -284,7 +294,7 @@ public class PlayerData {
             destination.put("lastdeath", new ArrayList<String>());
             destination.put("tracking", null);
             //base
-            map.put("version", 1.4);
+            map.put("version", 1.43);
             map.put("name", player.getName());
             map.put("hud", hud);
             map.put("destination", destination);
@@ -325,23 +335,28 @@ public class PlayerData {
         public static Map<String,Object> destSetting() {
             Map<String,Object> destSetting = new HashMap<>();
             destSetting.put("autoclear", config.DESTAutoClear);
-            destSetting.put("autoclearradius",(long) config.DESTAutoClearRad);
+            destSetting.put("autoclear_rad",(long) config.DESTAutoClearRad);
             destSetting.put("autoconvert", config.DESTAutoConvert);
             destSetting.put("ylevel", config.DESTYLevel);
-            destSetting.put("send", config.DESTSend);
-            destSetting.put("track", config.DESTTrack);
-            destSetting.put("lastdeath", config.DESTLastdeath);
+            destSetting.put("features", destFeatures());
             destSetting.put("particles", destParticles());
             return destSetting;
+        }
+        public static Map<String,Object> destFeatures() {
+            Map<String,Object> destFeatures = new HashMap<>();
+            destFeatures.put("send", config.DESTSend);
+            destFeatures.put("track", config.DESTTrack);
+            destFeatures.put("lastdeath", config.DESTLastdeath);
+            return destFeatures;
         }
         public static Map<String,Object> destParticles() {
             Map<String,Object> destParticles = new HashMap<>();
             destParticles.put("line", config.DESTLineParticles);
-            destParticles.put("linecolor", config.DESTLineParticleColor);
+            destParticles.put("line_color", config.DESTLineParticleColor);
             destParticles.put("dest", config.DESTDestParticles);
-            destParticles.put("destcolor", config.DESTDestParticleColor);
+            destParticles.put("dest_color", config.DESTDestParticleColor);
             destParticles.put("tracking", config.DESTTrackingParticles);
-            destParticles.put("trackingcolor", config.DESTTrackingParticleColor);
+            destParticles.put("tracking_color", config.DESTTrackingParticleColor);
             return destParticles;
         }
     }
@@ -412,12 +427,6 @@ public class PlayerData {
                 if (map) return (Map<String,Object>) fromMap(player).get("destination");
                 return (Map<String, Object>) fileToMap(player).get("destination");
             }
-            private static Map<String,Object> getSetting(Player player, boolean map) {
-                return (Map<String,Object>) get(player,map).get("setting");
-            }
-            private static Map<String,Object> getParticleSetting(Player player) {
-                return (Map<String,Object>) dest.getSetting(player, true).get("particles");
-            }
             public static ArrayList<String> getLastdeaths(Player player) {
                 return (ArrayList<String>) get(player,false).get("lastdeath");
             }
@@ -431,49 +440,17 @@ public class PlayerData {
                 return (List<List<String>>) get(player,false).get("saved");
             }
             public static class setting {
-                public static boolean autoclear(Player player) {
-                    return (boolean) getSetting(player, true).get("autoclear");
+                private static Map<String,Object> map(Player player) {
+                    return (Map<String,Object>) dest.get(player,true).get("setting");
                 }
-                public static int autoclearrad(Player player) {
-                    return ((Long) getSetting(player, true).get("autoclearradius")).intValue();
-                }
-                public static boolean autoconvert(Player player) {
-                    return (boolean) getSetting(player, true).get("autoconvert");
-                }
-                public static boolean ylevel(Player player) {
-                    return (boolean) getSetting(player, true).get("ylevel");
-                }
-                public static boolean send(Player player) {
-                    return (boolean) getSetting(player, false).get("send");
-                }
-                public static boolean track(Player player) {
-                    return (boolean) getSetting(player, true).get("track");
-                }
-                public static boolean lastdeath(Player player) {
-                    return (boolean) getSetting(player, false).get("lastdeath");
-                }
-                public static class particles {
-                    public static String color(Player player, String type) {
-                        return (String) getParticleSetting(player).get(type);
+                public static Object get(Player player, Destination.Settings settings) {
+                    String string = settings.toString();
+                    if (string.contains(".")) {
+                        String base = string.substring(0,string.indexOf('.'));
+                        Map<String,Object> bar = (Map<String,Object>) map(player).get(base);
+                        return bar.get(string.substring(string.indexOf('.')+1));
                     }
-                    public static boolean line(Player player) {
-                        return (boolean) getParticleSetting(player).get("line");
-                    }
-                    public static String linecolor(Player player) {
-                        return (String) getParticleSetting(player).get("linecolor");
-                    }
-                    public static boolean dest(Player player) {
-                        return (boolean) getParticleSetting(player).get("dest");
-                    }
-                    public static String destcolor(Player player) {
-                        return (String) getParticleSetting(player).get("destcolor");
-                    }
-                    public static boolean tracking(Player player) {
-                        return (boolean) getParticleSetting(player).get("tracking");
-                    }
-                    public static String trackingcolor(Player player) {
-                        return (String) getParticleSetting(player).get("trackingcolor");
-                    }
+                    return map(player).get(string);
                 }
             }
         }
@@ -570,16 +547,6 @@ public class PlayerData {
                 mapToFile(player,map);
                 updatePlayerMap(player);
             }
-            private static void setSetting(Player player, Map<String,Object> setting) {
-                Map<String,Object> data = get.dest.get(player,false);
-                data.put("setting", setting);
-                set(player, data);
-            }
-            private static void setParticleSetting(Player player, Map<String,Object> setting) {
-                Map<String,Object> data = get.dest.getSetting(player,false);
-                data.put("particles", setting);
-                setSetting(player, data);
-            }
             public static void setDest(Player player, Loc loc) {
                 Map<String,Object> data = get.dest.get(player,false);
                 data.put("dest", loc.getLocC());
@@ -601,79 +568,23 @@ public class PlayerData {
                 set(player, data);
             }
             public static class setting {
-                public static void autoclear(Player player, boolean b) {
-                    Map<String,Object> data = get.dest.getSetting(player,false);
-                    data.put("autoclear", b);
-                    setSetting(player, data);
+                private static void map(Player player, Map<String,Object> setting) {
+                    Map<String,Object> data = get.dest.get(player,false);
+                    data.put("setting", setting);
+                    dest.set(player, data);
                 }
-                public static void autoclearrad(Player player, long b) {
-                    Map<String,Object> data = get.dest.getSetting(player,false);
-                    data.put("autoclearradius", b);
-                    setSetting(player, data);
-                }
-                public static void autoconvert(Player player, boolean b) {
-                    Map<String,Object> data = get.dest.getSetting(player,false);
-                    data.put("autoconvert", b);
-                    setSetting(player, data);
-                }
-                public static void ylevel(Player player, boolean b) {
-                    Map<String,Object> data = get.dest.getSetting(player,false);
-                    data.put("ylevel", b);
-                    setSetting(player, data);
-                }
-                public static void send(Player player, boolean b) {
-                    Map<String,Object> data = get.dest.getSetting(player,false);
-                    data.put("send", b);
-                    setSetting(player, data);
-                }
-                public static void track(Player player, boolean b) {
-                    Map<String,Object> data = get.dest.getSetting(player,false);
-                    data.put("track", b);
-                    setSetting(player, data);
-                }
-                public static void lastdeath(Player player, boolean b) {
-                    Map<String,Object> data = get.dest.getSetting(player,false);
-                    data.put("lastdeath", b);
-                    setSetting(player, data);
-                }
-                public static class particles {
-                    public static void color(Player player, String type, String b) {
-                        Map<String,Object> data = get.dest.getParticleSetting(player);
-                        if (Destination.settings.colorTypes.contains(type)) {
-                            data.put(type, b);
-                            setParticleSetting(player, data);
-                        }
+                public static void set(Player player, Destination.Settings settings, Object setting) {
+                    String string = settings.toString();
+                    Map<String,Object> data = get.dest.setting.map(player);
+                    if (string.contains(".")) {
+                        String base = string.substring(0,string.indexOf('.'));
+                        Map<String,Object> bar = (Map<String,Object>) get.dest.setting.map(player).get(base);
+                        bar.put(string.substring(string.indexOf('.')+1),setting);
+                        data.put(base,bar);
+                    } else {
+                        data.put(string.substring(string.indexOf('.')+1),setting);
                     }
-                    public static void line(Player player, boolean b) {
-                        Map<String,Object> data = get.dest.getParticleSetting(player);
-                        data.put("line", b);
-                        setParticleSetting(player, data);
-                    }
-                    public static void linecolor(Player player, String b) {
-                        Map<String,Object> data = get.dest.getParticleSetting(player);
-                        data.put("linecolor", b);
-                        setParticleSetting(player, data);
-                    }
-                    public static void dest(Player player, boolean b) {
-                        Map<String,Object> data = get.dest.getParticleSetting(player);
-                        data.put("dest", b);
-                        setParticleSetting(player, data);
-                    }
-                    public static void destcolor(Player player, String b) {
-                        Map<String,Object> data = get.dest.getParticleSetting(player);
-                        data.put("destcolor", b);
-                        setParticleSetting(player, data);
-                    }
-                    public static void tracking(Player player, boolean b) {
-                        Map<String,Object> data = get.dest.getParticleSetting(player);
-                        data.put("tracking", b);
-                        setParticleSetting(player, data);
-                    }
-                    public static void trackingcolor(Player player, String b) {
-                        Map<String,Object> data = get.dest.getParticleSetting(player);
-                        data.put("trackingcolor", b);
-                        setParticleSetting(player, data);
-                    }
+                    map(player,data);
                 }
             }
         }

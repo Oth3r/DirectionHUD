@@ -2,6 +2,7 @@ package one.oth3r.directionhud.utils;
 
 import net.md_5.bungee.api.chat.TextComponent;
 import one.oth3r.directionhud.common.Assets;
+import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.files.LangReader;
 import one.oth3r.directionhud.common.files.PlayerData;
@@ -178,13 +179,13 @@ public class Utl {
             return player.getPlayer().hasPermission("directionhud.destination.saving");
         }
         public static boolean lastdeath(Player player) {
-            return PlayerData.get.dest.setting.lastdeath(player) && config.deathsaving;
+            return (boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.features__lastdeath) && config.deathsaving;
         }
         public static boolean send(Player player) {
-            return PlayerData.get.dest.setting.send(player) && config.social;
+            return (boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.features__send) && config.social;
         }
         public static boolean track(Player player) {
-            return PlayerData.get.dest.setting.track(player) && config.social;
+            return (boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.features__track) && config.social;
         }
     }
     public static class particle {
@@ -208,11 +209,11 @@ public class Utl {
             }
         }
         public static Particle.DustOptions getParticle(String particleType, Player player) {
-            int[] i = CUtl.color.RGB(PlayerData.get.dest.setting.particles.linecolor(player));
+            int[] i = CUtl.color.RGB((String) PlayerData.get.dest.setting.get(player, Destination.Settings.particles__line_color));
             if (particleType.equals(LINE)) return new Particle.DustOptions(Color.fromRGB(i[0],i[1],i[2]), 1);
-            i = CUtl.color.RGB(PlayerData.get.dest.setting.particles.destcolor(player));
+            i = CUtl.color.RGB((String) PlayerData.get.dest.setting.get(player, Destination.Settings.particles__dest_color));
             if (particleType.equals(DEST)) return new Particle.DustOptions(Color.fromRGB(i[0],i[1],i[2]), 3);
-            i = CUtl.color.RGB(PlayerData.get.dest.setting.particles.trackingcolor(player));
+            i = CUtl.color.RGB((String) PlayerData.get.dest.setting.get(player, Destination.Settings.particles__tracking_color));
             if (particleType.equals(TRACKING)) return new Particle.DustOptions(Color.fromRGB(i[0],i[1],i[2]), 0.5f);
             return new Particle.DustOptions(Color.BLACK,1);
         }

@@ -24,8 +24,8 @@ public class LoopManager {
             HUDRefresh = 0;
             for (Player player : Utl.getPlayers()) {
                 if (PlayerData.get.hud.state(player)) HUD.build(player);
-                if (Destination.get(player).hasXYZ() && PlayerData.get.dest.setting.autoclear(player) &&
-                        Destination.getDist(player) <= PlayerData.get.dest.setting.autoclearrad(player)) {
+                if (Destination.get(player).hasXYZ() && (boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.autoclear) &&
+                        Destination.getDist(player) <= (long)PlayerData.get.dest.setting.get(player, Destination.Settings.autoclear_rad)) {
                     Destination.clear(player, CUtl.lang("dest.changed.cleared.reached").color('7').italic(true));
                 }
             }
@@ -45,22 +45,26 @@ public class LoopManager {
     private static void secondLoop(Player player) {
         //PARTICLES
         if (Destination.get(player).hasXYZ()) {
-            if (PlayerData.get.dest.setting.particles.dest(player)) {
+            if ((boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.particles__dest)) {
                 ArrayList<Double> destVec1 = Destination.get(player).getVec(player);
                 ArrayList<Double> destVec2 = new ArrayList<>(destVec1);
                 destVec1.set(1,destVec1.get(1)+3);
                 destVec2.set(1,destVec2.get(1)-3);
                 Utl.particle.spawnLine(player, destVec1, destVec2, Utl.particle.DEST);
             }
-
-            if (PlayerData.get.dest.setting.particles.line(player))
+            if ((boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.particles__line))
                 player.spawnParticleLine(Destination.get(player).getVec(player),Utl.particle.LINE);
         }
-        if (PlayerData.get.dest.getTracking(player) != null && !PlayerData.get.dest.setting.track(player))
-            Destination.social.track.clear(player, CUtl.lang("dest.track.clear.tracking_off").color('7').italic(true));
+        if (PlayerData.get.dest.getTracking(player) != null) {
+            //if they turned it off
+            if (!(boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.features__track))
+                Destination.social.track.clear(player, CUtl.lang("dest.track.clear.tracking_off").color('7').italic(true));
+            //if server is off
+            if (!Utl.checkEnabled.track(player)) Destination.social.track.clear(player);
+        }
         Player trackingP = Destination.social.track.getTarget(player);
         //TRACKING
-        if (trackingP != null && PlayerData.get.dest.setting.track(trackingP)) {
+        if (trackingP != null && (boolean)PlayerData.get.dest.setting.get(trackingP, Destination.Settings.features__track)) {
             //TRACKING OFFLINE MSG RESET
             if (PlayerData.getOneTime(player, "tracking.offline") != null) {
                 player.sendMessage(CUtl.tag().append(CUtl.lang("dest.track.back")));
@@ -72,7 +76,7 @@ public class LoopManager {
             if (!trackingP.getDimension().equals(player.getDimension())) {
                 particleState = false;
                 // AUTOCONVERT ON AND CONVERTIBLE
-                if (PlayerData.get.dest.setting.autoconvert(player) && Utl.dim.canConvert(player.getDimension(),trackingP.getDimension())) {
+                if ((boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.autoconvert) && Utl.dim.canConvert(player.getDimension(),trackingP.getDimension())) {
                     if (PlayerData.getOneTime(player, "tracking.converted") == null) {
                         //SEND MSG IF HAVENT B4
                         player.sendMessage(CUtl.tag().append(CUtl.lang("dest.autoconvert.tracking")).append("\n ")
@@ -109,7 +113,7 @@ public class LoopManager {
                 PlayerData.setOneTime(player, "tracking.dimension", null);
             }
             //PARTICLES
-            if (PlayerData.get.dest.setting.particles.tracking(player) && particleState) {
+            if ((boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.particles__tracking) && particleState) {
                 player.spawnParticleLine(trackingVec,Utl.particle.TRACKING);
             }
         } else if (trackingP != null) {
@@ -127,7 +131,7 @@ public class LoopManager {
         //TRACK TIMER
         if (PlayerData.get.temp.track.exists(player)) {
             //REMOVE IF TRACKING IS OFF
-            if (!PlayerData.get.dest.setting.track(player)) {
+            if (!(boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.features__track)) {
                 PlayerData.set.temp.track.remove(player);
             } else if (PlayerData.get.temp.track.expire(player) == 0) { //RAN OUT OF TIME
                 player.sendMessage(CUtl.tag().append(CUtl.lang("dest.track.expired")));
