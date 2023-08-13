@@ -5,7 +5,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.Assets;
-import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.utils.Player;
@@ -20,25 +19,6 @@ import java.util.List;
 import java.util.Properties;
 
 public class config {
-    public static Object getDestSetting(Destination.Settings type) {
-        Object output = false;
-        switch (type) {
-            case autoclear -> output = DESTAutoClear;
-            case autoclear_rad -> output = DESTAutoClearRad;
-            case autoconvert -> output = DESTAutoConvert;
-            case ylevel -> output = DESTYLevel;
-            case particles__dest -> output = DESTDestParticles;
-            case particles__dest_color -> output = DESTDestParticleColor;
-            case particles__line -> output = DESTLineParticles;
-            case particles__line_color -> output = DESTLineParticleColor;
-            case particles__tracking -> output =DESTTrackingParticles;
-            case particles__tracking_color -> output=DESTTrackingParticleColor;
-            case features__send -> output=DESTSend;
-            case features__track -> output=DESTTrack;
-            case features__lastdeath -> output=DESTLastdeath;
-        }
-        return output;
-    }
     public static String lang = defaults.lang;
     public static boolean DESTSaving = defaults.DESTSaving;
     public static int MAXSaved = defaults.MAXSaved;

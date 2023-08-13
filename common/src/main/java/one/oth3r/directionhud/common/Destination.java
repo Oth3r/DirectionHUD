@@ -1240,17 +1240,36 @@ public class Destination {
         }
     }
     public static class setting {
+        public static Object getConfig(Settings type) {
+            Object output = false;
+            switch (type) {
+                case autoclear -> output = config.DESTAutoClear;
+                case autoclear_rad -> output = config.DESTAutoClearRad;
+                case autoconvert -> output = config.DESTAutoConvert;
+                case ylevel -> output = config.DESTYLevel;
+                case particles__dest -> output = config.DESTDestParticles;
+                case particles__dest_color -> output = config.DESTDestParticleColor;
+                case particles__line -> output = config.DESTLineParticles;
+                case particles__line_color -> output = config.DESTLineParticleColor;
+                case particles__tracking -> output =config.DESTTrackingParticles;
+                case particles__tracking_color -> output=config.DESTTrackingParticleColor;
+                case features__send -> output=config.DESTSend;
+                case features__track -> output=config.DESTTrack;
+                case features__lastdeath -> output=config.DESTLastdeath;
+            }
+            return output;
+        }
         public static void reset(Player player, Settings type, boolean Return) {
             if (type.equals(Settings.none)) {
                 for (Settings s: Settings.values())
-                    PlayerData.set.dest.setting.set(player,s,config.getDestSetting(s));
+                    PlayerData.set.dest.setting.set(player,s,getConfig(s));
             } else {
-                PlayerData.set.dest.setting.set(player,type,config.getDestSetting(type));
+                PlayerData.set.dest.setting.set(player,type,getConfig(type));
             }
             if (type.equals(Settings.autoclear))
-                PlayerData.set.dest.setting.set(player,Settings.autoclear_rad,config.getDestSetting(Settings.autoclear_rad));
+                PlayerData.set.dest.setting.set(player,Settings.autoclear_rad,getConfig(Settings.autoclear_rad));
             if (Settings.colors().contains(Settings.get(type+"_color")))
-                PlayerData.set.dest.setting.set(player,Settings.get(type+"_color"),config.getDestSetting(Settings.get(type+"_color")));
+                PlayerData.set.dest.setting.set(player,Settings.get(type+"_color"),getConfig(Settings.get(type+"_color")));
             CTxT typ = CTxT.of(lang("settings."+type).getString().toUpperCase()).color('c');
             if (type.equals(Settings.none)) typ = CTxT.of(CUtl.TBtn("all").getString().toUpperCase()).color('c');
             CTxT msg = CUtl.tag().append(lang("settings.reset",typ));
@@ -1285,11 +1304,11 @@ public class Destination {
         public static boolean canBeReset(Player player, Settings type) {
             boolean output = false;
             if (type.equals(Settings.none)) return false;
-            if (PlayerData.get.dest.setting.get(player,type) != config.getDestSetting(type)) output = true;
+            if (PlayerData.get.dest.setting.get(player,type) != getConfig(type)) output = true;
             if (type.equals(Settings.autoclear))
-                if ((long)PlayerData.get.dest.setting.get(player, Settings.autoclear_rad) != (int)config.getDestSetting(Settings.autoclear_rad)) output = true;
+                if ((long)PlayerData.get.dest.setting.get(player, Settings.autoclear_rad) != (int)getConfig(Settings.autoclear_rad)) output = true;
             if (Settings.colors().contains(Settings.get(type+"_color")))
-                if (!PlayerData.get.dest.setting.get(player,Settings.get(type+"_color")).equals(config.getDestSetting(Settings.get(type+"_color")))) output = true;
+                if (!PlayerData.get.dest.setting.get(player,Settings.get(type+"_color")).equals(getConfig(Settings.get(type+"_color")))) output = true;
             return output;
         }
         public static CTxT resetB(Player player, Settings type) {
