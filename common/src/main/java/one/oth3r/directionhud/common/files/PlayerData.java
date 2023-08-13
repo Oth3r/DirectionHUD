@@ -389,7 +389,8 @@ public class PlayerData {
                 public static Map<String,Object> map(Player player) {
                     return (Map<String,Object>) hud.get(player).get("setting");
                 }
-                public static Object fromString(Player player, String string) {
+                public static Object get(Player player, HUD.Settings type) {
+                    String string = type.toString();
                     if (string.contains(".")) {
                         String base = string.substring(0,string.indexOf('.'));
                         Map<String,Object> bar = (Map<String,Object>) map(player).get(base);
@@ -514,7 +515,8 @@ public class PlayerData {
                     data.put("setting", setting);
                     hud.map(player, data);
                 }
-                public static void fromString(Player player, String string, Object setting) {
+                public static void set(Player player, HUD.Settings type, Object setting) {
+                    String string = type.toString();
                     Map<String,Object> data = get.hud.setting.map(player);
                     if (string.contains(".")) {
                         String base = string.substring(0,string.indexOf('.'));

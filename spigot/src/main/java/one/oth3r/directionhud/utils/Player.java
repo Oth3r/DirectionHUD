@@ -63,12 +63,12 @@ public class Player {
     // Call after toggling/updating the hud.
     public void updateHUD() {
         if (!PlayerData.get.hud.state(this)) this.sendActionBar(CTxT.of(""));
-        if (PlayerData.get.hud.setting.fromString(this,HUD.settings.TYPE.get(0)).equals(config.HUDTypes.actionbar.toString()))
+        if (PlayerData.get.hud.setting.get(this,HUD.Settings.type).equals(config.HUDTypes.actionbar.toString()))
             DirectionHUD.bossBarManager.removePlayer(this);
         else this.sendActionBar(CTxT.of(""));
     }
     public void buildHUD(CTxT message) {
-        if ((config.HUDTypes.valueOf((String) PlayerData.get.hud.setting.fromString(this, HUD.settings.TYPE.get(0))).equals(config.HUDTypes.actionbar))) {
+        if ((config.HUDTypes.valueOf((String) PlayerData.get.hud.setting.get(this, HUD.Settings.type)).equals(config.HUDTypes.actionbar))) {
             player.spigot().sendMessage(ChatMessageType.ACTION_BAR, message.b());
         } else {
             DirectionHUD.bossBarManager.display(this,message);
