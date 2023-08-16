@@ -4,6 +4,8 @@ import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.files.LangReader;
+import one.oth3r.directionhud.common.files.PlayerData;
+import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
@@ -45,6 +47,12 @@ public class CUtl {
     public static CTxT toggleBtn(boolean button, String cmd) {
         return CUtl.TBtn(button?"on":"off").btn(true).color(button?'a':'c').hEvent(CUtl.TBtn("state.hover",
                 CUtl.TBtn(button?"off":"on").color(button?'c':'a'))).cEvent(1,cmd+(button?"off":"on"));
+    }
+    public static String formatCMD(String cmd) {
+        return cmd.replace(" ", "-");
+    }
+    public static String unFormatCMD(String cmd) {
+        return cmd.replace("-"," ");
     }
     public static CTxT TBtn(String key, Object... args) {
         return lang("button."+key,args);
@@ -213,14 +221,15 @@ public class CUtl {
             return HSBtoHEX(hsb);
         }
         public static void presetUI(Player player, String type, String setCMD, String backCMD) {
-            String formattedReturnCMDArgs = setCMD.substring(1).replace(" ","_")+" "+backCMD.substring(1).replace(" ","_");
-            CTxT customButton = CTxT.of("CUSTOM").color(CUtl.s()).cEvent(1,"/hud preset custom "+formattedReturnCMDArgs).btn(true);
-            CTxT minecraftButton = CTxT.of("MINECRAFT").color(CUtl.s()).cEvent(1,"/hud preset minecraft "+formattedReturnCMDArgs).btn(true);
+            String formattedReturnCMDArgs = formatCMD(setCMD)+" "+formatCMD(backCMD);
+            CTxT defaultBtn = TBtn("color.presets.default").color(CUtl.s()).cEvent(1,"/dirhud presets default "+formattedReturnCMDArgs).btn(true);
+            CTxT minecraftBtn = TBtn("color.presets.minecraft").color(CUtl.s()).cEvent(1,"/dirhud presets minecraft "+formattedReturnCMDArgs).btn(true);
+            CTxT customBtn = TBtn("color.custom").color(CUtl.s()).cEvent(1,"/dirhud presets custom "+formattedReturnCMDArgs).btn(true);
             List<String> colorStrings;
             List<String> colors;
             int rowAmt;
-            if (type.equals("custom")) {
-                customButton.color(Assets.mainColors.gray).cEvent(1,null).hEvent(null);
+            if (type.equals("default")) {
+                defaultBtn.color(Assets.mainColors.gray).cEvent(1,null).hEvent(null);
                 colorStrings = List.of("red","orange","yellow","green","blue","purple","gray");
                 colors = List.of("#ff5757","#d40000","#900000",
                         "#ffa562","#ff9834","#e77400",
@@ -231,7 +240,7 @@ public class CUtl {
                         "#d9d9d9","#808080","#404040");
                 rowAmt = 3;
             } else {
-                minecraftButton.color(Assets.mainColors.gray).cEvent(1,null).hEvent(null);
+                minecraftBtn.color(Assets.mainColors.gray).cEvent(1,null).hEvent(null);
                 colorStrings = List.of("red","yellow","green","aqua","blue","purple","gray");
                 colors = List.of("#FF5555","#AA0000",
                         "#FFFF55","#FFAA00",
@@ -255,11 +264,78 @@ public class CUtl {
                 list.append(" ").append(lang("color.presets."+s));
             }
             CTxT msg = CTxT.of(" ").append(lang("color.presets.ui").color(Assets.mainColors.presets))
-                    .append(CTxT.of("\n                             \n").strikethrough(true))
-                    .append(" ").append(customButton).append(" ").append(minecraftButton).append("\n").append(list)
-                    .append("\n\n ").append(CButton.back(backCMD))
-                    .append(CTxT.of("\n                             ").strikethrough(true));
-
+                    .append(CTxT.of("\n                               \n").strikethrough(true))
+                    .append(" ").append(defaultBtn).append(" ").append(minecraftBtn).append("\n").append(list)
+                    .append("\n\n    ").append(customBtn).append("  ").append(CButton.back(backCMD))
+                    .append(CTxT.of("\n                               ").strikethrough(true));
+            player.sendMessage(msg);
+        }
+        public static void customUI(Player player, String setCMD, String backCMD) {
+            String formattedReturnCMDArgs = formatCMD(setCMD)+" "+formatCMD(backCMD);
+            CTxT defaultBtn = TBtn("color.presets.default").color(CUtl.s()).cEvent(1, "/dirhud presets default " + formattedReturnCMDArgs).btn(true);
+            CTxT minecraftBtn = TBtn("color.presets.minecraft").color(CUtl.s()).cEvent(1, "/dirhud presets minecraft " + formattedReturnCMDArgs).btn(true);
+            CTxT customBtn = TBtn("color.custom").btn(true).color('7');
+            CTxT list = CTxT.of("\n   ");
+            int i = 0;
+            for (String s : PlayerData.get.colorPresets(player)) {
+                boolean x = !s.equals("#ffffff");
+                if (i % 2 == 0) {
+                    list.append(CTxT.of(Assets.symbols.x).btn(true).color(x ? 'c' : '7').cEvent(x ? 1 : 0, "/dirhud presets custom reset " + i + " " + formattedReturnCMDArgs)).append(" ");
+                    list.append(CTxT.of(Assets.symbols.square).color(s).btn(true).cEvent(1, setCMD + s)
+                            .hEvent(TBtn("color.hover", getBadge(s))));
+                    list.append(" -=- ");
+                } else {
+                    list.append(CTxT.of(Assets.symbols.square).color(s).btn(true).cEvent(1, setCMD + s)
+                            .hEvent(TBtn("color.hover", getBadge(s)))).append(" ");
+                    list.append(CTxT.of(Assets.symbols.x).btn(true).color(x ? 'c' : '7').cEvent(x ? 1 : 0, "/dirhud presets custom reset " + i + " " + formattedReturnCMDArgs));
+                    list.append("\n   ");
+                }
+                i++;
+            }
+            CTxT msg = CTxT.of(" ").append(lang("color.presets.ui").color(Assets.mainColors.presets))
+                    .append(CTxT.of("\n                               \n").strikethrough(true))
+                    .append(" ").append(defaultBtn).append(" ").append(minecraftBtn).append("\n").append(list)
+                    .append("\n    ").append(customBtn).append("  ").append(CButton.back(backCMD))
+                    .append(CTxT.of("\n                               ").strikethrough(true));
+            player.sendMessage(msg);
+        }
+        public static void customReset(Player player, int preset, String setCMD, String backCMD) {
+            ArrayList<String> presets = PlayerData.get.colorPresets(player);
+            presets.set(preset, config.colorPresets.get(preset));
+            PlayerData.set.colorPresets(player,presets);
+            player.sendMessage(tag().append(lang("color.presets.reset",CTxT.of("#"+(preset+1) ).color(s()))));
+            customUI(player,setCMD,backCMD);
+        }
+        public static void customSet(Player player, int preset, String color, String returnCMD) {
+            ArrayList<String> presets = PlayerData.get.colorPresets(player);
+            presets.set(preset,color);
+            PlayerData.set.colorPresets(player,presets);
+            player.sendMessage(tag().append(lang("color.presets.set",CTxT.of("#"+(preset+1)).color(s()),getBadge(color))));
+            player.performCommand(returnCMD.substring(1));
+        }
+        public static void customAddUI(Player player, String color, String returnCMD) {
+            String formattedReturnCMD = formatCMD(returnCMD);
+            CTxT list = CTxT.of("   ");
+            int i = 0;
+            for (String s: PlayerData.get.colorPresets(player)) {
+                if (i%2==0) {
+                    list.append(CTxT.of("+").btn(true).color('a').cEvent(1,"/dirhud presets custom add "+i+" "+color+" "+formattedReturnCMD)
+                            .hEvent(TBtn("color.presets.plus.hover",CTxT.of("#"+(i+1)).color(s()),getBadge(color)))).append(" ");
+                    list.append(CTxT.of(Assets.symbols.square).color(s).btn(true).hEvent(getBadge(s)));
+                    list.append(" -=- ");
+                } else {
+                    list.append(CTxT.of(Assets.symbols.square).color(s).btn(true).hEvent(getBadge(s))).append(" ");
+                    list.append(CTxT.of("+").btn(true).color('a').cEvent(1,"/dirhud presets custom add "+i+" "+color+" "+formattedReturnCMD)
+                            .hEvent(TBtn("color.presets.plus.hover",CTxT.of("#"+(i+1)).color(s()),getBadge(color))));
+                    list.append("\n   ");
+                }
+                i++;
+            }
+            CTxT msg = CTxT.of(" ").append(lang("color.presets.ui").color(Assets.mainColors.presets))
+                    .append(CTxT.of("\n                               \n").strikethrough(true)).append("  ")
+                    .append(lang("color.presets.add",CTxT.of("+").color('a'))).append("\n\n")
+                    .append(list).append("\n ").append(CButton.back(returnCMD))
+                    .append(CTxT.of("\n                               ").strikethrough(true));
             player.sendMessage(msg);
         }
         public static CTxT colorEditor(String color,String step,String setCMD,String stepBigCMD) {

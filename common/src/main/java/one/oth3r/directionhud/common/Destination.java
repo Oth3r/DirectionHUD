@@ -74,8 +74,10 @@ public class Destination {
             }
         }
         public static void colorCMD(Player player, String[] args) {
-            if (args.length == 3 && args[0].equals("preset")) {
-                CUtl.color.presetUI(player,"custom","/dest color set "+args[1]+" "+args[2]+" ","/dest settings "+args[2]+" "+args[1]);
+            if (args.length >= 3 && args[0].equals("preset")) {
+                if (args[1].equals("add") && args.length == 4) {
+                    CUtl.color.customAddUI(player, (String) PlayerData.get.dest.setting.get(player,Settings.get(args[3])),"/dest settings "+args[3]+" "+args[2]);
+                } else CUtl.color.presetUI(player,"default","/dest color set "+args[1]+" "+args[2]+" ","/dest settings "+args[2]+" "+args[1]);
             }
             if (args.length == 4 && args[0].equals("set")) {
                 setting.setColor(player,args[1],Settings.get(args[2]),args[3],true);
@@ -1346,9 +1348,12 @@ public class Destination {
             msg.append(" ").append(uiType.color(currentColor))
                     .append(CTxT.of("\n                               \n").strikethrough(true));
             CTxT back = CUtl.CButton.back("/dest settings");
-            CTxT presetsButton = CUtl.TBtn("color.presets").color(Assets.mainColors.presets)
-                    .cEvent(1,"/dest color preset "+setting+" "+type).btn(true)
-                    .hEvent(CUtl.TBtn("color.presets.hover",CUtl.TBtn("color.presets.hover_2").color(Assets.mainColors.presets)));
+            CTxT presetsButton = CTxT.of("")
+                    .append(CTxT.of("+").btn(true).color('a').cEvent(1,"/dest color preset add "+setting+" "+type)
+                            .hEvent(CUtl.TBtn("color.presets.add.hover",CUtl.TBtn("color.presets.add.hover_2").color(currentColor))))
+                    .append(CUtl.TBtn("color.presets").color(Assets.mainColors.presets)
+                            .cEvent(1,"/dest color preset "+setting+" "+type).btn(true)
+                            .hEvent(CUtl.TBtn("color.presets.hover",CUtl.TBtn("color.presets.hover_2").color(Assets.mainColors.presets))));
             CTxT customButton = CUtl.TBtn("color.custom").btn(true).color(Assets.mainColors.custom)
                     .cEvent(2,"/dest color set "+setting+" "+type+" ")
                     .hEvent(CUtl.TBtn("color.custom.hover",CUtl.TBtn("color.custom.hover_2").color(Assets.mainColors.custom)));

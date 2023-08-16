@@ -52,17 +52,12 @@ public class HUD {
             String type = args[0].toLowerCase();
             String[] trimmedArgs = Utl.trimStart(args, 1);
             switch (type) {
-                case "preset" -> presetCMD(player,trimmedArgs);
                 case "modules" -> modulesCMD(player, trimmedArgs);
                 case "settings" -> settingsCMD(player,trimmedArgs);
                 case "color" -> colorCMD(player, trimmedArgs);
                 case "toggle" -> toggleCMD(player, trimmedArgs);
                 default -> player.sendMessage(CUtl.error(CUtl.lang("error.command")));
             }
-        }
-        public static void presetCMD(Player player, String[] args) {
-            if (args.length != 3) return;
-            CUtl.color.presetUI(player,args[0],"/"+args[1].replace("_"," "),"/"+args[2].replace("_"," "));
         }
         public static void settingsCMD(Player player, String[] args) {
             //UI
@@ -106,8 +101,11 @@ public class HUD {
                 if (args.length == 1) color.reset(player,null,null,true);
                 if (args.length == 3) color.reset(player,args[1],args[2],true);
             }
-            if (args[0].equals("preset") && args.length == 3) {
-                color.presets(player,args[1],args[2]);
+            if (args[0].equals("preset") && args.length >= 3) {
+                // /hud color preset add type
+                if (args[1].equals("add") && args.length == 4) {
+                    CUtl.color.customAddUI(player,color.getHUDColor(player,args[3].equals("primary")?1:2),"/hud color edit "+args[2]+" "+args[3]);
+                } else color.presets(player,args[1],args[2]);
             }
             //CHANGE COLOR
             if (args.length < 4) return;
@@ -595,7 +593,7 @@ public class HUD {
             else player.sendMessage(msg);
         }
         public static void presets(Player player, String setting, String type) {
-            CUtl.color.presetUI(player,"custom","/hud color set "+setting+" "+type+" ","/hud color edit "+setting+" "+type);
+            CUtl.color.presetUI(player,"default","/hud color set "+setting+" "+type+" ","/hud color edit "+setting+" "+type);
         }
         public static void setColor(Player player, String setting, String type, String color, boolean Return) {
             color = color.toLowerCase();
@@ -704,9 +702,12 @@ public class HUD {
                     .append(CTxT.of("\n                               \n").strikethrough(true));
             CTxT reset = CUtl.TBtn("reset").btn(true).color('c').cEvent(1, "/hud color reset "+setting+" "+type)
                     .hEvent(CUtl.lang("button.reset.hover_color_hud",addColor(player,lang("color."+type).getString().toUpperCase(),typ,15,20)));
-            CTxT presetsButton = CUtl.TBtn("color.presets").color(Assets.mainColors.presets)
-                    .cEvent(1,"/hud color preset "+setting+" "+type).btn(true)
-                    .hEvent(CUtl.TBtn("color.presets.hover",CUtl.TBtn("color.presets.hover_2").color(Assets.mainColors.presets)));
+            CTxT presetsButton = CTxT.of("")
+                    .append(CTxT.of("+").btn(true).color('a').cEvent(1,"/hud color preset add "+setting+" "+type)
+                            .hEvent(CUtl.TBtn("color.presets.add.hover",CUtl.TBtn("color.presets.add.hover_2").color(getHUDColor(player,typ)))))
+                    .append(CUtl.TBtn("color.presets").color(Assets.mainColors.presets)
+                            .cEvent(1,"/hud color preset "+setting+" "+type).btn(true)
+                            .hEvent(CUtl.TBtn("color.presets.hover",CUtl.TBtn("color.presets.hover_2").color(Assets.mainColors.presets))));
             CTxT customButton = CUtl.TBtn("color.custom").btn(true).color(Assets.mainColors.custom)
                     .cEvent(2,"/hud color set "+setting+" "+type+" ")
                     .hEvent(CUtl.TBtn("color.custom.hover",CUtl.TBtn("color.custom.hover_2").color(Assets.mainColors.custom)));
@@ -719,7 +720,7 @@ public class HUD {
             CTxT rgbButton = CTxT.of(CUtl.color.rainbow(CUtl.TBtn("color.rgb").getString(),15,95)).btn(true).bold(getHUDRGB(player,typ))
                     .cEvent(1,"/hud color rgb "+setting+" "+type+" "+(getHUDRGB(player,typ)?"false":"true"))
                     .hEvent(CUtl.TBtn("color.rgb.hover",CUtl.TBtn(getHUDRGB(player,typ)?"off":"on").color(getHUDRGB(player, typ)?'a':'c'),lang("color."+type)));
-            msg.append("   ")
+            msg.append(" ")
                     .append(presetsButton).append(" ").append(customButton).append("\n\n")
                     .append(CUtl.color.colorEditor(currentColor,setting,"/hud color set "+setting+" "+type+" ","/hud color edit big "+type)).append("\n\n ")
                     .append(boldButton).append(" ").append(italicsButton).append(" ").append(rgbButton).append("\n\n     ")

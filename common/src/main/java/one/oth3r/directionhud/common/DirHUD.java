@@ -22,11 +22,26 @@ public class DirHUD {
             String type = args[0].toLowerCase();
             String[] trimmedArgs = Utl.trimStart(args, 1);
             switch (type) {
+                case "presets" -> presetCMD(player,trimmedArgs);
                 case "reload" -> {
                     if (Utl.checkEnabled.reload(player)) reload(player);
                 }
                 case "defaults" -> defaultsCMD(player, trimmedArgs);
                 default -> player.sendMessage(CUtl.error(CUtl.lang("error.command")));
+            }
+        }
+        public static void presetCMD(Player player, String[] args) {
+            if (args.length < 3) return;
+            if (args[0].equals("custom")) {
+                if (args[1].equals("add") && args.length == 5) {
+                    CUtl.color.customSet(player,Integer.parseInt(args[2]),args[3],CUtl.unFormatCMD(args[4]));
+                }
+                if (args[1].equals("reset") && args.length == 5)
+                    CUtl.color.customReset(player,Integer.parseInt(args[2]),CUtl.unFormatCMD(args[3]),CUtl.unFormatCMD(args[4]));
+                if (args.length == 3)
+                    CUtl.color.customUI(player,CUtl.unFormatCMD(args[1]),CUtl.unFormatCMD(args[2]));
+            } else {
+                CUtl.color.presetUI(player,args[0],CUtl.unFormatCMD(args[1]),CUtl.unFormatCMD(args[2]));
             }
         }
         public static void defaultsCMD(Player player, String[] args) {
