@@ -222,12 +222,12 @@ public class CUtl {
             if (type.equals("custom")) {
                 customButton.color(Assets.mainColors.gray).cEvent(1,null).hEvent(null);
                 colorStrings = List.of("red","orange","yellow","green","blue","purple","gray");
-                colors = List.of("#ff6666","#ff0000","#cc0000",
-                        "#ffa64d","#ff8c1a","e67300",
-                        "#ffff66","#ffff1a","#e6e600",
-                        "#8aff66","#3cff00","#30cc00",
-                        "#66c2ff","#0099ff","#006bb3",
-                        "#e066ff","#cc00ff","#8f00b3",
+                colors = List.of("#ff5757","#d40000","#900000",
+                        "#ffa562","#ff9834","#e77400",
+                        "#ffff86","#ffff5b","#f9c517",
+                        "#9aff9a","#5dc836","#396a30",
+                        "#8ddfff","#0099ff","#004995",
+                        "#a38cff","#8c04dd","#5c00a7",
                         "#d9d9d9","#808080","#404040");
                 rowAmt = 3;
             } else {
