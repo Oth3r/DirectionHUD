@@ -1357,7 +1357,7 @@ public class Destination {
             CTxT customButton = CUtl.TBtn("color.custom").btn(true).color(Assets.mainColors.custom)
                     .cEvent(2,"/dest color set "+setting+" "+type+" ")
                     .hEvent(CUtl.TBtn("color.custom.hover",CUtl.TBtn("color.custom.hover_2").color(Assets.mainColors.custom)));
-            msg.append("   ")
+            msg.append(" ")
                     .append(presetsButton).append(" ").append(customButton).append("\n\n")
                     .append(CUtl.color.colorEditor(currentColor,setting,"/dest color set "+setting+" "+type+" ","/dest settings "+type+" big"))
                     .append("\n\n           ").append(back)
