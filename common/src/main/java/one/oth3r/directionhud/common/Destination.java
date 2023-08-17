@@ -24,6 +24,7 @@ public class Destination {
         particles__tracking_color,
         features__send,
         features__track,
+        features__track_request_mode,
         features__lastdeath,
         none;
         @Override
@@ -43,6 +44,7 @@ public class Destination {
         }
         public static ArrayList<Settings> base() {
             ArrayList<Settings> list = new ArrayList<>(Arrays.asList(values()));
+            list.remove(features__track_request_mode);
             list.remove(autoclear_rad);
             list.remove(none);
             list.removeAll(colors());
@@ -1176,6 +1178,10 @@ public class Destination {
                     player.sendMessage(error("dest.track.already_tracking",CTxT.of(pl.getName()).color(CUtl.s())));
                     return;
                 }
+                if (config.DESTTrackingRequestModes.valueOf((String) PlayerData.get.dest.setting.get(pl,Settings.features__track_request_mode)).equals(config.DESTTrackingRequestModes.instant)) {
+                    set(player,pl,true);
+                    return;
+                }
                 String trackID = Utl.createID();
                 PlayerData.set.temp.track.id(player, trackID);
                 PlayerData.set.temp.track.expire(player, 90);
@@ -1257,6 +1263,7 @@ public class Destination {
                 case particles__tracking_color -> output=config.DESTTrackingParticleColor;
                 case features__send -> output=config.DESTSend;
                 case features__track -> output=config.DESTTrack;
+                case features__track_request_mode -> output=config.DESTTrackingRequestMode;
                 case features__lastdeath -> output=config.DESTLastdeath;
             }
             return output;
@@ -1272,6 +1279,8 @@ public class Destination {
                 PlayerData.set.dest.setting.set(player,Settings.autoclear_rad,getConfig(Settings.autoclear_rad));
             if (Settings.colors().contains(Settings.get(type+"_color")))
                 PlayerData.set.dest.setting.set(player,Settings.get(type+"_color"),getConfig(Settings.get(type+"_color")));
+            if (type.equals(Settings.features__track))
+                PlayerData.set.dest.setting.set(player,Settings.features__track_request_mode,getConfig(Settings.features__track_request_mode));
             CTxT typ = CTxT.of(lang("settings."+type).getString().toUpperCase()).color('c');
             if (type.equals(Settings.none)) typ = CTxT.of(CUtl.TBtn("all").getString().toUpperCase()).color('c');
             CTxT msg = CUtl.tag().append(lang("settings.reset",typ));
@@ -1282,7 +1291,7 @@ public class Destination {
             boolean state = setting.equals("on");
             CTxT stateTxT = CUtl.TBtn(state?"on":"off").color(state?'a':'c');
             setting = setting.toLowerCase();
-            CTxT msg = CUtl.tag();
+            CTxT setTxT = CTxT.of("");
             if (type.equals(Settings.autoclear_rad)) {
                 if (!Utl.isInt(setting)) {
                     player.sendMessage(error("number"));
@@ -1290,7 +1299,11 @@ public class Destination {
                 }
                 int i = Math.max(Math.min(Integer.parseInt(setting),15),1);
                 PlayerData.set.dest.setting.set(player, Settings.autoclear_rad,i);
-                msg.append(lang("settings."+type+".set",CTxT.of(String.valueOf(i)).color((boolean) PlayerData.get.dest.setting.get(player,Settings.autoclear)?'a':'c')));
+                setTxT.append(CTxT.of(String.valueOf(i)).color((boolean) PlayerData.get.dest.setting.get(player,Settings.autoclear)?'a':'c'));
+            }
+            if (type.equals(Settings.features__track_request_mode)) {
+                PlayerData.set.dest.setting.set(player, type, config.DESTTrackingRequestModes.valueOf(setting));
+                setTxT.append(lang("settings."+type+"." + config.DESTTrackingRequestModes.valueOf(setting)).color(CUtl.s()));
             }
             if (Settings.colors().contains(type)) {
                 colorUI(player,setting,type,null);
@@ -1298,8 +1311,9 @@ public class Destination {
             }
             if (Settings.base().contains(type)) {
                 PlayerData.set.dest.setting.set(player,type,state);
-                msg.append(lang("settings."+type+".set",stateTxT));
+                setTxT.append(stateTxT);
             }
+            CTxT msg = CUtl.tag().append(lang("settings."+type+".set",setTxT));
             if (Return) UI(player, msg);
             else player.sendMessage(msg);
         }
@@ -1309,6 +1323,8 @@ public class Destination {
             if (PlayerData.get.dest.setting.get(player,type) != getConfig(type)) output = true;
             if (type.equals(Settings.autoclear))
                 if ((long)PlayerData.get.dest.setting.get(player, Settings.autoclear_rad) != (int)getConfig(Settings.autoclear_rad)) output = true;
+            if (type.equals(Settings.features__track))
+                if (!PlayerData.get.dest.setting.get(player,Settings.features__track_request_mode).equals(getConfig(Settings.features__track_request_mode))) output = true;
             if (Settings.colors().contains(Settings.get(type+"_color")))
                 if (!PlayerData.get.dest.setting.get(player,Settings.get(type+"_color")).equals(getConfig(Settings.get(type+"_color")))) output = true;
             return output;
@@ -1331,6 +1347,16 @@ public class Destination {
                         .color(state?'a':'c').cEvent(2,"/dest settings "+type+"_rad ")
                         .hEvent(lang("settings."+type+"_rad.hover")));
             }
+            if (type.equals(Settings.features__track)) {
+                Settings modeType = Settings.features__track_request_mode;
+                config.DESTTrackingRequestModes mode = config.DESTTrackingRequestModes.valueOf((String) PlayerData.get.dest.setting.get(player,modeType));
+                config.DESTTrackingRequestModes nextMode = mode.next();
+                button.append(CTxT.of(getSymbol(mode.toString())).btn(true).color(CUtl.s())
+                        .cEvent(1,"/dest settings "+modeType+" "+nextMode)
+                        .hEvent(lang("settings."+modeType+".current",lang("settings."+modeType+"."+mode).color(CUtl.s())).append("\n")
+                                .append(lang("settings."+modeType+"."+mode+".info").color('7')).append("\n\n")
+                                .append(lang("settings."+modeType+".hover",lang("settings."+modeType+"."+nextMode).color(CUtl.s())))));
+            }
             if (Settings.colors().contains(Settings.get(type+"_color"))) {
                 String color = (String) PlayerData.get.dest.setting.get(player,Settings.get( type+"_color"));
                 button.append(CTxT.of(Assets.symbols.pencil).btn(true).color(color)
@@ -1338,6 +1364,15 @@ public class Destination {
                         .hEvent(lang("settings.particles.color.hover",lang("settings.particles.color.hover_2").color(color))));
             }
             return button;
+        }
+        public static String getSymbol(String string) {
+            if (string.equals(config.DESTTrackingRequestModes.request.toString())) {
+                return Assets.symbols.envelope;
+            }
+            if (string.equals(config.DESTTrackingRequestModes.instant.toString())) {
+                return Assets.symbols.lighting_bolt;
+            }
+            return Assets.symbols.x;
         }
         public static void colorUI(Player player, String setting, Settings type, CTxT aboveMSG) {
             if (!Settings.colors().contains(type)) return;

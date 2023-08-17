@@ -71,5 +71,7 @@ public class Assets {
         public static final String rain = "\ud83c\udf27";
         public static final String thunder = "\u26c8";
         public static final String link = "\u29c9";
+        public static final String envelope = "\u2709";
+        public static final String lighting_bolt = "\u26a1";
     }
 }

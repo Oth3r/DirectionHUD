@@ -195,6 +195,7 @@ public class PlayerData {
             Map<String,Object> destFeatures = new HashMap<>();
             destFeatures.put("send",destSetting.get("send"));
             destFeatures.put("track",destSetting.get("track"));
+            destFeatures.put("track_request_mode",config.DESTTrackingRequestMode);
             destFeatures.put("lastdeath",destSetting.get("lastdeath"));
             destSetting.remove("send");
             destSetting.remove("track");
@@ -221,6 +222,7 @@ public class PlayerData {
             hud.put("setting",hudSetting);
             map.put("destination",dest);
             map.put("hud",hud);
+            map.put("color_presets",config.colorPresets);
         }
         return map;
     }
@@ -298,6 +300,7 @@ public class PlayerData {
             map.put("name", player.getName());
             map.put("hud", hud);
             map.put("destination", destination);
+            map.put("color_presets",config.colorPresets);
             map.put("temp", new HashMap<>());
             return map;
         }
@@ -346,6 +349,7 @@ public class PlayerData {
             Map<String,Object> destFeatures = new HashMap<>();
             destFeatures.put("send", config.DESTSend);
             destFeatures.put("track", config.DESTTrack);
+            destFeatures.put("track_request_mode",config.DESTTrackingRequestMode);
             destFeatures.put("lastdeath", config.DESTLastdeath);
             return destFeatures;
         }
@@ -365,6 +369,9 @@ public class PlayerData {
         public static Map<String,Object> fromMap(Player player) {
             if (playerMap.get(player) == null) addPlayer(player);
             return playerMap.get(player);
+        }
+        public static ArrayList<String> colorPresets(Player player) {
+            return (ArrayList<String>) fileToMap(player).get("color_presets");
         }
         public static class hud {
             private static Map<String,Object> get(Player player) {
@@ -482,6 +489,11 @@ public class PlayerData {
     }
     @SuppressWarnings("unchecked")
     public static class set {
+        public static void colorPresets(Player player, ArrayList<String> preset) {
+            Map<String,Object> map = fileToMap(player);
+            map.put("color_presets", preset);
+            mapToFile(player,map);
+        }
         public static class hud {
             public static void map(Player player, Map<String,Object> hud) {
                 Map<String,Object> map = fileToMap(player);

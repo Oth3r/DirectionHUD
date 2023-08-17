@@ -90,6 +90,15 @@ public class config {
     public static String DESTTrackingParticleColor = defaults.DESTTrackingParticleColor;
     public static boolean DESTSend = defaults.DESTSend;
     public static boolean DESTTrack = defaults.DESTTrack;
+    public enum DESTTrackingRequestModes {
+        request,
+        instant;
+        public static final DESTTrackingRequestModes[] values = values();
+        public DESTTrackingRequestModes next() {
+            return values[(ordinal() + 1) % values.length];
+        }
+    }
+    public static String DESTTrackingRequestMode = defaults.DESTTrackingRequestMode;
     public static boolean DESTLastdeath = defaults.DESTLastdeath;
     public static List<String> dimensions = defaults.dimensions;
     public static List<String> dimensionRatios = defaults.dimensionRatios;
@@ -387,6 +396,7 @@ public class config {
         public static final boolean DESTTrackingParticles = true;
         public static final String DESTTrackingParticleColor = Assets.mainColors.track;
         public static final boolean DESTSend = true;
+        public static String DESTTrackingRequestMode = DESTTrackingRequestModes.request.toString();
         public static final boolean DESTTrack = true;
         public static final boolean DESTLastdeath = true;
         public static final List<String> dimensions = Utl.dim.DEFAULT_DIMENSIONS;
