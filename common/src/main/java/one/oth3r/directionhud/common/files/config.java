@@ -29,6 +29,7 @@ public class config {
     public static boolean HUDEditing = defaults.HUDEditing;
     public static int HUDRefresh = defaults.HUDRefresh;
     public static boolean online = defaults.online;
+    public static List<String> colorPresets = defaults.colorPresets;
     public enum HUDTypes {
         actionbar,
         bossbar;
@@ -351,6 +352,7 @@ public class config {
         public static final boolean HUDEditing = true;
         public static final int HUDRefresh = 1;
         public static final boolean online = true;
+        public static final List<String> colorPresets = List.of("#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff");
         public static final String HUDType = HUDTypes.actionbar.toString();
         public static final String HUDBarColor = BarColors.white.toString();
         public static final boolean HUDBarShowDistance = true;
