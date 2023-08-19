@@ -234,7 +234,8 @@ public class PlayerData {
         dest.remove("lastdeath");
         map.put("destination",dest);
         map.remove("name");
-        //removes map.name, map.destination.saved, map.destination.setting.send, map.destination.lastdeath
+        map.remove("presets");
+        //removes map.presets, map.name, map.destination.saved, map.destination.lastdeath
         return map;
     }
     @SuppressWarnings("unchecked")
