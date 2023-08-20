@@ -34,6 +34,7 @@ public class DirectionHUD {
 	public static final String MOD_ID = "directionhud";
 	public static final Version VERSION = FabricLoader.getInstance().getModContainer(MOD_ID).orElseThrow().getMetadata().getVersion();
 	public static boolean isClient;
+	public static final boolean isMod = true;
 	public static String playerData;
 	public static String configDir;
 	public static PlayerManager playerManager;
