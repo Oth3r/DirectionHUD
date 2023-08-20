@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DirectionHUD {
+	public static final String PRIMARY = "#2993ff";
+	public static final String SECONDARY = "#ffee35";
 	public static BossBarManager bossBarManager = new BossBarManager();
 	public static String PLAYERDATA_DIR = "";
 	public static final String CONFIG_DIR = FabricLoader.getInstance().getConfigDir().toFile()+"/";
@@ -36,14 +38,13 @@ public class DirectionHUD {
 	public static final String MOD_ID = "directionhud";
 	public static final Version VERSION = FabricLoader.getInstance().getModContainer(MOD_ID).orElseThrow().getMetadata().getVersion();
 	public static boolean isClient;
+	public static final boolean isMod = true;
 	public static String playerData;
 	public static String configDir;
 	public static PlayerManager playerManager;
 	public static MinecraftServer server;
 	public static CommandManager commandManager;
 	public static void initializeCommon() {
-		Assets.mainColors.pri = "#2993ff";
-		Assets.mainColors.sec = "#ffee35";
 		//todo LATER save cmd color support and '/dest send <IGN>' support
 		configDir = FabricLoader.getInstance().getConfigDir().toFile()+"/";
 		config.load();

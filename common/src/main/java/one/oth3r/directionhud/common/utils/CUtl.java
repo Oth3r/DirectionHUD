@@ -21,10 +21,10 @@ public class CUtl {
         return CTxT.of("").append(CTxT.of("DirectionHUD").btn(true).color(p())).append(" ");
     }
     public static String p() {
-        return Assets.mainColors.pri;
+        return DirectionHUD.PRIMARY;
     }
     public static String s() {
-        return Assets.mainColors.sec;
+        return DirectionHUD.SECONDARY;
     }
     public static CTxT error(CTxT s) {
         return tag().append(lang("error").color(Assets.mainColors.error)).append(" ").append(s);

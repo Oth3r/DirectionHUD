@@ -23,8 +23,6 @@ public class Assets {
         public static final String gray = "#8d8d8d";
         public static final String custom = "#c4ff14";
         public static final String presets = "#2dedff";
-        public static String sec;
-        public static String pri;
     }
     public static String barColor(config.BarColors color) {
         StringBuilder output = new StringBuilder();

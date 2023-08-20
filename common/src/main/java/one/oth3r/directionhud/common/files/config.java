@@ -486,7 +486,7 @@ public class config {
         public static final boolean HUDWeather = true;
         public static final boolean HUDTime24HR = false;
         public static final String HUDTrackingTarget = HUDTrackingTargets.player.toString();
-        public static final String HUDPrimaryColor = Assets.mainColors.pri;
+        public static final String HUDPrimaryColor = DirectionHUD.PRIMARY;
         public static final boolean HUDPrimaryBold = false;
         public static final boolean HUDPrimaryItalics = false;
         public static final boolean HUDPrimaryRainbow = false;
@@ -499,9 +499,9 @@ public class config {
         public static final boolean DESTAutoConvert = false;
         public static final boolean DESTYLevel = false;
         public static final boolean DESTLineParticles = true;
-        public static final String DESTLineParticleColor = Assets.mainColors.sec;
+        public static final String DESTLineParticleColor = DirectionHUD.SECONDARY;
         public static final boolean DESTDestParticles = true;
-        public static final String DESTDestParticleColor = Assets.mainColors.pri;
+        public static final String DESTDestParticleColor = DirectionHUD.PRIMARY;
         public static final boolean DESTTrackingParticles = true;
         public static final String DESTTrackingParticleColor = Assets.mainColors.track;
         public static final boolean DESTSend = true;

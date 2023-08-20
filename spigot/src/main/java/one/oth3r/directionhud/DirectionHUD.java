@@ -18,6 +18,8 @@ import java.util.Objects;
 import java.util.logging.Logger;
 
 public class DirectionHUD extends JavaPlugin {
+    public static final String PRIMARY = "#ff8e16";
+    public static final String SECONDARY = "#42a0ff";
     public static BossBarManager bossBarManager = new BossBarManager();
     public static String PLAYERDATA_DIR;
     public static String CONFIG_DIR;
@@ -26,12 +28,11 @@ public class DirectionHUD extends JavaPlugin {
     public static HashMap<Player,Boolean> players = new HashMap<>();
     public static String playerData;
     public static String configDir;
+    public static final boolean isMod = false;
     public static boolean isClient = false;
 
     @Override
     public void onEnable() {
-        Assets.mainColors.pri = "#ff8e16";
-        Assets.mainColors.sec = "#42a0ff";
         PLAYERDATA_DIR = this.getDataFolder().getPath()+"/playerdata/";
         CONFIG_DIR = this.getDataFolder().getPath()+"/";
         PluginDescriptionFile pdf = Objects.requireNonNull(Bukkit.getServer().getPluginManager().getPlugin("DirectionHUD")).getDescription();
