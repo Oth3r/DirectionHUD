@@ -162,7 +162,9 @@ public class config {
         try (FileInputStream fileStream = new FileInputStream(configFile())) {
             Properties properties = new Properties();
             properties.load(fileStream);
-            loadVersion(properties,(String) properties.computeIfAbsent("version", a -> defaults.version+""));
+            String version = (String) properties.computeIfAbsent("version", a -> String.valueOf(defaults.version));
+            if (version.contains("v")) version = version.substring(1);
+            loadVersion(properties,Float.parseFloat(version));
             Utl.dim.loadConfig();
             save();
         } catch (Exception f) {
@@ -171,7 +173,7 @@ public class config {
             resetDefaults();
         }
     }
-    public static void loadVersion(Properties properties, String version) {
+    public static void loadVersion(Properties properties, float version) {
         //CONFIG
         DESTSaving = Boolean.parseBoolean((String) properties.computeIfAbsent("destination-saving", a -> defaults.DESTSaving+""));
         MAXSaved = Integer.parseInt((String) properties.computeIfAbsent("destination-max-saved", a -> defaults.MAXSaved+""));
@@ -210,15 +212,16 @@ public class config {
         DESTTrack = Boolean.parseBoolean((String) properties.computeIfAbsent("track", a -> defaults.DESTTrack+""));
         //DIM
         Type mapType = new TypeToken<ArrayList<String>>() {}.getType();
-        dimensionRatios = new Gson().fromJson((String)
-                properties.computeIfAbsent("dimension-ratios", a -> defaults.dimensionRatios+""),mapType);
+        if (!DirectionHUD.isMod)
+            dimensionRatios = new Gson().fromJson((String)
+                    properties.computeIfAbsent("dimension-ratios", a -> defaults.dimensionRatios+""),mapType);
         dimensions = new Gson().fromJson((String)
                 properties.computeIfAbsent("dimensions", a -> defaults.dimensions+""),mapType);
 
-        if (version.equalsIgnoreCase("v1.1")) {
+        if (version == 1.1) {
             HUDTracking = Boolean.parseBoolean((String) properties.computeIfAbsent("compass", a -> defaults.HUDTracking+""));
         }
-        if (version.equalsIgnoreCase("v1.2")) {
+        if (version >= 1.2) {
             MAXxz = Integer.parseInt((String) properties.computeIfAbsent("max-xz", a -> defaults.MAXxz+""));
             MAXy = Integer.parseInt((String) properties.computeIfAbsent("max-y", a -> defaults.MAXy+""));
             social = Boolean.parseBoolean((String) properties.computeIfAbsent("social-commands", a -> defaults.social+""));
@@ -226,6 +229,10 @@ public class config {
             HUDTracking = Boolean.parseBoolean((String) properties.computeIfAbsent("tracking", a -> defaults.HUDTracking+""));
             DESTTrackingParticles = Boolean.parseBoolean((String) properties.computeIfAbsent("tracking-particles", a -> defaults.DESTTrackingParticles+""));
             DESTTrackingParticleColor = Utl.color.fix((String) properties.computeIfAbsent("tracking-particle-color", a -> defaults.DESTTrackingParticleColor),false,defaults.DESTDestParticleColor);
+        }
+        if (version == 1.21) {
+            dimensionRatios = new Gson().fromJson((String)
+                    properties.computeIfAbsent("dimension-ratios", a -> defaults.dimensionRatios+""),mapType);
         }
     }
     public static void save() {
@@ -294,7 +301,7 @@ public class config {
         }
     }
     public static class defaults {
-        public static String version = "v1.2";
+        public static float version = 1.21f;
         public static String lang = "en_us";
         public static boolean DESTSaving = true;
         public static int MAXSaved = 50;
