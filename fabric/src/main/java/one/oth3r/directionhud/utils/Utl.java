@@ -221,7 +221,7 @@ public class Utl {
     }
     public static class dim {
         public static final List<String> DEFAULT_DIMENSIONS = List.of("minecraft.overworld|Overworld|#55FF55","minecraft.the_nether|Nether|#e8342e","minecraft.the_end|End|#edffb0");
-        public static final List<String> DEFAULT_RATIOS = List.of("overworld=1|nether=8");
+        public static final List<String> DEFAULT_RATIOS = List.of("minecraft.overworld=1|minecraft.the_nether=8");
         public static String format(Identifier identifier) {
             return identifier.toString().replace(":",".");
         }
