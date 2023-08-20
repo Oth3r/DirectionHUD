@@ -181,7 +181,7 @@ public class config {
         HUDEditing = Boolean.parseBoolean((String) properties.computeIfAbsent("hud-editing", a -> defaults.HUDEditing +""));
         HUDRefresh = Math.min(20, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("hud-refresh", a -> defaults.HUDRefresh+""))));
         online = Boolean.parseBoolean((String) properties.computeIfAbsent("online-mode", a -> defaults.online +""));
-        //one.oth3r.directionhud.common.HUD
+        //HUD
         HUDEnabled = Boolean.parseBoolean((String) properties.computeIfAbsent("enabled", a -> defaults.HUDEnabled+""));
         HUDOrder = HUD.order.fixOrder((String) properties.computeIfAbsent("order", a -> defaults.HUDOrder));
         HUD24HR = Boolean.parseBoolean((String) properties.computeIfAbsent("time24hr", a -> defaults.HUD24HR+""));
@@ -247,14 +247,14 @@ public class config {
             file.write(("\nsocial-commands=" + social).getBytes());
             file.write(("\ndeath-saving=" + deathsaving).getBytes());
             file.write(("\nhud-editing=" + HUDEditing).getBytes());
-            file.write(("\n# one.oth3r.directionhud.common.HUD refresh time in ticks:").getBytes());
+            file.write(("\n# HUD refresh time in ticks:").getBytes());
             file.write(("\nhud-refresh=" + HUDRefresh).getBytes());
             file.write(("\n# Turn off for offline mode servers, uses a name based file system:").getBytes());
             file.write(("\nonline-mode=" + online).getBytes());
             file.write(("\n\n# DirectionHUD Player Defaults\n").getBytes());
             file.write("\n# one.oth3r.directionhud.common.HUD".getBytes());
             file.write(("\nenabled=" + HUDEnabled).getBytes());
-            file.write(("\n# one.oth3r.directionhud.common.HUD Module order, all modules don't have to be listed:").getBytes());
+            file.write(("\n# HUD Module order, all modules don't have to be listed:").getBytes());
             file.write(("\norder=" + HUDOrder).getBytes());
             file.write(("\ntime24hr=" + HUD24HR).getBytes());
             file.write(("\nprimary-color=" + HUDPrimaryColor).getBytes());
@@ -265,7 +265,7 @@ public class config {
             file.write(("\nsecondary-bold=" + HUDSecondaryBold).getBytes());
             file.write(("\nsecondary-italics=" + HUDSecondaryItalics).getBytes());
             file.write(("\nsecondary-rainbow=" + HUDSecondaryRainbow).getBytes());
-            file.write(("\n# VALID one.oth3r.directionhud.common.HUD COLORS: rainbow, hex colors, & all default minecraft colors. (light_purple -> pink & dark_purple -> purple)").getBytes());
+            file.write(("\n# VALID HUD COLORS: rainbow, hex colors, & all default minecraft colors. (light_purple -> pink & dark_purple -> purple)").getBytes());
 
             file.write("\n\n# Module State".getBytes());
             file.write(("\ncoordinates=" + HUDCoordinates).getBytes());
