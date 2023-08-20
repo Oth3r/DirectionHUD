@@ -322,7 +322,7 @@ public class config {
         public static boolean HUDTime = true;
         public static boolean HUDWeather = true;
         public static boolean HUD24HR = false;
-        public static String HUDPrimaryColor = Assets.mainColors.pri;
+        public static String HUDPrimaryColor = DirectionHUD.PRIMARY;
         public static boolean HUDPrimaryBold = false;
         public static boolean HUDPrimaryItalics = false;
         public static boolean HUDPrimaryRainbow = false;
@@ -335,9 +335,9 @@ public class config {
         public static boolean DESTAutoConvert = false;
         public static boolean DESTYLevel = false;
         public static boolean DESTLineParticles = true;
-        public static String DESTLineParticleColor = Assets.mainColors.sec;
+        public static String DESTLineParticleColor = DirectionHUD.SECONDARY;
         public static boolean DESTDestParticles = true;
-        public static String DESTDestParticleColor = Assets.mainColors.pri;
+        public static String DESTDestParticleColor = DirectionHUD.PRIMARY;
         public static boolean DESTTrackingParticles = true;
         public static String DESTTrackingParticleColor = Assets.mainColors.track;
         public static boolean DESTSend = true;
