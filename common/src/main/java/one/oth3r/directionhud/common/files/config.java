@@ -280,8 +280,8 @@ public class config {
             file.write(("\ndest-particle-color=" + DESTDestParticleColor).getBytes());
             file.write(("\ntracking-particles=" + DESTTrackingParticles).getBytes());
             file.write(("\ntracking-particle-color=" + DESTTrackingParticleColor).getBytes());
-            file.write(("\nsend=" + HUDDirection).getBytes());
-            file.write(("\ntrack=" + HUDTime).getBytes());
+            file.write(("\nsend=" + DESTSend).getBytes());
+            file.write(("\ntrack=" + DESTTrack).getBytes());
             file.write(("\nlastdeath=" + DESTLastdeath).getBytes());
             file.write(("\n# VALID DEST COLORS: hex colors, & all default minecraft colors. (light_purple -> pink & dark_purple -> purple)").getBytes());
             file.write("\n\n# Dimension".getBytes());
