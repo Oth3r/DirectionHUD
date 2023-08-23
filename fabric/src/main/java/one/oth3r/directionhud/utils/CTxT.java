@@ -2,6 +2,7 @@ package one.oth3r.directionhud.utils;
 
 import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
+import one.oth3r.directionhud.common.utils.CUtl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +51,7 @@ public class CTxT {
         return this;
     }
     public CTxT color(String color) {
-        this.color = TextColor.parse(Utl.color.getFromTextString(color));
+        this.color = TextColor.parse(CUtl.color.format(color));
         return this;
     }
     public CTxT color(Character color) {
@@ -113,7 +114,7 @@ public class CTxT {
     public MutableText b() {
         MutableText output = Text.literal("");
         if (this.button) output.append("[").setStyle(Style.EMPTY.withColor(Formatting.byCode('f')));
-        if (this.rainbow) output.append(Utl.color.rainbow(this.name.getString(),this.start,this.step));
+        if (this.rainbow) output.append(CUtl.color.rainbow(this.name.getString(),this.start,this.step).b());
         else output.append(this.name.styled(style -> style.withColor(this.color)
                 .withClickEvent(this.clickEvent)
                 .withHoverEvent(this.hoverEvent)

@@ -208,8 +208,7 @@ public class ModMenu implements ModMenuApi {
                                 .description(OptionDescription.of(lang("hud.color.category.info",CUtl.lang("hud.color.primary")).b()))
                                 .option(Option.<Color>createBuilder()
                                         .name(lang("hud.color").b())
-                                        .binding(Utl.color.toColor(config.defaults.HUDPrimaryColor),
-                                                () -> Utl.color.toColor(config.HUDPrimaryColor),
+                                        .binding(Color.decode(CUtl.color.format(config.defaults.HUDPrimaryColor)),() -> Color.decode(CUtl.color.format(config.HUDPrimaryColor)),
                                                 n -> config.HUDPrimaryColor = String.format("#%02x%02x%02x", n.getRed(), n.getGreen(), n.getBlue()))
                                         .controller(ColorControllerBuilder::create)
                                         .build())
@@ -234,8 +233,7 @@ public class ModMenu implements ModMenuApi {
                                 .description(OptionDescription.of(lang("hud.color.category.info",CUtl.lang("hud.color.secondary")).b()))
                                 .option(Option.<Color>createBuilder()
                                         .name(lang("hud.color").b())
-                                        .binding(Utl.color.toColor(config.defaults.HUDSecondaryColor),
-                                                () -> Utl.color.toColor(config.HUDSecondaryColor),
+                                        .binding(Color.decode(CUtl.color.format(config.defaults.HUDSecondaryColor)),() -> Color.decode(CUtl.color.format(config.HUDSecondaryColor)),
                                                 n -> config.HUDSecondaryColor = String.format("#%02x%02x%02x", n.getRed(), n.getGreen(), n.getBlue()))
                                         .controller(ColorControllerBuilder::create)
                                         .build())
@@ -293,8 +291,7 @@ public class ModMenu implements ModMenuApi {
                                         .build())
                                 .option(Option.<Color>createBuilder()
                                         .name(lang("dest.settings.particles.color",CUtl.lang("dest.settings.particles.dest")).b())
-                                        .binding(Utl.color.toColor(config.defaults.DESTDestParticleColor),
-                                                () -> Utl.color.toColor(config.DESTDestParticleColor),
+                                        .binding(Color.decode(CUtl.color.format(config.defaults.DESTDestParticleColor)),() -> Color.decode(CUtl.color.format(config.DESTDestParticleColor)),
                                                 n -> config.DESTDestParticleColor = String.format("#%02x%02x%02x", n.getRed(), n.getGreen(), n.getBlue()))
                                         .controller(ColorControllerBuilder::create)
                                         .build())
@@ -305,8 +302,7 @@ public class ModMenu implements ModMenuApi {
                                         .build())
                                 .option(Option.<Color>createBuilder()
                                         .name(lang("dest.settings.particles.color",CUtl.lang("dest.settings.particles.line")).b())
-                                        .binding(Utl.color.toColor(config.defaults.DESTLineParticleColor),
-                                                () -> Utl.color.toColor(config.DESTLineParticleColor),
+                                        .binding(Color.decode(CUtl.color.format(config.defaults.DESTLineParticleColor)),() -> Color.decode(CUtl.color.format(config.DESTLineParticleColor)),
                                                 n -> config.DESTLineParticleColor = String.format("#%02x%02x%02x", n.getRed(), n.getGreen(), n.getBlue()))
                                         .controller(ColorControllerBuilder::create)
                                         .build())
@@ -317,8 +313,7 @@ public class ModMenu implements ModMenuApi {
                                         .build())
                                 .option(Option.<Color>createBuilder()
                                         .name(lang("dest.settings.particles.color",CUtl.lang("dest.settings.particles.tracking")).b())
-                                        .binding(Utl.color.toColor(config.defaults.DESTTrackingParticleColor),
-                                                () -> Utl.color.toColor(config.DESTTrackingParticleColor),
+                                        .binding(Color.decode(CUtl.color.format(config.defaults.DESTTrackingParticleColor)),() -> Color.decode(CUtl.color.format(config.DESTTrackingParticleColor)),
                                                 n -> config.DESTTrackingParticleColor = String.format("#%02x%02x%02x", n.getRed(), n.getGreen(), n.getBlue()))
                                         .controller(ColorControllerBuilder::create)
                                         .build())
