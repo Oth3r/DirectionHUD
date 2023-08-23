@@ -278,16 +278,13 @@ public class config {
         online = Boolean.parseBoolean((String) properties.computeIfAbsent("online-mode", a -> String.valueOf(defaults.online)));
         //DIM
         Type arrayListMap = new TypeToken<ArrayList<String>>() {}.getType();
-        dimensionRatios = new Gson().fromJson((String)
-                properties.computeIfAbsent("dimension-ratios", a -> String.valueOf(defaults.dimensionRatios)),arrayListMap);
-        dimensions = new Gson().fromJson((String)
-                properties.computeIfAbsent("dimensions", a -> String.valueOf(defaults.dimensions)),arrayListMap);
+        dimensions = new Gson().fromJson((String) properties.computeIfAbsent("dimensions", a -> String.valueOf(defaults.dimensions)),arrayListMap);
 
-        if (version == 1.1) {
-            HUDTracking = Boolean.parseBoolean((String) properties.computeIfAbsent("compass", a -> String.valueOf(defaults.HUDTracking)));
-        }
+        if (version == 1.1) HUDTracking = Boolean.parseBoolean((String) properties.computeIfAbsent("compass", a -> String.valueOf(defaults.HUDTracking)));
         // old config entries
         if (version <= 1.2) {
+            if (!DirectionHUD.isMod)
+                dimensionRatios = new Gson().fromJson((String) properties.computeIfAbsent("dimension-ratios", a -> String.valueOf(defaults.dimensionRatios)),arrayListMap);
             // update colors to new system
             HUDPrimaryColor = CUtl.color.updateOld((String) properties.computeIfAbsent("primary-color", a -> defaults.HUDPrimaryColor),defaults.HUDPrimaryColor);
             HUDSecondaryColor = CUtl.color.updateOld((String) properties.computeIfAbsent("secondary-color", a -> defaults.HUDSecondaryColor),defaults.HUDSecondaryColor);
@@ -319,12 +316,13 @@ public class config {
             DESTSend = Boolean.parseBoolean((String) properties.computeIfAbsent("send", a -> String.valueOf(defaults.DESTSend)));
             DESTTrack = Boolean.parseBoolean((String) properties.computeIfAbsent("track", a -> String.valueOf(defaults.DESTTrack)));
         }
-        if (version == 1.2) {
+        if (version == 1.2 || version == 1.21) {
             DESTAutoConvert = Boolean.parseBoolean((String) properties.computeIfAbsent("autoconvert", a -> String.valueOf(defaults.DESTAutoConvert)));
             HUDTracking = Boolean.parseBoolean((String) properties.computeIfAbsent("tracking", a -> String.valueOf(defaults.HUDTracking)));
             DESTTrackingParticles = Boolean.parseBoolean((String) properties.computeIfAbsent("tracking-particles", a -> String.valueOf(defaults.DESTTrackingParticles)));
             DESTTrackingParticleColor = CUtl.color.updateOld((String) properties.computeIfAbsent("tracking-particle-color", a -> defaults.DESTTrackingParticleColor),defaults.DESTDestParticleColor);
         }
+        if (version == 1.21) dimensionRatios = new Gson().fromJson((String) properties.computeIfAbsent("dimension-ratios", a -> String.valueOf(defaults.dimensionRatios)),arrayListMap);
         if (version >= 1.3) {
             //PRESETS
             dimensionRatios = new Gson().fromJson((String)
@@ -374,6 +372,8 @@ public class config {
             DESTTrack = Boolean.parseBoolean((String) properties.computeIfAbsent("dest.settings.features.track", a -> String.valueOf(defaults.DESTTrack)));
             DESTTrackingRequestMode = DESTTrackingRequestModes.get((String) properties.computeIfAbsent("dest.settings.features.track_request_mode", a -> defaults.DESTTrackingRequestMode)).toString();
             DESTLastdeath = Boolean.parseBoolean((String) properties.computeIfAbsent("dest.settings.features.lastdeath", a -> String.valueOf(defaults.DESTLastdeath)));
+
+            dimensionRatios = new Gson().fromJson((String) properties.computeIfAbsent("dimension-ratios", a -> String.valueOf(defaults.dimensionRatios)),arrayListMap);
         }
     }
     public static void save() {
