@@ -30,12 +30,12 @@ public class Assets {
         StringBuilder output = new StringBuilder();
         switch (color) {
             case pink -> output.append("#ec00b8");
-            case blue -> output.append("#008fb9");
+            case blue -> output.append("#00b7ec");
             case red -> output.append("#ec3500");
             case green -> output.append("#1dec00");
             case yellow -> output.append("#e9ec00");
             case purple -> output.append("#7b00ec");
-            default -> output.append("ffffff");
+            default -> output.append("ececec");
         }
         return output.toString();
     }
