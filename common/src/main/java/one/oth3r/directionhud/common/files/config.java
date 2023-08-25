@@ -162,7 +162,9 @@ public class config {
         try (FileInputStream fileStream = new FileInputStream(configFile())) {
             Properties properties = new Properties();
             properties.load(fileStream);
-            loadVersion(properties,(String) properties.computeIfAbsent("version", a -> defaults.version+""));
+            String version = (String) properties.computeIfAbsent("version", a -> String.valueOf(defaults.version));
+            if (version.contains("v")) version = version.substring(1);
+            loadVersion(properties,Float.parseFloat(version));
             Utl.dim.loadConfig();
             save();
         } catch (Exception f) {
@@ -171,7 +173,7 @@ public class config {
             resetDefaults();
         }
     }
-    public static void loadVersion(Properties properties, String version) {
+    public static void loadVersion(Properties properties, float version) {
         //CONFIG
         DESTSaving = Boolean.parseBoolean((String) properties.computeIfAbsent("destination-saving", a -> defaults.DESTSaving+""));
         MAXSaved = Integer.parseInt((String) properties.computeIfAbsent("destination-max-saved", a -> defaults.MAXSaved+""));
@@ -179,7 +181,7 @@ public class config {
         HUDEditing = Boolean.parseBoolean((String) properties.computeIfAbsent("hud-editing", a -> defaults.HUDEditing +""));
         HUDRefresh = Math.min(20, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("hud-refresh", a -> defaults.HUDRefresh+""))));
         online = Boolean.parseBoolean((String) properties.computeIfAbsent("online-mode", a -> defaults.online +""));
-        //one.oth3r.directionhud.common.HUD
+        //HUD
         HUDEnabled = Boolean.parseBoolean((String) properties.computeIfAbsent("enabled", a -> defaults.HUDEnabled+""));
         HUDOrder = HUD.order.fixOrder((String) properties.computeIfAbsent("order", a -> defaults.HUDOrder));
         HUD24HR = Boolean.parseBoolean((String) properties.computeIfAbsent("time24hr", a -> defaults.HUD24HR+""));
@@ -210,15 +212,16 @@ public class config {
         DESTTrack = Boolean.parseBoolean((String) properties.computeIfAbsent("track", a -> defaults.DESTTrack+""));
         //DIM
         Type mapType = new TypeToken<ArrayList<String>>() {}.getType();
-        dimensionRatios = new Gson().fromJson((String)
-                properties.computeIfAbsent("dimension-ratios", a -> defaults.dimensionRatios+""),mapType);
+        if (!DirectionHUD.isMod)
+            dimensionRatios = new Gson().fromJson((String)
+                    properties.computeIfAbsent("dimension-ratios", a -> defaults.dimensionRatios+""),mapType);
         dimensions = new Gson().fromJson((String)
                 properties.computeIfAbsent("dimensions", a -> defaults.dimensions+""),mapType);
 
-        if (version.equalsIgnoreCase("v1.1")) {
+        if (version == 1.1) {
             HUDTracking = Boolean.parseBoolean((String) properties.computeIfAbsent("compass", a -> defaults.HUDTracking+""));
         }
-        if (version.equalsIgnoreCase("v1.2")) {
+        if (version >= 1.2) {
             MAXxz = Integer.parseInt((String) properties.computeIfAbsent("max-xz", a -> defaults.MAXxz+""));
             MAXy = Integer.parseInt((String) properties.computeIfAbsent("max-y", a -> defaults.MAXy+""));
             social = Boolean.parseBoolean((String) properties.computeIfAbsent("social-commands", a -> defaults.social+""));
@@ -226,6 +229,10 @@ public class config {
             HUDTracking = Boolean.parseBoolean((String) properties.computeIfAbsent("tracking", a -> defaults.HUDTracking+""));
             DESTTrackingParticles = Boolean.parseBoolean((String) properties.computeIfAbsent("tracking-particles", a -> defaults.DESTTrackingParticles+""));
             DESTTrackingParticleColor = Utl.color.fix((String) properties.computeIfAbsent("tracking-particle-color", a -> defaults.DESTTrackingParticleColor),false,defaults.DESTDestParticleColor);
+        }
+        if (version == 1.21) {
+            dimensionRatios = new Gson().fromJson((String)
+                    properties.computeIfAbsent("dimension-ratios", a -> defaults.dimensionRatios+""),mapType);
         }
     }
     public static void save() {
@@ -240,14 +247,14 @@ public class config {
             file.write(("\nsocial-commands=" + social).getBytes());
             file.write(("\ndeath-saving=" + deathsaving).getBytes());
             file.write(("\nhud-editing=" + HUDEditing).getBytes());
-            file.write(("\n# one.oth3r.directionhud.common.HUD refresh time in ticks:").getBytes());
+            file.write(("\n# HUD refresh time in ticks:").getBytes());
             file.write(("\nhud-refresh=" + HUDRefresh).getBytes());
             file.write(("\n# Turn off for offline mode servers, uses a name based file system:").getBytes());
             file.write(("\nonline-mode=" + online).getBytes());
             file.write(("\n\n# DirectionHUD Player Defaults\n").getBytes());
             file.write("\n# one.oth3r.directionhud.common.HUD".getBytes());
             file.write(("\nenabled=" + HUDEnabled).getBytes());
-            file.write(("\n# one.oth3r.directionhud.common.HUD Module order, all modules don't have to be listed:").getBytes());
+            file.write(("\n# HUD Module order, all modules don't have to be listed:").getBytes());
             file.write(("\norder=" + HUDOrder).getBytes());
             file.write(("\ntime24hr=" + HUD24HR).getBytes());
             file.write(("\nprimary-color=" + HUDPrimaryColor).getBytes());
@@ -258,7 +265,7 @@ public class config {
             file.write(("\nsecondary-bold=" + HUDSecondaryBold).getBytes());
             file.write(("\nsecondary-italics=" + HUDSecondaryItalics).getBytes());
             file.write(("\nsecondary-rainbow=" + HUDSecondaryRainbow).getBytes());
-            file.write(("\n# VALID one.oth3r.directionhud.common.HUD COLORS: rainbow, hex colors, & all default minecraft colors. (light_purple -> pink & dark_purple -> purple)").getBytes());
+            file.write(("\n# VALID HUD COLORS: rainbow, hex colors, & all default minecraft colors. (light_purple -> pink & dark_purple -> purple)").getBytes());
 
             file.write("\n\n# Module State".getBytes());
             file.write(("\ncoordinates=" + HUDCoordinates).getBytes());
@@ -280,8 +287,8 @@ public class config {
             file.write(("\ndest-particle-color=" + DESTDestParticleColor).getBytes());
             file.write(("\ntracking-particles=" + DESTTrackingParticles).getBytes());
             file.write(("\ntracking-particle-color=" + DESTTrackingParticleColor).getBytes());
-            file.write(("\nsend=" + HUDDirection).getBytes());
-            file.write(("\ntrack=" + HUDTime).getBytes());
+            file.write(("\nsend=" + DESTSend).getBytes());
+            file.write(("\ntrack=" + DESTTrack).getBytes());
             file.write(("\nlastdeath=" + DESTLastdeath).getBytes());
             file.write(("\n# VALID DEST COLORS: hex colors, & all default minecraft colors. (light_purple -> pink & dark_purple -> purple)").getBytes());
             file.write("\n\n# Dimension".getBytes());
@@ -294,7 +301,7 @@ public class config {
         }
     }
     public static class defaults {
-        public static String version = "v1.2";
+        public static float version = 1.21f;
         public static String lang = "en_us";
         public static boolean DESTSaving = true;
         public static int MAXSaved = 50;
@@ -315,7 +322,7 @@ public class config {
         public static boolean HUDTime = true;
         public static boolean HUDWeather = true;
         public static boolean HUD24HR = false;
-        public static String HUDPrimaryColor = Assets.mainColors.pri;
+        public static String HUDPrimaryColor = DirectionHUD.PRIMARY;
         public static boolean HUDPrimaryBold = false;
         public static boolean HUDPrimaryItalics = false;
         public static boolean HUDPrimaryRainbow = false;
@@ -328,9 +335,9 @@ public class config {
         public static boolean DESTAutoConvert = false;
         public static boolean DESTYLevel = false;
         public static boolean DESTLineParticles = true;
-        public static String DESTLineParticleColor = Assets.mainColors.sec;
+        public static String DESTLineParticleColor = DirectionHUD.SECONDARY;
         public static boolean DESTDestParticles = true;
-        public static String DESTDestParticleColor = Assets.mainColors.pri;
+        public static String DESTDestParticleColor = DirectionHUD.PRIMARY;
         public static boolean DESTTrackingParticles = true;
         public static String DESTTrackingParticleColor = Assets.mainColors.track;
         public static boolean DESTSend = true;

@@ -18,8 +18,6 @@ public class Assets {
         public static final String back = "#ff9500";
         public static final String usage = "#ff8b38";
         public static final String error = "#ff4646";
-        public static String sec;
-        public static String pri;
     }
     public static class cmdUsage {
         public static final String hud = "/hud";
