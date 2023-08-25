@@ -63,11 +63,13 @@ public class CTxT {
         return this;
     }
     public CTxT cEvent(int typ, String arg) {
-        this.clickEvent = click(typ, arg);
+        if (arg == null) this.clickEvent = null;
+        else this.clickEvent = click(typ, arg);
         return this;
     }
     public CTxT hEvent(CTxT hEvent) {
-        this.hoverEvent = hover(hEvent);
+        if (hEvent == null) this.hoverEvent = null;
+        else this.hoverEvent = hover(hEvent);
         return this;
     }
     public CTxT bold(Boolean bold) {
