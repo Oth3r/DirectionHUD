@@ -81,8 +81,16 @@ public class Destination {
                     CUtl.color.customAddUI(player, (String) PlayerData.get.dest.setting.get(player,Settings.get(args[3])),"/dest settings "+args[3]+" "+args[2]);
                 } else CUtl.color.presetUI(player,"default","/dest color set "+args[1]+" "+args[2]+" ","/dest settings "+args[2]+" "+args[1]);
             }
+            if (args.length >= 3 && args[0].equals("preset_s")) {
+                if (args[1].equals("add") && args.length == 4) {
+                    CUtl.color.customAddUI(player, saved.getColors(player).get(saved.getIndexFromName(player,args[3])),"/dest saved edit color "+args[3]+" "+args[2]);
+                } else CUtl.color.presetUI(player,"default","/dest color set_s "+args[1]+" "+args[2]+" ","/dest saved edit color "+args[2]+" "+args[1]);
+            }
             if (args.length == 4 && args[0].equals("set")) {
                 setting.setColor(player,args[1],Settings.get(args[2]),args[3],true);
+            }
+            if (args.length == 4 && args[0].equals("set_s")) {
+                saved.setColor(player,args[1],args[2],args[3],true);
             }
         }
         public static void setCMD(Player player, String[] args) {
@@ -195,8 +203,8 @@ public class Destination {
                     if (args.length == 4) saved.editName(true, player, args[2], args[3]);
                 }
                 if (args[1].equalsIgnoreCase("color")) {
-                    if (args.length == 3) player.sendMessage(error("dest.saved.set",lang("saved.color")));
-                    if (args.length == 4) saved.editColor(true, player, args[2], args[3]);
+                    if (args.length == 3) saved.colorUI(player,"normal",args[2],null);
+                    if (args.length == 4) saved.colorUI(player,args[3],args[2],null);
                 }
                 if (args[1].equalsIgnoreCase("order")) {
                     if (args.length == 3) player.sendMessage(error("dest.saved.set",lang("saved.order")));
@@ -878,27 +886,23 @@ public class Destination {
                 player.performCommand("dest saved edit "+name);
             }
         }
-        public static void editColor(boolean send, Player player, String name, String color) {
+        public static void setColor(Player player, String stepSize, String name, String color, boolean Return) {
             List<String> names = getNames(player);
-            if (!names.contains(name)) {
-                if (send) player.sendMessage(error("dest.invalid"));
-                return;
-            }
+            if (!names.contains(name)) return;
             int i = names.indexOf(name);
-            color = CUtl.color.format(color,"#ffffff");
-            if (getColors(player).get(i).equals(color)) {
-                if (send) player.sendMessage(error("dest.saved.duplicate",lang("saved.color"),CUtl.color.getBadge(color)));
+            if (CUtl.color.checkValid(color,getColors(player).get(getIndexFromName(player,name)))) {
+                List<List<String>> all = getList(player);
+                List<String> current = all.get(i);
+                current.set(2, CUtl.color.format(color));
+                all.set(i,current);
+                setList(player, all);
+            } else {
+                player.sendMessage(error("color"));
                 return;
             }
-            List<List<String>> all = getList(player);
-            List<String> current = all.get(i);
-            current.set(2, color.toLowerCase());
-            all.set(i,current);
-            setList(player, all);
-            if (send) {
-                player.sendMessage(CUtl.tag().append(lang("saved.set",CTxT.of(name).color(CUtl.s()),lang("saved.color"),CUtl.color.getBadge(color))));
-                player.performCommand("dest saved edit "+name);
-            }
+            CTxT msg = CUtl.tag().append(lang("saved.set",CTxT.of(name).color(CUtl.s()),lang("saved.color"),CUtl.color.getBadge(color)));
+            if (Return) colorUI(player,stepSize,name,msg);
+            else player.sendMessage(msg);
         }
         public static void viewDestinationUI(boolean send, Player player, String name) {
             int i = getIndexFromName(player,name);
@@ -949,6 +953,30 @@ public class Destination {
                     //BACK
                     .append(CUtl.CButton.back("/dest saved " + getPGOf(player, name)))
                     .append(CTxT.of("\n                                               ").strikethrough(true));
+            player.sendMessage(msg);
+        }
+        public static void colorUI(Player player, String stepSize, String name, CTxT aboveMSG) {
+            if (!getNames(player).contains(name)) return;
+            String currentColor = getColors(player).get(getIndexFromName(player,name));
+            CTxT uiType = lang("ui.saved.color").color(currentColor);
+            CTxT msg = CTxT.of("");
+            if (aboveMSG != null) msg.append(aboveMSG).append("\n");
+            msg.append(" ").append(uiType).append(CTxT.of("\n                               \n").strikethrough(true));
+            CTxT back = CUtl.CButton.back("/dest saved edit "+name);
+            CTxT presetsButton = CTxT.of("")
+                    .append(CTxT.of("+").btn(true).color('a').cEvent(1,"/dest color preset_s add "+stepSize+" "+name)
+                            .hEvent(CUtl.TBtn("color.presets.add.hover",CUtl.TBtn("color.presets.add.hover_2").color(currentColor))))
+                    .append(CUtl.TBtn("color.presets").color(Assets.mainColors.presets)
+                            .cEvent(1,"/dest color preset_s "+stepSize+" "+name).btn(true)
+                            .hEvent(CUtl.TBtn("color.presets.hover",CUtl.TBtn("color.presets.hover_2").color(Assets.mainColors.presets))));
+            CTxT customButton = CUtl.TBtn("color.custom").btn(true).color(Assets.mainColors.custom)
+                    .cEvent(2,"/dest color set_s "+stepSize+" "+name+" ")
+                    .hEvent(CUtl.TBtn("color.custom.hover",CUtl.TBtn("color.custom.hover_2").color(Assets.mainColors.custom)));
+            msg.append(" ")
+                    .append(presetsButton).append(" ").append(customButton).append("\n\n")
+                    .append(CUtl.color.colorEditor(currentColor,stepSize,"/dest color set_s "+stepSize+" "+name+" ","/dest saved edit color "+name+" big"))
+                    .append("\n\n           ").append(back)
+                    .append(CTxT.of("\n                               ").strikethrough(true));
             player.sendMessage(msg);
         }
         public static void UI(Player player, int pg) {
@@ -1322,7 +1350,7 @@ public class Destination {
             if (type.equals(Settings.none)) return false;
             if (PlayerData.get.dest.setting.get(player,type) != getConfig(type)) output = true;
             if (type.equals(Settings.autoclear))
-                if ((long)PlayerData.get.dest.setting.get(player, Settings.autoclear_rad) != (int)getConfig(Settings.autoclear_rad)) output = true;
+                if ((long)PlayerData.get.dest.setting.get(player, Settings.autoclear_rad) != (long)getConfig(Settings.autoclear_rad)) output = true;
             if (type.equals(Settings.features__track))
                 if (!PlayerData.get.dest.setting.get(player,Settings.features__track_request_mode).equals(getConfig(Settings.features__track_request_mode))) output = true;
             if (Settings.colors().contains(Settings.get(type+"_color")))
@@ -1345,7 +1373,7 @@ public class Destination {
             if (type.equals(Settings.autoclear)) {
                 button.append(CTxT.of(String.valueOf((long) PlayerData.get.dest.setting.get(player,Settings.get(type+"_rad")))).btn(true)
                         .color(state?'a':'c').cEvent(2,"/dest settings "+type+"_rad ")
-                        .hEvent(lang("settings."+type+"_rad.hover")));
+                        .hEvent(lang("settings."+type+"_rad.hover").append("\n").append(lang("settings."+type+"_rad.hover_2").color('7'))));
             }
             if (type.equals(Settings.features__track)) {
                 Settings modeType = Settings.features__track_request_mode;
