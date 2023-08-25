@@ -196,10 +196,8 @@ public class config {
         save();
     }
     public static void setToPlayer(Player player) {
-        //todo this
         //HUD SETTINGS
         HUDEnabled = PlayerData.get.hud.state(player);
-        HUDOrder = PlayerData.get.hud.order(player);
         HUDType = (String)PlayerData.get.hud.setting.get(player, HUD.Settings.type);
         HUDBarColor = (String)PlayerData.get.hud.setting.get(player, HUD.Settings.bossbar__color);
         HUDBarShowDistance = (boolean)PlayerData.get.hud.setting.get(player, HUD.Settings.bossbar__distance);
@@ -207,6 +205,7 @@ public class config {
         HUDTime24HR = (boolean)PlayerData.get.hud.setting.get(player, HUD.Settings.module__time_24hr);
         HUDTrackingTarget = (String)PlayerData.get.hud.setting.get(player, HUD.Settings.module__tracking_target);
         //HUD MODULES
+        HUDOrder = PlayerData.get.hud.order(player);
         HUDCoordinates = PlayerData.get.hud.module.coordinates(player);
         HUDDistance = PlayerData.get.hud.module.distance(player);
         HUDTracking = PlayerData.get.hud.module.tracking(player);
