@@ -1401,7 +1401,12 @@ public class Destination {
         }
         public static void setColor(Player player, String setting, Settings type, String color, boolean Return) {
             CTxT uiType = lang("settings."+type.toString().substring(0,type.toString().length()-6));
-            PlayerData.set.dest.setting.set(player,type,color);
+            if (CUtl.color.checkValid(color,(String)PlayerData.get.dest.setting.get(player,type))) {
+                PlayerData.set.dest.setting.set(player,type,CUtl.color.format(color));
+            } else {
+                player.sendMessage(error("color"));
+                return;
+            }
             CTxT msg = CUtl.tag().append(lang("settings.particles.color.set",uiType.getString().toUpperCase(),CUtl.color.getBadge(color)));
             if (Return) colorUI(player,setting,type,msg);
             else player.sendMessage(msg);

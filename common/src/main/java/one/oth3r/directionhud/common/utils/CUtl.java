@@ -177,6 +177,17 @@ public class CUtl {
             if (string.charAt(0)=='#') return string;
             return defaultColor;
         }
+        public static boolean checkValid(String color, String current) {
+            //checks the validity of the color by seeing if it resets.
+            //if color isn't current color, test if its valid
+            if (!CUtl.color.format(color).equals(current)) {
+                //format the color and set default to current
+                color = CUtl.color.format(color, current);
+                //if color is current (it reset), it's not valid
+                return !color.equals(current);
+            }
+            return true;
+        }
         public static String format(String hex, String defaultColor) {
             if (hex == null) return defaultColor;
             if (hex.length() == 6) hex = "#"+hex;

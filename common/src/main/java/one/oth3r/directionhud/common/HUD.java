@@ -596,24 +596,13 @@ public class HUD {
             CUtl.color.presetUI(player,"default","/hud color set "+setting+" "+type+" ","/hud color edit "+setting+" "+type);
         }
         public static void setColor(Player player, String setting, String type, String color, boolean Return) {
-            color = color.toLowerCase();
-            String ogColor = "#"+color;
-            if (color.contains("#")) ogColor = color;
-            if (type.equals("primary")) {
-                color = CUtl.color.format(color,config.HUDPrimaryColor);
-                if (!color.equals(ogColor)) {
-                    player.sendMessage(CUtl.error(CUtl.lang("error.color",CTxT.of(ogColor).color(CUtl.s()))));
-                    return;
-                }
-                PlayerData.set.hud.primary(player, color+"-"+getHUDBold(player,1)+"-"+getHUDItalics(player,1)+"-"+getHUDRGB(player,1));
-            } else if (type.equals("secondary")) {
-                color = CUtl.color.format(color,config.HUDSecondaryColor);
-                if (!color.equals(ogColor)) {
-                    player.sendMessage(CUtl.error(CUtl.lang("error.color",CTxT.of(ogColor).color(CUtl.s()))));
-                    return;
-                }
-                PlayerData.set.hud.secondary(player, color+"-"+getHUDBold(player,2)+"-"+getHUDItalics(player,2)+"-"+getHUDRGB(player,2));
-            } else return;
+            int typ = type.equals("primary")?1:2;
+            if (CUtl.color.checkValid(color,getHUDColor(player,typ))) {
+                PlayerData.set.hud.primary(player,CUtl.color.format(color)+"-"+getHUDBold(player,typ)+"-"+getHUDItalics(player,typ)+"-"+getHUDRGB(player,typ));
+            } else {
+                player.sendMessage(CUtl.error(CUtl.lang("error.color")));
+                return;
+            }
             CTxT msg = CUtl.tag().append(lang("color.set",lang("color."+type),CUtl.color.getBadge(color)));
             if (Return) changeUI(player,setting, type,msg);
             else player.sendMessage(msg);
@@ -816,7 +805,7 @@ public class HUD {
             if (type.equals(Settings.none)) return false;
             if (!PlayerData.get.hud.setting.get(player,type).equals(getConfig(type))) output = true;
             if (type.equals(Settings.bossbar__distance))
-                if ((long)PlayerData.get.hud.setting.get(player, Settings.bossbar__distance_max) != (int)getConfig(Settings.bossbar__distance_max)) output = true;
+                if ((long)PlayerData.get.hud.setting.get(player, Settings.bossbar__distance_max) != (long)getConfig(Settings.bossbar__distance_max)) output = true;
             return output;
         }
         public static CTxT resetB(Player player,Settings type) {
