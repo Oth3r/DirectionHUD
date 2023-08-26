@@ -725,7 +725,7 @@ public class Destination {
                 return;
             }
             if (getNames(player).contains(name)) {
-                if (send) player.sendMessage(error("dest.saved.duplicate",lang("saved.name"),name));
+                if (send) player.sendMessage(error("dest.saved.add.duplicate",CTxT.of(name).color(CUtl.s())));
                 return;
             }
             if (name.equalsIgnoreCase("saved")) {

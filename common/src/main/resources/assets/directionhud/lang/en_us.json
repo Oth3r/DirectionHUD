@@ -19,6 +19,7 @@
   "key.directionhud.error.dest.already_clear": "You don't have a destination to clear!",
   "key.directionhud.error.dest.invalid": "This destination doesn't exist!",
   "key.directionhud.error.dest.saved.duplicate": "The %s is already set to %s!",
+  "key.directionhud.error.dest.saved.add.duplicate": "There is already a destination with the name %s!",
   "key.directionhud.error.dest.saved.not_allowed": "You can't save a destination with that name!",
   "key.directionhud.error.dest.saved.set": "Enter a new %s!",
   "key.directionhud.error.dest.saved.max": "You've reached the max number of saved destinations!",
