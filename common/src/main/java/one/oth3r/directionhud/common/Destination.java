@@ -985,20 +985,20 @@ public class Destination {
             msg.append(" ")
                     //NAME
                     .append(CUtl.CButton.dest.edit(2,"/dest saved edit name "+name+ " ")).append(" ")
-                    .append(CTxT.of(dName).color(CUtl.p())).append(" "+name).append("\n ")
+                    .append(CTxT.of(dName).color(CUtl.p())).append(": "+name).append("\n ")
                     //COLOR
-                    .append(CUtl.CButton.dest.edit(2,"/dest saved edit color " +name+ " ")).append(" ")
-                    .append(CTxT.of(dColor).color(CUtl.p())).append(" ")
+                    .append(CUtl.CButton.dest.edit(1,"/dest saved edit color " +name)).append(" ")
+                    .append(CTxT.of(dColor).color(CUtl.p())).append(": ")
                     .append(CUtl.color.getBadge(getColors(player).get(i))).append("\n ")
                     //ORDER
                     .append(CUtl.CButton.dest.edit(2,"/dest saved edit order " +name+ " ")).append(" ")
-                    .append(CTxT.of(dOrder).color(CUtl.p())).append(" "+(i + 1)).append("\n ")
+                    .append(CTxT.of(dOrder).color(CUtl.p())).append(": "+(i + 1)).append("\n ")
                     //DIMENSION
                     .append(CUtl.CButton.dest.edit(2,"/dest saved edit dim " +name+ " ")).append(" ")
-                    .append(CTxT.of(dDimension).color(CUtl.p())).append(" ").append(CTxT.of(Utl.dim.getName(loc.getDIM())).color(Utl.dim.getHEX(loc.getDIM()))).append("\n ")
+                    .append(CTxT.of(dDimension).color(CUtl.p())).append(": ").append(CTxT.of(Utl.dim.getName(loc.getDIM())).color(Utl.dim.getHEX(loc.getDIM()))).append("\n ")
                     //LOCATION
                     .append(CUtl.CButton.dest.edit(2,"/dest saved edit loc " +name+ " ")).append(" ")
-                    .append(CTxT.of(dLocation).color(CUtl.p())).append(" "+loc.getXYZ()).append("\n       ");
+                    .append(CTxT.of(dLocation).color(CUtl.p())).append(": "+loc.getXYZ()).append("\n       ");
             //SEND BUTTON
             if ((boolean) PlayerData.get.dest.setting.get(player,Settings.features__send)) {
                 msg.append(CUtl.TBtn("dest.send").btn(true).color(Assets.mainColors.send).cEvent(2,"/dest saved send "+name+" ")
