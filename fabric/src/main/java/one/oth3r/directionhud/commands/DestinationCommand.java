@@ -1,6 +1,7 @@
 package one.oth3r.directionhud.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
@@ -23,28 +24,28 @@ public class DestinationCommand {
         dispatcher.register(CommandManager.literal("dest")
                 .requires((commandSource) -> commandSource.hasPermissionLevel(0))
                 .executes((context2) -> command(context2.getSource(), context2.getInput()))
-                .then(CommandManager.argument("args", CommandFunctionArgumentType.commandFunction())
+                .then(CommandManager.argument("args", StringArgumentType.word())
                         .suggests((context, builder) -> getSuggestions(context,builder,1))
                         .executes((context2) -> command(context2.getSource(), context2.getInput()))
-                        .then(CommandManager.argument("args", CommandFunctionArgumentType.commandFunction())
+                        .then(CommandManager.argument("args", StringArgumentType.word())
                                 .suggests((context, builder) -> getSuggestions(context,builder,2))
                                 .executes((context2) -> command(context2.getSource(), context2.getInput()))
-                                .then(CommandManager.argument("args", CommandFunctionArgumentType.commandFunction())
+                                .then(CommandManager.argument("args", StringArgumentType.word())
                                         .suggests((context, builder) -> getSuggestions(context,builder,3))
                                         .executes((context2) -> command(context2.getSource(), context2.getInput()))
-                                        .then(CommandManager.argument("args", CommandFunctionArgumentType.commandFunction())
+                                        .then(CommandManager.argument("args", StringArgumentType.word())
                                                 .suggests((context, builder) -> getSuggestions(context,builder,4))
                                                 .executes((context2) -> command(context2.getSource(), context2.getInput()))
-                                                .then(CommandManager.argument("args", CommandFunctionArgumentType.commandFunction())
+                                                .then(CommandManager.argument("args", StringArgumentType.word())
                                                         .suggests((context, builder) -> getSuggestions(context,builder,5))
                                                         .executes((context2) -> command(context2.getSource(), context2.getInput()))
-                                                        .then(CommandManager.argument("args", CommandFunctionArgumentType.commandFunction())
+                                                        .then(CommandManager.argument("args", StringArgumentType.word())
                                                                 .suggests((context, builder) -> getSuggestions(context,builder,6))
                                                                 .executes((context2) -> command(context2.getSource(), context2.getInput()))
-                                                                .then(CommandManager.argument("args", CommandFunctionArgumentType.commandFunction())
+                                                                .then(CommandManager.argument("args", StringArgumentType.word())
                                                                         .suggests((context, builder) -> getSuggestions(context,builder,7))
                                                                         .executes((context2) -> command(context2.getSource(), context2.getInput()))
-                                                                        .then(CommandManager.argument("args", CommandFunctionArgumentType.commandFunction())
+                                                                        .then(CommandManager.argument("args", StringArgumentType.word())
                                                                                 .suggests((context, builder) -> getSuggestions(context,builder,8))
                                                                                 .executes((context2) -> command(context2.getSource(), context2.getInput()))
                                                                                 .executes((context2) -> command(context2.getSource(), context2.getInput())))))))))));
