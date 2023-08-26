@@ -433,6 +433,7 @@ public class Destination {
                 if (Utl.isInt(args[1])) suggester.addAll(Utl.xyzSuggester(player,"z"));
                 if (args.length == 4 && !Utl.isInt(args[3])) {
                     suggester.add("ffffff");
+                    suggester.addAll(CUtl.color.presetsSuggester(player));
                     suggester.addAll(Utl.dim.getList());
                 }
                 return suggester;
@@ -441,18 +442,21 @@ public class Destination {
             if (pos == 4) {
                 if (Utl.isInt(args[3])) {
                     suggester.addAll(Utl.dim.getList());
-                    if (args.length == 5 && !Utl.dim.checkValid(args[4]))
-                        suggester.add("ffffff");
+                    suggester.add("ffffff");
+                    suggester.addAll(CUtl.color.presetsSuggester(player));
                     return suggester;
                 }
-                if (Utl.dim.checkValid(args[3]))
+                if (Utl.dim.checkValid(args[3])) {
                     suggester.add("ffffff");
+                    suggester.addAll(CUtl.color.presetsSuggester(player));
+                }
                 return suggester;
             }
             // add <name> <x> (y) <z> (dim) ((color))
             if (pos == 5) {
                 if (Utl.isInt(args[3]) && Utl.dim.checkValid(args[4])) {
                     suggester.add("ffffff");
+                    suggester.addAll(CUtl.color.presetsSuggester(player));
                     return suggester;
                 }
             }
@@ -808,6 +812,9 @@ public class Destination {
                 player.sendMessage(error("coordinates"));
                 return;
             }
+            //if color is preset, get the preset color
+            if (color.contains("preset"))
+                color = PlayerData.get.colorPresets(player).get(Integer.parseInt(color.substring(7))-1);
             color = CUtl.color.format(color,"ffffff");
             all.add(Arrays.asList(name,loc.getLocC(),color));
             setList(player, all);
