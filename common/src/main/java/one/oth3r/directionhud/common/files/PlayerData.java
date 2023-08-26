@@ -229,7 +229,6 @@ public class PlayerData {
     @SuppressWarnings("unchecked")
     public static Map<String,Object> removeUnnecessary(Map<String,Object> map) {
         Map<String,Object> dest = (Map<String, Object>) map.get("destination");
-        // todo remove the hud presets when they get done
         dest.remove("saved");
         dest.remove("lastdeath");
         map.put("destination",dest);
