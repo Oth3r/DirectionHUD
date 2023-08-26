@@ -188,6 +188,17 @@ public class CUtl {
             }
             return true;
         }
+        public static ArrayList<String> presetsSuggester(Player player) {
+            //for every preset that isn't white, add it to the suggester
+            // format: preset-#
+            ArrayList<String> list = new ArrayList<>();
+            int i = 0;
+            for (String s : PlayerData.get.colorPresets(player)) {
+                if (!s.equals("#ffffff")) list.add("preset-"+(i+1));
+                i++;
+            }
+            return list;
+        }
         public static String format(String hex, String defaultColor) {
             if (hex == null) return defaultColor;
             if (hex.length() == 6) hex = "#"+hex;
