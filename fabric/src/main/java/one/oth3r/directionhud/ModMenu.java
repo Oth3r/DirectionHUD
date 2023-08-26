@@ -4,7 +4,6 @@ import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.*;
-import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.files.config;
@@ -13,11 +12,22 @@ import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Utl;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ModMenu implements ModMenuApi {
     private static CTxT lang(String key, Object... args) {
         return CUtl.lang("config."+key, args);
+    }
+    private static ArrayList<Color> toColorList(List<String> list) {
+        ArrayList<Color> colors = new ArrayList<>();
+        for (String s:list) colors.add(Color.decode(s));
+        return colors;
+    }
+    private static ArrayList<String> toStringList(List<Color> list) {
+        ArrayList<String> strings = new ArrayList<>();
+        for (Color c:list) strings.add(String.format("#%02x%02x%02x", c.getRed(), c.getGreen(), c.getBlue()));
+        return strings;
     }
     @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
@@ -107,6 +117,12 @@ public class ModMenu implements ModMenuApi {
                                         .binding(config.defaults.HUDRefresh, () -> config.HUDRefresh, n -> config.HUDRefresh = n)
                                         .controller(opt -> IntegerSliderControllerBuilder.create(opt).step(1).range(1,20))
                                         .build())
+                                .build())
+                        .group(ListOption.<Color>createBuilder()
+                                .name(lang("color_presets").b())
+                                .binding(toColorList(config.defaults.colorPresets), () -> toColorList(config.colorPresets), n -> config.colorPresets = toStringList(n))
+                                .controller(ColorControllerBuilder::create)
+                                .initial(Color.WHITE)
                                 .build())
                         .build())
                 .category(ConfigCategory.createBuilder()

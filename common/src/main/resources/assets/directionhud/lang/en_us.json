@@ -365,6 +365,7 @@
   "key.directionhud.config.dimension_ratios.info_2": "Entry example: \"%s|%s\"",
   "key.directionhud.config.dimension_ratios.info_2.1": "minecraft.overworld=1",
   "key.directionhud.config.dimension_ratios.info_2.2": "minecraft.nether=8",
+  "key.directionhud.config.color_presets": "Color Presets",
   "key.directionhud.config.dest_saving": "destination-saving",
   "key.directionhud.config.dest_saving.info": "Toggles the saving destination feature.",
   "key.directionhud.config.dest_max_saved": "destination-max-saved",
