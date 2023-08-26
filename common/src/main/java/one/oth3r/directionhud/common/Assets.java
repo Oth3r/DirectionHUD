@@ -12,7 +12,7 @@ public class Assets {
         public static final String lastdeath = "#ac4dff";
         public static final String send = "#52e1ff";
         public static final String track = "#ff6426";
-        public static final String edit = "#5070ff";
+        public static final String edit = "#665dff";
         public static final String dest = "#29a2ff";
         public static final String hud = "#29ff69";
         public static final String defaults = "#ff6629";
