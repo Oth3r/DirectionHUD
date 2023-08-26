@@ -173,6 +173,7 @@
   "key.directionhud.dest.ui": "Destination Commands",
   "key.directionhud.dest.ui.saved": "Saved Destinations",
   "key.directionhud.dest.ui.saved.edit": "Edit Destination",
+  "key.directionhud.dest.ui.saved.color": "Destination Color",
   "key.directionhud.dest.ui.lastdeath": "LastDeath",
   "key.directionhud.dest.ui.settings": "Destination Settings",
   "key.directionhud.dest.lastdeath.save": "Death saved!",
