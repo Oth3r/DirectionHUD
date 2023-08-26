@@ -330,7 +330,7 @@
   "key.directionhud.hud.color.set.rgb": "Turned %s %s HUD RGB!",
   "key.directionhud.hud.toggle": "Toggled %s HUD.",
   "key.directionhud.hud.ui": "HUD Commands",
-  "key.directionhud.hud.ui.modules": "HUD Edit",
+  "key.directionhud.hud.ui.modules": "HUD Modules",
   "key.directionhud.hud.ui.modules.disabled": "Disabled Modules:",
   "key.directionhud.hud.ui.color": "HUD Color",
   "key.directionhud.hud.ui.settings": "HUD Settings",
