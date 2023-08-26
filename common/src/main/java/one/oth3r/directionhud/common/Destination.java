@@ -224,7 +224,7 @@ public class Destination {
             //SEND
             if (args[0].equalsIgnoreCase("send")) {
                 if (args.length == 2) player.sendMessage(error("dest.send.player"));
-                if (args.length == 3) social.send(player,args[2],null,args[1]);
+                if (args.length == 3) social.send(player,args[2],null,args[1],null);
                 return;
             }
             //ADD
@@ -258,14 +258,24 @@ public class Destination {
         }
         public static void sendCMD(Player player, String[] args) {
             if (!Utl.checkEnabled.send(player)) return;
-            if (!Utl.inBetween(args.length, 3, 6)) {
+            // /dest send <IGN>
+            if (args.length == 1) {
+                social.send(player,args[0],player.getLoc(),null,null);
+                return;
+            }
+            // /dest send <IGN> <name>
+            if (args.length == 2) {
+                social.send(player,args[0],player.getLoc(),args[1],null);
+                return;
+            }
+            if (!Utl.inBetween(args.length, 3, 7)) {
                 player.sendMessage(CUtl.usage(Assets.cmdUsage.destSend));
                 return;
             }
             // /dest send <IGN> saved <name>
             if (args[1].equalsIgnoreCase("saved") && Utl.checkEnabled.saving(player)) {
                 if (args.length > 3) player.sendMessage(CUtl.usage(Assets.cmdUsage.destSend));
-                else social.send(player,args[0],null,args[2]);
+                else social.send(player,args[0],null,args[2],null);
                 return;
             }
             String pDIM = player.getDimension();
@@ -273,39 +283,64 @@ public class Destination {
             //dest send <IGN> (name) <xyz or xy> (dimension)
             //dest send IGN x z
             if (args.length == 3) {
-                social.send(player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),pDIM),null);
+                social.send(player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),pDIM),null,null);
             }
             //dest send IGN NAME x z
             if (args.length == 4 && !Utl.isInt(args[1])) {
-                social.send(player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),pDIM),args[1]);
+                social.send(player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),pDIM),args[1],null);
                 return;
             }
-            //dest send IGN x z DIM
-            if (args.length == 4 && !Utl.isInt(args[3])) {
-                social.send(player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),args[3]),null);
-                return;
-            }
-            //dest send IGN x y z
+            //dest send IGN x y (z, DIM, color)
             if (args.length == 4) {
-                social.send(player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),Utl.tryInt(args[3]),pDIM),null);
+                //DIM
+                if (Utl.dim.getList().contains(args[3]))
+                    social.send(player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),args[3]),null,null);
+                else if (!Utl.isInt(args[3]) || !CUtl.color.format(args[3]).equals("#ffffff")) {
+                    //COLOR - if not int or if it doesn't get reset it's a color (I hope)
+                    social.send(player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),pDIM),null,args[3]);
+                } else social.send(player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),Utl.tryInt(args[3]),pDIM),null,null);
             }
-            //dest send IGN NAME x z DIM
-            if (args.length == 5 && !Utl.isInt(args[1]) && !Utl.isInt(args[4])) {
-                social.send(player,args[0],new Loc(Utl.tryInt(args[2]),Utl.tryInt(args[3]),args[4]),args[1]);
-                return;
-            }
-            //dest send IGN NAME x y z
+            //dest send IGN NAME x y (z, color, DIM)
             if (args.length == 5 && !Utl.isInt(args[1])) {
-                social.send(player,args[0],new Loc(Utl.tryInt(args[2]),Utl.tryInt(args[3]),Utl.tryInt(args[4]),pDIM),args[1]);
+                //dest send IGN NAME x z DIM
+                if (Utl.dim.getList().contains(args[4]))
+                    social.send(player,args[0],new Loc(Utl.tryInt(args[2]),Utl.tryInt(args[3]),args[4]),args[1],null);
+                else if (!Utl.isInt(args[4]) || !CUtl.color.format(args[4]).equals("#ffffff")) {
+                    //dest send IGN NAME x z color
+                    //if not int or if it doesn't get reset it's a color (I hope)
+                    social.send(player,args[0],new Loc(Utl.tryInt(args[2]),Utl.tryInt(args[3]),pDIM),args[1],args[4]);
+                } else social.send(player,args[0],new Loc(Utl.tryInt(args[2]),Utl.tryInt(args[3]),Utl.tryInt(args[4]),pDIM),args[1],null);
                 return;
             }
-            //dest send IGN x y z DIM
-            if (args.length == 5) {
-                social.send(player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),Utl.tryInt(args[3]),args[4]),null);
+            //dest send IGN x y z (DIM, color)
+            if (args.length == 5 && Utl.isInt(args[3])) {
+                if (Utl.dim.getList().contains(args[4]))
+                    social.send(player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),Utl.tryInt(args[3]),args[4]),null,null);
+                else social.send(player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),Utl.tryInt(args[3]),pDIM),null,args[4]);
             }
-            //dest send IGN NAME x y z DIM
+            //dest send IGN x y DIM color
+            if (args.length == 5 && Utl.dim.getList().contains(args[3])) {
+                social.send(player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),args[3]),null,args[4]);
+            }
+            //dest send IGN NAME x y z (DIM, color)
             if (args.length == 6 && !Utl.isInt(args[1])) {
-                social.send(player,args[0],new Loc(Utl.tryInt(args[2]),Utl.tryInt(args[3]),Utl.tryInt(args[4]),args[5]),args[1]);
+                if (Utl.isInt(args[4])) {
+                    if (Utl.dim.getList().contains(args[5]))
+                        social.send(player,args[0],new Loc(Utl.tryInt(args[2]),Utl.tryInt(args[3]),Utl.tryInt(args[4]),args[5]),args[1],null);
+                    else social.send(player,args[0],new Loc(Utl.tryInt(args[2]),Utl.tryInt(args[3]),Utl.tryInt(args[4]),pDIM),args[1],args[5]);
+                } else {
+                    //dest send IGN NAME x z DIM color
+                    social.send(player,args[0],new Loc(Utl.tryInt(args[2]),Utl.tryInt(args[3]),args[4]),args[1],args[5]);
+                }
+                return;
+            }
+            //dest send IGN x y z DIM color
+            if (args.length == 6 && Utl.dim.getList().contains(args[4])) {
+                social.send(player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),Utl.tryInt(args[3]),args[4]),null,args[5]);
+            }
+            //dest send IGN NAME x y z DIM color
+            if (args.length == 7 && !Utl.isInt(args[1])) {
+                social.send(player,args[0],new Loc(Utl.tryInt(args[2]),Utl.tryInt(args[3]),Utl.tryInt(args[4]),args[5]),args[1],args[6]);
             }
         }
         public static void trackCMD(Player player, String[] args) {
@@ -511,7 +546,7 @@ public class Destination {
         public static ArrayList<String> sendCMD(Player player, int pos, String[] args) {
             ArrayList<String> suggester = new ArrayList<>();
             // send <player> <saved> <name>
-            // send <player> (name) <x> (y) <z> (dimension)
+            // send <player> (name) <x> (y) <z> (dimension) (color)
             if (pos == 0) {
                 for (Player p : Utl.getPlayers()) {
                     if (p.equals(player)) continue;
@@ -545,28 +580,57 @@ public class Destination {
                 if (!Utl.isInt(args[1])) {
                     return Utl.xyzSuggester(player,"y");
                 }
-                if (args.length == 4)
-                    suggester.addAll(Utl.dim.getList());
+                suggester.addAll(Utl.dim.getList());
+                suggester.add("ffffff");
+                suggester.addAll(CUtl.color.presetsSuggester(player));
                 suggester.addAll(Utl.xyzSuggester(player,"z"));
                 return suggester;
             }
-            // send <player> (name) <x> (y) (<z> (dimension))
-            // send <player> <x> (y) <z> ((dimension))
             if (pos == 4) {
+                // send <player> (name) <x> (y) (<z>, (dimension), (color))
                 if (!Utl.isInt(args[1])) {
-                    if (args.length == 5)
-                        suggester.addAll(Utl.dim.getList());
+                    suggester.addAll(Utl.dim.getList());
+                    suggester.add("ffffff");
+                    suggester.addAll(CUtl.color.presetsSuggester(player));
                     suggester.addAll(Utl.xyzSuggester(player,"z"));
                     return suggester;
                 }
-                if (Utl.isInt(args[3]))
+                // send <player> <x> (y) <z> ((dimension), (color))
+                if (Utl.isInt(args[3])) {
                     suggester.addAll(Utl.dim.getList());
+                    suggester.add("ffffff");
+                    suggester.addAll(CUtl.color.presetsSuggester(player));
+                } else if (Utl.dim.getList().contains(args[3])) {
+                    // send <player> <x> (y) (dimension) ((color))
+                    suggester.add("ffffff");
+                    suggester.addAll(CUtl.color.presetsSuggester(player));
+                }
                 return suggester;
             }
-            // send <player> (name) <x> (y) <z> ((dimension))
             if (pos == 5) {
-                if (!Utl.isInt(args[1]) && Utl.isInt(args[4])) {
+                // send <player> (name) <x> (y) <z> ((dimension), (color))
+                if (!Utl.isInt(args[1])) {
+                    if (Utl.isInt(args[4])) {
+                        suggester.addAll(Utl.dim.getList());
+                        suggester.add("ffffff");
+                        suggester.addAll(CUtl.color.presetsSuggester(player));
+                    } else if (Utl.dim.getList().contains(args[4])) {
+                        suggester.add("ffffff");
+                        suggester.addAll(CUtl.color.presetsSuggester(player));
+                    }
+                }
+                // send <player> <x> (y) <z> (dimension) ((color))
+                if (Utl.isInt(args[1]) && Utl.isInt(args[3]) && Utl.dim.getList().contains(args[4])){
+                    suggester.add("ffffff");
+                    suggester.addAll(CUtl.color.presetsSuggester(player));
+                }
+                return suggester;
+            }
+            // send <player> (name) <x> (y) <z> (dimension) ((color))
+            if (pos == 6) {
+                if (!Utl.isInt(args[1]) && Utl.isInt(args[4]) && Utl.dim.getList().contains(args[5])) {
                     suggester.addAll(Utl.dim.getList());
+                    suggester.add("ffffff");
                     return suggester;
                 }
             }
@@ -1085,7 +1149,7 @@ public class Destination {
         }
     }
     public static class social {
-        public static void send(Player player, String sendPLayer, Loc loc, String name) {
+        public static void send(Player player, String sendPLayer, Loc loc, String name,String color) {
             Player pl = Player.of(sendPLayer);
             if (pl == null) {
                 player.sendMessage(error("player", CTxT.of(sendPLayer).color(CUtl.s())));
@@ -1107,7 +1171,7 @@ public class Destination {
                 player.sendMessage(error("dest.saved.length",16));
                 return;
             }
-            String color = "";
+            // if LOC is null it's a saved destination
             if (loc == null) {
                 if (!saved.getNames(player).contains(name)) {
                     player.sendMessage(error("dest.invalid"));
@@ -1126,16 +1190,21 @@ public class Destination {
                 return;
             }
             CTxT xyzB = CTxT.of("");
+            if (color == null) color = "#ffffff";
+            //if color is preset, get the preset color
+            if (color.contains("preset"))
+                color = PlayerData.get.colorPresets(player).get(Integer.parseInt(color.substring(7))-1);
+            color = CUtl.color.format(color);
             if (name==null) {
                 name = lang("send.change_name").getString();
                 xyzB.append(loc.getBadge());
-            } else xyzB.append(loc.getBadge(name,color.equals("")?"white":color));
+            } else xyzB.append(loc.getBadge(name,color));
             String plDimension = pl.getDimension();
-
+            String pColor = color.substring(1);
             CTxT msg = CTxT.of("\n ");
             msg.append(xyzB).append(" ");
             if (Utl.checkEnabled.saving(player))
-                msg.append(CUtl.CButton.dest.add("/dest saved add "+name+" "+loc.getXYZ()+" "+loc.getDIM()+" "+color)).append(" ");
+                msg.append(CUtl.CButton.dest.add("/dest saved add "+name+" "+loc.getXYZ()+" "+loc.getDIM()+" "+pColor)).append(" ");
             msg.append(CUtl.CButton.dest.set("/dest set "+loc.getXYZ()+" "+loc.getDIM())).append(" ");
             if (Utl.dim.canConvert(plDimension,loc.getDIM()))
                 msg.append(CUtl.CButton.dest.convert("/dest set " +loc.getXYZ()+" "+loc.getDIM()+" convert")).append(" ");
