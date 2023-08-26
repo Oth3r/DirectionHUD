@@ -14,7 +14,7 @@
   "key.directionhud.error.number": "Invalid number!",
   "key.directionhud.error.disabled": "This command is disabled!",
   "key.directionhud.error.player": "%s is offline or does not exist!",
-  "key.directionhud.error.color": "%s isn't a valid HEX color!",
+  "key.directionhud.error.color": "Enter a valid HEX color!",
   "key.directionhud.error.dest.at": "You are already at your destination!",
   "key.directionhud.error.dest.already_clear": "You don't have a destination to clear!",
   "key.directionhud.error.dest.invalid": "This destination doesn't exist!",
