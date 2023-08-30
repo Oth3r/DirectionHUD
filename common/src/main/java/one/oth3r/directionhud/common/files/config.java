@@ -373,6 +373,7 @@ public class config {
             DESTLastdeath = Boolean.parseBoolean((String) properties.computeIfAbsent("dest.settings.features.lastdeath", a -> String.valueOf(defaults.DESTLastdeath)));
 
             dimensionRatios = new Gson().fromJson((String) properties.computeIfAbsent("dimension-ratios", a -> String.valueOf(defaults.dimensionRatios)),arrayListMap);
+            colorPresets = new Gson().fromJson((String) properties.computeIfAbsent("color-presets", a -> String.valueOf(defaults.colorPresets)),arrayListMap);
         }
     }
     public static void save() {
@@ -402,7 +403,7 @@ public class config {
             file.write(("\n\n\n\n# DirectionHUD Player DEFAULTS").getBytes());
             file.write(("\n# Default settings that are loaded for each player when they first join.\n").getBytes());
             file.write(("\n# Color presets").getBytes());
-            file.write(("\ncolor-presets=" + colorPresets).getBytes());
+            file.write(("\ncolor-presets=" + gson.toJson(colorPresets)).getBytes());
 
             file.write(("\n\n# HUD").getBytes());
             file.write(("\nhud.enabled=" + HUDEnabled).getBytes());
