@@ -17,7 +17,9 @@ import one.oth3r.directionhud.common.utils.CUtl;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.joml.Vector3f;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 public class Utl {
     public static class Pair<A, B> {
@@ -204,14 +206,14 @@ public class Utl {
             }
         }
         public static DustParticleEffect getParticle(String particleType, Player player) {
-            int[] i = CUtl.color.RGB((String) PlayerData.get.dest.setting.get(player, Destination.Settings.particles__dest_color));
-            if (particleType.equals(DEST)) return new DustParticleEffect(new Vector3f(new Vector3f(i[0],i[1],i[2])),3);
-            i = CUtl.color.RGB((String) PlayerData.get.dest.setting.get(player, Destination.Settings.particles__line_color));
-            if (particleType.equals(LINE)) return new DustParticleEffect(new Vector3f(i[0],i[1],i[2]),1);
-            i = CUtl.color.RGB((String) PlayerData.get.dest.setting.get(player, Destination.Settings.particles__tracking_color));
-            if (particleType.equals(TRACKING)) return new DustParticleEffect(new Vector3f(new Vector3f(i[0],i[1],i[2])),0.5f);
-            i = CUtl.color.RGB("#000000");
-            return new DustParticleEffect(new Vector3f(new Vector3f(i[0],i[1],i[2])),5f);
+            String hex = (String) PlayerData.get.dest.setting.get(player, Destination.Settings.particles__dest_color);
+            if (particleType.equals(DEST)) return new DustParticleEffect(new Vector3f(Vec3d.unpackRgb(Color.decode(CUtl.color.format(hex)).getRGB()).toVector3f()),3);
+            hex = (String) PlayerData.get.dest.setting.get(player, Destination.Settings.particles__line_color);
+            if (particleType.equals(LINE)) return new DustParticleEffect(new Vector3f(Vec3d.unpackRgb(Color.decode(CUtl.color.format(hex)).getRGB()).toVector3f()),1);
+            hex = (String) PlayerData.get.dest.setting.get(player, Destination.Settings.particles__tracking_color);
+            if (particleType.equals(TRACKING)) return new DustParticleEffect(new Vector3f(Vec3d.unpackRgb(Color.decode(CUtl.color.format(hex)).getRGB()).toVector3f()),0.5f);
+            hex = "#000000";
+            return new DustParticleEffect(new Vector3f(Vec3d.unpackRgb(Color.decode(CUtl.color.format(hex)).getRGB()).toVector3f()),5f);
         }
     }
     public static class dim {
