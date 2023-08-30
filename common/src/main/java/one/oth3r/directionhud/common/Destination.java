@@ -1251,10 +1251,7 @@ public class Destination {
                 player.sendMessage(CUtl.tag().append(lang("track.set",CTxT.of(pl.getName()).color(CUtl.s()))));
                 pl.sendMessage(CUtl.tag()
                         .append(lang("track.accept", CTxT.of(player.getName()).color(CUtl.s())))
-                        .append(" ")
-                        .append(CUtl.TBtn("settings").btn(true).color(Assets.mainColors.setting).cEvent(1,"/dest settings ").hEvent(
-                                CTxT.of(Assets.cmdUsage.destSettings).color('c').append("\n").append(
-                                        CUtl.TBtn("state.hover",CUtl.TBtn("off").color('c'))))));
+                        .append(" ").append(CUtl.CButton.dest.settings()));
             }
             public static void initialize(Player player, String player2) {
                 Player pl = Player.of(player2);
