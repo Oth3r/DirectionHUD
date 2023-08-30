@@ -49,10 +49,10 @@ public class CUtl {
                 CUtl.TBtn(button?"off":"on").color(button?'c':'a'))).cEvent(1,cmd+(button?"off":"on"));
     }
     public static String formatCMD(String cmd) {
-        return cmd.replace(" ", "-");
+        return cmd.substring(1).replace(" ", "-");
     }
     public static String unFormatCMD(String cmd) {
-        return cmd.replace("-"," ");
+        return "/"+cmd.replace("-"," ");
     }
     public static CTxT TBtn(String key, Object... args) {
         return lang("button."+key,args);
@@ -75,7 +75,7 @@ public class CUtl {
             }
             public static CTxT settings() {
                 return TBtn("settings").btn(true).color(Assets.mainColors.setting).cEvent(1,"/dest settings")
-                        .hEvent(CTxT.of(Assets.cmdUsage.destSettings).color(Assets.mainColors.setting).append("\n").append(TBtn("settings.hover",lang("dest"))));
+                        .hEvent(CTxT.of(Assets.cmdUsage.destSettings).color(Assets.mainColors.setting).append("\n").append(TBtn("settings.hover",lang("hud.module.destination"))));
             }
             public static CTxT saved() {
                 return TBtn("dest.saved").btn(true).color(Assets.mainColors.saved).cEvent(1,"/dest saved").hEvent(
@@ -279,7 +279,7 @@ public class CUtl {
                 list.append("\n ");
                 for (int i = 0; i < rowAmt;i++) {
                     String color = colors.get(colorIndex);
-                    list.append(CTxT.of(Assets.symbols.square).btn(true).color(color).cEvent(1,setCMD+color)
+                    list.append(CTxT.of(Assets.symbols.square).btn(true).color(color).cEvent(1,setCMD+color.substring(1))
                             .hEvent(TBtn("color.hover",getBadge(color))));
                     colorIndex++;
                 }
@@ -301,17 +301,11 @@ public class CUtl {
             int i = 0;
             for (String s : PlayerData.get.colorPresets(player)) {
                 boolean x = !s.equals("#ffffff");
-                if (i % 2 == 0) {
-                    list.append(CTxT.of(Assets.symbols.x).btn(true).color(x ? 'c' : '7').cEvent(x ? 1 : 0, "/dirhud presets custom reset " + i + " " + formattedReturnCMDArgs)).append(" ");
-                    list.append(CTxT.of(Assets.symbols.square).color(s).btn(true).cEvent(1, setCMD + s)
-                            .hEvent(TBtn("color.hover", getBadge(s))));
-                    list.append(" -=- ");
-                } else {
-                    list.append(CTxT.of(Assets.symbols.square).color(s).btn(true).cEvent(1, setCMD + s)
-                            .hEvent(TBtn("color.hover", getBadge(s)))).append(" ");
-                    list.append(CTxT.of(Assets.symbols.x).btn(true).color(x ? 'c' : '7').cEvent(x ? 1 : 0, "/dirhud presets custom reset " + i + " " + formattedReturnCMDArgs));
-                    list.append("\n   ");
-                }
+                CTxT xBtn = CTxT.of(Assets.symbols.x).btn(true).color(x ? 'c' : '7').cEvent(x ? 1 : 0, "/dirhud presets custom reset " + i + " " + formattedReturnCMDArgs);
+                CTxT squareBtn = CTxT.of(Assets.symbols.square).color(s).btn(true).cEvent(1, setCMD + s.substring(1))
+                        .hEvent(TBtn("color.hover", getBadge(s)));
+                if (i % 2 == 0) list.append(xBtn).append(" ").append(squareBtn).append(" -=- ");
+                else list.append(squareBtn).append(" ").append(xBtn).append("\n   ");
                 i++;
             }
             CTxT msg = CTxT.of(" ").append(lang("color.presets.ui").color(Assets.mainColors.presets))
@@ -330,7 +324,7 @@ public class CUtl {
         }
         public static void customSet(Player player, int preset, String color, String returnCMD) {
             ArrayList<String> presets = PlayerData.get.colorPresets(player);
-            presets.set(preset,color);
+            presets.set(preset,CUtl.color.format(color));
             PlayerData.set.colorPresets(player,presets);
             player.sendMessage(tag().append(lang("color.presets.set",CTxT.of("#"+(preset+1)).color(s()),getBadge(color))));
             player.performCommand(returnCMD.substring(1));
@@ -340,17 +334,11 @@ public class CUtl {
             CTxT list = CTxT.of("   ");
             int i = 0;
             for (String s: PlayerData.get.colorPresets(player)) {
-                if (i%2==0) {
-                    list.append(CTxT.of("+").btn(true).color('a').cEvent(1,"/dirhud presets custom add "+i+" "+color+" "+formattedReturnCMD)
-                            .hEvent(TBtn("color.presets.plus.hover",CTxT.of("#"+(i+1)).color(s()),getBadge(color)))).append(" ");
-                    list.append(CTxT.of(Assets.symbols.square).color(s).btn(true).hEvent(getBadge(s)));
-                    list.append(" -=- ");
-                } else {
-                    list.append(CTxT.of(Assets.symbols.square).color(s).btn(true).hEvent(getBadge(s))).append(" ");
-                    list.append(CTxT.of("+").btn(true).color('a').cEvent(1,"/dirhud presets custom add "+i+" "+color+" "+formattedReturnCMD)
-                            .hEvent(TBtn("color.presets.plus.hover",CTxT.of("#"+(i+1)).color(s()),getBadge(color))));
-                    list.append("\n   ");
-                }
+                CTxT square = CTxT.of(Assets.symbols.square).color(s).btn(true).hEvent(getBadge(s));
+                CTxT plusBtn = CTxT.of("+").btn(true).color('a').cEvent(1,"/dirhud presets custom add "+i+" "+color.substring(1)+" "+formattedReturnCMD)
+                        .hEvent(TBtn("color.presets.plus.hover",CTxT.of("#"+(i+1)).color(s()),getBadge(color)));
+                if (i%2==0) list.append(plusBtn).append(" ").append(square).append(" -=- ");
+                else list.append(square).append(" ").append(plusBtn).append("\n   ");
                 i++;
             }
             CTxT msg = CTxT.of(" ").append(lang("color.presets.ui").color(Assets.mainColors.presets))
@@ -397,7 +385,7 @@ public class CUtl {
                     hsbList.get(plus).color(editedColor.equals(color)?Assets.mainColors.gray:editedColor);
                     if (!editedColor.equals(color)) {
                         hsbList.get(plus).hEvent(CUtl.TBtn("color.hover",getBadge(editedColor)));
-                        hsbList.get(plus).cEvent(1,setCMD+editedColor);
+                        hsbList.get(plus).cEvent(1,setCMD+editedColor.substring(1));
                     }
                 }
                 i = i+2;
