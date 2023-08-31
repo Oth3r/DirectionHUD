@@ -279,9 +279,9 @@ public class config {
         Type arrayListMap = new TypeToken<ArrayList<String>>() {}.getType();
         dimensions = new Gson().fromJson((String) properties.computeIfAbsent("dimensions", a -> String.valueOf(defaults.dimensions)),arrayListMap);
 
-        if (version == 1.1) HUDTracking = Boolean.parseBoolean((String) properties.computeIfAbsent("compass", a -> String.valueOf(defaults.HUDTracking)));
+        if (version == 1.1f) HUDTracking = Boolean.parseBoolean((String) properties.computeIfAbsent("compass", a -> String.valueOf(defaults.HUDTracking)));
         // old config entries
-        if (version <= 1.2) {
+        if (version <= 1.2f) {
             if (!DirectionHUD.isMod)
                 dimensionRatios = new Gson().fromJson((String) properties.computeIfAbsent("dimension-ratios", a -> String.valueOf(defaults.dimensionRatios)),arrayListMap);
             // update colors to new system
@@ -315,14 +315,14 @@ public class config {
             DESTSend = Boolean.parseBoolean((String) properties.computeIfAbsent("send", a -> String.valueOf(defaults.DESTSend)));
             DESTTrack = Boolean.parseBoolean((String) properties.computeIfAbsent("track", a -> String.valueOf(defaults.DESTTrack)));
         }
-        if (version == 1.2 || version == 1.21) {
+        if (version == 1.2f || version == 1.21f) {
             DESTAutoConvert = Boolean.parseBoolean((String) properties.computeIfAbsent("autoconvert", a -> String.valueOf(defaults.DESTAutoConvert)));
             HUDTracking = Boolean.parseBoolean((String) properties.computeIfAbsent("tracking", a -> String.valueOf(defaults.HUDTracking)));
             DESTTrackingParticles = Boolean.parseBoolean((String) properties.computeIfAbsent("tracking-particles", a -> String.valueOf(defaults.DESTTrackingParticles)));
             DESTTrackingParticleColor = CUtl.color.updateOld((String) properties.computeIfAbsent("tracking-particle-color", a -> defaults.DESTTrackingParticleColor),defaults.DESTDestParticleColor);
         }
-        if (version == 1.21) dimensionRatios = new Gson().fromJson((String) properties.computeIfAbsent("dimension-ratios", a -> String.valueOf(defaults.dimensionRatios)),arrayListMap);
-        if (version >= 1.3) {
+        if (version == 1.21f) dimensionRatios = new Gson().fromJson((String) properties.computeIfAbsent("dimension-ratios", a -> String.valueOf(defaults.dimensionRatios)),arrayListMap);
+        if (version >= 1.3f) {
             //PRESETS
             dimensionRatios = new Gson().fromJson((String)
                     properties.computeIfAbsent("color-presets", a -> String.valueOf(defaults.colorPresets)),arrayListMap);
