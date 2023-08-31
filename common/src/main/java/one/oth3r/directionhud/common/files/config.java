@@ -328,8 +328,8 @@ public class config {
                     properties.computeIfAbsent("color-presets", a -> String.valueOf(defaults.colorPresets)),arrayListMap);
             //HUD
             HUDEnabled = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.enabled", a -> String.valueOf(defaults.HUDEnabled)));
+            HUDOrder = HUD.modules.fixOrder((String) properties.computeIfAbsent("hud.order", a -> defaults.HUDOrder));
             //MODULES
-            HUDOrder = HUD.modules.fixOrder((String) properties.computeIfAbsent("hud.module.order", a -> defaults.HUDOrder));
             HUDCoordinates = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.coordinates", a -> String.valueOf(defaults.HUDCoordinates)));
             HUDDistance = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.distance", a -> String.valueOf(defaults.HUDDistance)));
             HUDTracking = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.tracking", a -> String.valueOf(defaults.HUDTracking)));
