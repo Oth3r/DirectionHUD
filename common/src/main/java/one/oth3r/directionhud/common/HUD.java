@@ -165,7 +165,7 @@ public class HUD {
             distance.add("s"+ Destination.getDist(player));
             distance.add("p]");
         }
-        if (PlayerData.get.hud.module.tracking(player)) {
+        if (PlayerData.get.hud.getModule(player,"tracking")) {
             String track = getTracking(player);
             if (!track.equals("???")) {
                 tracking.add("/p[");
@@ -311,6 +311,7 @@ public class HUD {
         return "-"+Assets.symbols.down+"-";
     }
     public static class modules {
+        public static final ArrayList<String> DEFAULT = new ArrayList<>(List.of("coordinates", "distance", "tracking", "destination", "direction", "time", "weather"));
         //has to be lowercase
         @SuppressWarnings("BooleanMethodIsAlwaysInverted")
         public static boolean validCheck(String s) {
@@ -341,13 +342,13 @@ public class HUD {
                 order.remove(pos);
                 order.add(pos + 1, module);
                 order.addAll(getDisabled(player));
-                setOrderC(player, order);
+                PlayerData.set.hud.order(player, order);
             } else if (direction.equals("up")) {
                 if (pos == 0) return;
                 order.remove(pos);
                 order.add(pos - 1, module);
                 order.addAll(getDisabled(player));
-                setOrderC(player, order);
+                PlayerData.set.hud.order(player, order);
             } else return;
             if (Return) UI(player, msg, module);
             else player.sendMessage(msg);
@@ -356,63 +357,32 @@ public class HUD {
             if (!validCheck(module)) return;
             CTxT msg = CUtl.tag().append(lang("module.toggle",CUtl.TBtn(toggle ? "on" : "off"),CTxT.of(langName(module)).color(CUtl.s())));
             //OFF
-            if (!toggle && moduleState(player, module)) removeModule(player, module);
+            if (!toggle && PlayerData.get.hud.getModule(player, module)) removeModule(player, module);
                 //ON
-            else if (toggle && !moduleState(player, module)) addModule(player, module);
+            else if (toggle && !PlayerData.get.hud.getModule(player, module)) addModule(player, module);
             if (Return) UI(player, msg, module);
             else player.sendMessage(msg);
         }
-        public static boolean moduleState(Player player, String s) {
-            if (s.equalsIgnoreCase("coordinates"))
-                return PlayerData.get.hud.module.coordinates(player);
-            if (s.equalsIgnoreCase("distance"))
-                return PlayerData.get.hud.module.distance(player);
-            if (s.equalsIgnoreCase("destination"))
-                return PlayerData.get.hud.module.destination(player);
-            if (s.equalsIgnoreCase("direction"))
-                return PlayerData.get.hud.module.direction(player);
-            if (s.equalsIgnoreCase("tracking"))
-                return PlayerData.get.hud.module.tracking(player);
-            if (s.equalsIgnoreCase("time"))
-                return PlayerData.get.hud.module.time(player);
-            if (s.equalsIgnoreCase("weather"))
-                return PlayerData.get.hud.module.weather(player);
-            return false;
-        }
-        public static String allModules() {
-            return "coordinates distance tracking destination direction time weather";
-        }
-        public static String[] getOrderC(Player player) {
-            return PlayerData.get.hud.order(player).split(" ");
-        }
-        public static void setOrderC(Player player, List<String> ls) {
-            PlayerData.set.hud.order(player, String.join(" ", ls));
-        }
-        public static String fixOrder(String order) {
-            ArrayList<String> list = new ArrayList<>(List.of(order.split(" ")));
-            ArrayList<String> allModules = new ArrayList<>(List.of(allModules().split(" ")));
+        public static ArrayList<String> fixOrder(ArrayList<String> list) {
+            ArrayList<String> allModules = DEFAULT;
+            // if the module isn't valid, remove
             list.removeIf(s -> !validCheck(s));
-            for (String a: allModules) {
-                if (Collections.frequency(list, a) > 1) list.remove(a);
-            }
+            // if there is more than one of the same module, remove it
+            for (String a: allModules) if (Collections.frequency(list, a) > 1) list.remove(a);
+            // remove all duplicates from the default list
             allModules.removeAll(list);
+            // then add the missing modules (if there is any)
             list.addAll(allModules);
-            return String.join(" ", list);
+            return list;
         }
         public static ArrayList<String> getEnabled(Player player) {
-            String[] order = getOrderC(player);
             ArrayList<String> list = new ArrayList<>();
-            for (String s: order) {
-                if (moduleState(player, s)) list.add(s);
-            }
+            for (String s: PlayerData.get.hud.order(player)) if (PlayerData.get.hud.getModule(player, s)) list.add(s);
             return list;
         }
         public static ArrayList<String> getDisabled(Player player) {
-            String[] order = getOrderC(player);
             ArrayList<String> list = new ArrayList<>();
-            for (String s: order) {
-                if (!moduleState(player, s)) list.add(s);
-            }
+            for (String s: PlayerData.get.hud.order(player)) if (!PlayerData.get.hud.getModule(player, s)) list.add(s);
             return list;
         }
         public static void removeModule(Player player, String s) {
@@ -424,7 +394,7 @@ public class HUD {
             orderD.add(s);
             PlayerData.set.hud.module.fromString(player, s, false);
             order.addAll(orderD);
-            setOrderC(player, order);
+            PlayerData.set.hud.order(player, order);
         }
         public static void addModule(Player player, String s) {
             if (!validCheck(s)) return;
@@ -435,7 +405,7 @@ public class HUD {
             order.add(s);
             PlayerData.set.hud.module.fromString(player, s, true);
             order.addAll(orderD);
-            setOrderC(player, order);
+            PlayerData.set.hud.order(player, order);
         }
         public static CTxT arrow(boolean up, boolean gray, String name) {
             if (up) {

@@ -137,8 +137,7 @@ public class ModMenu implements ModMenuApi {
                         .group(ListOption.<String>createBuilder()
                                 .name(lang("hud.order").b())
                                 .description(OptionDescription.of(lang("hud.order.info").b()))
-                                .binding(List.of(config.defaults.HUDOrder.split(" ")),
-                                        () -> List.of(config.HUDOrder.split(" ")), n -> config.HUDOrder = String.join(" ", n))
+                                .binding(config.defaults.HUDOrder, () -> config.HUDOrder, n -> config.HUDOrder = new ArrayList<>(n))
                                 .controller(StringControllerBuilder::create)
                                 .initial("")
                                 .build())

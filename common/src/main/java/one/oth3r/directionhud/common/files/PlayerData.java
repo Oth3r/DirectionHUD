@@ -219,6 +219,8 @@ public class PlayerData {
             hudSetting.put("time24h",null);
             hudSettingModule.put("tracking_target",config.HUDTrackingTarget);
             hudSetting.put("module",hudSettingModule);
+            //FIX HUD ORDER
+            hud.put("order",HUD.modules.fixOrder(new ArrayList<>(List.of(((String) hud.get("order")).split(" ")))));
             hud.put("setting",hudSetting);
             map.put("destination",dest);
             map.put("hud",hud);
@@ -377,11 +379,12 @@ public class PlayerData {
             private static Map<String,Object> get(Player player) {
                 return (Map<String, Object>) fromMap(player).get("hud");
             }
-            public static Map<String,Object> getModule(Player player) {
-                return (Map<String,Object>) get(player).get("module");
+            public static boolean getModule(Player player, String module) {
+                Map<String,Object> map = (Map<String,Object>) get(player).get("module");
+                return (boolean) map.get(module);
             }
-            public static String order(Player player) {
-                return (String) get(player).get("order");
+            public static ArrayList<String> order(Player player) {
+                return (ArrayList<String>) get(player).get("order");
             }
             public static boolean state(Player player) {
                 return (boolean) get(player).get("enabled");
@@ -404,29 +407,6 @@ public class PlayerData {
                         return bar.get(string.substring(string.indexOf('.')+1));
                     }
                     return map(player).get(string);
-                }
-            }
-            public static class module {
-                public static boolean coordinates(Player player) {
-                    return (boolean) getModule(player).get("coordinates");
-                }
-                public static boolean distance(Player player) {
-                    return (boolean) getModule(player).get("distance");
-                }
-                public static boolean destination(Player player) {
-                    return (boolean) getModule(player).get("destination");
-                }
-                public static boolean direction(Player player) {
-                    return (boolean) getModule(player).get("direction");
-                }
-                public static boolean tracking(Player player) {
-                    return (boolean) getModule(player).get("tracking");
-                }
-                public static boolean time(Player player) {
-                    return (boolean) getModule(player).get("time");
-                }
-                public static boolean weather(Player player) {
-                    return (boolean) getModule(player).get("weather");
                 }
             }
         }
@@ -501,7 +481,7 @@ public class PlayerData {
                 mapToFile(player,map);
                 updatePlayerMap(player);
             }
-            public static void order(Player player, String order) {
+            public static void order(Player player, ArrayList<String> order) {
                 Map<String,Object> data = get.hud.get(player);
                 data.put("order", order);
                 map(player, data);
@@ -548,7 +528,8 @@ public class PlayerData {
                     hud.map(player, data);
                 }
                 public static void fromString(Player player, String moduleName, boolean b) {
-                    Map<String,Object> data = get.hud.getModule(player);
+                    Map<String,Object> data = get.hud.get(player);
+                    data = (Map<String, Object>) data.get("module");
                     data.put(moduleName, b);
                     map(player, data);
                 }
