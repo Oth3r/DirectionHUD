@@ -80,7 +80,22 @@ public class Player {
         }
     }
     public void buildHUD(CTxT message) {
-        if ((config.HUDTypes.valueOf((String) PlayerData.get.hud.setting.get(this, HUD.Settings.type)).equals(config.HUDTypes.actionbar))) {
+        if (message.getString().equals("")) {
+            //if the HUD is enabled but there is no output
+            if (PlayerData.getOneTime(this,"hud.enabled_but_off") == null) {
+                PlayerData.setOneTime(this,"hud.enabled_but_off","true");
+                if ((config.HUDTypes.get((String) PlayerData.get.hud.setting.get(this, HUD.Settings.type)).equals(config.HUDTypes.actionbar))) {
+                    player.sendMessage(CTxT.of("").b(),true);
+                } else {
+                    DirectionHUD.bossBarManager.removePlayer(this);
+                }
+            }
+            return;
+        } else if (PlayerData.getOneTime(this,"hud.enabled_but_off") != null) {
+            // if hud was in previous state and now isn't, remove the temp tag
+            PlayerData.setOneTime(this,"hud.enabled_but_off",null);
+        }
+        if ((config.HUDTypes.get((String) PlayerData.get.hud.setting.get(this, HUD.Settings.type)).equals(config.HUDTypes.actionbar))) {
             player.sendMessage(message.b(),true);
         } else {
             DirectionHUD.bossBarManager.display(this,message);
