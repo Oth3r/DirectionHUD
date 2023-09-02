@@ -358,7 +358,7 @@ public class HUD {
             CTxT msg = CUtl.tag().append(lang("module.toggle",CUtl.TBtn(toggle ? "on" : "off"),CTxT.of(langName(module)).color(CUtl.s())));
             //OFF
             if (!toggle && PlayerData.get.hud.getModule(player, module)) removeModule(player, module);
-                //ON
+            //ON
             else if (toggle && !PlayerData.get.hud.getModule(player, module)) addModule(player, module);
             if (Return) UI(player, msg, module);
             else player.sendMessage(msg);

@@ -1239,8 +1239,10 @@ public class Destination {
                 player.sendMessage(msg.append("\n ").append(reason));
             }
             public static void clear(Player player) {
+                //remove everything to do with tracking in the one time map
                 for (String s: PlayerData.oneTimeMap.get(player).keySet())
                     if (s.contains("tracking")) PlayerData.setOneTime(player,s,null);
+                //clear the player
                 PlayerData.set.dest.setTracking(player,null);
             }
             public static void set(Player player, Player pl, boolean send) {
