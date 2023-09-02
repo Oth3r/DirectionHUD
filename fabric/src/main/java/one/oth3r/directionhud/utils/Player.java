@@ -75,7 +75,7 @@ public class Player {
             DirectionHUD.bossBarManager.removePlayer(this);
         else this.sendActionBar(CTxT.of(""));
         if (DirectionHUD.players.get(this)) {
-            PacketBuilder packet = new PacketBuilder(PlayerData.get.hud.state(this)+"");
+            PacketBuilder packet = new PacketBuilder(String.valueOf(PlayerData.get.hud.state(this)));
             packet.sendToPlayer(PacketBuilder.HUD_STATE, player);
         }
     }
