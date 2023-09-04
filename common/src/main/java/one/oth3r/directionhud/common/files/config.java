@@ -218,10 +218,10 @@ public class config {
         dimensions = new Gson().fromJson((String)
                 properties.computeIfAbsent("dimensions", a -> defaults.dimensions+""),mapType);
 
-        if (version == 1.1) {
+        if (version == 1.1f) {
             HUDTracking = Boolean.parseBoolean((String) properties.computeIfAbsent("compass", a -> defaults.HUDTracking+""));
         }
-        if (version >= 1.2) {
+        if (version >= 1.2f) {
             MAXxz = Integer.parseInt((String) properties.computeIfAbsent("max-xz", a -> defaults.MAXxz+""));
             MAXy = Integer.parseInt((String) properties.computeIfAbsent("max-y", a -> defaults.MAXy+""));
             social = Boolean.parseBoolean((String) properties.computeIfAbsent("social-commands", a -> defaults.social+""));
@@ -230,7 +230,7 @@ public class config {
             DESTTrackingParticles = Boolean.parseBoolean((String) properties.computeIfAbsent("tracking-particles", a -> defaults.DESTTrackingParticles+""));
             DESTTrackingParticleColor = Utl.color.fix((String) properties.computeIfAbsent("tracking-particle-color", a -> defaults.DESTTrackingParticleColor),false,defaults.DESTDestParticleColor);
         }
-        if (version == 1.21) {
+        if (version == 1.21f) {
             dimensionRatios = new Gson().fromJson((String)
                     properties.computeIfAbsent("dimension-ratios", a -> defaults.dimensionRatios+""),mapType);
         }
