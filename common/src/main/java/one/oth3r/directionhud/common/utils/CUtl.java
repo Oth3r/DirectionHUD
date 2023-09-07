@@ -200,7 +200,7 @@ public class CUtl {
             return list;
         }
         public static String format(String hex, String defaultColor) {
-            if (hex == null) return defaultColor;
+            if (hex == null) return format(defaultColor);
             if (hex.length() == 6) hex = "#"+hex;
             if (hex.length() == 7) {
                 String regex = "^#([A-Fa-f0-9]{6})$";
@@ -208,7 +208,7 @@ public class CUtl {
                 Matcher matcher = pattern.matcher(hex);
                 if (matcher.matches()) return hex.toLowerCase();
             }
-            return defaultColor;
+            return format(defaultColor);
         }
         public static String format(String hex) {
             return format(hex,"#ffffff");
