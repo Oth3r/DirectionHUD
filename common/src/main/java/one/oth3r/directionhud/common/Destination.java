@@ -813,9 +813,9 @@ public class Destination {
                 return;
             }
             //if color is preset, get the preset color
-            if (color.contains("preset"))
+            if (!(color == null) && color.contains("preset"))
                 color = PlayerData.get.colorPresets(player).get(Integer.parseInt(color.substring(7))-1);
-            color = CUtl.color.format(color,"ffffff");
+            color = CUtl.color.format(color,"#ffffff");
             all.add(Arrays.asList(name,loc.getLocC(),color));
             setList(player, all);
             if (send) {
