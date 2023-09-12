@@ -14,7 +14,6 @@ import java.util.ArrayList;
 public class DirHUD {
     public static class commandExecutor {
         public static void logic(Player player, String[] args) {
-            if (!Utl.checkEnabled.hud(player)) return;
             if (args.length == 0) {
                 UI(player);
                 return;
