@@ -174,8 +174,8 @@ public class CUtl {
             if (string.equals("gray")) return "#AAAAAA";
             if (string.equals("dark_gray")) return "#555555";
             if (string.equals("black")) return "#000000";
-            if (string.charAt(0)=='#') return string;
-            return defaultColor;
+            if (string.charAt(0)=='#') return format(string);
+            return format(defaultColor);
         }
         public static boolean checkValid(String color, String current) {
             //checks the validity of the color by seeing if it resets.
