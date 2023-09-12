@@ -1249,7 +1249,6 @@ public class Destination {
                 if (config.online) PlayerData.set.dest.setTracking(player,pl.getUUID());
                 else PlayerData.set.dest.setTracking(player,pl.getName());
                 if (!send) return;
-                player.sendMessage(CUtl.tag().append(lang("track.accepted",CTxT.of(pl.getName()).color(CUtl.s()))));
                 player.sendMessage(CUtl.tag().append(lang("track.set",CTxT.of(pl.getName()).color(CUtl.s()))));
                 pl.sendMessage(CUtl.tag()
                         .append(lang("track.accept", CTxT.of(player.getName()).color(CUtl.s())))
