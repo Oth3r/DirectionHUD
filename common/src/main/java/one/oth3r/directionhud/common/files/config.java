@@ -21,7 +21,6 @@ import java.util.Properties;
 
 public class config {
     //todo
-    // lang the config file, redo the YACL config
     // maybe enum system for config options or rename vars AT LEAST
     public static String lang = defaults.lang;
     public static boolean DESTSaving = defaults.DESTSaving;
@@ -454,7 +453,7 @@ public class config {
             file.write(("\nhud.color.secondary-rainbow=" + HUDSecondaryRainbow).getBytes());
 
             file.write(("\n\n\n# "+CUtl.lang("config.dest").getString()).getBytes());
-            file.write(("\n\n# "+CUtl.lang("config.settings").getString()).getBytes());
+            file.write(("\n# "+CUtl.lang("config.settings").getString()).getBytes());
             file.write(("\ndest.settings.autoclear=" + DESTAutoClear).getBytes());
             file.write(("\ndest.settings.autoclear_rad=" + DESTAutoClearRad).getBytes());
             file.write(("\ndest.settings.autoconvert=" + DESTAutoConvert).getBytes());
