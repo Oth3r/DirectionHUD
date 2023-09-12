@@ -187,7 +187,6 @@
   "key.directionhud.dest.track_player": "%s has sent you a tracking request!",
   "key.directionhud.dest.track.set": "The tracker is now set to %s!",
   "key.directionhud.dest.track.accept": "%s is now tracking your location!",
-  "key.directionhud.dest.track.accepted": "Destination is now tracking %s!",
   "key.directionhud.dest.track.deny": "Denied the tracking request from %s!",
   "key.directionhud.dest.track.denied": "%s has denied your tracking request!",
   "key.directionhud.dest.track.expired": "The tracking request has expired.",
