@@ -195,6 +195,7 @@ public class PlayerData {
             Map<String,Object> destFeatures = new HashMap<>();
             destFeatures.put("send",destSetting.get("send"));
             destFeatures.put("track",destSetting.get("track"));
+            //ADD NEW DEST SETTING
             destFeatures.put("track_request_mode",config.DESTTrackingRequestMode);
             destFeatures.put("lastdeath",destSetting.get("lastdeath"));
             destSetting.remove("send");
@@ -202,6 +203,13 @@ public class PlayerData {
             destSetting.remove("lastdeath");
             destSetting.put("features",destFeatures);
             dest.put("setting",destSetting);
+            //UPDATE SAVED DEST COLORS
+            List<List<String>> destSaved = (List<List<String>>) dest.get("saved");
+            for (List<String> list:destSaved) {
+                list.set(2,CUtl.color.updateOld(list.get(2),"#ffffff"));
+                destSaved.set(destSaved.indexOf(list),list);
+            }
+            dest.put("saved",destSaved);
             //UPDATE HUD COLORS TO NEW SYSTEM
             Map<String,Object> hud = (Map<String, Object>) map.get("hud");
             String[] primary = ((String) hud.get("primary")).split("-");
