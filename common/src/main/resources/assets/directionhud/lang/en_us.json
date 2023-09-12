@@ -341,6 +341,7 @@
   "key.directionhud.dirhud.defaults.reset": "Defaults reset!",
   "key.directionhud.dirhud.reload": "%s config file!",
   "key.directionhud.dirhud.reload_2": "Reloaded",
+  "key.directionhud.config.color.options": "Valid Colors: any HEX color (#ffccff)",
   "key.directionhud.config.settings": "Settings",
   "key.directionhud.config.main": "Config",
   "key.directionhud.config.main.info": "DirectionHUD Config",

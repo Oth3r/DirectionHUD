@@ -443,7 +443,7 @@ public class config {
             file.write(("\nhud.settings.module.tracking_target=" + HUDTrackingTarget).getBytes());
             file.write(("\n# "+CUtl.lang("config.hud.settings.module.tracking_target.options").getString()).getBytes());
             file.write(("\n\n# "+CUtl.lang("config.hud.color").getString()).getBytes());
-            file.write(("\n# "+CUtl.lang("config.colors").getString()).getBytes());
+            file.write(("\n# "+CUtl.lang("config.color.options").getString()).getBytes());
             file.write(("\nhud.color.primary=" + HUDPrimaryColor).getBytes());
             file.write(("\nhud.color.primary-bold=" + HUDPrimaryBold).getBytes());
             file.write(("\nhud.color.primary-italics=" + HUDPrimaryItalics).getBytes());
@@ -460,7 +460,7 @@ public class config {
             file.write(("\ndest.settings.autoconvert=" + DESTAutoConvert).getBytes());
             file.write(("\ndest.settings.ylevel=" + DESTYLevel).getBytes());
             file.write(("\n\n# "+CUtl.lang("config.hud.color").getString()).getBytes());
-            file.write(("\n# "+CUtl.lang("config.colors").getString()).getBytes());
+            file.write(("\n# "+CUtl.lang("config.color.options").getString()).getBytes());
             file.write(("\ndest.settings.particles.dest=" + DESTDestParticles).getBytes());
             file.write(("\ndest.settings.particles.dest_color=" + DESTDestParticleColor).getBytes());
             file.write(("\ndest.settings.particles.line=" + DESTLineParticles).getBytes());
