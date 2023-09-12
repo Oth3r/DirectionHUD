@@ -73,7 +73,7 @@ public class Player {
             if (PlayerData.getOneTime(this,"hud.enabled_but_off") == null) {
                 PlayerData.setOneTime(this,"hud.enabled_but_off","true");
                 if ((config.HUDTypes.get((String) PlayerData.get.hud.setting.get(this, HUD.Settings.type)).equals(config.HUDTypes.actionbar))) {
-                    player.sendMessage(CTxT.of("").b(),true);
+                    player.spigot().sendMessage(ChatMessageType.ACTION_BAR, CTxT.of("").b());
                 } else {
                     DirectionHUD.bossBarManager.removePlayer(this);
                 }
