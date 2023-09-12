@@ -50,7 +50,7 @@ public class Assets {
         public static final String destClear = "/dest clear";
         public static final String destSaved = "/dest saved";
         public static final String destSettings = "/dest settings";
-        public static final String destSend = "/dest send <IGN> saved <name> | /dest send <IGN> (name) <x> (y) <z> (dimension)";
+        public static final String destSend = "/dest send <IGN> saved <name> | /dest send <IGN> (name) (x) (y) (z) (dimension) (color)";
         public static final String destTrack = "/dest track <IGN> | /dest track .clear";
         public static final String destTrackClear = "/dest track .clear";
         public static final String defaults = "/dirhud defaults";
