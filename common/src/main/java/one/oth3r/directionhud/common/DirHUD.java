@@ -102,7 +102,9 @@ public class DirHUD {
     public static void reload(Player player) {
         DirectionHUD.configDir = DirectionHUD.CONFIG_DIR;
         DirectionHUD.playerData = DirectionHUD.PLAYERDATA_DIR;
+        config.load();
         LangReader.loadLanguageFile();
+        //config load twice for lang change support
         config.load();
         for (Player pl: Utl.getPlayers()) {
             PlayerData.removePlayer(pl);

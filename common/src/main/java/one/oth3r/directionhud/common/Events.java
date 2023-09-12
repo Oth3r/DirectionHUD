@@ -26,6 +26,8 @@ public class Events {
         }
         config.load();
         LangReader.loadLanguageFile();
+        //load the config twice, first to load the lang and second to make all the comments the right language
+        config.load();
     }
     public static void serverEnd() {
         for (Player player: Utl.getPlayers()) PlayerData.removePlayer(player);
