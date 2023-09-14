@@ -343,6 +343,8 @@
   "key.directionhud.dirhud.reload_2": "Reloaded",
   "key.directionhud.config.color.options": "Valid Colors: any HEX color (#ffccff)",
   "key.directionhud.config.settings": "Settings",
+  "key.directionhud.config.default": "DEFAULTS",
+  "key.directionhud.config.default.info": "Default settings for new players, and settings to reset to.",
   "key.directionhud.config.main": "Config",
   "key.directionhud.config.main.info": "DirectionHUD Config",
   "key.directionhud.config.max.info": "Sets the max %s that can be entered for DirectionHUD locations.",
