@@ -8,5 +8,6 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
 include('fabric')
-include('spigot')
+//include('spigot')
