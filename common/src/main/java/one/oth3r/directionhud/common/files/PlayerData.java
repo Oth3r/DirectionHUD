@@ -174,7 +174,7 @@ public class PlayerData {
             map.put("destination",dest);
         }
         if (map.get("version").equals(1.4)) {
-            map.put("version",1.43);
+            map.put("version",1.5);
             Map<String,Object> temp = new HashMap<>();
             Map<String,Object> dest = (Map<String, Object>) map.get("destination");
             //MOVE COUNTDOWN FROM DEST TO TEMP
@@ -306,7 +306,7 @@ public class PlayerData {
             destination.put("lastdeath", new ArrayList<String>());
             destination.put("tracking", null);
             //base
-            map.put("version", 1.43);
+            map.put("version", 1.5);
             map.put("name", player.getName());
             map.put("hud", hud);
             map.put("destination", destination);
