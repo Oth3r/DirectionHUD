@@ -1,7 +1,8 @@
 # v1.4.0 - QOL & BossBar Support
-<iframe width="1043" height="587" src="https://www.youtube.com/embed/CU6PTj8hg_I" title="FINAL" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+[Update Video](https://youtu.be/CU6PTj8hg_I)
 
 Please submit bugs in the GitHub! You can also submit in the discord server if GitHub is confusing.
+## Help translate DirectionHUD on [Loco](https://localise.biz/oth3r/directionhud#!l=1)!
 
 ## New Features
 ### Color picker
