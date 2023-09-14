@@ -54,6 +54,7 @@ processResources {
         expand props
     }
 }
+//build in testing server dir
 //jar {
 //    destinationDirectory = file("R:/Coding/1 Servers/2Latest Paper/plugins")
 //}
