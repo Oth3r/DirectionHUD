@@ -1,10 +1,16 @@
 package one.oth3r.directionhud.common.files;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Utl;
 
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -73,19 +79,9 @@ public class LangReader {
                 config.lang = config.defaults.lang;
             }
             if (inputStream == null) throw new IllegalArgumentException("CANT LOAD THE LANGUAGE FILE. DIRECTIONHUD WILL BREAK.");
-            Scanner scanner = new Scanner(inputStream);
-            String currentLine;
-            while (scanner.hasNextLine()) {
-                currentLine = scanner.nextLine().trim();
-                if (currentLine.startsWith("{") || currentLine.startsWith("}")) {
-                    continue;
-                }
-                String[] keyValue = currentLine.split(":", 2);
-                String key = keyValue[0].trim().replace("\"", "");
-                String value = keyValue[1].trim().replace("\"", "");
-                if (value.endsWith(",")) value = value.substring(0, value.length() - 1);
-                languageMap.put(key, value);
-            }
+            Type type = new TypeToken<Map<String, String>>(){}.getType();
+            Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+            languageMap.putAll(new Gson().fromJson(reader, type));
         } catch (Exception e) {
             e.printStackTrace();
         }

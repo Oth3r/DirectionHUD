@@ -6,7 +6,9 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Vec3d;
 import one.oth3r.directionhud.PacketBuilder;
+import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.files.PlayerData;
+import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.DirectionHUD;
 import org.jetbrains.annotations.NotNull;
@@ -69,13 +71,35 @@ public class Player {
     // Call after toggling the hud.
     public void updateHUD() {
         if (!PlayerData.get.hud.state(this)) this.sendActionBar(CTxT.of(""));
+        if (PlayerData.get.hud.setting.get(this, HUD.Settings.type).equals(config.HUDTypes.actionbar.toString()))
+            DirectionHUD.bossBarManager.removePlayer(this);
+        else this.sendActionBar(CTxT.of(""));
         if (DirectionHUD.players.get(this)) {
-            PacketBuilder packet = new PacketBuilder(PlayerData.get.hud.state(this)+"");
+            PacketBuilder packet = new PacketBuilder(String.valueOf(PlayerData.get.hud.state(this)));
             packet.sendToPlayer(PacketBuilder.HUD_STATE, player);
         }
     }
     public void buildHUD(CTxT message) {
-        player.sendMessage(message.b(),true);
+        if (message.getString().equals("")) {
+            //if the HUD is enabled but there is no output
+            if (PlayerData.getOneTime(this,"hud.enabled_but_off") == null) {
+                PlayerData.setOneTime(this,"hud.enabled_but_off","true");
+                if ((config.HUDTypes.get((String) PlayerData.get.hud.setting.get(this, HUD.Settings.type)).equals(config.HUDTypes.actionbar))) {
+                    player.sendMessage(CTxT.of("").b(),true);
+                } else {
+                    DirectionHUD.bossBarManager.removePlayer(this);
+                }
+            }
+            return;
+        } else if (PlayerData.getOneTime(this,"hud.enabled_but_off") != null) {
+            // if hud was in previous state and now isn't, remove the temp tag
+            PlayerData.setOneTime(this,"hud.enabled_but_off",null);
+        }
+        if ((config.HUDTypes.get((String) PlayerData.get.hud.setting.get(this, HUD.Settings.type)).equals(config.HUDTypes.actionbar))) {
+            player.sendMessage(message.b(),true);
+        } else {
+            DirectionHUD.bossBarManager.display(this,message);
+        }
     }
     public String getName() {
         return player.getName().getString();

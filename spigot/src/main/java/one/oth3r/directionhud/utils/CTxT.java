@@ -6,6 +6,7 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
+import one.oth3r.directionhud.common.utils.CUtl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +56,7 @@ public class CTxT {
         return this;
     }
     public CTxT color(String color) {
-        this.color = ChatColor.of(Utl.color.getFromTextString(color));
+        this.color = ChatColor.of(CUtl.color.format(color));
         return this;
     }
     public CTxT color(Character color) {
@@ -67,11 +68,13 @@ public class CTxT {
         return this;
     }
     public CTxT cEvent(int typ, String arg) {
-        this.clickEvent = click(typ, arg);
+        if (arg == null) this.clickEvent = null;
+        else this.clickEvent = click(typ, arg);
         return this;
     }
     public CTxT hEvent(CTxT hEvent) {
-        this.hoverEvent = hover(hEvent);
+        if (hEvent == null) this.hoverEvent = null;
+        else this.hoverEvent = hover(hEvent);
         return this;
     }
     public CTxT bold(Boolean bold) {
@@ -123,7 +126,7 @@ public class CTxT {
         text.setUnderlined(this.underline);
 
         if (this.button) output.addExtra("[");
-        if (this.rainbow) output.addExtra(Utl.color.rainbow(this.name.toPlainText(),this.start,this.step));
+        if (this.rainbow) output.addExtra(CUtl.color.rainbow(this.name.toPlainText(),this.start,this.step).b());
         else output.addExtra(text);
         if (this.button) output.addExtra("]");
         output.setClickEvent(this.clickEvent);

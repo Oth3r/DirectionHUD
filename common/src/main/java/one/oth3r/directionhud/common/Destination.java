@@ -8,12 +8,50 @@ import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class Destination {
+    public enum Settings {
+        autoclear,
+        autoclear_rad,
+        autoconvert,
+        ylevel,
+        particles__dest,
+        particles__dest_color,
+        particles__line,
+        particles__line_color,
+        particles__tracking,
+        particles__tracking_color,
+        features__send,
+        features__track,
+        features__track_request_mode,
+        features__lastdeath,
+        none;
+        @Override
+        public String toString() {
+            return name().replace("__",".");
+        }
+        public static Settings get(String s) {
+            try {
+                return Settings.valueOf(s.replace(".","__"));
+
+            } catch (IllegalArgumentException e) {
+                return none;
+            }
+        }
+        public static ArrayList<Settings> colors() {
+            return new ArrayList<>(Arrays.asList(particles__dest_color, particles__line_color, particles__tracking_color));
+        }
+        public static ArrayList<Settings> base() {
+            ArrayList<Settings> list = new ArrayList<>(Arrays.asList(values()));
+            list.remove(features__track_request_mode);
+            list.remove(autoclear_rad);
+            list.remove(none);
+            list.removeAll(colors());
+            return list;
+        }
+        // . = _ and _ == __
+    }
     public static class commandExecutor {
         public static void logic(Player player, String[] args) {
             if (!Utl.checkEnabled.destination(player)) return;
@@ -31,9 +69,28 @@ public class Destination {
                 case "remove" -> removeCMD(player, trimmedArgs);
                 case "lastdeath" -> lastdeathCMD(player, trimmedArgs);
                 case "settings" -> settingsCMD(player, trimmedArgs);
+                case "color" -> colorCMD(player,trimmedArgs);
                 case "send" -> sendCMD(player, trimmedArgs);
                 case "track" -> trackCMD(player, trimmedArgs);
                 default -> player.sendMessage(CUtl.error(CUtl.lang("error.command")));
+            }
+        }
+        public static void colorCMD(Player player, String[] args) {
+            if (args.length >= 3 && args[0].equals("preset")) {
+                if (args[1].equals("add") && args.length == 4) {
+                    CUtl.color.customAddUI(player, (String) PlayerData.get.dest.setting.get(player,Settings.get(args[3])),"/dest settings "+args[3]+" "+args[2]);
+                } else CUtl.color.presetUI(player,"default","/dest color set "+args[1]+" "+args[2]+" ","/dest settings "+args[2]+" "+args[1]);
+            }
+            if (args.length >= 3 && args[0].equals("preset_s")) {
+                if (args[1].equals("add") && args.length == 4) {
+                    CUtl.color.customAddUI(player, saved.getColors(player).get(saved.getIndexFromName(player,args[3])),"/dest saved edit color "+args[3]+" "+args[2]);
+                } else CUtl.color.presetUI(player,"default","/dest color set_s "+args[1]+" "+args[2]+" ","/dest saved edit color "+args[2]+" "+args[1]);
+            }
+            if (args.length == 4 && args[0].equals("set")) {
+                setting.setColor(player,args[1],Settings.get(args[2]),args[3],true);
+            }
+            if (args.length == 4 && args[0].equals("set_s")) {
+                saved.setColor(player,args[1],args[2],args[3],true);
             }
         }
         public static void setCMD(Player player, String[] args) {
@@ -146,8 +203,8 @@ public class Destination {
                     if (args.length == 4) saved.editName(true, player, args[2], args[3]);
                 }
                 if (args[1].equalsIgnoreCase("color")) {
-                    if (args.length == 3) player.sendMessage(error("dest.saved.set",lang("saved.color")));
-                    if (args.length == 4) saved.editColor(true, player, args[2], args[3]);
+                    if (args.length == 3) saved.colorUI(player,"normal",args[2],null);
+                    if (args.length == 4) saved.colorUI(player,args[3],args[2],null);
                 }
                 if (args[1].equalsIgnoreCase("order")) {
                     if (args.length == 3) player.sendMessage(error("dest.saved.set",lang("saved.order")));
@@ -167,7 +224,7 @@ public class Destination {
             //SEND
             if (args[0].equalsIgnoreCase("send")) {
                 if (args.length == 2) player.sendMessage(error("dest.send.player"));
-                if (args.length == 3) social.send(player,args[2],null,args[1]);
+                if (args.length == 3) social.send(player,args[2],null,args[1],null);
                 return;
             }
             //ADD
@@ -178,7 +235,7 @@ public class Destination {
             player.sendMessage(CUtl.usage(Assets.cmdUsage.destSaved));
         }
         public static void lastdeathCMD(Player player, String[] args) {
-            if (!config.deathsaving || !PlayerData.get.dest.setting.lastdeath(player)) return;
+            if (!config.deathsaving || !(boolean)PlayerData.get.dest.setting.get(player,Settings.features__lastdeath)) return;
             if (args.length == 0) {
                 lastdeath.UI(player, null);
                 return;
@@ -192,24 +249,33 @@ public class Destination {
             player.sendMessage(CUtl.usage(Assets.cmdUsage.destLastdeath));
         }
         public static void settingsCMD(Player player, String[] args) {
-            if (args.length == 0) settings.UI(player, null);
-            if (args.length == 1 && args[0].equalsIgnoreCase("reset")) settings.reset(player, false);
+            if (args.length == 0) setting.UI(player, null);
             if (args.length == 2) {
-                if (args[0].equalsIgnoreCase("reset")) settings.reset(player, true);
-                else settings.change(player, args[0], args[1], true);
+                if (args[0].equalsIgnoreCase("reset")) setting.reset(player,Settings.get(args[1]), true);
+                else setting.change(player,Settings.get(args[0]), args[1], true);
             }
-            if (args.length == 3) settings.change(player, args[0], args[1], false);
+            if (args.length == 3) setting.change(player,Settings.get(args[0]), args[1], false);
         }
         public static void sendCMD(Player player, String[] args) {
             if (!Utl.checkEnabled.send(player)) return;
-            if (!Utl.inBetween(args.length, 3, 6)) {
+            // /dest send <IGN>
+            if (args.length == 1) {
+                social.send(player,args[0],player.getLoc(),null,null);
+                return;
+            }
+            // /dest send <IGN> <name>
+            if (args.length == 2) {
+                social.send(player,args[0],player.getLoc(),args[1],null);
+                return;
+            }
+            if (!Utl.inBetween(args.length, 3, 7)) {
                 player.sendMessage(CUtl.usage(Assets.cmdUsage.destSend));
                 return;
             }
             // /dest send <IGN> saved <name>
             if (args[1].equalsIgnoreCase("saved") && Utl.checkEnabled.saving(player)) {
                 if (args.length > 3) player.sendMessage(CUtl.usage(Assets.cmdUsage.destSend));
-                else social.send(player,args[0],null,args[2]);
+                else social.send(player,args[0],null,args[2],null);
                 return;
             }
             String pDIM = player.getDimension();
@@ -217,39 +283,64 @@ public class Destination {
             //dest send <IGN> (name) <xyz or xy> (dimension)
             //dest send IGN x z
             if (args.length == 3) {
-                social.send(player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),pDIM),null);
+                social.send(player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),pDIM),null,null);
             }
             //dest send IGN NAME x z
             if (args.length == 4 && !Utl.isInt(args[1])) {
-                social.send(player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),pDIM),args[1]);
+                social.send(player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),pDIM),args[1],null);
                 return;
             }
-            //dest send IGN x z DIM
-            if (args.length == 4 && !Utl.isInt(args[3])) {
-                social.send(player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),args[3]),null);
-                return;
-            }
-            //dest send IGN x y z
+            //dest send IGN x y (z, DIM, color)
             if (args.length == 4) {
-                social.send(player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),Utl.tryInt(args[3]),pDIM),null);
+                //DIM
+                if (Utl.dim.getList().contains(args[3]))
+                    social.send(player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),args[3]),null,null);
+                else if (!Utl.isInt(args[3]) || !CUtl.color.format(args[3]).equals("#ffffff")) {
+                    //COLOR - if not int or if it doesn't get reset it's a color (I hope)
+                    social.send(player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),pDIM),null,args[3]);
+                } else social.send(player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),Utl.tryInt(args[3]),pDIM),null,null);
             }
-            //dest send IGN NAME x z DIM
-            if (args.length == 5 && !Utl.isInt(args[1]) && !Utl.isInt(args[4])) {
-                social.send(player,args[0],new Loc(Utl.tryInt(args[2]),Utl.tryInt(args[3]),args[4]),args[1]);
-                return;
-            }
-            //dest send IGN NAME x y z
+            //dest send IGN NAME x y (z, color, DIM)
             if (args.length == 5 && !Utl.isInt(args[1])) {
-                social.send(player,args[0],new Loc(Utl.tryInt(args[2]),Utl.tryInt(args[3]),Utl.tryInt(args[4]),pDIM),args[1]);
+                //dest send IGN NAME x z DIM
+                if (Utl.dim.getList().contains(args[4]))
+                    social.send(player,args[0],new Loc(Utl.tryInt(args[2]),Utl.tryInt(args[3]),args[4]),args[1],null);
+                else if (!Utl.isInt(args[4]) || !CUtl.color.format(args[4]).equals("#ffffff")) {
+                    //dest send IGN NAME x z color
+                    //if not int or if it doesn't get reset it's a color (I hope)
+                    social.send(player,args[0],new Loc(Utl.tryInt(args[2]),Utl.tryInt(args[3]),pDIM),args[1],args[4]);
+                } else social.send(player,args[0],new Loc(Utl.tryInt(args[2]),Utl.tryInt(args[3]),Utl.tryInt(args[4]),pDIM),args[1],null);
                 return;
             }
-            //dest send IGN x y z DIM
-            if (args.length == 5) {
-                social.send(player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),Utl.tryInt(args[3]),args[4]),null);
+            //dest send IGN x y z (DIM, color)
+            if (args.length == 5 && Utl.isInt(args[3])) {
+                if (Utl.dim.getList().contains(args[4]))
+                    social.send(player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),Utl.tryInt(args[3]),args[4]),null,null);
+                else social.send(player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),Utl.tryInt(args[3]),pDIM),null,args[4]);
             }
-            //dest send IGN NAME x y z DIM
+            //dest send IGN x y DIM color
+            if (args.length == 5 && Utl.dim.getList().contains(args[3])) {
+                social.send(player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),args[3]),null,args[4]);
+            }
+            //dest send IGN NAME x y z (DIM, color)
             if (args.length == 6 && !Utl.isInt(args[1])) {
-                social.send(player,args[0],new Loc(Utl.tryInt(args[2]),Utl.tryInt(args[3]),Utl.tryInt(args[4]),args[5]),args[1]);
+                if (Utl.isInt(args[4])) {
+                    if (Utl.dim.getList().contains(args[5]))
+                        social.send(player,args[0],new Loc(Utl.tryInt(args[2]),Utl.tryInt(args[3]),Utl.tryInt(args[4]),args[5]),args[1],null);
+                    else social.send(player,args[0],new Loc(Utl.tryInt(args[2]),Utl.tryInt(args[3]),Utl.tryInt(args[4]),pDIM),args[1],args[5]);
+                } else {
+                    //dest send IGN NAME x z DIM color
+                    social.send(player,args[0],new Loc(Utl.tryInt(args[2]),Utl.tryInt(args[3]),args[4]),args[1],args[5]);
+                }
+                return;
+            }
+            //dest send IGN x y z DIM color
+            if (args.length == 6 && Utl.dim.getList().contains(args[4])) {
+                social.send(player,args[0],new Loc(Utl.tryInt(args[1]),Utl.tryInt(args[2]),Utl.tryInt(args[3]),args[4]),null,args[5]);
+            }
+            //dest send IGN NAME x y z DIM color
+            if (args.length == 7 && !Utl.isInt(args[1])) {
+                social.send(player,args[0],new Loc(Utl.tryInt(args[2]),Utl.tryInt(args[3]),Utl.tryInt(args[4]),args[5]),args[1],args[6]);
             }
         }
         public static void trackCMD(Player player, String[] args) {
@@ -287,12 +378,17 @@ public class Destination {
                 String[] trimmedArgs = Utl.trimStart(args, 1);
                 int fixedPos = pos - 2;
                 switch (command) {
-                    case "saved" -> suggester.addAll(commandSuggester.savedCMD(player,fixedPos,trimmedArgs));
-                    case "add" -> suggester.addAll(commandSuggester.addCMD(player,fixedPos,trimmedArgs));
-                    case "settings" -> suggester.addAll(commandSuggester.settingsCMD(fixedPos,trimmedArgs));
-                    case "set" -> suggester.addAll(commandSuggester.setCMD(player,fixedPos,trimmedArgs));
-                    case "send" -> suggester.addAll(commandSuggester.sendCMD(player,fixedPos,trimmedArgs));
-                    case "track" -> suggester.addAll(commandSuggester.trackCMD(player,fixedPos));
+                    case "saved" -> suggester.addAll(savedCMD(player,fixedPos,trimmedArgs));
+                    case "add" -> suggester.addAll(addCMD(player,fixedPos,trimmedArgs));
+                    case "settings" -> {
+                        if (fixedPos == 0) suggester.add("reset");
+                    }
+                    case "color" -> {
+                        if (fixedPos == 3 && trimmedArgs[0].equals("set")) suggester.add("ffffff");
+                    }
+                    case "set" -> suggester.addAll(setCMD(player,fixedPos,trimmedArgs));
+                    case "send" -> suggester.addAll(sendCMD(player,fixedPos,trimmedArgs));
+                    case "track" -> suggester.addAll(trackCMD(player,fixedPos));
                 }
             }
             if (pos == args.length) return Utl.formatSuggestions(suggester,args);
@@ -300,7 +396,7 @@ public class Destination {
         }
         public static ArrayList<String> base(Player player) {
             ArrayList<String> suggester = new ArrayList<>();
-            if (config.deathsaving && PlayerData.get.dest.setting.lastdeath(player)) suggester.add("lastdeath");
+            if (config.deathsaving && (boolean)PlayerData.get.dest.setting.get(player,Settings.features__lastdeath)) suggester.add("lastdeath");
             if (Utl.checkEnabled.saving(player)) {
                 suggester.add("add");
                 suggester.add("saved");
@@ -323,7 +419,7 @@ public class Destination {
             if (pos == 1) {
                 suggester.addAll(Utl.xyzSuggester(player,"x"));
                 if (args.length == 2 && !Utl.isInt(args[1]) && !args[1].equals("")) {
-                    suggester.addAll(Utl.color.getList());
+                    suggester.add("ffffff");
                     suggester.addAll(Utl.dim.getList());
                     return suggester;
                 }
@@ -336,7 +432,8 @@ public class Destination {
             if (pos == 3) {
                 if (Utl.isInt(args[1])) suggester.addAll(Utl.xyzSuggester(player,"z"));
                 if (args.length == 4 && !Utl.isInt(args[3])) {
-                    suggester.addAll(Utl.color.getList());
+                    suggester.add("ffffff");
+                    suggester.addAll(CUtl.color.presetsSuggester(player));
                     suggester.addAll(Utl.dim.getList());
                 }
                 return suggester;
@@ -345,18 +442,21 @@ public class Destination {
             if (pos == 4) {
                 if (Utl.isInt(args[3])) {
                     suggester.addAll(Utl.dim.getList());
-                    if (args.length == 5 && !Utl.dim.checkValid(args[4]))
-                        suggester.addAll(Utl.color.getList());
+                    suggester.add("ffffff");
+                    suggester.addAll(CUtl.color.presetsSuggester(player));
                     return suggester;
                 }
-                if (Utl.dim.checkValid(args[3]))
-                    suggester.addAll(Utl.color.getList());
+                if (Utl.dim.checkValid(args[3])) {
+                    suggester.add("ffffff");
+                    suggester.addAll(CUtl.color.presetsSuggester(player));
+                }
                 return suggester;
             }
             // add <name> <x> (y) <z> (dim) ((color))
             if (pos == 5) {
                 if (Utl.isInt(args[3]) && Utl.dim.checkValid(args[4])) {
-                    suggester.addAll(Utl.color.getList());
+                    suggester.add("ffffff");
+                    suggester.addAll(CUtl.color.presetsSuggester(player));
                     return suggester;
                 }
             }
@@ -387,7 +487,7 @@ public class Destination {
                 }
                 if (pos == 3) {
                     if (args[1].equalsIgnoreCase("name")) suggester.add("name");
-                    if (args[1].equalsIgnoreCase("color")) suggester.addAll(Utl.color.getList());
+                    if (args[1].equalsIgnoreCase("color")) suggester.add("ffffff");
                     if (args[1].equalsIgnoreCase("dim")) suggester.addAll(Utl.dim.getList());
                     return suggester;
                 }
@@ -401,22 +501,6 @@ public class Destination {
                     suggester.add(s.getName());
                 }
                 return suggester;
-            }
-            return suggester;
-        }
-        public static ArrayList<String> settingsCMD(int pos, String[] args) {
-            ArrayList<String> suggester = new ArrayList<>();
-            // settings setting <arg>
-            // settings <reset>
-            if (pos == 0) {
-                suggester.add("reset");
-                return suggester;
-            }
-            if (pos == 1) {
-                if (args[0].equals("particlesdestc") || args[0].equals("particleslinec") || args[0].equals("particlestrackingc")) {
-                    suggester.addAll(Utl.color.getList());
-                    return suggester;
-                }
             }
             return suggester;
         }
@@ -466,7 +550,7 @@ public class Destination {
         public static ArrayList<String> sendCMD(Player player, int pos, String[] args) {
             ArrayList<String> suggester = new ArrayList<>();
             // send <player> <saved> <name>
-            // send <player> (name) <x> (y) <z> (dimension)
+            // send <player> (name) <x> (y) <z> (dimension) (color)
             if (pos == 0) {
                 for (Player p : Utl.getPlayers()) {
                     if (p.equals(player)) continue;
@@ -500,28 +584,57 @@ public class Destination {
                 if (!Utl.isInt(args[1])) {
                     return Utl.xyzSuggester(player,"y");
                 }
-                if (args.length == 4)
-                    suggester.addAll(Utl.dim.getList());
+                suggester.addAll(Utl.dim.getList());
+                suggester.add("ffffff");
+                suggester.addAll(CUtl.color.presetsSuggester(player));
                 suggester.addAll(Utl.xyzSuggester(player,"z"));
                 return suggester;
             }
-            // send <player> (name) <x> (y) (<z> (dimension))
-            // send <player> <x> (y) <z> ((dimension))
             if (pos == 4) {
+                // send <player> (name) <x> (y) (<z>, (dimension), (color))
                 if (!Utl.isInt(args[1])) {
-                    if (args.length == 5)
-                        suggester.addAll(Utl.dim.getList());
+                    suggester.addAll(Utl.dim.getList());
+                    suggester.add("ffffff");
+                    suggester.addAll(CUtl.color.presetsSuggester(player));
                     suggester.addAll(Utl.xyzSuggester(player,"z"));
                     return suggester;
                 }
-                if (Utl.isInt(args[3]))
+                // send <player> <x> (y) <z> ((dimension), (color))
+                if (Utl.isInt(args[3])) {
                     suggester.addAll(Utl.dim.getList());
+                    suggester.add("ffffff");
+                    suggester.addAll(CUtl.color.presetsSuggester(player));
+                } else if (Utl.dim.getList().contains(args[3])) {
+                    // send <player> <x> (y) (dimension) ((color))
+                    suggester.add("ffffff");
+                    suggester.addAll(CUtl.color.presetsSuggester(player));
+                }
                 return suggester;
             }
-            // send <player> (name) <x> (y) <z> ((dimension))
             if (pos == 5) {
-                if (!Utl.isInt(args[1]) && Utl.isInt(args[4])) {
+                // send <player> (name) <x> (y) <z> ((dimension), (color))
+                if (!Utl.isInt(args[1])) {
+                    if (Utl.isInt(args[4])) {
+                        suggester.addAll(Utl.dim.getList());
+                        suggester.add("ffffff");
+                        suggester.addAll(CUtl.color.presetsSuggester(player));
+                    } else if (Utl.dim.getList().contains(args[4])) {
+                        suggester.add("ffffff");
+                        suggester.addAll(CUtl.color.presetsSuggester(player));
+                    }
+                }
+                // send <player> <x> (y) <z> (dimension) ((color))
+                if (Utl.isInt(args[1]) && Utl.isInt(args[3]) && Utl.dim.getList().contains(args[4])){
+                    suggester.add("ffffff");
+                    suggester.addAll(CUtl.color.presetsSuggester(player));
+                }
+                return suggester;
+            }
+            // send <player> (name) <x> (y) <z> (dimension) ((color))
+            if (pos == 6) {
+                if (!Utl.isInt(args[1]) && Utl.isInt(args[4]) && Utl.dim.getList().contains(args[5])) {
                     suggester.addAll(Utl.dim.getList());
+                    suggester.add("ffffff");
                     return suggester;
                 }
             }
@@ -549,13 +662,13 @@ public class Destination {
     public static Loc get(Player player) {
         Loc loc = PlayerData.get.dest.getDest(player);
         if (!loc.hasXYZ()) return new Loc();
-        if (PlayerData.get.dest.setting.ylevel(player) && loc.yExists())
+        if ((boolean)PlayerData.get.dest.setting.get(player,Settings.ylevel) && loc.yExists())
             loc.setY(player.getBlockY());
         return loc;
     }
     public static boolean checkDist(Player player, Loc loc) {
-        if (PlayerData.get.dest.setting.autoclear(player))
-            return Utl.vec.distance(new Loc(player).getVec(player),loc.getVec(player)) <= PlayerData.get.dest.setting.autoclearrad(player);
+        if ((boolean)PlayerData.get.dest.setting.get(player,Settings.autoclear))
+            return Utl.vec.distance(new Loc(player).getVec(player),loc.getVec(player)) <= (long)PlayerData.get.dest.setting.get(player,Settings.autoclear_rad);
         else return false;
     }
     public static int getDist(Player player) {
@@ -578,7 +691,7 @@ public class Destination {
         player.sendMessage(msg.append("\n ").append(reason));
     }
     public static CTxT setMSG(Player player) {
-        boolean ac = PlayerData.get.dest.setting.autoclear(player);
+        boolean ac = (boolean)PlayerData.get.dest.setting.get(player,Settings.autoclear);
         CTxT btn = CUtl.TBtn(ac?"off":"on").btn(true).color(ac?'c':'a').cEvent(1,"/dest settings autoclear "+!ac+" n").hEvent(
                 CTxT.of(Assets.cmdUsage.destSettings).color(ac?'c':'a').append("\n").append(CUtl.TBtn("state.hover",
                         CUtl.TBtn(ac?"off":"on").color(ac?'c':'a'))));
@@ -680,7 +793,7 @@ public class Destination {
                 return;
             }
             if (getNames(player).contains(name)) {
-                if (send) player.sendMessage(error("dest.saved.duplicate",lang("saved.name"),name));
+                if (send) player.sendMessage(error("dest.saved.add.duplicate",CTxT.of(name).color(CUtl.s())));
                 return;
             }
             if (name.equalsIgnoreCase("saved")) {
@@ -699,7 +812,10 @@ public class Destination {
                 player.sendMessage(error("coordinates"));
                 return;
             }
-            color = Utl.color.fix(color==null?"white":color,false,"white");
+            //if color is preset, get the preset color
+            if (!(color == null) && color.contains("preset"))
+                color = PlayerData.get.colorPresets(player).get(Integer.parseInt(color.substring(7))-1);
+            color = CUtl.color.format(color,"#ffffff");
             all.add(Arrays.asList(name,loc.getLocC(),color));
             setList(player, all);
             if (send) {
@@ -841,27 +957,23 @@ public class Destination {
                 player.performCommand("dest saved edit "+name);
             }
         }
-        public static void editColor(boolean send, Player player, String name, String color) {
+        public static void setColor(Player player, String stepSize, String name, String color, boolean Return) {
             List<String> names = getNames(player);
-            if (!names.contains(name)) {
-                if (send) player.sendMessage(error("dest.invalid"));
-                return;
-            }
+            if (!names.contains(name)) return;
             int i = names.indexOf(name);
-            color = Utl.color.fix(color,false,"white");
-            if (getColors(player).get(i).equals(color.toLowerCase())) {
-                if (send) player.sendMessage(error("dest.saved.duplicate",lang("saved.color"),CTxT.of(Utl.color.formatPlayer(color,true)).color(color)));
+            if (CUtl.color.checkValid(color,getColors(player).get(getIndexFromName(player,name)))) {
+                List<List<String>> all = getList(player);
+                List<String> current = all.get(i);
+                current.set(2, CUtl.color.format(color));
+                all.set(i,current);
+                setList(player, all);
+            } else {
+                player.sendMessage(error("color"));
                 return;
             }
-            List<List<String>> all = getList(player);
-            List<String> current = all.get(i);
-            current.set(2, color.toLowerCase());
-            all.set(i,current);
-            setList(player, all);
-            if (send) {
-                player.sendMessage(CUtl.tag().append(lang("saved.set",CTxT.of(name).color(CUtl.s()),lang("saved.color"),CTxT.of(Utl.color.formatPlayer(color,true)).color(color))));
-                player.performCommand("dest saved edit "+name);
-            }
+            CTxT msg = CUtl.tag().append(lang("saved.set",CTxT.of(name).color(CUtl.s()),lang("saved.color"),CUtl.color.getBadge(color)));
+            if (Return) colorUI(player,stepSize,name,msg);
+            else player.sendMessage(msg);
         }
         public static void viewDestinationUI(boolean send, Player player, String name) {
             int i = getIndexFromName(player,name);
@@ -880,22 +992,22 @@ public class Destination {
             msg.append(" ")
                     //NAME
                     .append(CUtl.CButton.dest.edit(2,"/dest saved edit name "+name+ " ")).append(" ")
-                    .append(CTxT.of(dName).color(CUtl.p())).append(" "+name).append("\n ")
+                    .append(CTxT.of(dName).color(CUtl.p())).append(": "+name).append("\n ")
                     //COLOR
-                    .append(CUtl.CButton.dest.edit(2,"/dest saved edit color " +name+ " ")).append(" ")
-                    .append(CTxT.of(dColor).color(CUtl.p())).append(" ")
-                    .append(CTxT.of(Utl.color.formatPlayer(getColors(player).get(i),true)).color(getColors(player).get(i))).append("\n ")
+                    .append(CUtl.CButton.dest.edit(1,"/dest saved edit color " +name)).append(" ")
+                    .append(CTxT.of(dColor).color(CUtl.p())).append(": ")
+                    .append(CUtl.color.getBadge(getColors(player).get(i))).append("\n ")
                     //ORDER
                     .append(CUtl.CButton.dest.edit(2,"/dest saved edit order " +name+ " ")).append(" ")
-                    .append(CTxT.of(dOrder).color(CUtl.p())).append(" "+(i + 1)).append("\n ")
+                    .append(CTxT.of(dOrder).color(CUtl.p())).append(": "+(i + 1)).append("\n ")
                     //DIMENSION
                     .append(CUtl.CButton.dest.edit(2,"/dest saved edit dim " +name+ " ")).append(" ")
-                    .append(CTxT.of(dDimension).color(CUtl.p())).append(" ").append(CTxT.of(Utl.dim.getName(loc.getDIM())).color(Utl.dim.getHEX(loc.getDIM()))).append("\n ")
+                    .append(CTxT.of(dDimension).color(CUtl.p())).append(": ").append(CTxT.of(Utl.dim.getName(loc.getDIM())).color(Utl.dim.getHEX(loc.getDIM()))).append("\n ")
                     //LOCATION
                     .append(CUtl.CButton.dest.edit(2,"/dest saved edit loc " +name+ " ")).append(" ")
-                    .append(CTxT.of(dLocation).color(CUtl.p())).append(" "+loc.getXYZ()).append("\n       ");
+                    .append(CTxT.of(dLocation).color(CUtl.p())).append(": "+loc.getXYZ()).append("\n       ");
             //SEND BUTTON
-            if (PlayerData.get.dest.setting.send(player)) {
+            if ((boolean) PlayerData.get.dest.setting.get(player,Settings.features__send)) {
                 msg.append(CUtl.TBtn("dest.send").btn(true).color(Assets.mainColors.send).cEvent(2,"/dest saved send "+name+" ")
                         .hEvent(CTxT.of("/dest saved send "+name+" <player>").color(Assets.mainColors.send)
                                 .append("\n").append(CUtl.TBtn("dest.send.hover_saved")))).append(" ");
@@ -912,6 +1024,30 @@ public class Destination {
                     //BACK
                     .append(CUtl.CButton.back("/dest saved " + getPGOf(player, name)))
                     .append(CTxT.of("\n                                               ").strikethrough(true));
+            player.sendMessage(msg);
+        }
+        public static void colorUI(Player player, String stepSize, String name, CTxT aboveMSG) {
+            if (!getNames(player).contains(name)) return;
+            String currentColor = getColors(player).get(getIndexFromName(player,name));
+            CTxT uiType = lang("ui.saved.color").color(currentColor);
+            CTxT msg = CTxT.of("");
+            if (aboveMSG != null) msg.append(aboveMSG).append("\n");
+            msg.append(" ").append(uiType).append(CTxT.of("\n                               \n").strikethrough(true));
+            CTxT back = CUtl.CButton.back("/dest saved edit "+name);
+            CTxT presetsButton = CTxT.of("")
+                    .append(CTxT.of("+").btn(true).color('a').cEvent(1,"/dest color preset_s add "+stepSize+" "+name)
+                            .hEvent(CUtl.TBtn("color.presets.add.hover",CUtl.TBtn("color.presets.add.hover_2").color(currentColor))))
+                    .append(CUtl.TBtn("color.presets").color(Assets.mainColors.presets)
+                            .cEvent(1,"/dest color preset_s "+stepSize+" "+name).btn(true)
+                            .hEvent(CUtl.TBtn("color.presets.hover",CUtl.TBtn("color.presets.hover_2").color(Assets.mainColors.presets))));
+            CTxT customButton = CUtl.TBtn("color.custom").btn(true).color(Assets.mainColors.custom)
+                    .cEvent(2,"/dest color set_s "+stepSize+" "+name+" ")
+                    .hEvent(CUtl.TBtn("color.custom.hover",CUtl.TBtn("color.custom.hover_2").color(Assets.mainColors.custom)));
+            msg.append(" ")
+                    .append(presetsButton).append(" ").append(customButton).append("\n\n")
+                    .append(CUtl.color.colorEditor(currentColor,stepSize,"/dest color set_s "+stepSize+" "+name+" ","/dest saved edit color "+name+" big"))
+                    .append("\n\n           ").append(back)
+                    .append(CTxT.of("\n                               ").strikethrough(true));
             player.sendMessage(msg);
         }
         public static void UI(Player player, int pg) {
@@ -1020,13 +1156,13 @@ public class Destination {
         }
     }
     public static class social {
-        public static void send(Player player, String sendPLayer, Loc loc, String name) {
+        public static void send(Player player, String sendPLayer, Loc loc, String name,String color) {
             Player pl = Player.of(sendPLayer);
             if (pl == null) {
                 player.sendMessage(error("player", CTxT.of(sendPLayer).color(CUtl.s())));
                 return;
             }
-            if (!PlayerData.get.dest.setting.send(player)) {
+            if (!(boolean)PlayerData.get.dest.setting.get(player,Settings.features__send)) {
                 player.sendMessage(error("disabled"));
                 return;
             }
@@ -1034,7 +1170,7 @@ public class Destination {
                 player.sendMessage(error("dest.send.alone"));
                 return;
             }
-            if (!PlayerData.get.dest.setting.send(pl)) {
+            if (!(boolean)PlayerData.get.dest.setting.get(pl,Settings.features__send)) {
                 player.sendMessage(error("dest.send.disabled_player",CTxT.of(pl.getName()).color(CUtl.s())));
                 return;
             }
@@ -1042,7 +1178,7 @@ public class Destination {
                 player.sendMessage(error("dest.saved.length",16));
                 return;
             }
-            String color = "";
+            // if LOC is null it's a saved destination
             if (loc == null) {
                 if (!saved.getNames(player).contains(name)) {
                     player.sendMessage(error("dest.invalid"));
@@ -1061,16 +1197,21 @@ public class Destination {
                 return;
             }
             CTxT xyzB = CTxT.of("");
+            if (color == null) color = "#ffffff";
+            //if color is preset, get the preset color
+            if (color.contains("preset"))
+                color = PlayerData.get.colorPresets(player).get(Integer.parseInt(color.substring(7))-1);
+            color = CUtl.color.format(color);
             if (name==null) {
                 name = lang("send.change_name").getString();
                 xyzB.append(loc.getBadge());
-            } else xyzB.append(loc.getBadge(name,color.equals("")?"white":color));
+            } else xyzB.append(loc.getBadge(name,color));
             String plDimension = pl.getDimension();
-
+            String pColor = color.substring(1);
             CTxT msg = CTxT.of("\n ");
             msg.append(xyzB).append(" ");
             if (Utl.checkEnabled.saving(player))
-                msg.append(CUtl.CButton.dest.add("/dest saved add "+name+" "+loc.getXYZ()+" "+loc.getDIM()+" "+color)).append(" ");
+                msg.append(CUtl.CButton.dest.add("/dest saved add "+name+" "+loc.getXYZ()+" "+loc.getDIM()+" "+pColor)).append(" ");
             msg.append(CUtl.CButton.dest.set("/dest set "+loc.getXYZ()+" "+loc.getDIM())).append(" ");
             if (Utl.dim.canConvert(plDimension,loc.getDIM()))
                 msg.append(CUtl.CButton.dest.convert("/dest set " +loc.getXYZ()+" "+loc.getDIM()+" convert")).append(" ");
@@ -1098,22 +1239,20 @@ public class Destination {
                 player.sendMessage(msg.append("\n ").append(reason));
             }
             public static void clear(Player player) {
+                //remove everything to do with tracking in the one time map
                 for (String s: PlayerData.oneTimeMap.get(player).keySet())
                     if (s.contains("tracking")) PlayerData.setOneTime(player,s,null);
+                //clear the player
                 PlayerData.set.dest.setTracking(player,null);
             }
             public static void set(Player player, Player pl, boolean send) {
                 if (config.online) PlayerData.set.dest.setTracking(player,pl.getUUID());
                 else PlayerData.set.dest.setTracking(player,pl.getName());
                 if (!send) return;
-                player.sendMessage(CUtl.tag().append(lang("track.accepted",CTxT.of(pl.getName()).color(CUtl.s()))));
-                player.sendMessage(setMSG(player));
+                player.sendMessage(CUtl.tag().append(lang("track.set",CTxT.of(pl.getName()).color(CUtl.s()))));
                 pl.sendMessage(CUtl.tag()
                         .append(lang("track.accept", CTxT.of(player.getName()).color(CUtl.s())))
-                        .append(" ")
-                        .append(CUtl.TBtn("dest.settings").btn(true).color(Assets.mainColors.setting).cEvent(1,"/dest settings ").hEvent(
-                                CTxT.of(Assets.cmdUsage.destSettings).color('c').append("\n").append(
-                                        CUtl.TBtn("state.hover",CUtl.TBtn("off").color('c'))))));
+                        .append(" ").append(CUtl.CButton.dest.settings()));
             }
             public static void initialize(Player player, String player2) {
                 Player pl = Player.of(player2);
@@ -1125,15 +1264,15 @@ public class Destination {
                     player.sendMessage(error("dest.track.alone"));
                     return;
                 }
-                if (!PlayerData.get.dest.setting.track(player)) {
+                if (!(boolean)PlayerData.get.dest.setting.get(player,Settings.features__track)) {
                     player.sendMessage(error("disabled"));
                     return;
                 }
-                if (!PlayerData.get.dest.setting.track(pl)) {
+                if (!(boolean)PlayerData.get.dest.setting.get(pl,Settings.features__track)) {
                     player.sendMessage(error("dest.track.disabled",CTxT.of(pl.getName()).color(CUtl.s())));
                     return;
                 }
-                if (PlayerData.get.dest.getTrackPending(player)) {
+                if (PlayerData.get.temp.track.exists(player)) {
                     player.sendMessage(error("dest.track.pending"));
                     return;
                 }
@@ -1141,10 +1280,14 @@ public class Destination {
                     player.sendMessage(error("dest.track.already_tracking",CTxT.of(pl.getName()).color(CUtl.s())));
                     return;
                 }
+                if (config.DESTTrackingRequestModes.valueOf((String) PlayerData.get.dest.setting.get(pl,Settings.features__track_request_mode)).equals(config.DESTTrackingRequestModes.instant)) {
+                    set(player,pl,true);
+                    return;
+                }
                 String trackID = Utl.createID();
-                PlayerData.set.dest.track.id(player, trackID);
-                PlayerData.set.dest.track.expire(player, 90);
-                PlayerData.set.dest.track.target(player, pl.getName());
+                PlayerData.set.temp.track.id(player, trackID);
+                PlayerData.set.temp.track.expire(player, 90);
+                PlayerData.set.temp.track.target(player, pl.getName());
                 player.sendMessage(CUtl.tag().append(lang("track",CTxT.of(pl.getName()).color(CUtl.s())))
                         .append("\n ").append(lang("track_expire", 90).color('7').italic(true)));
                 pl.sendMessage(CUtl.tag().append(lang("track_player",CTxT.of(player.getName()).color(CUtl.s()))).append("\n ")
@@ -1164,22 +1307,22 @@ public class Destination {
                     pl.sendMessage(error("how"));
                     return;
                 }
-                if (!PlayerData.get.dest.getTrackPending(player) || !PlayerData.get.dest.track.id(player).equals(ID)) {
+                if (!PlayerData.get.temp.track.exists(player) || !PlayerData.get.temp.track.id(player).equals(ID)) {
                     //expired
                     pl.sendMessage(error("dest.track.expired"));
                     return;
                 }
-                if (!PlayerData.get.dest.setting.track(player)) {
+                if (!(boolean)PlayerData.get.dest.setting.get(player,Settings.features__track)) {
                     pl.sendMessage(error("dest.track.disabled",CTxT.of(pl.getName()).color(CUtl.s())));
-                    PlayerData.set.dest.setTrackNull(player);
+                    PlayerData.set.temp.track.remove(player);
                     return;
                 }
-                if (!Objects.equals(PlayerData.get.dest.track.target(player), pl.getName())) {
+                if (!Objects.equals(PlayerData.get.temp.track.target(player), pl.getName())) {
                     pl.sendMessage(error("how"));
                     return;
                 }
                 set(player, pl,true);
-                PlayerData.set.dest.setTrackNull(player);
+                PlayerData.set.temp.track.remove(player);
             }
             public static void deny(Player pl, String player2, String ID) {
                 // player is tracker, pl is tracked
@@ -1192,201 +1335,255 @@ public class Destination {
                     pl.sendMessage(error("how"));
                     return;
                 }
-                if (PlayerData.get.dest.track.id(player) == null || !PlayerData.get.dest.track.id(player).equals(ID)) {
+                if (PlayerData.get.temp.track.id(player) == null || !PlayerData.get.temp.track.id(player).equals(ID)) {
                     pl.sendMessage(error("dest.track.expired"));
                     return;
                 }
-                if (!Objects.equals(PlayerData.get.dest.track.target(player), pl.getName())) {
+                if (!Objects.equals(PlayerData.get.temp.track.target(player), pl.getName())) {
                     pl.sendMessage(error("how"));
                     return;
                 }
                 player.sendMessage(CUtl.tag().append(lang("track.denied",CTxT.of(pl.getName()).color(CUtl.s()))));
-                PlayerData.set.dest.setTrackNull(player);
+                PlayerData.set.temp.track.remove(player);
                 pl.sendMessage(CUtl.tag().append(lang("track.deny",CTxT.of(player.getName()).color(CUtl.s()))));
             }
         }
     }
-    public static class settings {
-        public static void reset(Player player, boolean Return) {
-            PlayerData.set.dest.setting.autoclear(player, config.DESTAutoClear);
-            PlayerData.set.dest.setting.autoclearrad(player, config.DESTAutoClearRad);
-            PlayerData.set.dest.setting.ylevel(player, config.DESTYLevel);
-            PlayerData.set.dest.setting.autoconvert(player, config.DESTAutoConvert);
-            PlayerData.set.dest.setting.particles.line(player, config.DESTLineParticles);
-            PlayerData.set.dest.setting.particles.linecolor(player, config.DESTLineParticleColor);
-            PlayerData.set.dest.setting.particles.dest(player, config.DESTDestParticles);
-            PlayerData.set.dest.setting.particles.destcolor(player, config.DESTDestParticleColor);
-            PlayerData.set.dest.setting.particles.tracking(player, config.DESTTrackingParticles);
-            PlayerData.set.dest.setting.particles.trackingcolor(player, config.DESTTrackingParticleColor);
-            PlayerData.set.dest.setting.track(player, config.DESTTrack);
-            PlayerData.set.dest.setting.send(player, config.DESTSend);
-            CTxT msg = CUtl.tag().append(lang("setting.reset", CUtl.TBtn("all").color('c')));
+    public static class setting {
+        public static Object getConfig(Settings type) {
+            Object output = false;
+            switch (type) {
+                case autoclear -> output = config.DESTAutoClear;
+                case autoclear_rad -> output = config.DESTAutoClearRad;
+                case autoconvert -> output = config.DESTAutoConvert;
+                case ylevel -> output = config.DESTYLevel;
+                case particles__dest -> output = config.DESTDestParticles;
+                case particles__dest_color -> output = config.DESTDestParticleColor;
+                case particles__line -> output = config.DESTLineParticles;
+                case particles__line_color -> output = config.DESTLineParticleColor;
+                case particles__tracking -> output =config.DESTTrackingParticles;
+                case particles__tracking_color -> output=config.DESTTrackingParticleColor;
+                case features__send -> output=config.DESTSend;
+                case features__track -> output=config.DESTTrack;
+                case features__track_request_mode -> output=config.DESTTrackingRequestMode;
+                case features__lastdeath -> output=config.DESTLastdeath;
+            }
+            return output;
+        }
+        public static void reset(Player player, Settings type, boolean Return) {
+            if (type.equals(Settings.none)) {
+                for (Settings s: Settings.values())
+                    PlayerData.set.dest.setting.set(player,s,getConfig(s));
+            } else {
+                PlayerData.set.dest.setting.set(player,type,getConfig(type));
+            }
+            if (type.equals(Settings.autoclear))
+                PlayerData.set.dest.setting.set(player,Settings.autoclear_rad,getConfig(Settings.autoclear_rad));
+            if (Settings.colors().contains(Settings.get(type+"_color")))
+                PlayerData.set.dest.setting.set(player,Settings.get(type+"_color"),getConfig(Settings.get(type+"_color")));
+            if (type.equals(Settings.features__track))
+                PlayerData.set.dest.setting.set(player,Settings.features__track_request_mode,getConfig(Settings.features__track_request_mode));
+            CTxT typ = CTxT.of(lang("settings."+type).getString().toUpperCase()).color('c');
+            if (type.equals(Settings.none)) typ = CTxT.of(CUtl.TBtn("all").getString().toUpperCase()).color('c');
+            CTxT msg = CUtl.tag().append(lang("settings.reset",typ));
             if (Return) UI(player, msg);
             else UI(player, null);
         }
-        public static void change(Player player, String type, String setting, boolean Return) {
+        public static void change(Player player, Settings type, String setting, boolean Return) {
+            boolean state = setting.equals("on");
+            CTxT stateTxT = CUtl.TBtn(state?"on":"off").color(state?'a':'c');
             setting = setting.toLowerCase();
-            CTxT msg = CUtl.tag();
-            if (type.equals("autoclearrad")) {
+            CTxT setTxT = CTxT.of("");
+            if (type.equals(Settings.autoclear_rad)) {
                 if (!Utl.isInt(setting)) {
                     player.sendMessage(error("number"));
                     return;
                 }
-                int i = Integer.parseInt(setting);
-                if (i > 15) i = 15;
-                if (i < 2) i = 2;
-                PlayerData.set.dest.setting.autoclearrad(player, i);
-                msg.append(lang("setting.autoclear_rad.set",CTxT.of(String.valueOf(i)).color(PlayerData.get.dest.setting.autoclear(player)?'a':'c')));
+                int i = Math.max(Math.min(Integer.parseInt(setting),15),1);
+                PlayerData.set.dest.setting.set(player, Settings.autoclear_rad,i);
+                setTxT.append(CTxT.of(String.valueOf(i)).color((boolean) PlayerData.get.dest.setting.get(player,Settings.autoclear)?'a':'c'));
             }
-            if (type.equals("particlesdestc")) {
-                String Nsetting = Utl.color.fix(setting,false, config.DESTDestParticleColor);
-                if (Nsetting.contains("#") && !setting.contains("#")) setting = "#"+setting;
-                if (Nsetting.contains("#") && !setting.equals(Nsetting)) {
-                    Return = false;
-                    msg = error("color", CTxT.of("#" + setting).color(CUtl.s()));
-                } else {
-                    PlayerData.set.dest.setting.particles.destcolor(player, setting);
-                    msg.append(lang("setting.particle.dest_color.set",CTxT.of(Utl.color.formatPlayer(setting,true)).color(setting)));
-                }
+            if (type.equals(Settings.features__track_request_mode)) {
+                PlayerData.set.dest.setting.set(player, type, config.DESTTrackingRequestModes.valueOf(setting));
+                setTxT.append(lang("settings."+type+"." + config.DESTTrackingRequestModes.valueOf(setting)).color(CUtl.s()));
             }
-            if (type.equals("particleslinec")) {
-                String Nsetting = Utl.color.fix(setting,false, PlayerData.get.dest.setting.particles.linecolor(player));
-                if (Nsetting.contains("#") && !setting.contains("#")) setting = "#"+setting;
-                if (Nsetting.contains("#") && !setting.equals(Nsetting)) {
-                    Return = false;
-                    msg = error("color", CTxT.of("#" + setting).color(CUtl.s()));
-                } else {
-                    PlayerData.set.dest.setting.particles.linecolor(player, setting);
-                    msg.append(lang("setting.particle.line_color.set", CTxT.of(Utl.color.formatPlayer(setting, true)).color(setting)));
-                }
+            if (Settings.colors().contains(type)) {
+                colorUI(player,setting,type,null);
+                return;
             }
-            if (type.equals("particlestrackingc")) {
-                String Nsetting = Utl.color.fix(setting,false, PlayerData.get.dest.setting.particles.trackingcolor(player));
-                if (Nsetting.contains("#") && !setting.contains("#")) setting = "#"+setting;
-                if (Nsetting.contains("#") && !setting.equals(Nsetting)) {
-                    Return = false;
-                    msg = error("color", CTxT.of("#" + setting).color(CUtl.s()));
-                } else {
-                    PlayerData.set.dest.setting.particles.trackingcolor(player, setting);
-                    msg.append(lang("setting.particle.tracking_color.set", CTxT.of(Utl.color.formatPlayer(setting, true)).color(setting)));
-                }
+            if (Settings.base().contains(type)) {
+                PlayerData.set.dest.setting.set(player,type,state);
+                setTxT.append(stateTxT);
             }
-            boolean state = setting.equals("true");
-            CTxT onoff = CTxT.of("ON").color('a');
-            if (!state) onoff = CTxT.of("OFF").color('c');
-            if (type.equals("autoclear")) {
-                PlayerData.set.dest.setting.autoclear(player, state);
-                msg.append(lang("setting.autoclear.set", onoff));
-            }
-            if (type.equals("autoconvert")) {
-                PlayerData.set.dest.setting.autoconvert(player, state);
-                msg.append(lang("setting.autoconvert.set", onoff));
-            }
-            if (type.equals("ylevel")) {
-                PlayerData.set.dest.setting.ylevel(player, state);
-                msg.append(lang("setting.ylevel.set", onoff));
-            }
-            if (type.equals("send")) {
-                PlayerData.set.dest.setting.send(player, state);
-                msg.append(lang("setting.send.set", onoff));
-            }
-            if (type.equals("track")) {
-                PlayerData.set.dest.setting.track(player, state);
-                msg.append(lang("setting.track.set", onoff));
-            }
-            if (type.equals("lastdeath")) {
-                PlayerData.set.dest.setting.lastdeath(player, state);
-                msg.append(lang("setting.lastdeath.set", onoff));
-            }
-            if (type.equals("particlesdest")) {
-                PlayerData.set.dest.setting.particles.dest(player, state);
-                msg.append(lang("setting.particle.dest.set", onoff));
-            }
-            if (type.equals("particlesline")) {
-                PlayerData.set.dest.setting.particles.line(player, state);
-                msg.append(lang("setting.particle.line.set", onoff));
-            }
-            if (type.equals("particlestracking")) {
-                PlayerData.set.dest.setting.particles.tracking(player, state);
-                msg.append(lang("setting.particle.tracking.set", onoff));
-            }
+            CTxT msg = CUtl.tag().append(lang("settings."+type+".set",setTxT));
             if (Return) UI(player, msg);
             else player.sendMessage(msg);
         }
-        public static CTxT toggleB(boolean button) {
-            return CUtl.TBtn(button?"on":"off").btn(true).color(button?'a':'c').hEvent(CUtl.TBtn("state.hover",
-                    CUtl.TBtn(button?"off":"on").color(button?'c':'a')));
+        public static boolean canBeReset(Player player, Settings type) {
+            boolean output = false;
+            if (type.equals(Settings.none)) return false;
+            if (PlayerData.get.dest.setting.get(player,type) != getConfig(type)) output = true;
+            if (type.equals(Settings.autoclear))
+                if ((long)PlayerData.get.dest.setting.get(player, Settings.autoclear_rad) != (long)getConfig(Settings.autoclear_rad)) output = true;
+            if (type.equals(Settings.features__track))
+                if (!PlayerData.get.dest.setting.get(player,Settings.features__track_request_mode).equals(getConfig(Settings.features__track_request_mode))) output = true;
+            if (Settings.colors().contains(Settings.get(type+"_color")))
+                if (!PlayerData.get.dest.setting.get(player,Settings.get(type+"_color")).equals(getConfig(Settings.get(type+"_color")))) output = true;
+            return output;
+        }
+        public static CTxT resetB(Player player, Settings type) {
+            CTxT msg = CTxT.of(Assets.symbols.x).btn(true).color('7');
+            if (canBeReset(player,type)) {
+                msg.color('c').cEvent(1, "/dest settings reset " + type)
+                        .hEvent(CUtl.TBtn("reset.hover_settings",lang("settings."+type).color('c')));
+            }
+            return msg;
+        }
+        public static CTxT getButtons(Player player, Settings type) {
+            boolean state = (boolean) PlayerData.get.dest.setting.get(player,type);
+            CTxT button = CTxT.of("");
+            if (type.equals(Settings.none)) return button;
+            button.append(CUtl.toggleBtn(state,"/dest settings "+type+" ")).append(" ");
+            if (type.equals(Settings.autoclear)) {
+                button.append(CTxT.of(String.valueOf((long) PlayerData.get.dest.setting.get(player,Settings.get(type+"_rad")))).btn(true)
+                        .color(state?'a':'c').cEvent(2,"/dest settings "+type+"_rad ")
+                        .hEvent(lang("settings."+type+"_rad.hover").append("\n").append(lang("settings."+type+"_rad.hover_2").color('7'))));
+            }
+            if (type.equals(Settings.features__track)) {
+                Settings modeType = Settings.features__track_request_mode;
+                config.DESTTrackingRequestModes mode = config.DESTTrackingRequestModes.valueOf((String) PlayerData.get.dest.setting.get(player,modeType));
+                config.DESTTrackingRequestModes nextMode = mode.next();
+                button.append(CTxT.of(getSymbol(mode.toString())).btn(true).color(CUtl.s())
+                        .cEvent(1,"/dest settings "+modeType+" "+nextMode)
+                        .hEvent(lang("settings."+modeType+".current",lang("settings."+modeType+"."+mode).color(CUtl.s())).append("\n")
+                                .append(lang("settings."+modeType+"."+mode+".info").color('7')).append("\n\n")
+                                .append(lang("settings."+modeType+".hover",lang("settings."+modeType+"."+nextMode).color(CUtl.s())))));
+            }
+            if (Settings.colors().contains(Settings.get(type+"_color"))) {
+                String color = (String) PlayerData.get.dest.setting.get(player,Settings.get( type+"_color"));
+                button.append(CTxT.of(Assets.symbols.pencil).btn(true).color(color)
+                        .cEvent(1,"/dest settings "+type+"_color normal")
+                        .hEvent(lang("settings.particles.color.hover",lang("settings.particles.color.hover_2").color(color))));
+            }
+            return button;
+        }
+        public static String getSymbol(String string) {
+            if (string.equals(config.DESTTrackingRequestModes.request.toString())) {
+                return Assets.symbols.envelope;
+            }
+            if (string.equals(config.DESTTrackingRequestModes.instant.toString())) {
+                return Assets.symbols.lighting_bolt;
+            }
+            return Assets.symbols.x;
+        }
+        public static void colorUI(Player player, String setting, Settings type, CTxT aboveMSG) {
+            if (!Settings.colors().contains(type)) return;
+            String currentColor = (String) PlayerData.get.dest.setting.get(player,type);
+            CTxT uiType = lang("settings."+type.toString().substring(0,type.toString().length()-6));
+            CTxT msg = CTxT.of("");
+            if (aboveMSG != null) msg.append(aboveMSG).append("\n");
+            msg.append(" ").append(uiType.color(currentColor))
+                    .append(CTxT.of("\n                               \n").strikethrough(true));
+            CTxT back = CUtl.CButton.back("/dest settings");
+            CTxT presetsButton = CTxT.of("")
+                    .append(CTxT.of("+").btn(true).color('a').cEvent(1,"/dest color preset add "+setting+" "+type)
+                            .hEvent(CUtl.TBtn("color.presets.add.hover",CUtl.TBtn("color.presets.add.hover_2").color(currentColor))))
+                    .append(CUtl.TBtn("color.presets").color(Assets.mainColors.presets)
+                            .cEvent(1,"/dest color preset "+setting+" "+type).btn(true)
+                            .hEvent(CUtl.TBtn("color.presets.hover",CUtl.TBtn("color.presets.hover_2").color(Assets.mainColors.presets))));
+            CTxT customButton = CUtl.TBtn("color.custom").btn(true).color(Assets.mainColors.custom)
+                    .cEvent(2,"/dest color set "+setting+" "+type+" ")
+                    .hEvent(CUtl.TBtn("color.custom.hover",CUtl.TBtn("color.custom.hover_2").color(Assets.mainColors.custom)));
+            msg.append(" ")
+                    .append(presetsButton).append(" ").append(customButton).append("\n\n")
+                    .append(CUtl.color.colorEditor(currentColor,setting,"/dest color set "+setting+" "+type+" ","/dest settings "+type+" big"))
+                    .append("\n\n           ").append(back)
+                    .append(CTxT.of("\n                               ").strikethrough(true));
+            player.sendMessage(msg);
+        }
+        public static void setColor(Player player, String setting, Settings type, String color, boolean Return) {
+            CTxT uiType = lang("settings."+type.toString().substring(0,type.toString().length()-6));
+            if (CUtl.color.checkValid(color,(String)PlayerData.get.dest.setting.get(player,type))) {
+                PlayerData.set.dest.setting.set(player,type,CUtl.color.format(color));
+            } else {
+                player.sendMessage(error("color"));
+                return;
+            }
+            CTxT msg = CUtl.tag().append(lang("settings.particles.color.set",uiType.getString().toUpperCase(),CUtl.color.getBadge(color)));
+            if (Return) colorUI(player,setting,type,msg);
+            else player.sendMessage(msg);
         }
         public static void UI(Player player, CTxT abovemsg) {
             CTxT msg = CTxT.of("");
             if (abovemsg != null) msg.append(abovemsg).append("\n");
-            msg.append(" ").append(lang("ui.settings").color(Assets.mainColors.setting)).append(CTxT.of("\n                              \n").strikethrough(true));
-            char c;
-            if (PlayerData.get.dest.setting.autoclear(player)) c = 'a'; else c = 'c';
-            msg.append(" ").append(lang("setting.destination").color(CUtl.p())).append(":\n  ")
-                    //AUTOCLEAR
-                    .append(lang("setting.autoclear").hEvent(lang("setting.autoclear.info").append("\n")
-                            .append(lang("setting.autoclear.info_2").color('7').italic(true)))).append(": ")
-                    .append(toggleB(PlayerData.get.dest.setting.autoclear(player)).cEvent(1,"/dest settings autoclear "+!PlayerData.get.dest.setting.autoclear(player)))
-                    .append(" ")
-                    .append(CTxT.of(String.valueOf(PlayerData.get.dest.setting.autoclearrad(player))).btn(true).color(c).cEvent(2,"/dest settings autoclearrad ")
-                            .hEvent(CUtl.TBtn("autoclear_rad.hover").append("\n").append(CUtl.TBtn("autoclear_rad.hover_2").color('7').italic(true))))
-                    .append("\n  ")
-                    //AUTOCLEAR
-                    .append(lang("setting.autoconvert").hEvent(lang("setting.autoconvert.info").append("\n")
-                            .append(lang("setting.autoconvert.info_2").color('7').italic(true)))).append(": ")
-                    .append(toggleB(PlayerData.get.dest.setting.autoconvert(player)).cEvent(1,"/dest settings autoconvert "+!PlayerData.get.dest.setting.autoconvert(player)))
-                    .append("\n  ")
-                    //YLEVEL
-                    .append(lang("setting.ylevel").hEvent(lang("setting.ylevel.info",
-                            lang("setting.ylevel.info_2").color(CUtl.s()),lang("setting.ylevel.info_2").color(CUtl.s())))).append(": ")
-                    .append(toggleB(PlayerData.get.dest.setting.ylevel(player)).cEvent(1,"/dest settings ylevel "+!PlayerData.get.dest.setting.ylevel(player)))
-                    .append("\n ")
-                    //PARTICLES
-                    .append(lang("setting.particle").color(CUtl.p())).append(":\n  ")
-                    //DESTINATION
-                    .append(lang("setting.particle.dest").hEvent(lang("setting.particle.dest.info"))).append(": ")
-                    .append(toggleB(PlayerData.get.dest.setting.particles.dest(player)).cEvent(1,"/dest settings particlesdest "+!PlayerData.get.dest.setting.particles.dest(player)))
-                    .append(" ")
-                    //COLOR
-                    .append(CUtl.TBtn("particle").btn(true).color(PlayerData.get.dest.setting.particles.destcolor(player)).cEvent(2,"/dest settings particlesdestc ").hEvent(CUtl.TBtn("particle.hover")))
-                    .append("\n  ")
-                    //LINE
-                    .append(lang("setting.particle.line").hEvent(lang("setting.particle.line.info"))).append(": ")
-                    .append(toggleB(PlayerData.get.dest.setting.particles.line(player)).cEvent(1,"/dest settings particlesline "+!PlayerData.get.dest.setting.particles.line(player)))
-                    .append(" ")
-                    //COLOR
-                    .append(CUtl.TBtn("particle").btn(true).color(PlayerData.get.dest.setting.particles.linecolor(player)).cEvent(2,"/dest settings particleslinec ").hEvent(CUtl.TBtn("particle.hover")))
-                    .append("\n  ")
-                    //TRACK
-                    .append(lang("setting.particle.tracking").hEvent(lang("setting.particle.tracking.info"))).append(": ")
-                    .append(toggleB(PlayerData.get.dest.setting.particles.tracking(player)).cEvent(1,"/dest settings particlestracking "+!PlayerData.get.dest.setting.particles.tracking(player)))
-                    .append(" ")
-                    //COLOR
-                    .append(CUtl.TBtn("particle").btn(true).color(PlayerData.get.dest.setting.particles.trackingcolor(player)).cEvent(2,"/dest settings particlestrackingc ").hEvent(CUtl.TBtn("particle.hover")))
-                    .append("\n ");
+            msg.append(" ").append(lang("ui.settings").color(Assets.mainColors.setting)).append(CTxT.of("\n                                \n").strikethrough(true));
+            //DEST
+            msg.append(" ").append(lang("settings.destination").color(CUtl.p())).append(":\n  ");
+            msg     //AUTOCLEAR
+                    .append(resetB(player, Settings.autoclear)).append(" ")
+                    .append(lang("settings."+ Settings.autoclear).hEvent(lang("settings."+ Settings.autoclear+".info")
+                            .append("\n").append(lang("settings."+ Settings.autoclear+".info_2").italic(true).color('7')))).append(": ")
+                    .append(getButtons(player, Settings.autoclear)).append("\n  ");
+            msg     //AUTOCONVERT
+                    .append(resetB(player, Settings.autoconvert)).append(" ")
+                    .append(lang("settings."+ Settings.autoconvert).hEvent(lang("settings."+ Settings.autoconvert+".info")
+                            .append("\n").append(lang("settings."+ Settings.autoconvert+".info_2").italic(true).color('7')))).append(": ")
+                    .append(getButtons(player, Settings.autoconvert)).append("\n  ");
+            msg     //YLEVEL
+                    .append(resetB(player, Settings.ylevel)).append(" ")
+                    .append(lang("settings."+ Settings.ylevel).hEvent(lang("settings."+ Settings.ylevel+".info",
+                            lang("settings."+ Settings.ylevel+".info_2").color(CUtl.s()),
+                            lang("settings."+ Settings.ylevel+".info_2").color(CUtl.s())))).append(": ")
+                    .append(getButtons(player, Settings.ylevel)).append("\n ");
+            //PARTICLES
+            msg.append(lang("settings.particles").color(CUtl.p())).append(":\n  ");
+            msg     //DESTINATION
+                    .append(resetB(player, Settings.particles__dest)).append(" ")
+                    .append(lang("settings."+ Settings.particles__dest).hEvent(lang("settings."+ Settings.particles__dest+".info"))).append(": ")
+                    .append(getButtons(player, Settings.particles__dest)).append("\n  ");
+            msg     //LINE
+                    .append(resetB(player, Settings.particles__line)).append(" ")
+                    .append(lang("settings."+ Settings.particles__line).hEvent(lang("settings."+ Settings.particles__line+".info"))).append(": ")
+                    .append(getButtons(player, Settings.particles__line)).append("\n  ");
+            msg     //TRACK
+                    .append(resetB(player, Settings.particles__tracking)).append(" ")
+                    .append(lang("settings."+ Settings.particles__tracking).hEvent(lang("settings."+ Settings.particles__tracking+".info"))).append(": ")
+                    .append(getButtons(player, Settings.particles__tracking)).append("\n ");
             if (config.social || config.deathsaving) {
-                msg.append(lang("setting.features").color(CUtl.p())).append(":\n  ");
-                if (config.social) msg
-                        //SEND
-                        .append(lang("setting.send").hEvent(lang("setting.send.info").append("\n").append(lang("setting.send.info_2").italic(true).color('7')))).append(": ")
-                        .append(toggleB(PlayerData.get.dest.setting.send(player)).cEvent(1,"/dest settings send "+!PlayerData.get.dest.setting.send(player)))
-                        .append("\n  ")
-                        //TRACK
-                        .append(lang("setting.track").hEvent(lang("setting.track.info").append("\n").append(lang("setting.track.info_2").italic(true).color('7')))).append(": ")
-                        .append(toggleB(PlayerData.get.dest.setting.track(player)).cEvent(1,"/dest settings track "+!PlayerData.get.dest.setting.track(player)))
-                        .append("\n  ");
-                if (config.deathsaving) msg
-                        //LASTDEATH
-                        .append(lang("setting.lastdeath").hEvent(lang("setting.lastdeath.info"))).append(": ")
-                        .append(toggleB(PlayerData.get.dest.setting.lastdeath(player)).cEvent(1,"/dest settings lastdeath "+!PlayerData.get.dest.setting.lastdeath(player)))
-                        .append("\n");
+                //FEATURES
+                msg.append(lang("settings.features").color(CUtl.p())).append(":\n  ");
+                if (config.social) {
+                    msg     //SEND
+                            .append(resetB(player, Settings.features__send)).append(" ")
+                            .append(lang("settings."+ Settings.features__send).hEvent(lang("settings."+ Settings.features__send +".info",
+                                    lang("settings."+ Settings.features__send +".info_1").color(CUtl.s()),
+                                    lang("settings."+ Settings.features__send +".info_2").color(CUtl.s()),
+                                    lang("settings."+ Settings.features__send +".info_3").color(CUtl.s())))).append(": ")
+                            .append(getButtons(player, Settings.features__send)).append("\n  ");
+                    msg     //TRACK
+                            .append(resetB(player, Settings.features__track)).append(" ")
+                            .append(lang("settings."+ Settings.features__track).hEvent(lang("settings."+ Settings.features__track +".info"))).append(": ")
+                            .append(getButtons(player, Settings.features__track)).append("\n  ");
+                }
+                if (config.deathsaving) {
+                    msg     //LASTDEATH
+                            .append(resetB(player, Settings.features__lastdeath)).append(" ")
+                            .append(lang("settings."+ Settings.features__lastdeath).hEvent(lang("settings."+ Settings.features__lastdeath +".info"))).append(": ")
+                            .append(getButtons(player, Settings.features__lastdeath)).append("\n ");
+                }
             }
-            msg.append("\n    ")
-                    .append(CUtl.TBtn("reset").btn(true).color('c').cEvent(1,"/dest settings reset return")
-                            .hEvent(CUtl.TBtn("reset.hover_settings_dest",CUtl.TBtn("all").color('c'))))
-                    .append("  ").append(CUtl.CButton.back("/dest")).append("\n")
-                    .append(CTxT.of("                              ").strikethrough(true));
+            CTxT reset = CUtl.TBtn("reset").btn(true).color('7');
+            boolean resetOn = false;
+            for (Settings t: Settings.base()) {
+                if (resetOn) break;
+                if (!config.deathsaving && t.equals(Settings.features__lastdeath)) continue;
+                if (!config.social && (t.equals(Settings.features__send) || t.equals(Settings.features__track))) continue;
+                resetOn = canBeReset(player,t);
+            }
+            if (resetOn) reset.color('c').cEvent(1,"/dest settings reset all")
+                    .hEvent(CUtl.TBtn("reset.hover_settings",CUtl.TBtn("all").color('c')));
+            msg.append("\n     ").append(reset).append("  ").append(CUtl.CButton.back("/dest")).append("\n")
+                    .append(CTxT.of("                                ").strikethrough(true));
             player.sendMessage(msg);
         }
     }
@@ -1395,7 +1592,7 @@ public class Destination {
         msg.append(lang("ui").color(Assets.mainColors.dest)).append(CTxT.of("\n                                  ").strikethrough(true)).append("\n ");
         // lmao this is a mess but is it the best way to do it? dunno
         boolean line1Free = false;
-        boolean line2Free = !(PlayerData.get.dest.setting.lastdeath(player) && config.deathsaving);
+        boolean line2Free = !((boolean) PlayerData.get.dest.setting.get(player,Settings.features__lastdeath) && config.deathsaving);
         boolean trackBig = PlayerData.get.dest.getTracking(player) != null;
         boolean sendThird = Utl.checkEnabled.send(player);
         //SAVED + ADD

@@ -26,6 +26,8 @@ public class Events {
         }
         config.load();
         LangReader.loadLanguageFile();
+        //load the config twice, first to load the lang and second to make all the comments the right language
+        config.load();
     }
     public static void serverEnd() {
         for (Player player: Utl.getPlayers()) PlayerData.removePlayer(player);
@@ -38,17 +40,18 @@ public class Events {
     public static void playerLeave(Player player) {
         PlayerData.removePlayer(player);
         DirectionHUD.players.remove(player);
+        DirectionHUD.bossBarManager.removePlayer(player);
     }
     public static void playerChangeWorld(Player player, String fromDIM, String toDIM) {
         if (Destination.get(player).hasXYZ()) {
             Loc loc = Destination.get(player);
-            if (Utl.dim.canConvert(toDIM, Destination.get(player).getDIM()) && PlayerData.get.dest.setting.autoconvert(player)) {
+            if (Utl.dim.canConvert(toDIM, Destination.get(player).getDIM()) && (boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.autoconvert)) {
                 Loc cLoc = Destination.get(player);
                 cLoc.convertTo(toDIM);
                 Destination.silentSet(player,cLoc);
                 player.sendMessage(CUtl.tag().append(CUtl.lang("dest.autoconvert.dest"))
                         .append("\n ").append(CUtl.lang("dest.autoconvert.info",loc.getBadge(),cLoc.getBadge()).italic(true).color('7')));
-            } else if (PlayerData.get.dest.setting.autoclear(player)) {
+            } else if ((boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.autoclear)) {
                 CTxT msg = CTxT.of("").append(CUtl.lang("dest.changed.cleared.dim").color('7').italic(true))
                         .append(" ").append(CUtl.CButton.dest.set("/dest set "+loc.getXYZ()+" "+fromDIM));
                 if (Utl.dim.canConvert(toDIM, Destination.get(player).getDIM()))
@@ -58,7 +61,7 @@ public class Events {
         }
     }
     public static void playerDeath(Player player, Loc death) {
-        if (!config.deathsaving || !PlayerData.get.dest.setting.lastdeath(player)) return;
+        if (!config.deathsaving || !(boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.features__lastdeath)) return;
         Destination.lastdeath.add(player, death);
         CTxT msg = CUtl.tag().append(CUtl.lang("dest.lastdeath.save"))
                 .append(" ").append(death.getBadge())

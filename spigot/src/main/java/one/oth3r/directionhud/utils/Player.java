@@ -1,7 +1,10 @@
 package one.oth3r.directionhud.utils;
 
 import net.md_5.bungee.api.ChatMessageType;
+import one.oth3r.directionhud.DirectionHUD;
+import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.files.PlayerData;
+import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.utils.Loc;
 import org.bukkit.Bukkit;
 import org.bukkit.Particle;
@@ -57,12 +60,34 @@ public class Player {
     public void sendActionBar(CTxT message) {
         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, message.b());
     }
-    // Call after toggling the hud.
+    // Call after toggling/updating the hud.
     public void updateHUD() {
         if (!PlayerData.get.hud.state(this)) this.sendActionBar(CTxT.of(""));
+        if (PlayerData.get.hud.setting.get(this,HUD.Settings.type).equals(config.HUDTypes.actionbar.toString()))
+            DirectionHUD.bossBarManager.removePlayer(this);
+        else this.sendActionBar(CTxT.of(""));
     }
     public void buildHUD(CTxT message) {
-        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, message.b());
+        if (message.getString().equals("")) {
+            //if the HUD is enabled but there is no output
+            if (PlayerData.getOneTime(this,"hud.enabled_but_off") == null) {
+                PlayerData.setOneTime(this,"hud.enabled_but_off","true");
+                if ((config.HUDTypes.get((String) PlayerData.get.hud.setting.get(this, HUD.Settings.type)).equals(config.HUDTypes.actionbar))) {
+                    player.spigot().sendMessage(ChatMessageType.ACTION_BAR, CTxT.of("").b());
+                } else {
+                    DirectionHUD.bossBarManager.removePlayer(this);
+                }
+            }
+            return;
+        } else if (PlayerData.getOneTime(this,"hud.enabled_but_off") != null) {
+            // if hud was in previous state and now isn't, remove the temp tag
+            PlayerData.setOneTime(this,"hud.enabled_but_off",null);
+        }
+        if ((config.HUDTypes.get((String) PlayerData.get.hud.setting.get(this, HUD.Settings.type)).equals(config.HUDTypes.actionbar))) {
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, message.b());
+        } else {
+            DirectionHUD.bossBarManager.display(this,message);
+        }
     }
     public String getName() {
         return player.getName();

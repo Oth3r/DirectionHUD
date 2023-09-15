@@ -19,6 +19,7 @@ import one.oth3r.directionhud.common.Events;
 import one.oth3r.directionhud.common.LoopManager;
 import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.common.files.config;
+import one.oth3r.directionhud.utils.BossBarManager;
 import one.oth3r.directionhud.utils.Player;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,6 +30,7 @@ import java.util.Map;
 public class DirectionHUD {
 	public static final String PRIMARY = "#2993ff";
 	public static final String SECONDARY = "#ffee35";
+	public static BossBarManager bossBarManager = new BossBarManager();
 	public static String PLAYERDATA_DIR = "";
 	public static final String CONFIG_DIR = FabricLoader.getInstance().getConfigDir().toFile()+"/";
 	public static final Logger LOGGER = LogManager.getLogger("DirectionHUD");
@@ -43,7 +45,6 @@ public class DirectionHUD {
 	public static MinecraftServer server;
 	public static CommandManager commandManager;
 	public static void initializeCommon() {
-		//todo LATER save cmd color support and '/dest send <IGN>' support
 		configDir = FabricLoader.getInstance().getConfigDir().toFile()+"/";
 		config.load();
 		//START
