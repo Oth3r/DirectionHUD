@@ -1,5 +1,5 @@
 # DirectionHUD
-[![github](https://img.shields.io/github/v/release/oth3r/DirectionHUD-F?color=blueviolet&logo=github)](https://github.com/Oth3r/DirectionHUD-F/releases)  [![discord](https://dcbadge.vercel.app/api/server/Mec6yNQ9B7?style=flat)](https://discord.gg/Mec6yNQ9B7) [![modrinth](https://img.shields.io/modrinth/dt/directionhud?label=Modrinth&logo=modrinth)](https://modrinth.com/mod/directionhud) [![curseforge](https://cf.way2muchnoise.eu/843483.svg)](https://www.curseforge.com/minecraft/mc-mods/directionhud-fabric)
+[![github](https://img.shields.io/github/issues/Oth3r/DirectionHUD?label=Issues)](https://github.com/Oth3r/DirectionHUD/issues)  [![discord](https://dcbadge.vercel.app/api/server/Mec6yNQ9B7?style=flat)](https://discord.gg/Mec6yNQ9B7) [![modrinth](https://img.shields.io/modrinth/dt/directionhud?label=Modrinth&logo=modrinth)](https://modrinth.com/mod/directionhud) [![curseforge](https://cf.way2muchnoise.eu/843483.svg)](https://www.curseforge.com/minecraft/mc-mods/directionhud-fabric)
 
 DirectionHUD is a fully customizable Minecraft Fabric mod that enhances the vanilla navigation experience.
 With the mod, you can save coordinates, track other players, see death locations, all with full customization with the **/hud** and **/destination** commands.
