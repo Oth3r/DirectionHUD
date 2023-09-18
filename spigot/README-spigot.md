@@ -3,7 +3,7 @@
 
 DirectionHUD is a fully customizable Minecraft plugin that enhances the vanilla navigation experience.
 With the plugin, you can save coordinates, track other players, see death locations, all with full customization with the **/hud** and **/destination** commands.
-
+## Help localize DirectionHUD on [Loco](https://localise.biz/oth3r/directionhud#!l=1)!
 ![overview](https://github.com/Oth3r/DirectionHUD/blob/master/media/directionhud%20overview.gif?raw=true)
 
 ***How do I set custom destinations?*** - You can use **/dest set <XYZ>** to set a destination, but the main commands for the mod are **/hud** and **/destination**, if you are stuck try one of them out!
