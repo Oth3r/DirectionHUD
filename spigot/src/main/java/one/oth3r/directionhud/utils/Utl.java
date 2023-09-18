@@ -111,12 +111,14 @@ public class Utl {
         HUD.hour = (int) ((timeTicks / 1000 + 6) % 24);
         HUD.minute = (int) ((timeTicks % 1000) * 60 / 1000);
         if (world.hasStorm()) {
+            //https://minecraft.fandom.com/wiki/Daylight_cycle
             String str;
             if (Utl.inBetween((int) timeTicks, 12010,23992)) str = Assets.symbols.moon;
             else str = Assets.symbols.sun;
-            if (world.isThundering()) HUD.weatherIcon = str + Assets.symbols.thunder;
+            // if thundering always can sleep
+            if (world.isThundering()) HUD.weatherIcon = Assets.symbols.moon + Assets.symbols.thunder;
             else HUD.weatherIcon = str + Assets.symbols.rain;
-        } else if (Utl.inBetween((int) timeTicks, 12010,23992)) HUD.weatherIcon = Assets.symbols.moon;
+        } else if (Utl.inBetween((int) timeTicks, 12542,23460)) HUD.weatherIcon = Assets.symbols.moon;
         else HUD.weatherIcon = Assets.symbols.sun;
     }
     public static ArrayList<String> xyzSuggester(Player player, String type) {
