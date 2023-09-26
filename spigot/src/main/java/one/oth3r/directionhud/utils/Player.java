@@ -62,7 +62,13 @@ public class Player {
     }
     // Call after toggling/updating the hud.
     public void updateHUD() {
-        if (!PlayerData.get.hud.state(this)) this.sendActionBar(CTxT.of(""));
+        // if toggled off
+        if (!PlayerData.get.hud.state(this)) {
+            //if actionbar send empty to clear else remove bossbar
+            if (PlayerData.get.hud.setting.get(this,HUD.Settings.type).equals(config.HUDTypes.actionbar.toString()))
+                this.sendActionBar(CTxT.of(""));
+            else DirectionHUD.bossBarManager.removePlayer(this);
+        }
         if (PlayerData.get.hud.setting.get(this,HUD.Settings.type).equals(config.HUDTypes.actionbar.toString()))
             DirectionHUD.bossBarManager.removePlayer(this);
         else this.sendActionBar(CTxT.of(""));

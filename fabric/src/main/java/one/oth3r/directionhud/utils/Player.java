@@ -70,10 +70,19 @@ public class Player {
     }
     // Call after toggling the hud.
     public void updateHUD() {
-        if (!PlayerData.get.hud.state(this)) this.sendActionBar(CTxT.of(""));
+        // if toggled off
+        if (!PlayerData.get.hud.state(this)) {
+            //if actionbar send empty to clear else remove bossbar
+            if (PlayerData.get.hud.setting.get(this,HUD.Settings.type).equals(config.HUDTypes.actionbar.toString()))
+                this.sendActionBar(CTxT.of(""));
+            else DirectionHUD.bossBarManager.removePlayer(this);
+        }
         if (PlayerData.get.hud.setting.get(this, HUD.Settings.type).equals(config.HUDTypes.actionbar.toString()))
             DirectionHUD.bossBarManager.removePlayer(this);
         else this.sendActionBar(CTxT.of(""));
+        //send the player a packet with the current hud state
+        //todo switch to a system to make the bar on the client, or atleast look into it -
+        // as bossbar may not be able to be simulated on client without server
         if (DirectionHUD.players.get(this)) {
             PacketBuilder packet = new PacketBuilder(String.valueOf(PlayerData.get.hud.state(this)));
             packet.sendToPlayer(PacketBuilder.HUD_STATE, player);
