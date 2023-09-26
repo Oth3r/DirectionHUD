@@ -165,13 +165,11 @@ public class HUD {
             distance.add("s"+ Destination.getDist(player));
             distance.add("p]");
         }
+        //TRACKING
         if (PlayerData.get.hud.getModule(player,"tracking")) {
-            String track = getTracking(player);
-            if (!track.equals("???")) {
-                tracking.add("/p[");
-                tracking.add("s"+getTracking(player));
-                tracking.add("/p]");
-            }
+            tracking.add("/p[");
+            tracking.add("s"+getTracking(player));
+            tracking.add("/p]");
         }
         ArrayList<String> direction = new ArrayList<>();
         direction.add("p"+getPlayerDirection(player));
@@ -194,34 +192,44 @@ public class HUD {
         modules.put("tracking", tracking);
         int start = 1;
         CTxT msg = CTxT.of("");
+        // loop for all enabled modules
         for (int i = 0; i < HUD.modules.getEnabled(player).size(); i++) {
+            String enabledModule = HUD.modules.getEnabled(player).get(i);
+            // if dest isn't set
             if (!Destination.get(player).hasXYZ()) {
-                if (modules.get(HUD.modules.getEnabled(player).get(i)).equals(destination) ||
-                        modules.get(HUD.modules.getEnabled(player).get(i)).equals(distance)) continue;
+                // if dest or distance, remove
+                if (modules.get(enabledModule).equals(destination) || modules.get(enabledModule).equals(distance)) continue;
             }
-            for (String str : modules.get(HUD.modules.getEnabled(player).get(i))) {
+            // if tracking module
+            if (modules.get(enabledModule).equals(tracking)) {
+                // if tracking type is dest and dest is off, remove.
+                // else player tracking type and no player tracked, remove
+                if (PlayerData.get.hud.setting.get(player,Settings.module__tracking_target).equals(config.HUDTrackingTargets.dest.toString())) {
+                    if (!Destination.get(player).hasXYZ()) continue;
+                } else if (Destination.social.track.getTarget(player) == null) continue;
+            }
+            for (String str : modules.get(enabledModule)) {
                 String string = str.substring(1);
                 boolean strike = false;
+                // if '/', remove the char and enable strikethrough for the text
                 if (str.charAt(0) == '/') {
                     str = str.substring(1);
                     string = string.substring(1);
                     strike = true;
                 }
-                if (str.charAt(0) == 'p') {
-                    msg.append(color.addColor(player,string,1, LoopManager.rainbowF+start,5)
-                            .strikethrough(strike));
-                    if (color.getHUDColor(player,1).equals("rainbow"))
-                        start = start + (string.replaceAll("\\s", "").length()*5);
-                } else if (str.charAt(0) == 's') {
-                    msg.append(color.addColor(player,string,2, LoopManager.rainbowF+start,5)
-                            .strikethrough(strike));
-                    if (color.getHUDColor(player,2).equals("rainbow"))
-                        start = start + (string.replaceAll("\\s", "").length()*5);
-                }
+                // if 'p' use primary color, 's' for secondary
+                int typ = str.charAt(0) == 'p'?1:2;
+                // add the color and style
+                msg.append(color.addColor(player,string,typ, LoopManager.rainbowF+start,5)
+                        .strikethrough(strike));
+                // if rainbow, move the starting position by how many characters were turned into a rainbow, for a seamless rainbow
+                if (color.getHUDColor(player,typ).equals("rainbow"))
+                    start = start + (string.replaceAll("\\s", "").length()*5);
             }
             if (i-1 < HUD.modules.getEnabled(player).size()) msg.append(" ");
         }
         if (msg.equals(CTxT.of(""))) return;
+        //make the click event unique for detecting if an actionbar is from DirectionHUD or not
         msg.cEvent(3,"https://modrinth.com/mod/directionhud");
         player.buildHUD(msg);
     }
