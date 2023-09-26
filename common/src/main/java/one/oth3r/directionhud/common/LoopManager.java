@@ -55,6 +55,10 @@ public class LoopManager {
             if ((boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.particles__line))
                 player.spawnParticleLine(Destination.get(player).getVec(player),Utl.particle.LINE);
         }
+        // INFO
+        // tracking.offline = offline message, null if not sent
+        // tracking.dimension = not in same dimension message, null if not sent
+        // tracking.converted = tracker converted message, null if not sent
         if (PlayerData.get.dest.getTracking(player) != null) {
             //if they turned it off
             if (!(boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.features__track))
@@ -76,15 +80,15 @@ public class LoopManager {
             if (!trackingP.getDimension().equals(player.getDimension())) {
                 particleState = false;
                 // AUTOCONVERT ON AND CONVERTIBLE
-                if ((boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.autoconvert) && Utl.dim.canConvert(player.getDimension(),trackingP.getDimension())) {
+                if ((boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.autoconvert) &&
+                        Utl.dim.canConvert(player.getDimension(),trackingP.getDimension())) {
                     if (PlayerData.getOneTime(player, "tracking.converted") == null) {
                         //SEND MSG IF HAVENT B4
                         player.sendMessage(CUtl.tag().append(CUtl.lang("dest.autoconvert.tracking")).append("\n ")
-                                .append(CUtl.lang("dest.autoconvert.info",
-                                                CTxT.of(Utl.dim.getName(trackingP.getDimension())).italic(true).color(Utl.dim.getHEX(trackingP.getDimension())),
-                                                CTxT.of(Utl.dim.getName(player.getDimension())).italic(true).color(Utl.dim.getHEX(player.getDimension())))
+                                .append(CUtl.lang("dest.autoconvert.tracking.info",
+                                                CTxT.of(Utl.dim.getName(trackingP.getDimension())).italic(true).color(Utl.dim.getHEX(trackingP.getDimension())))
                                         .italic(true).color('7')));
-                        PlayerData.setOneTime(player, "tracking.converted",player.getDimension());
+                        PlayerData.setOneTime(player, "tracking.converted",trackingP.getDimension());
                     }
                     particleState = true;
                     Loc tLoc = new Loc(trackingP);
@@ -95,16 +99,16 @@ public class LoopManager {
                     //RESET CONVERT
                     PlayerData.setOneTime(player, "tracking.converted", null);
                     player.sendMessage(CUtl.tag().append(CUtl.lang("dest.track.dimension").append("\n ")
-                            .append(CUtl.lang("dest.track.dimension_2",
-                                    CTxT.of(trackingP.getName()).color(CUtl.s())).color('7').italic(true))));
+                            .append(CUtl.lang("dest.autoconvert.tracking.info",
+                                            CTxT.of(Utl.dim.getName(trackingP.getDimension())).italic(true).color(Utl.dim.getHEX(trackingP.getDimension())))
+                                    .italic(true).color('7'))));
                     PlayerData.setOneTime(player, "tracking.dimension", "1");
                 }
             } else if (PlayerData.getOneTime(player, "tracking.converted") != null) {
                 //SAME DIM & RESET CONVERT MSG
                 player.sendMessage(CUtl.tag().append(CUtl.lang("dest.autoconvert.tracking")).append("\n ")
-                        .append(CUtl.lang("dest.autoconvert.info",
-                                        CTxT.of(Utl.dim.getName(PlayerData.getOneTime(player, "tracking.converted"))).italic(true).color(Utl.dim.getHEX(PlayerData.getOneTime(player, "tracking.converted"))),
-                                        CTxT.of(Utl.dim.getName(player.getDimension())).italic(true).color(Utl.dim.getHEX(player.getDimension())))
+                        .append(CUtl.lang("dest.autoconvert.tracking.info",
+                                        CTxT.of(Utl.dim.getName(trackingP.getDimension())).italic(true).color(Utl.dim.getHEX(trackingP.getDimension())))
                                 .italic(true).color('7')));
                 PlayerData.setOneTime(player, "tracking.converted", null);
             } else if (PlayerData.getOneTime(player, "tracking.dimension") != null) {
