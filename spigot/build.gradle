@@ -56,5 +56,7 @@ processResources {
 }
 //build in testing server dir
 //jar {
+//    base.archivesName = "directionhud-spigot-dev"
+//    version = 0
 //    destinationDirectory = file("R:/Coding/1 Servers/2Latest Paper/plugins")
 //}
