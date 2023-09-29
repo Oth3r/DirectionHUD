@@ -7,11 +7,13 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.HashMap;
+
 @Mixin(MinecraftClient.class)
 public class OnClientDisconnect {
     @Inject(at = @At("HEAD"), method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V")
     private void onClientDisconnect(CallbackInfo info) {
         DirectionHUDClient.onSupportedServer = false;
-        DirectionHUDClient.hudState = false;
+        DirectionHUDClient.packetData = new HashMap<>();
     }
 }

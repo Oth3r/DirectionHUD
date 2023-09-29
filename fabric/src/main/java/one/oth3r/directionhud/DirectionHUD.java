@@ -14,10 +14,8 @@ import net.minecraft.util.WorldSavePath;
 import one.oth3r.directionhud.commands.DestinationCommand;
 import one.oth3r.directionhud.commands.DirHUDCommand;
 import one.oth3r.directionhud.commands.HUDCommand;
-import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.Events;
 import one.oth3r.directionhud.common.LoopManager;
-import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.utils.BossBarManager;
 import one.oth3r.directionhud.utils.Player;
@@ -72,9 +70,9 @@ public class DirectionHUD {
 		//PACKETS
 		ServerPlayNetworking.registerGlobalReceiver(PacketBuilder.INITIALIZATION_PACKET,
 				(server, player, handler, buf, responseSender) -> server.execute(() -> {
-					DirectionHUD.players.put(Player.of(player),true);
-					PacketBuilder packet = new PacketBuilder(PlayerData.get.hud.state(Player.of(player))+"");
-					packet.sendToPlayer(PacketBuilder.HUD_STATE,player);
+					Player dPlayer = Player.of(player);
+					DirectionHUD.players.put(dPlayer,true);
+					dPlayer.sendPackets();
 				}));
 		//COMMANDS
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {

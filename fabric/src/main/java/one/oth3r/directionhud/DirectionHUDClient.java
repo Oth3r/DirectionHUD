@@ -1,5 +1,7 @@
 package one.oth3r.directionhud;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
@@ -8,9 +10,12 @@ import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import org.lwjgl.glfw.GLFW;
 
+import java.lang.reflect.Type;
+import java.util.HashMap;
+
 public class DirectionHUDClient implements ClientModInitializer {
     public static boolean onSupportedServer = false;
-    public static boolean hudState = false;
+    public static HashMap<String, Object> packetData = new HashMap<>();
     private static KeyBinding keyBinding;
     @Override
     public void onInitializeClient() {
@@ -41,10 +46,12 @@ public class DirectionHUDClient implements ClientModInitializer {
                 sPacket.sendToServer(PacketBuilder.INITIALIZATION_PACKET);
             });
         });
-        ClientPlayNetworking.registerGlobalReceiver(PacketBuilder.HUD_STATE, (client, handler, buf, responseSender) -> {
+        ClientPlayNetworking.registerGlobalReceiver(PacketBuilder.DATA_PACKET, (client, handler, buf, responseSender) -> {
             PacketBuilder packet = new PacketBuilder(buf);
             assert client.player != null;
-            client.execute(() -> hudState = Boolean.parseBoolean(packet.getMessage()));
+            Type arrayListMap = new TypeToken<HashMap<String,Object>>() {}.getType();
+            client.execute(() -> packetData = new Gson().fromJson(packet.getMessage(),arrayListMap));
+            System.out.println(packetData.toString());
         });
     }
 }
