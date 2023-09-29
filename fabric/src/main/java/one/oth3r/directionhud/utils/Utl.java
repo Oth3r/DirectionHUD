@@ -111,7 +111,8 @@ public class Utl {
             String str;
             if (world.isNight()) str = Assets.symbols.moon;
             else str = Assets.symbols.sun;
-            if (world.isThundering()) HUD.weatherIcon = str + Assets.symbols.thunder;
+            // can sleep during thunderstorm
+            if (world.isThundering()) HUD.weatherIcon = Assets.symbols.moon + Assets.symbols.thunder;
             else HUD.weatherIcon = str + Assets.symbols.rain;
         } else if (world.isNight()) HUD.weatherIcon = Assets.symbols.moon;
         else HUD.weatherIcon = Assets.symbols.sun;
