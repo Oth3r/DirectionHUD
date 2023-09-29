@@ -1,5 +1,7 @@
 package one.oth3r.directionhud.utils;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.server.command.ServerCommandSource;
@@ -15,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -80,12 +83,20 @@ public class Player {
         if (PlayerData.get.hud.setting.get(this, HUD.Settings.type).equals(config.HUDTypes.actionbar.toString()))
             DirectionHUD.bossBarManager.removePlayer(this);
         else this.sendActionBar(CTxT.of(""));
-        //send the player a packet with the current hud state
-        //todo switch to a system to make the bar on the client, or atleast look into it -
+        //todo switch to a system to make the HUD on the client, or atleast look into it -
         // as bossbar may not be able to be simulated on client without server
+        //send the player a packet with the current hud state
+        sendPackets();
+    }
+    public void sendPackets() {
+        // if player has DirectionHUD on client, send a hashmap with data
         if (DirectionHUD.players.get(this)) {
-            PacketBuilder packet = new PacketBuilder(String.valueOf(PlayerData.get.hud.state(this)));
-            packet.sendToPlayer(PacketBuilder.HUD_STATE, player);
+            Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+            HashMap<String,Object> map = new HashMap<>();
+            map.put("state",PlayerData.get.hud.state(Player.of(player)));
+            map.put("type",PlayerData.get.hud.setting.get(Player.of(player), HUD.Settings.type));
+            PacketBuilder packet = new PacketBuilder(gson.toJson(map));
+            packet.sendToPlayer(PacketBuilder.DATA_PACKET,player);
         }
     }
     public void buildHUD(CTxT message) {
