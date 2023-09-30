@@ -557,13 +557,13 @@ public class HUD {
     public static class color {
         public static void reset(Player player,String setting, String type, boolean Return) {
             if (type == null) {
-                PlayerData.set.hud.primary(player, defaultFormat(1));
-                PlayerData.set.hud.secondary(player, defaultFormat(2));
+                PlayerData.set.hud.color(player,1, defaultFormat(1));
+                PlayerData.set.hud.color(player,1, defaultFormat(2));
                 type = "all";
             } else if (type.equals("primary")) {
-                PlayerData.set.hud.primary(player, defaultFormat(1));
+                PlayerData.set.hud.color(player,1, defaultFormat(1));
             } else if (type.equals("secondary")) {
-                PlayerData.set.hud.secondary(player, defaultFormat(2));
+                PlayerData.set.hud.color(player,1, defaultFormat(2));
             } else return;
             CTxT msg = CUtl.tag().append(lang("color.reset",CUtl.TBtn("reset").color('c'),lang("color."+type)));
             if (Return && type.equals("all")) UI(player,msg);
@@ -576,7 +576,7 @@ public class HUD {
         public static void setColor(Player player, String setting, String type, String color, boolean Return) {
             int typ = type.equals("primary")?1:2;
             if (CUtl.color.checkValid(color,getHUDColor(player,typ))) {
-                PlayerData.set.hud.primary(player,CUtl.color.format(color)+"-"+getHUDBold(player,typ)+"-"+getHUDItalics(player,typ)+"-"+getHUDRGB(player,typ));
+                PlayerData.set.hud.color(player,typ,CUtl.color.format(color)+"-"+getHUDBold(player,typ)+"-"+getHUDItalics(player,typ)+"-"+getHUDRGB(player,typ));
             } else {
                 player.sendMessage(CUtl.error(CUtl.lang("error.color")));
                 return;
@@ -586,39 +586,25 @@ public class HUD {
             else player.sendMessage(msg);
         }
         public static void setBold(Player player, String setting, String type, boolean state, boolean Return) {
-            if (type.equals("primary")) {
-                if (getHUDBold(player, 1)==state) return;
-                PlayerData.set.hud.primary(player, getHUDColor(player,1)+"-"+state+"-"+getHUDItalics(player,1)+"-"+getHUDRGB(player,1));
-            } else if (type.equals("secondary")) {
-                if (getHUDBold(player, 2)==state) return;
-                PlayerData.set.hud.secondary(player, getHUDColor(player,2)+"-"+state+"-"+getHUDItalics(player,2)+"-"+getHUDRGB(player,2));
-            } else return;
+            int typ = type.equals("primary")?1:2;
+            PlayerData.set.hud.color(player,typ,getHUDColor(player,typ)+"-"+state+"-"+getHUDItalics(player,typ)+"-"+getHUDRGB(player,typ));
             CTxT msg = CUtl.tag().append(lang("color.set.bold",
                     CUtl.lang("button."+(state?"on":"off")).color(state?'a':'c'),lang("color."+type)));
             if (Return) changeUI(player,setting,type,msg);
             else player.sendMessage(msg);
         }
         public static void setItalics(Player player, String setting, String type, boolean state, boolean Return) {
-            if (type.equals("primary")) {
-                if (getHUDItalics(player, 1)==state) return;
-                PlayerData.set.hud.primary(player, getHUDColor(player,1)+"-"+getHUDBold(player,1)+"-"+state+"-"+getHUDRGB(player,1));
-            } else if (type.equals("secondary")){
-                if (getHUDItalics(player, 2)==state) return;
-                PlayerData.set.hud.secondary(player, getHUDColor(player,2)+"-"+getHUDBold(player,2)+"-"+state+"-"+getHUDRGB(player,2));
-            } else return;
+            int typ = type.equals("primary")?1:2;
+            PlayerData.set.hud.color(player,typ,getHUDColor(player,typ)+"-"+getHUDBold(player,typ)+"-"+state+"-"+getHUDRGB(player,typ));
             CTxT msg = CUtl.tag().append(lang("color.set.italics",
                     CUtl.lang("button."+(state?"on":"off")).color(state?'a':'c'),lang("color."+type)));
             if (Return) changeUI(player,setting,type,msg);
             else player.sendMessage(msg);
         }
         public static void setRGB(Player player, String setting, String type, boolean state, boolean Return) {
-            if (type.equals("primary")) {
-                if (getHUDRGB(player, 1)==state) return;
-                PlayerData.set.hud.primary(player, getHUDColor(player,1)+"-"+getHUDBold(player,1)+"-"+getHUDItalics(player,1)+"-"+state);
-            } else if (type.equals("secondary")){
-                if (getHUDRGB(player, 2)==state) return;
-                PlayerData.set.hud.secondary(player, getHUDColor(player,2)+"-"+getHUDBold(player,2)+"-"+getHUDItalics(player,1)+"-"+state);
-            } else return;
+            int typ = type.equals("primary")?1:2;
+            if (getHUDRGB(player, typ)==state) return;
+            PlayerData.set.hud.color(player,typ, getHUDColor(player,typ)+"-"+getHUDBold(player,typ)+"-"+getHUDItalics(player,typ)+"-"+state);
             CTxT msg = CUtl.tag().append(lang("color.set.rgb",
                     CUtl.lang("button."+(state?"on":"off")).color(state?'a':'c'),lang("color."+type)));
             if (Return) changeUI(player,setting,type,msg);
@@ -629,26 +615,26 @@ public class HUD {
             return config.HUDSecondaryColor+"-"+ config.HUDSecondaryBold+"-"+ config.HUDSecondaryItalics+"-"+ config.HUDSecondaryRainbow;
         }
         public static String getHUDColor(Player player, int i) {
-            String[] p = PlayerData.get.hud.primary(player).split("-");
-            String[] s = PlayerData.get.hud.secondary(player).split("-");
+            String[] p = PlayerData.get.hud.color(player,1).split("-");
+            String[] s = PlayerData.get.hud.color(player,2).split("-");
             if (i==1) return p[0];
             return s[0];
         }
         public static Boolean getHUDBold(Player player, int i) {
-            String[] p = PlayerData.get.hud.primary(player).split("-");
-            String[] s = PlayerData.get.hud.secondary(player).split("-");
+            String[] p = PlayerData.get.hud.color(player,1).split("-");
+            String[] s = PlayerData.get.hud.color(player,2).split("-");
             if (i==1) return Boolean.parseBoolean(p[1]);
             return Boolean.parseBoolean(s[1]);
         }
         public static Boolean getHUDItalics(Player player, int i) {
-            String[] p = PlayerData.get.hud.primary(player).split("-");
-            String[] s = PlayerData.get.hud.secondary(player).split("-");
+            String[] p = PlayerData.get.hud.color(player,1).split("-");
+            String[] s = PlayerData.get.hud.color(player,2).split("-");
             if (i==1) return Boolean.parseBoolean(p[2]);
             return Boolean.parseBoolean(s[2]);
         }
         public static Boolean getHUDRGB(Player player, int i) {
-            String[] p = PlayerData.get.hud.primary(player).split("-");
-            String[] s = PlayerData.get.hud.secondary(player).split("-");
+            String[] p = PlayerData.get.hud.color(player,1).split("-");
+            String[] s = PlayerData.get.hud.color(player,2).split("-");
             if (i==1) return Boolean.parseBoolean(p[3]);
             return Boolean.parseBoolean(s[3]);
         }

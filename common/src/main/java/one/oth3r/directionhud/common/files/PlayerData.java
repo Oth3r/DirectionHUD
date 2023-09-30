@@ -397,11 +397,8 @@ public class PlayerData {
             public static boolean state(Player player) {
                 return (boolean) get(player).get("enabled");
             }
-            public static String primary(Player player) {
-                return (String) get(player).get("primary");
-            }
-            public static String secondary(Player player) {
-                return (String) get(player).get("secondary");
+            public static String color(Player player, int typ) {
+                return (String) get(player).get(typ==1?"primary":"secondary");
             }
             public static class setting {
                 public static Map<String,Object> map(Player player) {
@@ -499,14 +496,9 @@ public class PlayerData {
                 data.put("enabled", b);
                 map(player, data);
             }
-            public static void primary(Player player, String color) {
+            public static void color(Player player, int typ, String color) {
                 Map<String,Object> data = get.hud.get(player);
-                data.put("primary", color);
-                map(player, data);
-            }
-            public static void secondary(Player player, String color) {
-                Map<String,Object> data = get.hud.get(player);
-                data.put("secondary", color);
+                data.put(typ==1?"primary":"secondary", color);
                 map(player, data);
             }
             public static class setting {
