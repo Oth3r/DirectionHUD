@@ -1,9 +1,11 @@
 # DirectionHUD (SPIGOT)
-[![github](https://img.shields.io/github/issues/Oth3r/DirectionHUD?label=Issues)](https://github.com/Oth3r/DirectionHUD/issues)  [![discord](https://dcbadge.vercel.app/api/server/Mec6yNQ9B7?style=flat)](https://discord.gg/Mec6yNQ9B7) [![modrinth](https://img.shields.io/modrinth/dt/directionhud-plugin?label=Modrinth&logo=modrinth)](https://modrinth.com/mod/directionhud-plugin) [![spigot](https://pluginbadges.glitch.me/api/v1/dl/Spigot-orange.svg?spigot=directionhud.111247&style=flat)](https://www.spigotmc.org/resources/directionhud.111247/)
+[![github](https://img.shields.io/github/issues/Oth3r/DirectionHUD?label=Issues)](https://github.com/Oth3r/DirectionHUD/issues) [![Crowdin](https://badges.crowdin.net/directionhud/localized.svg)](https://crowdin.com/project/directionhud) [![discord](https://dcbadge.vercel.app/api/server/Mec6yNQ9B7?style=flat)](https://discord.gg/Mec6yNQ9B7) 
+
+[![modrinth](https://img.shields.io/modrinth/dt/directionhud-plugin?label=Modrinth&logo=modrinth)](https://modrinth.com/mod/directionhud-plugin) [![spigot](https://pluginbadges.glitch.me/api/v1/dl/Spigot-orange.svg?spigot=directionhud.111247&style=flat)](https://www.spigotmc.org/resources/directionhud.111247/)
 
 DirectionHUD is a fully customizable Minecraft plugin that enhances the vanilla navigation experience.
 With the plugin, you can save coordinates, track other players, see death locations, all with full customization with the **/hud** and **/destination** commands.
-## Help localize DirectionHUD on [Loco](https://localise.biz/oth3r/directionhud#!l=1)!
+## Help localize DirectionHUD on [Crowdin](https://crowdin.com/project/directionhud/)!
 ![overview](https://github.com/Oth3r/DirectionHUD/blob/master/media/directionhud%20overview.gif?raw=true)
 
 ***How do I set custom destinations?*** - You can use **/dest set <XYZ>** to set a destination, but the main commands for the mod are **/hud** and **/destination**, if you are stuck try one of them out!
@@ -54,6 +56,4 @@ Change default HUD configurations and settings using the DirectionHUD **config f
 \
 **/directionhud defaults** also works if you enable the permissions - Set defaults to your current settings with one click!
 
-## Future Goals
-* More UI options
-  * Server inventory UI: Chat scrolling too fast? Want that classic inventory UI feel? 
+## Future Goals - [GitHub](https://github.com/Oth3r/DirectionHUD)
