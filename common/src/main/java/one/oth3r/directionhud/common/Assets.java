@@ -72,4 +72,15 @@ public class Assets {
         public static final String envelope = "\u2709";
         public static final String lighting_bolt = "\u26a1";
     }
+    public enum packets {
+        INITIALIZATION("initialize"),
+        SETTINGS("player_settings");
+        private final String identifier;
+        packets(String key) {
+            this.identifier = key;
+        }
+        public String getIdentifier() {
+            return identifier;
+        }
+    }
 }

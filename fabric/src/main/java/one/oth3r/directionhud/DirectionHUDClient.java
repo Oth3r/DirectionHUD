@@ -5,9 +5,11 @@ import com.google.gson.reflect.TypeToken;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import one.oth3r.directionhud.common.Assets;
 import org.lwjgl.glfw.GLFW;
 
 import java.lang.reflect.Type;
@@ -36,22 +38,20 @@ public class DirectionHUDClient implements ClientModInitializer {
                 }
             }
         });
-        ClientPlayNetworking.registerGlobalReceiver(PacketBuilder.INITIALIZATION_PACKET, (client, handler, buf, responseSender) -> {
+        ClientPlayNetworking.registerGlobalReceiver(PacketBuilder.getIdentifier(Assets.packets.SETTINGS), (client, handler, buf, responseSender) -> {
+            // receiving data packets from the server
             PacketBuilder packet = new PacketBuilder(buf);
             assert client.player != null;
-            client.execute(() -> {
-                DirectionHUD.LOGGER.info(packet.getMessage());
-                onSupportedServer = true;
-                PacketBuilder sPacket = new PacketBuilder("");
-                sPacket.sendToServer(PacketBuilder.INITIALIZATION_PACKET);
-            });
+            Type arrayListMap = new TypeToken<HashMap<String, Object>>() {}.getType();
+            client.execute(() -> packetData = new Gson().fromJson(packet.getMessage(), arrayListMap));
+            onSupportedServer = true;
         });
-        ClientPlayNetworking.registerGlobalReceiver(PacketBuilder.DATA_PACKET, (client, handler, buf, responseSender) -> {
-            PacketBuilder packet = new PacketBuilder(buf);
-            assert client.player != null;
-            Type arrayListMap = new TypeToken<HashMap<String,Object>>() {}.getType();
-            client.execute(() -> packetData = new Gson().fromJson(packet.getMessage(),arrayListMap));
-            System.out.println(packetData.toString());
+        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
+            // send an initialization packet whenever joining a server
+            client.execute(() -> {
+                PacketBuilder sPacket = new PacketBuilder("Hello from DirectionHUD client!");
+                sPacket.sendToServer(PacketBuilder.getIdentifier(Assets.packets.INITIALIZATION));
+            });
         });
     }
 }

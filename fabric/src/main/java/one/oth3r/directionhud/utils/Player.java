@@ -8,6 +8,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Vec3d;
 import one.oth3r.directionhud.PacketBuilder;
+import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.common.files.config;
@@ -90,13 +91,13 @@ public class Player {
     }
     public void sendPackets() {
         // if player has DirectionHUD on client, send a hashmap with data
-        if (DirectionHUD.players.get(this)) {
+        if (DirectionHUD.clientPlayers.contains(this)) {
             Gson gson = new GsonBuilder().disableHtmlEscaping().create();
             HashMap<String,Object> map = new HashMap<>();
             map.put("state",PlayerData.get.hud.state(Player.of(player)));
             map.put("type",PlayerData.get.hud.setting.get(Player.of(player), HUD.Settings.type));
             PacketBuilder packet = new PacketBuilder(gson.toJson(map));
-            packet.sendToPlayer(PacketBuilder.DATA_PACKET,player);
+            packet.sendToPlayer(Assets.packets.SETTINGS,player);
         }
     }
     public void buildHUD(CTxT message) {

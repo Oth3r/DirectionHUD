@@ -1,7 +1,11 @@
 package one.oth3r.directionhud.utils;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import net.md_5.bungee.api.ChatMessageType;
 import one.oth3r.directionhud.DirectionHUD;
+import one.oth3r.directionhud.PacketHelper;
+import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.common.files.config;
@@ -13,6 +17,7 @@ import org.bukkit.util.Vector;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -72,6 +77,17 @@ public class Player {
         if (PlayerData.get.hud.setting.get(this,HUD.Settings.type).equals(config.HUDTypes.actionbar.toString()))
             DirectionHUD.bossBarManager.removePlayer(this);
         else this.sendActionBar(CTxT.of(""));
+        sendPackets();
+    }
+    public void sendPackets() {
+        // if player has DirectionHUD on client, send a hashmap with data
+        if (DirectionHUD.clientPlayers.contains(this)) {
+            Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+            HashMap<String,Object> map = new HashMap<>();
+            map.put("state",PlayerData.get.hud.state(Player.of(player)));
+            map.put("type",PlayerData.get.hud.setting.get(Player.of(player), HUD.Settings.type));
+            PacketHelper.sendPacket(this,PacketHelper.getChannel(Assets.packets.SETTINGS),gson.toJson(map));
+        }
     }
     public void buildHUD(CTxT message) {
         if (message.getString().equals("")) {

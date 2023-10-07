@@ -35,11 +35,10 @@ public class Events {
     }
     public static void playerJoin(Player player) {
         PlayerData.addPlayer(player);
-        DirectionHUD.players.put(player,false);
     }
     public static void playerLeave(Player player) {
         PlayerData.removePlayer(player);
-        DirectionHUD.players.remove(player);
+        DirectionHUD.clientPlayers.remove(player);
         DirectionHUD.bossBarManager.removePlayer(player);
     }
     public static void playerChangeWorld(Player player, String fromDIM, String toDIM) {

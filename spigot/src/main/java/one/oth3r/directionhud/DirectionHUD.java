@@ -9,15 +9,19 @@ import one.oth3r.directionhud.common.LoopManager;
 import one.oth3r.directionhud.utils.BossBarManager;
 import one.oth3r.directionhud.utils.Player;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.logging.Logger;
 
-public class DirectionHUD extends JavaPlugin {
+public class DirectionHUD extends JavaPlugin implements PluginMessageListener {
+    public static ArrayList<Player> clientPlayers = new ArrayList<>();
+    public static Plugin plugin;
     public static final String PRIMARY = "#ff8e16";
     public static final String SECONDARY = "#42a0ff";
     public static BossBarManager bossBarManager = new BossBarManager();
@@ -25,7 +29,6 @@ public class DirectionHUD extends JavaPlugin {
     public static String CONFIG_DIR;
     public static Logger LOGGER;
     public static String VERSION;
-    public static HashMap<Player,Boolean> players = new HashMap<>();
     public static String playerData;
     public static String configDir;
     public static final boolean isMod = false;
@@ -33,6 +36,7 @@ public class DirectionHUD extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        plugin = this;
         PLAYERDATA_DIR = this.getDataFolder().getPath()+"/playerdata/";
         CONFIG_DIR = this.getDataFolder().getPath()+"/";
         PluginDescriptionFile pdf = Objects.requireNonNull(Bukkit.getServer().getPluginManager().getPlugin("DirectionHUD")).getDescription();
@@ -54,9 +58,25 @@ public class DirectionHUD extends JavaPlugin {
                 LoopManager.tick();
             }
         }.runTaskTimerAsynchronously(this, 0L, 1L);
+        // register incoming and outgoing packets
+        this.getServer().getMessenger().registerIncomingPluginChannel(this, PacketHelper.getChannel(Assets.packets.INITIALIZATION), this);
+        this.getServer().getMessenger().registerOutgoingPluginChannel(this, PacketHelper.getChannel(Assets.packets.SETTINGS));
     }
     @Override
     public void onDisable() {
         Events.serverEnd();
+        // unregister packet listeners on disable
+        this.getServer().getMessenger().unregisterOutgoingPluginChannel(this);
+        this.getServer().getMessenger().unregisterIncomingPluginChannel(this);
+    }
+    @Override
+    public void onPluginMessageReceived(String channel, org.bukkit.entity.Player player, byte[] message) {
+        if (channel.equals(PacketHelper.getChannel(Assets.packets.INITIALIZATION))) {
+            // if the client has directionhud, add them to the list & send the data packets
+            DirectionHUD.LOGGER.info("Received initialization packet from "+player.getName());
+            Player dplayer = Player.of(player);
+            clientPlayers.add(dplayer);
+            dplayer.sendPackets();
+        }
     }
 }
