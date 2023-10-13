@@ -4,16 +4,17 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Vec3d;
+import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.PacketBuilder;
 import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.utils.Loc;
-import one.oth3r.directionhud.DirectionHUD;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,6 +45,12 @@ public class Player {
         return "DirectionHUD Player: "+this.getName();
     }
     public Player() {}
+    public static Player of() {
+        // creates a player object with a null inside for client use
+        Player instance = new Player();
+        instance.player = null;
+        return instance;
+    }
     public static Player of(@NotNull ServerPlayerEntity player) {
         Player instance = new Player();
         instance.player = player;
@@ -84,23 +91,22 @@ public class Player {
         if (PlayerData.get.hud.setting.get(this, HUD.Settings.type).equals(config.HUDTypes.actionbar.toString()))
             DirectionHUD.bossBarManager.removePlayer(this);
         else this.sendActionBar(CTxT.of(""));
-        //todo switch to a system to make the HUD on the client, or atleast look into it -
-        // as bossbar may not be able to be simulated on client without server
-        //send the player a packet with the current hud state
-        sendPackets();
     }
-    public void sendPackets() {
+    public void sendSettingPackets() {
         // if player has DirectionHUD on client, send a hashmap with data
         if (DirectionHUD.clientPlayers.contains(this)) {
             Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-            HashMap<String,Object> map = new HashMap<>();
-            map.put("state",PlayerData.get.hud.state(Player.of(player)));
-            map.put("type",PlayerData.get.hud.setting.get(Player.of(player), HUD.Settings.type));
-            PacketBuilder packet = new PacketBuilder(gson.toJson(map));
+            PacketBuilder packet = new PacketBuilder(gson.toJson(PlayerData.get.fromMap(this)));
             packet.sendToPlayer(Assets.packets.SETTINGS,player);
         }
     }
-    public void buildHUD(CTxT message) {
+    public void sendHUDPackets(HashMap<HUD.modules.Types, ArrayList<String>> hudData) {
+        // send the instructions to build the hud to the client
+        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+        PacketBuilder packet = new PacketBuilder(gson.toJson(hudData));
+        packet.sendToPlayer(Assets.packets.HUD,player);
+    }
+    public void displayHUD(CTxT message) {
         if (message.getString().equals("")) {
             //if the HUD is enabled but there is no output
             if (PlayerData.getOneTime(this,"hud.enabled_but_off") == null) {

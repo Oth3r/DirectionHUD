@@ -77,19 +77,20 @@ public class Player {
         if (PlayerData.get.hud.setting.get(this,HUD.Settings.type).equals(config.HUDTypes.actionbar.toString()))
             DirectionHUD.bossBarManager.removePlayer(this);
         else this.sendActionBar(CTxT.of(""));
-        sendPackets();
     }
-    public void sendPackets() {
+    public void sendSettingPackets() {
         // if player has DirectionHUD on client, send a hashmap with data
         if (DirectionHUD.clientPlayers.contains(this)) {
             Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-            HashMap<String,Object> map = new HashMap<>();
-            map.put("state",PlayerData.get.hud.state(Player.of(player)));
-            map.put("type",PlayerData.get.hud.setting.get(Player.of(player), HUD.Settings.type));
-            PacketHelper.sendPacket(this,PacketHelper.getChannel(Assets.packets.SETTINGS),gson.toJson(map));
+            PacketHelper.sendPacket(this,Assets.packets.SETTINGS,gson.toJson(PlayerData.get.fromMap(this)));
         }
     }
-    public void buildHUD(CTxT message) {
+    public void sendHUDPackets(HashMap<HUD.modules.Types, ArrayList<String>> hudData) {
+        // send the instructions to build the hud to the client
+        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+        PacketHelper.sendPacket(this, Assets.packets.HUD, gson.toJson(hudData));
+    }
+    public void displayHUD(CTxT message) {
         if (message.getString().equals("")) {
             //if the HUD is enabled but there is no output
             if (PlayerData.getOneTime(this,"hud.enabled_but_off") == null) {

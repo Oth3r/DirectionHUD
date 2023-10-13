@@ -61,6 +61,7 @@ public class DirectionHUD extends JavaPlugin implements PluginMessageListener {
         // register incoming and outgoing packets
         this.getServer().getMessenger().registerIncomingPluginChannel(this, PacketHelper.getChannel(Assets.packets.INITIALIZATION), this);
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, PacketHelper.getChannel(Assets.packets.SETTINGS));
+        this.getServer().getMessenger().registerOutgoingPluginChannel(this, PacketHelper.getChannel(Assets.packets.HUD));
     }
     @Override
     public void onDisable() {
@@ -76,7 +77,7 @@ public class DirectionHUD extends JavaPlugin implements PluginMessageListener {
             DirectionHUD.LOGGER.info("Received initialization packet from "+player.getName());
             Player dplayer = Player.of(player);
             clientPlayers.add(dplayer);
-            dplayer.sendPackets();
+            dplayer.sendSettingPackets();
         }
     }
 }

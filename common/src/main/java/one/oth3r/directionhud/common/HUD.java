@@ -151,7 +151,8 @@ public class HUD {
     private static CTxT lang(String key, Object... args) {
         return CUtl.lang("hud."+key, args);
     }
-    public static void build(Player player) {
+    public static HashMap<modules.Types, ArrayList<String>> getRawHUDText(Player player) {
+        //return a HashMap that for each HUD module, has a string with style instructions and the actual HUD
         ArrayList<String> coordinates = new ArrayList<>();
         coordinates.add("pXYZ: ");
         coordinates.add("s"+player.getBlockX()+" "+player.getBlockY()+" "+player.getBlockZ());
@@ -166,7 +167,7 @@ public class HUD {
             distance.add("p]");
         }
         //TRACKING
-        if (PlayerData.get.hud.getModule(player,"tracking")) {
+        if (PlayerData.get.hud.getModule(player,modules.Types.tracking)) {
             tracking.add("/p[");
             tracking.add("s"+getTracking(player));
             tracking.add("/p]");
@@ -182,33 +183,37 @@ public class HUD {
         }
         ArrayList<String> weather = new ArrayList<>();
         weather.add("p"+weatherIcon);
-        HashMap<String, ArrayList<String>> modules = new HashMap<>();
-        modules.put("coordinates", coordinates);
-        modules.put("distance", distance);
-        modules.put("destination", destination);
-        modules.put("direction", direction);
-        modules.put("time", time);
-        modules.put("weather", weather);
-        modules.put("tracking", tracking);
+        HashMap<modules.Types, ArrayList<String>> filledModules = new HashMap<>();
+        filledModules.put(modules.Types.coordinates, coordinates);
+        filledModules.put(modules.Types.distance, distance);
+        filledModules.put(modules.Types.destination, destination);
+        filledModules.put(modules.Types.direction, direction);
+        filledModules.put(modules.Types.time, time);
+        filledModules.put(modules.Types.weather, weather);
+        filledModules.put(modules.Types.tracking, tracking);
+        return filledModules;
+    }
+    public static CTxT build(Player player, HashMap<modules.Types, ArrayList<String>> filledModules) {
+        // returns a CTxT with the fully built HUD
         int start = 1;
         CTxT msg = CTxT.of("");
         // loop for all enabled modules
         for (int i = 0; i < HUD.modules.getEnabled(player).size(); i++) {
-            String enabledModule = HUD.modules.getEnabled(player).get(i);
+            modules.Types currentModule = HUD.modules.Types.get(HUD.modules.getEnabled(player).get(i));
             // if dest isn't set
             if (!Destination.get(player).hasXYZ()) {
                 // if dest or distance, remove
-                if (modules.get(enabledModule).equals(destination) || modules.get(enabledModule).equals(distance)) continue;
+                if (currentModule.equals(modules.Types.destination) || currentModule.equals(modules.Types.distance)) continue;
             }
             // if tracking module
-            if (modules.get(enabledModule).equals(tracking)) {
+            if (currentModule.equals(modules.Types.tracking)) {
                 // if tracking type is dest and dest is off, remove.
                 // else player tracking type and no player tracked, remove
                 if (PlayerData.get.hud.setting.get(player,Settings.module__tracking_target).equals(config.HUDTrackingTargets.dest.toString())) {
                     if (!Destination.get(player).hasXYZ()) continue;
                 } else if (Destination.social.track.getTarget(player) == null) continue;
             }
-            for (String str : modules.get(enabledModule)) {
+            for (String str : filledModules.get(currentModule)) {
                 String string = str.substring(1);
                 boolean strike = false;
                 // if '/', remove the char and enable strikethrough for the text
@@ -220,7 +225,7 @@ public class HUD {
                 // if 'p' use primary color, 's' for secondary
                 int typ = str.charAt(0) == 'p'?1:2;
                 // add the color and style
-                msg.append(color.addColor(player,string,typ, LoopManager.rainbowF+start,5)
+                msg.append(color.addColor(player,string,typ,LoopManager.rainbowF+start,5)
                         .strikethrough(strike));
                 // if rainbow, move the starting position by how many characters were turned into a rainbow, for a seamless rainbow
                 if (color.getHUDColor(player,typ).equals("rainbow"))
@@ -228,10 +233,10 @@ public class HUD {
             }
             if (i-1 < HUD.modules.getEnabled(player).size()) msg.append(" ");
         }
-        if (msg.equals(CTxT.of(""))) return;
+        if (msg.equals(CTxT.of(""))) return CTxT.of("");
         //make the click event unique for detecting if an actionbar is from DirectionHUD or not
         msg.cEvent(3,"https://modrinth.com/mod/directionhud");
-        player.buildHUD(msg);
+        return msg;
     }
     public static String getPlayerDirection(Player player) {
         double rotation = (player.getYaw() - 180) % 360;
@@ -320,6 +325,23 @@ public class HUD {
     }
     public static class modules {
         public static final ArrayList<String> DEFAULT = new ArrayList<>(List.of("coordinates", "distance", "tracking", "destination", "direction", "time", "weather"));
+        public enum Types {
+            coordinates,
+            distance,
+            tracking,
+            destination,
+            direction,
+            time,
+            weather,
+            unknown;
+            public static Types get(String s) {
+                try {
+                    return Types.valueOf(s);
+                } catch (IllegalArgumentException e) {
+                    return unknown;
+                }
+            }
+        }
         //has to be lowercase
         @SuppressWarnings("BooleanMethodIsAlwaysInverted")
         public static boolean validCheck(String s) {

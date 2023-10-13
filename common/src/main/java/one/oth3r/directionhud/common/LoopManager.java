@@ -1,5 +1,6 @@
 package one.oth3r.directionhud.common;
 
+import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.utils.Loc;
@@ -9,6 +10,7 @@ import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class LoopManager {
     public static int rainbowF;
@@ -23,7 +25,12 @@ public class LoopManager {
         if (HUDRefresh >= config.HUDRefresh) {
             HUDRefresh = 0;
             for (Player player : Utl.getPlayers()) {
-                if (PlayerData.get.hud.state(player)) HUD.build(player);
+                if (PlayerData.get.hud.state(player)) {
+                    HashMap<HUD.modules.Types, ArrayList<String>> HUDData = HUD.getRawHUDText(player);
+                    // if the client has directionhud and the hud type is the actionBar send as a packet
+                    if (DirectionHUD.clientPlayers.contains(player) && config.HUDTypes.get((String) PlayerData.get.hud.setting.get(player, HUD.Settings.type)).equals(config.HUDTypes.actionbar)) player.sendHUDPackets(HUDData);
+                    else player.displayHUD(HUD.build(player,HUDData));
+                }
                 if (Destination.get(player).hasXYZ() && (boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.autoclear) &&
                         Destination.getDist(player) <= (long)PlayerData.get.dest.setting.get(player, Destination.Settings.autoclear_rad)) {
                     Destination.clear(player, CUtl.lang("dest.changed.cleared.reached").color('7').italic(true));

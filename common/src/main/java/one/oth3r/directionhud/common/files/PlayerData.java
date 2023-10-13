@@ -267,6 +267,8 @@ public class PlayerData {
     }
     public static void updatePlayerMap(Player player) {
         playerMap.put(player,removeUnnecessary(fileToMap(player)));
+        // send packets to update player settings
+        player.sendSettingPackets();
     }
     public static void addPlayer(Player player) {
         Map<String, Object> map = updater(player, fileToMap(player));
@@ -387,9 +389,9 @@ public class PlayerData {
             private static Map<String,Object> get(Player player) {
                 return (Map<String, Object>) fromMap(player).get("hud");
             }
-            public static boolean getModule(Player player, String module) {
+            public static boolean getModule(Player player, HUD.modules.Types module) {
                 Map<String,Object> map = (Map<String,Object>) get(player).get("module");
-                return (boolean) map.get(module);
+                return (boolean) map.get(module.toString());
             }
             public static ArrayList<String> order(Player player) {
                 return (ArrayList<String>) get(player).get("order");
