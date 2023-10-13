@@ -101,6 +101,7 @@
   "key.directionhud.button.reset.hover_color": "Click to reset to default.",
   "key.directionhud.button.reset.hover_settings": "Click to reset %s settings.",
   "key.directionhud.button.reset.hover_defaults_dirhud": "Click to reset DirectionHUD defaults.",
+  "key.directionhud.button.page.set": "Click to set the page.",
   "key.directionhud.button.color.primary": "PRIMARY",
   "key.directionhud.button.color.secondary": "SECONDARY",
   "key.directionhud.button.color.edit.hover": "Click to edit %s color.",

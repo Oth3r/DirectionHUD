@@ -745,6 +745,33 @@ public class Destination {
         player.sendMessage(setMSG(player));
     }
     public static class saved {
+        public static int PER_PAGE = 8;
+        public static class Dest {
+            //todo recode using this
+            // dest helper
+            private List<String> dest;
+            public Dest(List<String> list) {
+                this.dest = list;
+            }
+            public List<String> getDest() {
+                return dest;
+            }
+            public String getName() {
+                return dest.get(0);
+            }
+            public Loc getLoc() {
+                return new Loc(dest.get(1));
+            }
+            public String getColor() {
+                return dest.get(2);
+            }
+        }
+        public static List<String> getFromName(Player player, String name) {
+            List<List<String>> list = getList(player);
+            for (List<String> i: list)
+                if (name.equals(i.get(0))) return i;
+            return null;
+        }
         public static int getIndexFromName(Player player, String name) {
             return getNames(player).indexOf(name);
         }
@@ -771,12 +798,6 @@ public class Destination {
             List<String> all = new ArrayList<>();
             for (List<String> i: list) all.add(i.get(2));
             return all;
-        }
-        public static Integer getMaxPage(Player player) {
-            double i = getList(player).size() - 1;
-            i = i / 8;
-            i = i - 0.5;
-            return (int) Math.round(i) + 1;
         }
         public static Integer getPGOf (Player player, String name) {
             List<String> names = getNames(player);
@@ -976,36 +997,40 @@ public class Destination {
             else player.sendMessage(msg);
         }
         public static void viewDestinationUI(boolean send, Player player, String name) {
-            int i = getIndexFromName(player,name);
-            if (!getNames(player).contains(name)) {
+            CUtl.PageHelper<List<String>> pageHelper = new CUtl.PageHelper<>(new ArrayList<>(getList(player)),PER_PAGE);
+            Dest dest = new Dest(getFromName(player, name));
+            if (dest.getDest() == null) {
                 if (send) player.sendMessage(error("dest.invalid"));
                 return;
             }
-            String dName = Utl.capitalizeFirst(lang("saved.name").getString());
-            String dColor = Utl.capitalizeFirst(lang("saved.color").getString());
-            String dOrder = Utl.capitalizeFirst(lang("saved.order").getString());
-            String dDimension = Utl.capitalizeFirst(lang("saved.dimension").getString());
-            String dLocation = Utl.capitalizeFirst(lang("saved.location").getString());
-            Loc loc = getLocs(player).get(i);
             CTxT msg = CTxT.of(" ");
-            msg.append(lang("ui.saved.edit").color(Assets.mainColors.saved)).append(CTxT.of("\n                                               \n").strikethrough(true));
+            msg.append(lang("ui.saved.edit").color(Assets.mainColors.saved)).append(CUtl.LARGE).append("\n");
             msg.append(" ")
                     //NAME
                     .append(CUtl.CButton.dest.edit(2,"/dest saved edit name "+name+ " ")).append(" ")
-                    .append(CTxT.of(dName).color(CUtl.p())).append(": "+name).append("\n ")
+                    .append(CTxT.of(Utl.capitalizeFirst(lang("saved.name").getString()))
+                            .color(CUtl.p())).append(": ")
+                    .append(name).append("\n ")
                     //COLOR
                     .append(CUtl.CButton.dest.edit(1,"/dest saved edit color " +name)).append(" ")
-                    .append(CTxT.of(dColor).color(CUtl.p())).append(": ")
-                    .append(CUtl.color.getBadge(getColors(player).get(i))).append("\n ")
+                    .append(CTxT.of(Utl.capitalizeFirst(lang("saved.color").getString()))
+                            .color(CUtl.p())).append(": ")
+                    .append(CUtl.color.getBadge(dest.getColor())).append("\n ")
                     //ORDER
                     .append(CUtl.CButton.dest.edit(2,"/dest saved edit order " +name+ " ")).append(" ")
-                    .append(CTxT.of(dOrder).color(CUtl.p())).append(": "+(i + 1)).append("\n ")
+                    .append(CTxT.of(Utl.capitalizeFirst(lang("saved.order").getString()))
+                            .color(CUtl.p())).append(": ")
+                    .append(String.valueOf(pageHelper.getPageOf(dest.getDest()))).append("\n ")
                     //DIMENSION
                     .append(CUtl.CButton.dest.edit(2,"/dest saved edit dim " +name+ " ")).append(" ")
-                    .append(CTxT.of(dDimension).color(CUtl.p())).append(": ").append(CTxT.of(Utl.dim.getName(loc.getDIM())).color(Utl.dim.getHEX(loc.getDIM()))).append("\n ")
+                    .append(CTxT.of(Utl.capitalizeFirst(lang("saved.dimension").getString()))
+                            .color(CUtl.p())).append(": ")
+                    .append(CTxT.of(Utl.dim.getName(dest.getLoc().getDIM())).color(Utl.dim.getHEX(dest.getLoc().getDIM()))).append("\n ")
                     //LOCATION
                     .append(CUtl.CButton.dest.edit(2,"/dest saved edit loc " +name+ " ")).append(" ")
-                    .append(CTxT.of(dLocation).color(CUtl.p())).append(": "+loc.getXYZ()).append("\n       ");
+                    .append(CTxT.of(Utl.capitalizeFirst(lang("saved.location").getString()))
+                            .color(CUtl.p())).append(": ")
+                    .append(dest.getLoc().getXYZ()).append("\n       ");
             //SEND BUTTON
             if ((boolean) PlayerData.get.dest.setting.get(player,Settings.features__send)) {
                 msg.append(CUtl.TBtn("dest.send").btn(true).color(Assets.mainColors.send).cEvent(2,"/dest saved send "+name+" ")
@@ -1015,7 +1040,7 @@ public class Destination {
             //SET BUTTON
             msg.append(CUtl.CButton.dest.set("/dest set saved " +name)).append(" ");
             //CONVERT
-            if (Utl.dim.canConvert(player.getDimension(),getLocs(player).get(i).getDIM()))
+            if (Utl.dim.canConvert(player.getDimension(),dest.getLoc().getDIM()))
                 msg.append(CUtl.CButton.dest.convert("/dest set saved " +name+ " convert"));
             //DELETE
             msg.append("\n\n ")
@@ -1023,7 +1048,7 @@ public class Destination {
                             .hEvent(CUtl.TBtn("delete.hover_dest").color('c'))).append(" ")
                     //BACK
                     .append(CUtl.CButton.back("/dest saved " + getPGOf(player, name)))
-                    .append(CTxT.of("\n                                               ").strikethrough(true));
+                    .append(CUtl.LARGE);
             player.sendMessage(msg);
         }
         public static void colorUI(Player player, String stepSize, String name, CTxT aboveMSG) {
@@ -1055,51 +1080,31 @@ public class Destination {
                     CTxT.of(Assets.cmdUsage.destAdd).color(Assets.mainColors.add).append("\n").append(CUtl.TBtn("dest.add.hover",
                             CUtl.TBtn("dest.add.hover_2").color(Assets.mainColors.add))));
             CTxT msg = CTxT.of(" ");
-            msg.append(lang("ui.saved").color(Assets.mainColors.saved)).append(CTxT.of("\n                                               \n").strikethrough(true));
-            List<String> names = getNames(player);
-            if (pg > getMaxPage(player)) {
-                pg = 1;
+            msg.append(lang("ui.saved").color(Assets.mainColors.saved)).append(CUtl.LARGE).append("\n");
+            CUtl.PageHelper<List<String>> pageHelper = new CUtl.PageHelper<>(new ArrayList<>(getList(player)),PER_PAGE);
+            int count = 0;
+            for (List<String> entry: pageHelper.getPage(pg)) {
+                count++;
+                Dest dest = new Dest(entry);
+                msg.append(" ")//BADGE
+                        .append(dest.getLoc().getBadge(dest.getName(),dest.getColor())).append(" ")
+                        //EDIT
+                        .append(CUtl.CButton.dest.edit(1,"/dest saved edit " + dest.getName())).append(" ")
+                        //SET
+                        .append(CUtl.CButton.dest.set("/dest set saved " + dest.getName()));
+                //CONVERT
+                if (Utl.dim.canConvert(player.getDimension(), dest.getLoc().getDIM()))
+                    msg.append(" ").append(CUtl.CButton.dest.convert("/dest set saved " + dest.getName() + " convert"));
+                msg.append("\n");
             }
-            if (pg == 0) pg = 1;
-            String plDimension = player.getDimension();
-            if (names.size() != 0) {
-                for (int i = 1; i <= 8; i++) {
-                    int get = i + ((pg - 1) * 8) - 1;
-                    if (names.size() > get) {
-                        String dimension = getLocs(player).get(get).getDIM();
-                        msg.append(" ")//BADGE
-                                .append(getLocs(player).get(get).getBadge(names.get(get),getColors(player).get(get))).append(" ")
-                                //EDIT
-                                .append(CUtl.CButton.dest.edit(1,"/dest saved edit " + names.get(get))).append(" ")
-                                //SET
-                                .append(CUtl.CButton.dest.set("/dest set saved " + names.get(get)));
-                        //CONVERT
-                        if (Utl.dim.canConvert(plDimension, dimension))
-                            msg.append(" ").append(CUtl.CButton.dest.convert("/dest set saved " + names.get(get) + " convert"));
-                        msg.append("\n");
-                    }
-                }
-            } else {
-                msg.append(" ").append(lang("saved.none")).append("\n ").append(lang("saved.none_2", addB)).append("\n\n ");
-                msg
-                        .append(CTxT.of("<<").btn(true).color('7')).append(" ")
-                        .append(CUtl.TBtn("dest.saved.page.hover", 1).color(CUtl.s())).append(" ")
-                        .append(CTxT.of(">>").btn(true).color('7')).append(" ").append(addB).append(" ")
-                        .append(CUtl.CButton.back("/dest"))
-                        .append(CTxT.of("\n                                               ").strikethrough(true));
-                player.sendMessage(msg);
-                return;
+            // no saved
+            if (count == 0) {
+                msg.append(" ").append(lang("saved.none")).append("\n ").append(lang("saved.none_2", addB)).append("\n\n");
             }
-            int finalPg = pg;
-            msg.append(" ");
-            if (pg == 1) msg.append(CTxT.of("<<").btn(true).color('7'));
-            else msg.append(CTxT.of("<<").btn(true).color(CUtl.p()).cEvent(1,"/dest saved " + (finalPg-1)));
-            msg.append(" ").append(CUtl.TBtn("dest.saved.page.hover", pg).color(CUtl.s())).append(" ");
-            if (pg == getMaxPage(player)) msg.append(CTxT.of(">>").btn(true).color('7'));
-            else msg.append(CTxT.of(">>").btn(true).color(CUtl.p()).cEvent(1,"/dest saved " + (finalPg+1)));
-            msg.append(" ").append(addB).append(" ")
-                    .append(CUtl.CButton.back("/dest"))
-                    .append(CTxT.of("\n                                               ").strikethrough(true));
+            msg.append(" ").append(addB)
+                    .append(" ").append(pageHelper.getNavButtons(pg,"/dest saved "))
+                    .append(" ").append(CUtl.CButton.back("/dest"))
+                    .append(CUtl.LARGE);
             player.sendMessage(msg);
         }
     }
