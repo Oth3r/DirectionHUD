@@ -3,8 +3,6 @@
   "key.directionhud.keybind.toggle": "Toggle HUD",
   "key.directionhud.on": "on",
   "key.directionhud.off": "off",
-  "key.directionhud.info.actionbar": "(ActionBar)",
-  "key.directionhud.info.actionbar_hover": "Message from the actionbar sent by DirectionHUD.",
   "key.directionhud.usage": "USAGE:",
   "key.directionhud.error": "ERROR:",
   "key.directionhud.error.command": "Command not recognized!",
