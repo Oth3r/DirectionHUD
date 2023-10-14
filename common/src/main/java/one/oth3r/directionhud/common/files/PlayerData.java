@@ -137,7 +137,7 @@ public class PlayerData {
                 String[] sp = xyz.split(" ");
                 Loc loc = new Loc(xyz);
                 if (sp[1].equals("n")) loc = new Loc(sp[0]+" "+sp[2]);
-                dest.put("dest",loc.getLocC());
+                dest.put("dest",loc.toArray());
             }
             dest.remove("xyz");
             //REMOVE SUSPENDED
@@ -153,14 +153,14 @@ public class PlayerData {
                 String[] split = s.split(" ");
                 String[] coordS = split[1].split("_");
                 Loc loc = new Loc(Utl.tryInt(coordS[0]),Utl.tryInt(coordS[1]),Utl.tryInt(coordS[2]),split[2]);
-                savedN.add(saved.indexOf(s), Arrays.asList(split[0],loc.getLocC(),split[3]));
+                savedN.add(saved.indexOf(s), Arrays.asList(split[0],loc.toArray(),split[3]));
             }
             dest.put("saved",savedN);
             //LASTDEATH FIX
             ArrayList<String> lastdeath = (ArrayList<String>) dest.get("lastdeath");
             for (String s:lastdeath) {
                 String[] split = s.split("\\|");
-                lastdeath.set(lastdeath.indexOf(s),new Loc(split[1],split[0]).getLocC());
+                lastdeath.set(lastdeath.indexOf(s),new Loc(split[1],split[0]).toArray());
             }
             dest.put("lastdeath",lastdeath);
             //ADD NEW PARTICLES & AUTOCONVERT
@@ -546,7 +546,7 @@ public class PlayerData {
             }
             public static void setDest(Player player, Loc loc) {
                 Map<String,Object> data = get.dest.get(player,false);
-                data.put("dest", loc.getLocC());
+                data.put("dest", loc.toArray());
                 set(player, data);
             }
             public static void setTracking(Player player, String s) {

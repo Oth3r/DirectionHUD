@@ -116,7 +116,7 @@ public class Loc {
         if (y == null) return x+" "+z;
         return x+" "+y+" "+z;
     }
-    public String getLocC() {
+    public String toArray() {
         if (x == null || z == null) return "null";
         if (this.dimension == null) return Arrays.toString(new String[]{this.x+"",this.y+"",this.z+""});
         return Arrays.toString(new String[]{this.x+"",this.y+"",this.z+"",this.dimension});
