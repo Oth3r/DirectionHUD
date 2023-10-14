@@ -126,6 +126,7 @@ public class Destination {
                 set(player,new Loc(Utl.tryInt(args[0]),Utl.tryInt(args[1]),Utl.tryInt(args[2]),args[3]),true);
         }
         public static void addCMD(Player player, String[] args) {
+            if (!Utl.checkEnabled.saving(player)) return;
             //dest saved add <name>
             if (args.length == 1) {
                 saved.add(true,player,args[0],new Loc(player),null);
