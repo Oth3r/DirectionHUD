@@ -105,7 +105,7 @@ public class CUtl {
             // build and return
             return CTxT.of("")
                     .append(left).append(" ")
-                    .append(CTxT.of(String.valueOf(page)).btn(true).color(p()).cEvent(2,command).hEvent(TBtn("page.set")))
+                    .append(CTxT.of(String.valueOf(page)).btn(true).color(p()).cEvent(2,command).hEvent(TBtn("page.set").color(p())))
                     .append(" ").append(right);
         }
     }
