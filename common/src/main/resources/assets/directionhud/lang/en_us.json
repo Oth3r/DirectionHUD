@@ -40,7 +40,6 @@
   "key.directionhud.button.back": "BACK",
   "key.directionhud.button.back.hover": "Click to go back to the previous screen.",
   "key.directionhud.button.clear": "CLEAR",
-  "key.directionhud.button.clear.hover_ld": "Click to clear %s lastdeaths.",
   "key.directionhud.button.delete": "DELETE",
   "key.directionhud.button.delete.hover_dest": "Click to delete destination.",
   "key.directionhud.button.settings": "SETTINGS",
