@@ -19,6 +19,10 @@ repositories {
         name = "sonatype"
         url = "https://oss.sonatype.org/content/groups/public/"
     }
+    maven {
+        name = "geyser"
+        url = uri("https://repo.opencollab.dev/main/")
+    }
 }
 sourceSets {
     main {
@@ -27,7 +31,10 @@ sourceSets {
     }
 }
 dependencies {
-    compileOnly "org.spigotmc:spigot-api:${project.minecraft_version}-R0.1-SNAPSHOT"
+    compileOnly ("org.spigotmc:spigot-api:${project.minecraft_version}-R0.1-SNAPSHOT")
+    compileOnly('org.geysermc.floodgate:api:2.2.2-SNAPSHOT') {
+        exclude group: 'com.google.code.gson', module: 'gson'
+    }
 }
 
 def targetJavaVersion = 17
@@ -55,8 +62,8 @@ processResources {
     }
 }
 //build in testing server dir
-//jar {
-//    base.archivesName = "directionhud-spigot-dev"
-//    version = 0
-//    destinationDirectory = file("R:/Coding/1 Servers/2Latest Paper/plugins")
-//}
+jar {
+    base.archivesName = "directionhud-spigot-dev"
+    version = 0
+    destinationDirectory = file("R:/Coding/1 Servers/2Latest Paper/plugins")
+}
