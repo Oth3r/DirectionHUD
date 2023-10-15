@@ -24,9 +24,6 @@
     ],
     "server": [
       "one.oth3r.directionhud.DirectionHUDServer"
-    ],
-    "modmenu": [
-      "one.oth3r.directionhud.ModMenu"
     ]
   },
   "mixins": [
@@ -36,7 +33,7 @@
   "depends": {
     "fabricloader": ">=0.14.8",
     "fabric-api": "*",
-    "minecraft": ">=1.20 <=1.20.2",
+    "minecraft": "1.20.3-alpha.23.41.a",
     "java": ">=17"
   },
   "suggests": {
