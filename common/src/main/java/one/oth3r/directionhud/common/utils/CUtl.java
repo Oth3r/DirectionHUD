@@ -71,6 +71,9 @@ public class CUtl {
             // get max pages, min = 1
             return Math.max(1,(int) Math.ceil((double) list.size() / perPage));
         }
+        public ArrayList<T> getList() {
+            return list;
+        }
         public int getPageOf(T item) {
             // get the quotient of the index and the amount of items per page rounded to the next integer to get page of the current item
             if (list.contains(item)) return (int) Math.ceil((double) (list.indexOf(item) + 1) / perPage);
