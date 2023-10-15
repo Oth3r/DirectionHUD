@@ -256,13 +256,11 @@ public class Destination {
         public static void lastdeathCMD(Player player, String[] args) {
             if (!config.deathsaving || !(boolean)PlayerData.get.dest.setting.get(player,Settings.features__lastdeath)) return;
             if (args.length == 0) {
-                lastdeath.UI(player, null);
+                lastdeath.UI(player,1,null);
                 return;
             }
-            if (args.length == 1) {
-                if (args[0].equalsIgnoreCase("clear_all")) {
-                    lastdeath.clearAll(true, player);
-                }
+            if (args.length == 1 && Utl.isInt(args[0])) {
+                lastdeath.UI(player,Integer.parseInt(args[0]),null);
                 return;
             }
             player.sendMessage(CUtl.usage(Assets.cmdUsage.destLastdeath));
@@ -797,7 +795,7 @@ public class Destination {
         player.sendMessage(setMSG(player));
     }
     public static class saved {
-        public static int PER_PAGE = 8;
+        private static final int PER_PAGE = 8;
         public static class Dest {
             // dest helper
             private List<String> dest;
@@ -1106,35 +1104,25 @@ public class Destination {
         }
     }
     public static class lastdeath {
+        private static final int PER_PAGE = 4;
         public static void add(Player player, Loc loc) {
             ArrayList<String> deaths = PlayerData.get.dest.getLastdeaths(player);
             if (Utl.dim.checkValid(loc.getDIM())) {
-                int i = 0;
-                for (String s: deaths) {
-                    if (new Loc(s).getDIM().equals(loc.getDIM())) {
-                        deaths.set(deaths.indexOf(s),loc.getLocC());
-                        i++;
-                        break;
-                    }
-                }
-                if (i == 0) deaths.add(loc.getLocC());
+                //add to the top of the list
+                deaths.add(0,loc.toArray());
+                // WHILE more than max, remove the last entry (to deal with the size changing to be smaller in the future)
+                while (deaths.size() > config.MAXLastDeaths) deaths.remove(deaths.size()-1);
             }
             PlayerData.set.dest.setLastdeaths(player,deaths);
         }
-        public static void clearAll(boolean send, Player player) {
-            PlayerData.set.dest.setLastdeaths(player,new ArrayList<>());
-            if (send) UI(player, lang("lastdeath.clear",CUtl.TBtn("all").color('c')));
-        }
-        public static void UI(Player player, CTxT abovemsg) {
+        public static void UI(Player player,int pg,CTxT abovemsg) {
+            CUtl.PageHelper<String> pageHelper = new CUtl.PageHelper<>(PlayerData.get.dest.getLastdeaths(player),PER_PAGE);
+            // rewrite
             CTxT msg = CTxT.of("");
             if (abovemsg != null) msg.append(abovemsg).append("\n");
-            msg.append(" ").append(lang("ui.lastdeath").color(Assets.mainColors.lastdeath)).append(CTxT.of("\n                                  \n").strikethrough(true));
-            int num = 0;
-            msg.append(" ");
-            for (String s: PlayerData.get.dest.getLastdeaths(player)) {
+            msg.append(" ").append(lang("ui.lastdeath").color(Assets.mainColors.lastdeath)).append(CUtl.LINE_35).append("\n ");
+            for (String s:pageHelper.getPage(pg)) {
                 Loc loc = new Loc(s);
-                if (!Utl.dim.checkValid(loc.getDIM())) continue;
-                num++;
                 String dim = loc.getDIM();
                 msg.append(loc.getBadge()).append("\n  ")
                         .append(CUtl.CButton.dest.add("/dest add "+Utl.dim.getName(dim).toLowerCase()+"_death "+loc.getXYZ()+" "+dim+" "+Utl.dim.getHEX(dim).substring(1)))
@@ -1142,18 +1130,13 @@ public class Destination {
                 if (Utl.dim.canConvert(player.getDimension(),dim)) msg.append(" ").append(CUtl.CButton.dest.convert("/dest set "+loc.getXYZ()+" "+dim+" convert"));
                 msg.append("\n ");
             }
-            int reset = 1;
-            char resetC = 'c';
-            if (num == 0) {
-                reset = 0;
-                resetC = '7';
-                msg.append(lang("lastdeath.no_deaths").color('c')).append("\n");
-            }
-            msg.append("\n      ")
-                    .append(CUtl.TBtn("clear").btn(true).color(resetC).cEvent(reset,"/dest lastdeath clear_all")
-                            .hEvent(CUtl.TBtn("clear.hover_ld",CUtl.TBtn("all").color('c'))))
-                    .append("  ").append(CUtl.CButton.back("/dest"))
-                    .append(CTxT.of("\n                                  ").strikethrough(true));
+            if (pageHelper.getList().size()==0)
+                msg.append(lang("lastdeath.no_deaths").color('c'));
+            msg.append("\n ");
+            //button nav if there are more lastdeaths than what can fit on one page
+            if (pageHelper.getList().size() > PER_PAGE)
+                    msg.append(pageHelper.getNavButtons(pg,"/dest lastdeath ")).append(" ");
+            msg.append(CUtl.CButton.back("/dest")).append(CUtl.LINE_35);
             player.sendMessage(msg);
         }
     }

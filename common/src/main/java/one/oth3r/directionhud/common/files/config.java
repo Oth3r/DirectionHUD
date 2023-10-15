@@ -25,6 +25,7 @@ public class config {
     public static String lang = defaults.lang;
     public static boolean DESTSaving = defaults.DESTSaving;
     public static int MAXSaved = defaults.MAXSaved;
+    public static int MAXLastDeaths = defaults.MAXLastDeaths;
     public static int MAXy = defaults.MAXy;
     public static int MAXxz = defaults.MAXxz;
     public static boolean deathsaving = defaults.deathsaving;
@@ -481,6 +482,7 @@ public class config {
         public static final String lang = "en_us";
         public static final boolean DESTSaving = true;
         public static final int MAXSaved = 50;
+        public static final int MAXLastDeaths = 4;
         public static final int MAXy = 512;
         public static final int MAXxz = 30000000;
         public static final boolean deathsaving = true;

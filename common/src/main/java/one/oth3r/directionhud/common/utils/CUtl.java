@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 
 public class CUtl {
     public static CTxT LARGE = CTxT.of("\n                                             ").strikethrough(true);
+    public static CTxT LINE_35 = CTxT.of("\n                                   ").strikethrough(true);
     public static CTxT tag() {
         return CTxT.of("").append(CTxT.of("DirectionHUD").btn(true).color(p())).append(" ");
     }
