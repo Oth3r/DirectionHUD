@@ -51,7 +51,7 @@ public class CTxT {
         return this;
     }
     public CTxT color(String color) {
-        this.color = TextColor.parse(CUtl.color.format(color));
+        this.color = TextColor.parse(CUtl.color.format(color)).get().orThrow();
         return this;
     }
     public CTxT color(Character color) {
