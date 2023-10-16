@@ -121,8 +121,8 @@ public class CUtl {
         }
         public static class hud {
             public static CTxT color() {
-                return CTxT.of(CUtl.color.rainbow(TBtn("hud.color").getString(),15,45)).btn(true).cEvent(1,"/hud color")
-                        .hEvent(CTxT.of(CUtl.color.rainbow(Assets.cmdUsage.hudColor,10f,23f)).append("\n").append(TBtn("hud.color.hover")));
+                return TBtn("hud.color").rainbow(true,15f,45f).btn(true).cEvent(1,"/hud color")
+                        .hEvent(CTxT.of("").append(CTxT.of(Assets.cmdUsage.hudColor).rainbow(true,10f,23f)).append("\n").append(TBtn("hud.color.hover")));
             }
             public static CTxT modules() {
                 return TBtn("hud.modules").btn(true).color(Assets.mainColors.edit).cEvent(1,"/hud modules").hEvent(
@@ -395,24 +395,6 @@ public class CUtl {
                     .append(hsbList.get(2)).append(" ").append(defaultSquare).append(" ").append(hsbList.get(3)).append(" ").append(lang("color.saturation")).append("\n  ")
                     .append(hsbList.get(4)).append(" ").append(defaultSquare).append(" ").append(hsbList.get(5)).append(" ").append(lang("color.brightness")).append("\n\n ")
                     .append(smallButton).append(" ").append(normalButton).append(" ").append(bigButton);
-        }
-        public static CTxT rainbow(String string, float start, float step) {
-            float hue = start % 360f;
-            CTxT text = CTxT.of("");
-            for (int i = 0; i < string.codePointCount(0, string.length()); i++) {
-                if (string.charAt(i) == ' ') {
-                    text.append(" ");
-                    continue;
-                }
-                Color color = Color.getHSBColor(hue / 360.0f, 1.0f, 1.0f);
-                int red = color.getRed();
-                int green = color.getGreen();
-                int blue = color.getBlue();
-                String hexColor = String.format("#%02x%02x%02x", red, green, blue);
-                text.append(CTxT.of(Character.toString(string.codePointAt(i))).color(hexColor));
-                hue = ((hue % 360f)+step)%360f;
-            }
-            return text;
         }
     }
 }
