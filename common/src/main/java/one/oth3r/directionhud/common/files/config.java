@@ -70,7 +70,7 @@ public class config {
     }
     public static String HUDBarColor = defaults.HUDBarColor;
     public static boolean HUDBarShowDistance = defaults.HUDBarShowDistance;
-    public static long HUDBarDistanceMax = defaults.HUDBarDistanceMax;
+    public static int HUDBarDistanceMax = defaults.HUDBarDistanceMax;
     public static boolean HUDEnabled = defaults.HUDEnabled;
     public static ArrayList<String> HUDOrder = defaults.HUDOrder;
     public static boolean HUDCoordinates = defaults.HUDCoordinates;
@@ -107,7 +107,7 @@ public class config {
     public static boolean HUDSecondaryItalics = defaults.HUDSecondaryItalics;
     public static boolean HUDSecondaryRainbow = defaults.HUDSecondaryRainbow;
     public static boolean DESTAutoClear = defaults.DESTAutoClear;
-    public static long DESTAutoClearRad = defaults.DESTAutoClearRad;
+    public static int DESTAutoClearRad = defaults.DESTAutoClearRad;
     public static boolean DESTAutoConvert = defaults.DESTAutoConvert;
     public static boolean DESTYLevel = defaults.DESTYLevel;
     public static boolean DESTLineParticles = defaults.DESTLineParticles;
@@ -201,7 +201,7 @@ public class config {
         HUDType = (String)PlayerData.get.hud.setting.get(player, HUD.Settings.type);
         HUDBarColor = (String)PlayerData.get.hud.setting.get(player, HUD.Settings.bossbar__color);
         HUDBarShowDistance = (boolean)PlayerData.get.hud.setting.get(player, HUD.Settings.bossbar__distance);
-        HUDBarDistanceMax = (long)PlayerData.get.hud.setting.get(player, HUD.Settings.bossbar__distance_max);
+        HUDBarDistanceMax = ((Double)PlayerData.get.hud.setting.get(player, HUD.Settings.bossbar__distance_max)).intValue();
         HUDTime24HR = (boolean)PlayerData.get.hud.setting.get(player, HUD.Settings.module__time_24hr);
         HUDTrackingTarget = (String)PlayerData.get.hud.setting.get(player, HUD.Settings.module__tracking_target);
         //HUD MODULES
@@ -225,7 +225,7 @@ public class config {
         HUDSecondaryRainbow = HUD.color.getHUDRGB(player,2);
         //DEST SETTINGS
         DESTAutoClear = (boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.autoclear);
-        DESTAutoClearRad = (long)PlayerData.get.dest.setting.get(player, Destination.Settings.autoclear_rad);
+        DESTAutoClearRad = ((Double)PlayerData.get.dest.setting.get(player, Destination.Settings.autoclear_rad)).intValue();
         DESTAutoConvert = (boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.autoconvert);
         DESTYLevel = (boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.ylevel);
         DESTSend = (boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.features__send);
@@ -494,7 +494,7 @@ public class config {
         public static final String HUDType = HUDTypes.actionbar.toString();
         public static final String HUDBarColor = BarColors.white.toString();
         public static final boolean HUDBarShowDistance = true;
-        public static final long HUDBarDistanceMax = 0;
+        public static final int HUDBarDistanceMax = 0;
         public static final boolean HUDEnabled = true;
         public static final ArrayList<String> HUDOrder = HUD.modules.DEFAULT;
         public static final boolean HUDCoordinates = true;
@@ -515,7 +515,7 @@ public class config {
         public static final boolean HUDSecondaryItalics = false;
         public static final boolean HUDSecondaryRainbow = false;
         public static final boolean DESTAutoClear = true;
-        public static final long DESTAutoClearRad = 2;
+        public static final int DESTAutoClearRad = 2;
         public static final boolean DESTAutoConvert = false;
         public static final boolean DESTYLevel = false;
         public static final boolean DESTLineParticles = true;
