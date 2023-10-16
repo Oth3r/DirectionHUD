@@ -791,7 +791,7 @@ public class HUD {
             if (type.equals(Settings.none)) return false;
             if (!PlayerData.get.hud.setting.get(player,type).equals(getConfig(type))) output = true;
             if (type.equals(Settings.bossbar__distance))
-                if ((long)PlayerData.get.hud.setting.get(player, Settings.bossbar__distance_max) != (long)getConfig(Settings.bossbar__distance_max)) output = true;
+                if (((Double) PlayerData.get.hud.setting.get(player, Settings.bossbar__distance_max)).intValue() != (int)getConfig(Settings.bossbar__distance_max)) output = true;
             return output;
         }
         public static CTxT resetB(Player player,Settings type) {
@@ -820,7 +820,7 @@ public class HUD {
             if (type.equals(Settings.bossbar__distance)) {
                 boolean state = (boolean) PlayerData.get.hud.setting.get(player,type);
                 button.append(CUtl.toggleBtn(state,"/hud settings "+type+" ")).append(" ");
-                button.append(CTxT.of(String.valueOf((long) PlayerData.get.hud.setting.get(player,Settings.bossbar__distance_max))).btn(true).color((boolean) PlayerData.get.hud.setting.get(player,type)?'a':'c')
+                button.append(CTxT.of(String.valueOf(((Double) PlayerData.get.hud.setting.get(player,Settings.bossbar__distance_max)).intValue())).btn(true).color((boolean) PlayerData.get.hud.setting.get(player,type)?'a':'c')
                         .cEvent(2,"/hud settings "+Settings.bossbar__distance_max+" ")
                         .hEvent(lang("settings."+type+"_max.hover").append("\n").append(lang("settings."+type+"_max.hover_2").italic(true).color('7'))));
             }

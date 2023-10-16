@@ -718,7 +718,7 @@ public class Destination {
     }
     public static boolean checkDist(Player player, Loc loc) {
         if ((boolean)PlayerData.get.dest.setting.get(player,Settings.autoclear))
-            return Utl.vec.distance(new Loc(player).getVec(player),loc.getVec(player)) <= (long)PlayerData.get.dest.setting.get(player,Settings.autoclear_rad);
+            return Utl.vec.distance(new Loc(player).getVec(player),loc.getVec(player)) <= (double)PlayerData.get.dest.setting.get(player,Settings.autoclear_rad);
         else return false;
     }
     public static int getDist(Player player) {
@@ -1409,7 +1409,7 @@ public class Destination {
             if (type.equals(Settings.none)) return false;
             if (PlayerData.get.dest.setting.get(player,type) != getConfig(type)) output = true;
             if (type.equals(Settings.autoclear))
-                if ((long)PlayerData.get.dest.setting.get(player, Settings.autoclear_rad) != (long)getConfig(Settings.autoclear_rad)) output = true;
+                if (((Double)PlayerData.get.dest.setting.get(player, Settings.autoclear_rad)).intValue() != (int)getConfig(Settings.autoclear_rad)) output = true;
             if (type.equals(Settings.features__track))
                 if (!PlayerData.get.dest.setting.get(player,Settings.features__track_request_mode).equals(getConfig(Settings.features__track_request_mode))) output = true;
             if (Settings.colors().contains(Settings.get(type+"_color")))
@@ -1430,7 +1430,8 @@ public class Destination {
             if (type.equals(Settings.none)) return button;
             button.append(CUtl.toggleBtn(state,"/dest settings "+type+" ")).append(" ");
             if (type.equals(Settings.autoclear)) {
-                button.append(CTxT.of(String.valueOf((long) PlayerData.get.dest.setting.get(player,Settings.get(type+"_rad")))).btn(true)
+                //ok so the numbers are all doubles so cast to a double and get the int value to format correctly
+                button.append(CTxT.of(String.valueOf(((Double) PlayerData.get.dest.setting.get(player,Settings.get(type+"_rad"))).intValue())).btn(true)
                         .color(state?'a':'c').cEvent(2,"/dest settings "+type+"_rad ")
                         .hEvent(lang("settings."+type+"_rad.hover").append("\n").append(lang("settings."+type+"_rad.hover_2").color('7'))));
             }

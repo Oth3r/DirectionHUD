@@ -2,13 +2,12 @@ package one.oth3r.directionhud.common.files;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.ToNumberPolicy;
 import com.google.gson.reflect.TypeToken;
+import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Loc;
-import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
 
@@ -28,7 +27,7 @@ public class PlayerData {
         File file = getFile(player);
         if (!file.exists()) mapToFile(player,defaults.get(player));
         try (FileReader reader = new FileReader(file)) {
-            Gson gson = new GsonBuilder().setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE).create();
+            Gson gson = new GsonBuilder().create();
             return gson.fromJson(reader,new TypeToken<Map<String, Object>>() {}.getType());
         } catch (Exception e) {
             e.printStackTrace();
@@ -37,7 +36,7 @@ public class PlayerData {
     }
     public static void mapToFile(Player player, Map<String, Object> map) {
         try (FileWriter writer = new FileWriter(getFile(player))){
-            Gson gson = new GsonBuilder().setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE).create();
+            Gson gson = new GsonBuilder().create();
             writer.write(gson.toJson(addExpires(player,map)));
         } catch (Exception e) {
             e.printStackTrace();
@@ -327,7 +326,7 @@ public class PlayerData {
             Map<String,Object> hudBossBar = new HashMap<>();
             hudBossBar.put("color", config.HUDBarColor);
             hudBossBar.put("distance",config.HUDBarShowDistance);
-            hudBossBar.put("distance_max",config.HUDBarDistanceMax);
+            hudBossBar.put("distance_max",(double) config.HUDBarDistanceMax);
             return hudBossBar;
         }
         public static Map<String,Object> hudSettingModule() {
@@ -350,7 +349,7 @@ public class PlayerData {
         public static Map<String,Object> destSetting() {
             Map<String,Object> destSetting = new HashMap<>();
             destSetting.put("autoclear", config.DESTAutoClear);
-            destSetting.put("autoclear_rad",(long) config.DESTAutoClearRad);
+            destSetting.put("autoclear_rad",(double)config.DESTAutoClearRad);
             destSetting.put("autoconvert", config.DESTAutoConvert);
             destSetting.put("ylevel", config.DESTYLevel);
             destSetting.put("features", destFeatures());
@@ -466,7 +465,7 @@ public class PlayerData {
                     return (String) map(player).get("id");
                 }
                 public static int expire(Player player) {
-                    return ((Long) map(player).get("expire")).intValue();
+                    return ((Double) map(player).get("expire")).intValue();
                 }
                 public static String target(Player player) {
                     return (String) map(player).get("target");
@@ -607,9 +606,12 @@ public class PlayerData {
                     data.put("id", b);
                     set(player, data);
                 }
-                public static void expire(Player player, long b) {
+                public static void expire(Player player, Integer i) {
+                    // GSON saves and reads all int type things as doubles...
+                    // convert them to and from doubles when reading and writing when possible
+                    // the map is directly read from the file, so shouldnt be much of an issue
                     Map<String,Object> data = get.temp.track.map(player);
-                    data.put("expire", b);
+                    data.put("expire", i.doubleValue());
                     set(player, data);
                 }
                 public static void target(Player player, String b) {

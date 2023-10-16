@@ -32,7 +32,7 @@ public class LoopManager {
                     else player.displayHUD(HUD.build(player,HUDData));
                 }
                 if (Destination.get(player).hasXYZ() && (boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.autoclear) &&
-                        Destination.getDist(player) <= (long)PlayerData.get.dest.setting.get(player, Destination.Settings.autoclear_rad)) {
+                        Destination.getDist(player) <= (double)PlayerData.get.dest.setting.get(player, Destination.Settings.autoclear_rad)) {
                     Destination.clear(player, CUtl.lang("dest.changed.cleared.reached").color('7').italic(true));
                 }
             }
