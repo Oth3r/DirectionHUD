@@ -18,6 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ActionBarMixin {
     @Inject(at = @At("HEAD"), method = "setOverlayMessage(Lnet/minecraft/text/Text;Z)V")
     private void sendMessage(Text message, boolean tinted, CallbackInfo info) {
+        if (!config.actionBarChat) return;
         MinecraftClient client = MinecraftClient.getInstance();
         // get the actionbar's click event
         ClickEvent click = message.getStyle().getClickEvent();
