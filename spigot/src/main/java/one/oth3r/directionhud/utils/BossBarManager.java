@@ -29,9 +29,9 @@ public class BossBarManager {
         bossBar.setColor(BarColor.valueOf(((String) PlayerData.get.hud.setting.get(player, HUD.Settings.bossbar__color)).toUpperCase()));
         if (Destination.get(player).hasXYZ() && (boolean) PlayerData.get.hud.setting.get(player,HUD.Settings.bossbar__distance)) {
             int dist = Destination.getDist(player);
-            double progress = getProgress(dist,(long) PlayerData.get.hud.setting.get(player,HUD.Settings.bossbar__distance_max));
+            double progress = getProgress(dist,(double) PlayerData.get.hud.setting.get(player,HUD.Settings.bossbar__distance_max));
             bossBar.setStyle(BarStyle.SEGMENTED_10);
-            if ((long) PlayerData.get.hud.setting.get(player,HUD.Settings.bossbar__distance_max) == 0) {
+            if ((double) PlayerData.get.hud.setting.get(player,HUD.Settings.bossbar__distance_max) == 0) {
                 progress = getProgress(dist,1000);
                 StringBuilder s = new StringBuilder();
                 for (int i = 1;i<5;i++) {
@@ -52,7 +52,7 @@ public class BossBarManager {
             bossBar.setStyle(BarStyle.SOLID);
         }
     }
-    private double getProgress(int current, long max) {
+    private double getProgress(int current, double max) {
         double progress = (double) current/max;
         if (current > max) progress = 1.0;
         progress = Math.max(Math.min(progress,1.0),0.0);
