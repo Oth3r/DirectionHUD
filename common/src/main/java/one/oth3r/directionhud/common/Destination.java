@@ -1026,7 +1026,7 @@ public class Destination {
                     .append("\n\n ").append(CUtl.CButton.dest.edit(2,"/dest saved edit location " +name+ " ")).append(" ").append(CTxT.of(dest.getLoc().getBadge()))
                     .append("\n   ");
             //SEND BUTTON
-            if ((boolean) PlayerData.get.dest.setting.get(player,Settings.features__send)) {
+            if (Utl.checkEnabled.send(player)) {
                 msg.append(CUtl.TBtn("dest.send").btn(true).color(Assets.mainColors.send).cEvent(2,"/dest saved send "+name+" ")
                         .hEvent(CTxT.of("/dest saved send "+name+" <player>").color(Assets.mainColors.send)
                                 .append("\n").append(CUtl.TBtn("dest.send.hover_saved")))).append(" ");
