@@ -23,6 +23,7 @@ public class config {
     //todo
     // maybe enum system for config options or rename vars AT LEAST
     public static String lang = defaults.lang;
+    public static boolean actionBarChat = defaults.actionBarChat;
     public static boolean DESTSaving = defaults.DESTSaving;
     public static int MAXSaved = defaults.MAXSaved;
     public static int MAXy = defaults.MAXy;
@@ -479,6 +480,7 @@ public class config {
     public static class defaults {
         public static final float version = 1.3f;
         public static final String lang = "en_us";
+        public static final boolean actionBarChat = true;
         public static final boolean DESTSaving = true;
         public static final int MAXSaved = 50;
         public static final int MAXy = 512;
