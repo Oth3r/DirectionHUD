@@ -130,7 +130,7 @@ public class CTxT {
                 int green = color.getGreen();
                 int blue = color.getBlue();
                 String hexColor = String.format("#%02x%02x%02x", red, green, blue);
-                rainbow.append(Text.literal(Character.toString(string.codePointAt(i))).styled(style -> style.withColor(TextColor.parse(CUtl.color.format(hexColor)))));
+                rainbow.append(Text.literal(Character.toString(string.codePointAt(i))).styled(style -> style.withColor(TextColor.parse(CUtl.color.format(hexColor)).get().orThrow())));
                 hue = ((hue % 360f)+step)%360f;
             }
             this.name = rainbow;
