@@ -266,6 +266,7 @@ public class config {
     }
     public static void loadVersion(Properties properties, float version) {
         //CONFIG
+        actionBarChat = Boolean.parseBoolean((String) properties.computeIfAbsent("actionbar-chat", a -> String.valueOf(defaults.actionBarChat)));
         MAXxz = Integer.parseInt((String) properties.computeIfAbsent("max-xz", a -> String.valueOf(defaults.MAXxz)));
         MAXy = Integer.parseInt((String) properties.computeIfAbsent("max-y", a -> String.valueOf(defaults.MAXy)));
         DESTSaving = Boolean.parseBoolean((String) properties.computeIfAbsent("destination-saving", a -> String.valueOf(defaults.DESTSaving)));
@@ -382,6 +383,7 @@ public class config {
         try (var file = new FileOutputStream(configFile(), false)) {
             Gson gson = new GsonBuilder().disableHtmlEscaping().create();
             file.write("# DirectionHUD Config\n".getBytes());
+            file.write(("actionbar-chat="+actionBarChat).getBytes());
             file.write(("version="+defaults.version).getBytes());
             file.write("\n".getBytes());
             file.write(("\nmax-xz=" + MAXxz).getBytes());
