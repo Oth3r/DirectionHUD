@@ -50,6 +50,27 @@ public class Destination {
             list.removeAll(colors());
             return list;
         }
+        public static ArrayList<Settings> dest() {
+            ArrayList<Settings> list = new ArrayList<>();
+            list.add(autoclear);
+            list.add(autoconvert);
+            list.add(ylevel);
+            return list;
+        }
+        public static ArrayList<Settings> particles() {
+            ArrayList<Settings> list = new ArrayList<>();
+            list.add(particles__line);
+            list.add(particles__dest);
+            list.add(particles__dest);
+            return list;
+        }
+        public static ArrayList<Settings> features() {
+            ArrayList<Settings> list = new ArrayList<>();
+            list.add(features__track);
+            list.add(features__send);
+            list.add(features__lastdeath);
+            return list;
+        }
         // . = _ and _ == __
     }
     public static class commandExecutor {
@@ -1495,7 +1516,7 @@ public class Destination {
                 player.sendMessage(error("color"));
                 return;
             }
-            CTxT msg = CUtl.tag().append(lang("settings.particles.color.set",uiType.getString().toUpperCase(),CUtl.color.getBadge(color)));
+            CTxT msg = CUtl.tag().append(lang("settings.particles.color.set",uiType.toString().toUpperCase(),CUtl.color.getBadge(color)));
             if (Return) colorUI(player,setting,type,msg);
             else player.sendMessage(msg);
         }
@@ -1504,7 +1525,7 @@ public class Destination {
             if (abovemsg != null) msg.append(abovemsg).append("\n");
             msg.append(" ").append(lang("ui.settings").color(Assets.mainColors.setting)).append(CTxT.of("\n                                \n").strikethrough(true));
             //DEST
-            msg.append(" ").append(lang("settings.destination").color(CUtl.p())).append(":\n  ");
+            msg.append(" ").append(lang("ui.dest").color(CUtl.p())).append(":\n  ");
             msg     //AUTOCLEAR
                     .append(resetB(player, Settings.autoclear)).append(" ")
                     .append(lang("settings."+ Settings.autoclear).hEvent(lang("settings."+ Settings.autoclear+".info")
@@ -1522,7 +1543,7 @@ public class Destination {
                             lang("settings."+ Settings.ylevel+".info_2").color(CUtl.s())))).append(": ")
                     .append(getButtons(player, Settings.ylevel)).append("\n ");
             //PARTICLES
-            msg.append(lang("settings.particles").color(CUtl.p())).append(":\n  ");
+            msg.append(lang("ui.settings.particles").color(CUtl.p())).append(":\n  ");
             msg     //DESTINATION
                     .append(resetB(player, Settings.particles__dest)).append(" ")
                     .append(lang("settings."+ Settings.particles__dest).hEvent(lang("settings."+ Settings.particles__dest+".info"))).append(": ")
@@ -1537,7 +1558,7 @@ public class Destination {
                     .append(getButtons(player, Settings.particles__tracking)).append("\n ");
             if (config.social || config.deathsaving) {
                 //FEATURES
-                msg.append(lang("settings.features").color(CUtl.p())).append(":\n  ");
+                msg.append(lang("ui.settings.features").color(CUtl.p())).append(":\n  ");
                 if (config.social) {
                     msg     //SEND
                             .append(resetB(player, Settings.features__send)).append(" ")
