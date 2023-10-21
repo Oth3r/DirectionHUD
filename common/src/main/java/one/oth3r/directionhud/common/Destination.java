@@ -817,6 +817,7 @@ public class Destination {
     }
     public static class saved {
         private static final int PER_PAGE = 8;
+        public static final int MAX_NAME = 16;
         public static class Dest {
             // dest helper
             private List<String> dest;
@@ -845,6 +846,8 @@ public class Destination {
                 return dest.get(0);
             }
             public void setName(String name) {
+                name = name.replace(" ","");
+                if (name.length() > MAX_NAME) name = name.substring(0,MAX_NAME);
                 List<List<String>> list = getList(player);
                 dest.set(0,name);
                 list.set(index,dest);
@@ -854,6 +857,7 @@ public class Destination {
                 return new Loc(dest.get(1));
             }
             public void setLoc(Loc loc) {
+                if (!loc.hasXYZ() || loc.getDIM() == null) return;
                 List<List<String>> list = getList(player);
                 dest.set(1,loc.toArray());
                 list.set(index,dest);
@@ -904,6 +908,8 @@ public class Destination {
             return all;
         }
         public static void add(boolean send, Player player, String name, Loc loc, String color) {
+            //get rid of spaces for now
+            name = name.replace(" ","");
             if (getList(player).size() >= config.MAXSaved) {
                 if (send) player.sendMessage(error("dest.saved.max"));
                 return;
@@ -916,8 +922,8 @@ public class Destination {
                 if (send) player.sendMessage(error("dest.saved.not_allowed"));
                 return;
             }
-            if (name.length() > 16) {
-                if (send) player.sendMessage(error("dest.saved.length",16));
+            if (name.length() > MAX_NAME) {
+                if (send) player.sendMessage(error("dest.saved.length",MAX_NAME));
                 return;
             }
             if (!Utl.dim.checkValid(loc.getDIM())) {
