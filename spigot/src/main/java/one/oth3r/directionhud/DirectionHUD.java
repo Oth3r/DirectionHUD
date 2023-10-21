@@ -1,10 +1,10 @@
 package one.oth3r.directionhud;
 
-import one.oth3r.directionhud.common.Assets;
-import one.oth3r.directionhud.common.Events;
 import one.oth3r.directionhud.commands.DestinationCommand;
 import one.oth3r.directionhud.commands.DirHUDCommand;
 import one.oth3r.directionhud.commands.HUDCommand;
+import one.oth3r.directionhud.common.Assets;
+import one.oth3r.directionhud.common.Events;
 import one.oth3r.directionhud.common.LoopManager;
 import one.oth3r.directionhud.utils.BossBarManager;
 import one.oth3r.directionhud.utils.Player;
@@ -14,13 +14,16 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.geysermc.floodgate.api.player.FloodgatePlayer;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.logging.Logger;
 
 public class DirectionHUD extends JavaPlugin implements PluginMessageListener {
     public static ArrayList<Player> clientPlayers = new ArrayList<>();
+    public static HashMap<Player, FloodgatePlayer> floodgatePlayers = new HashMap<>();
     public static Plugin plugin;
     public static final String PRIMARY = "#ff8e16";
     public static final String SECONDARY = "#42a0ff";

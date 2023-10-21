@@ -1,18 +1,20 @@
 package one.oth3r.directionhud.common;
 
+import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.files.LangReader;
 import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.common.files.config;
-import one.oth3r.directionhud.common.utils.Loc;
-import one.oth3r.directionhud.DirectionHUD;
-import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.common.utils.CUtl;
+import one.oth3r.directionhud.common.utils.Loc;
+import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
+import org.geysermc.floodgate.api.FloodgateApi;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.UUID;
 
 public class Events {
     public static void serverStart() {
@@ -35,10 +37,15 @@ public class Events {
     }
     public static void playerJoin(Player player) {
         PlayerData.addPlayer(player);
+        FloodgateApi floodgate = FloodgateApi.getInstance();
+        UUID uuid = UUID.fromString(player.getUUID());
+        if (floodgate.isFloodgatePlayer(uuid))
+            DirectionHUD.floodgatePlayers.put(player,floodgate.getPlayer(uuid));
     }
     public static void playerLeave(Player player) {
         PlayerData.removePlayer(player);
         DirectionHUD.clientPlayers.remove(player);
+        DirectionHUD.floodgatePlayers.remove(player);
         DirectionHUD.bossBarManager.removePlayer(player);
     }
     public static void playerChangeWorld(Player player, String fromDIM, String toDIM) {
