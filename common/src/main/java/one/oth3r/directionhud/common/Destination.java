@@ -1152,7 +1152,7 @@ public class Destination {
                 msg.append("\n ");
             }
             if (pageHelper.getList().size()==0)
-                msg.append(lang("lastdeath.no_deaths").color('c'));
+                msg.append(lang("lastdeath.no_deaths").color('c')).append("\n");
             msg.append("\n ");
             //button nav if there are more lastdeaths than what can fit on one page
             if (pageHelper.getList().size() > PER_PAGE)

@@ -198,7 +198,6 @@
   "key.directionhud.dest.ui.settings.particles": "Particles",
   "key.directionhud.dest.ui.settings.features": "Features",
   "key.directionhud.dest.lastdeath.save": "Death saved!",
-  "key.directionhud.dest.lastdeath.clear": "Cleared %s LastDeaths!",
   "key.directionhud.dest.lastdeath.no_deaths": "No recent deaths!",
   "key.directionhud.dest.send": "Sent %s the coordinates: %s",
   "key.directionhud.dest.send_player": "%s has sent you the coordinates: %s",
