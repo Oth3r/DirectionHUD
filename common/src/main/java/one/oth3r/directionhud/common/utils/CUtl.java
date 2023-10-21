@@ -95,7 +95,7 @@ public class CUtl {
         }
         public CTxT getNavButtons(int page, String command) {
             // return the buttons to change page
-            int max = getMax();
+            int max = getTotalPages();
             if (page > max) page = max;
             if (page < 2) page = 1;
             CTxT left = CTxT.of("");
@@ -195,12 +195,12 @@ public class CUtl {
         }
         public static class dirHUD {
             public static CTxT hud() {
-                return TBtn("dirhud.hud").btn(true).color(Assets.mainColors.hud).cEvent(1,"/hud").hEvent(
-                        CTxT.of(Assets.cmdUsage.hud).color(Assets.mainColors.hud).append("\n").append(TBtn("dirhud.hud.hover")));
+                return TBtn("hud").btn(true).color(Assets.mainColors.hud).cEvent(1,"/hud").hEvent(
+                        CTxT.of(Assets.cmdUsage.hud).color(Assets.mainColors.hud).append("\n").append(TBtn("hud.hover")));
             }
             public static CTxT dest() {
-                return TBtn("dirhud.dest").btn(true).color(Assets.mainColors.dest).cEvent(1,"/dest").hEvent(
-                        CTxT.of(Assets.cmdUsage.dest).color(Assets.mainColors.dest).append("\n").append(TBtn("dirhud.dest.hover")));
+                return TBtn("dest").btn(true).color(Assets.mainColors.dest).cEvent(1,"/dest").hEvent(
+                        CTxT.of(Assets.cmdUsage.dest).color(Assets.mainColors.dest).append("\n").append(TBtn("dest.hover")));
             }
             public static CTxT defaults() {
                 return TBtn("dirhud.defaults").btn(true).color(Assets.mainColors.defaults).cEvent(1,"/dirhud defaults").hEvent(
