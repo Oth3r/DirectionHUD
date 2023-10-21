@@ -64,6 +64,7 @@ public class Loc {
             return;
         }
         ArrayList<String> sp = new ArrayList<>(Arrays.asList(xyz.split(" ")));
+        if (sp.size() == 0) return;
         if (sp.size() == 1) {
             this.x = 0;
             this.z = 0;
