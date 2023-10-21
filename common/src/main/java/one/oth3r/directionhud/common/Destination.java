@@ -1399,7 +1399,6 @@ public class Destination {
             if (type.equals(Settings.none)) typ = CTxT.of(CUtl.TBtn("all").toString().toUpperCase()).color('c');
             CTxT msg = CUtl.tag().append(lang("settings.reset",typ));
             if (Return) UI(player, msg);
-            else UI(player, null);
         }
         public static void change(Player player, Settings type, String setting, boolean Return) {
             boolean state = setting.equals("on");
