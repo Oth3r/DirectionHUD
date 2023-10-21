@@ -177,7 +177,7 @@ public class CUtl {
         }
         public static class hud {
             public static CTxT color() {
-                return CTxT.of(CUtl.color.rainbow(TBtn("hud.color").getString(),15,45)).btn(true).cEvent(1,"/hud color")
+                return CTxT.of(CUtl.color.rainbow(TBtn("hud.color").toString(),15,45)).btn(true).cEvent(1,"/hud color")
                         .hEvent(CTxT.of(CUtl.color.rainbow(Assets.cmdUsage.hudColor,10f,23f)).append("\n").append(TBtn("hud.color.hover")));
             }
             public static CTxT modules() {

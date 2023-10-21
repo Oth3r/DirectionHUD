@@ -91,7 +91,7 @@ public class Player {
         PacketHelper.sendPacket(this, Assets.packets.HUD, gson.toJson(hudData));
     }
     public void displayHUD(CTxT message) {
-        if (message.getString().equals("")) {
+        if (message.toString().equals("")) {
             //if the HUD is enabled but there is no output
             if (PlayerData.getOneTime(this,"hud.enabled_but_off") == null) {
                 PlayerData.setOneTime(this,"hud.enabled_but_off","true");

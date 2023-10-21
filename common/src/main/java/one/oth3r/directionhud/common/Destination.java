@@ -1215,7 +1215,7 @@ public class Destination {
                 color = PlayerData.get.colorPresets(player).get(Integer.parseInt(color.substring(7))-1);
             color = CUtl.color.format(color);
             if (name==null) {
-                name = lang("send.change_name").getString();
+                name = lang("send.change_name").toString();
                 xyzB.append(loc.getBadge());
             } else xyzB.append(loc.getBadge(name,color));
             String plDimension = pl.getDimension();
@@ -1395,8 +1395,8 @@ public class Destination {
                 PlayerData.set.dest.setting.set(player,Settings.get(type+"_color"),getConfig(Settings.get(type+"_color")));
             if (type.equals(Settings.features__track))
                 PlayerData.set.dest.setting.set(player,Settings.features__track_request_mode,getConfig(Settings.features__track_request_mode));
-            CTxT typ = CTxT.of(lang("settings."+type).getString().toUpperCase()).color('c');
-            if (type.equals(Settings.none)) typ = CTxT.of(CUtl.TBtn("all").getString().toUpperCase()).color('c');
+            CTxT typ = CTxT.of(lang("settings."+type).toString().toUpperCase()).color('c');
+            if (type.equals(Settings.none)) typ = CTxT.of(CUtl.TBtn("all").toString().toUpperCase()).color('c');
             CTxT msg = CUtl.tag().append(lang("settings.reset",typ));
             if (Return) UI(player, msg);
             else UI(player, null);

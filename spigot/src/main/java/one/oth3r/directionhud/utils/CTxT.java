@@ -111,7 +111,8 @@ public class CTxT {
         this.append.add(append.b());
         return this;
     }
-    public String getString() {
+    @Override
+    public String toString() {
         return b().toPlainText();
     }
     public TextComponent b() {

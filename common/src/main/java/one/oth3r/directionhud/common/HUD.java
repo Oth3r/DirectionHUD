@@ -565,7 +565,7 @@ public class HUD {
                         disabled.append("\n");
                     }
                     disabled.append(" ").append(modules.get(getDisabled(player).get(i)));
-                    chars += modules.get(getDisabled(player).get(i)).getString().length()+1;
+                    chars += modules.get(getDisabled(player).get(i)).toString().length()+1;
                 }
                 msg.append(disabled).append("\n");
             }
@@ -673,10 +673,10 @@ public class HUD {
             else if (type.equals("secondary")) typ = 2;
             else return;
             String currentColor = getHUDColor(player,typ);
-            msg.append(" ").append(addColor(player,Utl.capitalizeFirst(lang("color."+type).getString()),typ,15,20))
+            msg.append(" ").append(addColor(player,Utl.capitalizeFirst(lang("color."+type).toString()),typ,15,20))
                     .append(CTxT.of("\n                               \n").strikethrough(true));
             CTxT reset = CUtl.TBtn("reset").btn(true).color('c').cEvent(1, "/hud color reset "+setting+" "+type)
-                    .hEvent(CUtl.lang("button.reset.hover_color_hud",addColor(player,lang("color."+type).getString().toUpperCase(),typ,15,20)));
+                    .hEvent(CUtl.lang("button.reset.hover_color_hud",addColor(player,lang("color."+type).toString().toUpperCase(),typ,15,20)));
             CTxT presetsButton = CTxT.of("")
                     .append(CTxT.of("+").btn(true).color('a').cEvent(1,"/hud color preset add "+setting+" "+type)
                             .hEvent(CUtl.TBtn("color.presets.add.hover",CUtl.TBtn("color.presets.add.hover_2").color(getHUDColor(player,typ)))))
@@ -706,14 +706,14 @@ public class HUD {
         public static void UI(Player player, CTxT abovemsg) {
             CTxT msg = CTxT.of("");
             if (abovemsg != null) msg.append(abovemsg).append("\n");
-            msg.append(" ").append(CUtl.color.rainbow(lang("ui.color").getString(),15f,45f))
+            msg.append(" ").append(CUtl.color.rainbow(lang("ui.color").toString(),15f,45f))
                     .append(CTxT.of("\n                                \n").strikethrough(true)).append(" ");
             //PRIMARY
-            msg.append(CTxT.of(addColor(player,CUtl.TBtn("color.primary").getString(),1,15,20)).btn(true).cEvent(1,"/hud color edit normal primary")
-                    .hEvent(CUtl.TBtn("color.edit.hover",addColor(player,CUtl.TBtn("color.primary").getString(),1,15,20)))).append(" ");
+            msg.append(CTxT.of(addColor(player,CUtl.TBtn("color.primary").toString(),1,15,20)).btn(true).cEvent(1,"/hud color edit normal primary")
+                    .hEvent(CUtl.TBtn("color.edit.hover",addColor(player,CUtl.TBtn("color.primary").toString(),1,15,20)))).append(" ");
             //SECONDARY
-            msg.append(CTxT.of(addColor(player,CUtl.TBtn("color.secondary").getString(),2,15,20)).btn(true).cEvent(1,"/hud color edit normal secondary")
-                    .hEvent(CUtl.TBtn("color.edit.hover",addColor(player,CUtl.TBtn("color.secondary").getString(),2,15,20)))).append("\n\n      ");
+            msg.append(CTxT.of(addColor(player,CUtl.TBtn("color.secondary").toString(),2,15,20)).btn(true).cEvent(1,"/hud color edit normal secondary")
+                    .hEvent(CUtl.TBtn("color.edit.hover",addColor(player,CUtl.TBtn("color.secondary").toString(),2,15,20)))).append("\n\n      ");
             //RESET
             msg.append(CUtl.TBtn("reset").btn(true).color('c').cEvent(1,"/hud color reset")
                             .hEvent(CUtl.TBtn("reset.hover_color",CUtl.TBtn("all").color('c'))))
@@ -744,7 +744,7 @@ public class HUD {
             }
             if (type.equals(Settings.bossbar__distance))
                 PlayerData.set.hud.setting.set(player,Settings.get(type+"_max"),getConfig(Settings.get(type+"_max")));
-            CTxT typ = CTxT.of(lang("settings."+type).getString().toUpperCase()).color('c');
+            CTxT typ = CTxT.of(lang("settings."+type).toString().toUpperCase()).color('c');
             player.updateHUD();
             if (type.equals(Settings.none)) typ = CTxT.of(CUtl.TBtn("all")).color('c');
             CTxT msg = CUtl.tag().append(lang("setting.reset",typ));
