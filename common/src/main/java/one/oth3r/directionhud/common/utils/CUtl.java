@@ -67,7 +67,7 @@ public class CUtl {
             this.list = list;
             this.perPage = perPage;
         }
-        private int getMax() {
+        public int getTotalPages() {
             // get max pages, min = 1
             return Math.max(1,(int) Math.ceil((double) list.size() / perPage));
         }
@@ -81,7 +81,7 @@ public class CUtl {
         }
         public ArrayList<T> getPage(int page) {
             //return a list with the entries in the page given
-            int max = getMax();
+            int max = getTotalPages();
             if (max < page) page = max;
             if (page <= 0) page = 1;
             ArrayList<T> pageList = new ArrayList<>();
