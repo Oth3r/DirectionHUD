@@ -71,6 +71,8 @@ public class Assets {
         public static final String link = "\u29c9";
         public static final String envelope = "\u2709";
         public static final String lighting_bolt = "\u26a1";
+        public static final String convert = "\u2194";
+        public static final String toggle = "\u21C4";
     }
     public enum packets {
         INITIALIZATION("initialize_v1.0"),
