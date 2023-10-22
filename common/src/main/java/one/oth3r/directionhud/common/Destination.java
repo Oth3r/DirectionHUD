@@ -92,7 +92,7 @@ public class Destination {
                 case "color" -> colorCMD(player,trimmedArgs);
                 case "send" -> sendCMD(player, trimmedArgs);
                 case "track" -> trackCMD(player, trimmedArgs);
-                default -> player.sendMessage(CUtl.error(CUtl.lang("error.command")));
+                default -> player.sendMessage(CUtl.error("error.command"));
             }
         }
         public static void colorCMD(Player player, String[] args) {
@@ -222,11 +222,11 @@ public class Destination {
                 if (args.length == 1) return;
                 if (args.length == 2) saved.viewDestinationUI(true, player, args[1]);
                 if (args[1].equalsIgnoreCase("name")) {
-                    if (args.length == 3) player.sendMessage(error("dest.saved.set",lang("saved.name")));
+                    if (args.length == 3) player.sendMessage(CUtl.error("dest.saved.set",lang("saved.name")));
                     if (args.length == 4) saved.editName(Return, player, args[2], args[3]);
                 }
                 if (args[1].equalsIgnoreCase("color")) {
-                    if (args.length == 3) player.sendMessage(error("dest.saved.set",lang("saved.color")));
+                    if (args.length == 3) player.sendMessage(CUtl.error("dest.saved.set",lang("saved.color")));
                     if (args.length == 4) saved.setColor(player, "normal", args[2], args[3], Return);
                 }
                 if (args[1].equalsIgnoreCase("colorui")) {
@@ -234,11 +234,11 @@ public class Destination {
                     if (args.length == 4) saved.colorUI(player,args[3],args[2],null);
                 }
                 if (args[1].equalsIgnoreCase("order")) {
-                    if (args.length == 3) player.sendMessage(error("dest.saved.set",lang("saved.order")));
+                    if (args.length == 3) player.sendMessage(CUtl.error("dest.saved.set",lang("saved.order")));
                     if (args.length == 4) saved.editOrder(Return, player, args[2], args[3]);
                 }
                 if (args[1].equalsIgnoreCase("location")) {
-                    if (args.length == 3) player.sendMessage(error("dest.saved.set",lang("saved.location")));
+                    if (args.length == 3) player.sendMessage(CUtl.error("dest.saved.set",lang("saved.location")));
                     // dest saved edit name dim
                     if (args.length == 4 && !Utl.isInt(args[3])) {
                         Loc loc = new saved.Dest(player,args[2]).getLoc();
@@ -257,13 +257,13 @@ public class Destination {
             }
             //SEND
             if (args[0].equalsIgnoreCase("send")) {
-                if (args.length == 2) player.sendMessage(error("dest.send.player"));
+                if (args.length == 2) player.sendMessage(CUtl.error("dest.send.player"));
                 if (args.length == 3) social.send(player,args[2],null,args[1],null);
                 return;
             }
             //DELETE
             if (args[0].equalsIgnoreCase("delete")) {
-                if (args.length == 1) player.sendMessage(error("dest.saved.delete"));
+                if (args.length == 1) player.sendMessage(CUtl.error("dest.saved.delete"));
                 if (args.length == 2) saved.delete(Return,player,args[1]);
                 return;
             }
@@ -727,9 +727,6 @@ public class Destination {
     private static CTxT lang(String key, Object... args) {
         return CUtl.lang("dest."+key, args);
     }
-    private static CTxT error(String key, Object... args) {
-        return CUtl.error(CUtl.lang("error."+key, args));
-    }
     public static Loc get(Player player) {
         Loc loc = PlayerData.get.dest.getDest(player);
         if (!loc.hasXYZ()) return new Loc();
@@ -751,7 +748,7 @@ public class Destination {
     public static void clear(Player player, CTxT reason) {
         CTxT msg = CUtl.tag().append(lang("changed", lang("changed.cleared").color('a')));
         if (!get(player).hasXYZ()) {
-            player.sendMessage(error("dest.already_clear"));
+            player.sendMessage(CUtl.error("dest.already_clear"));
             return;
         }
         clear(player);
@@ -774,11 +771,11 @@ public class Destination {
     //convert converts loc dim to player dim
     public static void set(Player player, Loc loc, boolean convert) {
         if (!loc.hasXYZ()) {
-            player.sendMessage(error("coordinates"));
+            player.sendMessage(CUtl.error("coordinates"));
             return;
         }
         if (loc.getDIM() == null) {
-            player.sendMessage(error("dimension"));
+            player.sendMessage(CUtl.error("dimension"));
             return;
         }
         CTxT convertMsg = CTxT.of("");
@@ -787,7 +784,7 @@ public class Destination {
             loc.convertTo(player.getDimension());
         }
         if (checkDist(player,loc)) {
-            player.sendMessage(error("dest.at"));
+            player.sendMessage(CUtl.error("dest.at"));
             return;
         }
         silentSet(player, loc);
@@ -797,7 +794,7 @@ public class Destination {
     public static void setName(Player player, String name, boolean convert) {
         saved.Dest dest = new saved.Dest(player,name);
         if (dest.getDest() == null) {
-            player.sendMessage(error("dest.invalid"));
+            player.sendMessage(CUtl.error("dest.invalid"));
             return;
         }
         CTxT convertMsg = CTxT.of("");
@@ -807,7 +804,7 @@ public class Destination {
             loc.convertTo(player.getDimension());
         }
         if (checkDist(player,loc)) {
-            player.sendMessage(error("dest.at"));
+            player.sendMessage(CUtl.error("dest.at"));
             return;
         }
         silentSet(player,loc);
@@ -911,27 +908,27 @@ public class Destination {
             //get rid of spaces for now
             name = name.replace(" ","");
             if (getList(player).size() >= config.MAXSaved) {
-                if (send) player.sendMessage(error("dest.saved.max"));
+                if (send) player.sendMessage(CUtl.error("dest.saved.max"));
                 return;
             }
             if (getNames(player).contains(name)) {
-                if (send) player.sendMessage(error("dest.saved.add.duplicate",CTxT.of(name).color(CUtl.s())));
+                if (send) player.sendMessage(CUtl.error("dest.saved.add.duplicate",CTxT.of(name).color(CUtl.s())));
                 return;
             }
             if (name.equalsIgnoreCase("saved")) {
-                if (send) player.sendMessage(error("dest.saved.not_allowed"));
+                if (send) player.sendMessage(CUtl.error("dest.saved.not_allowed"));
                 return;
             }
             if (name.length() > MAX_NAME) {
-                if (send) player.sendMessage(error("dest.saved.length",MAX_NAME));
+                if (send) player.sendMessage(CUtl.error("dest.saved.length",MAX_NAME));
                 return;
             }
             if (!Utl.dim.checkValid(loc.getDIM())) {
-                if (send) player.sendMessage(error("dimension"));
+                if (send) player.sendMessage(CUtl.error("dimension"));
                 return;
             }
             if (!loc.hasXYZ()) {
-                player.sendMessage(error("coordinates"));
+                player.sendMessage(CUtl.error("coordinates"));
                 return;
             }
             //if color is preset, get the preset color
@@ -952,7 +949,7 @@ public class Destination {
             CUtl.PageHelper<List<String>> pageHelper = new CUtl.PageHelper<>(new ArrayList<>(getList(player)),PER_PAGE);
             Dest dest = new Dest(player,name);
             if (dest.getDest() == null) {
-                player.sendMessage(error("dest.invalid"));
+                player.sendMessage(CUtl.error("dest.invalid"));
                 return;
             }
             dest.remove();
@@ -963,19 +960,19 @@ public class Destination {
             Dest dest = new Dest(player,name);
             // remove the bad data
             if (dest.getDest()==null) {
-                player.sendMessage(error("dest.invalid"));
+                player.sendMessage(CUtl.error("dest.invalid"));
                 return;
             }
             if (dest.getName().equals(newName)) {
-                player.sendMessage(error("dest.saved.duplicate",lang("saved.name"),CTxT.of(newName).color(CUtl.s())));
+                player.sendMessage(CUtl.error("dest.saved.duplicate",lang("saved.name"),CTxT.of(newName).color(CUtl.s())));
                 return;
             }
             if (newName.equalsIgnoreCase("saved")) {
-                player.sendMessage(error("dest.saved.not_allowed"));
+                player.sendMessage(CUtl.error("dest.saved.not_allowed"));
                 return;
             }
             if (newName.length() > 16) {
-                player.sendMessage(error("dest.saved.length", 16));
+                player.sendMessage(CUtl.error("dest.saved.length", 16));
                 return;
             }
             dest.setName(newName);
@@ -986,11 +983,11 @@ public class Destination {
             Dest dest = new Dest(player,name);
             // remove the bad data
             if (dest.getDest() == null) {
-                player.sendMessage(error("dest.invalid"));
+                player.sendMessage(CUtl.error("dest.invalid"));
                 return;
             }
             if (!Utl.isInt(orderNumber)) {
-                player.sendMessage(error("number"));
+                player.sendMessage(CUtl.error("number"));
                 return;
             }
             dest.setOrder(Integer.parseInt(orderNumber));
@@ -1001,15 +998,15 @@ public class Destination {
             Dest dest = new Dest(player,name);
             // remove the bad data
             if (dest.getDest() == null) {
-                player.sendMessage(error("dest.invalid"));
+                player.sendMessage(CUtl.error("dest.invalid"));
                 return;
             }
             if (!loc.hasXYZ()) {
-                player.sendMessage(error("coordinates"));
+                player.sendMessage(CUtl.error("coordinates"));
                 return;
             }
             if (dest.getLoc().equals(loc)) {
-                player.sendMessage(error("dest.saved.duplicate",lang("saved.location"),CTxT.of(loc.getXYZ()).color(CUtl.s())));
+                player.sendMessage(CUtl.error("dest.saved.duplicate",lang("saved.location"),CTxT.of(loc.getXYZ()).color(CUtl.s())));
                 return;
             }
             if (loc.getDIM() == null) loc.setDIM(dest.getLoc().getDIM());
@@ -1023,7 +1020,7 @@ public class Destination {
             List<String> names = getNames(player);
             if (!names.contains(name)) return;
             if (!CUtl.color.checkValid(color,dest.getColor())) {
-                player.sendMessage(error("color"));
+                player.sendMessage(CUtl.error("color"));
                 return;
             }
             dest.setColor(CUtl.color.format(color));
@@ -1035,14 +1032,14 @@ public class Destination {
             Dest dest = new Dest(player,name);
             CUtl.PageHelper<List<String>> pageHelper = new CUtl.PageHelper<>(new ArrayList<>(getList(player)),PER_PAGE);
             if (dest.getDest() == null) {
-                if (send) player.sendMessage(error("dest.invalid"));
+                if (send) player.sendMessage(CUtl.error("dest.invalid"));
                 return;
             }
             CTxT msg = CTxT.of(" ");
             msg.append(lang("ui.saved.edit").color(Assets.mainColors.saved)).append(CUtl.LARGE).append("\n");
             msg
                     .append(" ").append(CTxT.of("#"+dest.getOrder()).btn(true).color(CUtl.p())
-                            .hEvent(CUtl.TBtn("dest.saved.order.hover").color(CUtl.p()))
+                            .hEvent(CUtl.TBtn("order.hover").color(CUtl.p()))
                             .cEvent(2,"/dest saved edit-r order "+name+" "))
                     .append(" ").append(CTxT.of(name).btn(true).color(CUtl.s())
                             .hEvent(CUtl.TBtn("dest.saved.name.hover").color(CUtl.s()))
@@ -1171,29 +1168,29 @@ public class Destination {
         public static void send(Player player, String sendPLayer, Loc loc, String name,String color) {
             Player pl = Player.of(sendPLayer);
             if (pl == null) {
-                player.sendMessage(error("player", CTxT.of(sendPLayer).color(CUtl.s())));
+                player.sendMessage(CUtl.error("player", CTxT.of(sendPLayer).color(CUtl.s())));
                 return;
             }
             if (!(boolean)PlayerData.get.dest.setting.get(player,Settings.features__send)) {
-                player.sendMessage(error("disabled"));
+                player.sendMessage(CUtl.error("disabled"));
                 return;
             }
             if (pl == player) {
-                player.sendMessage(error("dest.send.alone"));
+                player.sendMessage(CUtl.error("dest.send.alone"));
                 return;
             }
             if (!(boolean)PlayerData.get.dest.setting.get(pl,Settings.features__send)) {
-                player.sendMessage(error("dest.send.disabled_player",CTxT.of(pl.getName()).color(CUtl.s())));
+                player.sendMessage(CUtl.error("dest.send.disabled_player",CTxT.of(pl.getName()).color(CUtl.s())));
                 return;
             }
             if (name != null && name.length() > 16) {
-                player.sendMessage(error("dest.saved.length",16));
+                player.sendMessage(CUtl.error("dest.saved.length",16));
                 return;
             }
             // if LOC is null it's a saved destination
             if (loc == null) {
                 if (!saved.getNames(player).contains(name)) {
-                    player.sendMessage(error("dest.invalid"));
+                    player.sendMessage(CUtl.error("dest.invalid"));
                     return;
                 }
                 saved.Dest dest = new saved.Dest(player,name);
@@ -1201,11 +1198,11 @@ public class Destination {
                 color = dest.getColor();
             }
             if (!loc.hasXYZ()) {
-                player.sendMessage(error("coordinates"));
+                player.sendMessage(CUtl.error("coordinates"));
                 return;
             }
             if (!Utl.dim.checkValid(loc.getDIM())) {
-                player.sendMessage(error("dimension"));
+                player.sendMessage(CUtl.error("dimension"));
                 return;
             }
             CTxT xyzB = CTxT.of("");
@@ -1240,7 +1237,7 @@ public class Destination {
             public static void clear(Player player, CTxT reason) {
                 CTxT msg = CUtl.tag().append(lang("track.clear"));
                 if (PlayerData.get.dest.getTracking(player) == null) {
-                    player.sendMessage(error("dest.track.cleared"));
+                    player.sendMessage(CUtl.error("dest.track.cleared"));
                     return;
                 }
                 clear(player);
@@ -1269,27 +1266,27 @@ public class Destination {
             public static void initialize(Player player, String player2) {
                 Player pl = Player.of(player2);
                 if (pl == null) {
-                    player.sendMessage(error("player",CTxT.of(player2).color(CUtl.s())));
+                    player.sendMessage(CUtl.error("player",CTxT.of(player2).color(CUtl.s())));
                     return;
                 }
                 if (pl == player) {
-                    player.sendMessage(error("dest.track.alone"));
+                    player.sendMessage(CUtl.error("dest.track.alone"));
                     return;
                 }
                 if (!(boolean)PlayerData.get.dest.setting.get(player,Settings.features__track)) {
-                    player.sendMessage(error("disabled"));
+                    player.sendMessage(CUtl.error("disabled"));
                     return;
                 }
                 if (!(boolean)PlayerData.get.dest.setting.get(pl,Settings.features__track)) {
-                    player.sendMessage(error("dest.track.disabled",CTxT.of(pl.getName()).color(CUtl.s())));
+                    player.sendMessage(CUtl.error("dest.track.disabled",CTxT.of(pl.getName()).color(CUtl.s())));
                     return;
                 }
                 if (PlayerData.get.temp.track.exists(player)) {
-                    player.sendMessage(error("dest.track.pending"));
+                    player.sendMessage(CUtl.error("dest.track.pending"));
                     return;
                 }
                 if (getTarget(player) != null && Objects.equals(getTarget(player), pl)) {
-                    player.sendMessage(error("dest.track.already_tracking",CTxT.of(pl.getName()).color(CUtl.s())));
+                    player.sendMessage(CUtl.error("dest.track.already_tracking",CTxT.of(pl.getName()).color(CUtl.s())));
                     return;
                 }
                 if (config.DESTTrackingRequestModes.valueOf((String) PlayerData.get.dest.setting.get(pl,Settings.features__track_request_mode)).equals(config.DESTTrackingRequestModes.instant)) {
@@ -1312,25 +1309,25 @@ public class Destination {
                 Player player = Player.of(player2);
                 // player is tracker, pl is tracked
                 if (player == null) {
-                    pl.sendMessage(error("player",CTxT.of(player2).color(CUtl.s())));
+                    pl.sendMessage(CUtl.error("player",CTxT.of(player2).color(CUtl.s())));
                     return;
                 }
                 if (pl == player) {
-                    pl.sendMessage(error("how"));
+                    pl.sendMessage(CUtl.error("how"));
                     return;
                 }
                 if (!PlayerData.get.temp.track.exists(player) || !PlayerData.get.temp.track.id(player).equals(ID)) {
                     //expired
-                    pl.sendMessage(error("dest.track.expired"));
+                    pl.sendMessage(CUtl.error("dest.track.expired"));
                     return;
                 }
                 if (!(boolean)PlayerData.get.dest.setting.get(player,Settings.features__track)) {
-                    pl.sendMessage(error("dest.track.disabled",CTxT.of(pl.getName()).color(CUtl.s())));
+                    pl.sendMessage(CUtl.error("dest.track.disabled",CTxT.of(pl.getName()).color(CUtl.s())));
                     PlayerData.set.temp.track.remove(player);
                     return;
                 }
                 if (!Objects.equals(PlayerData.get.temp.track.target(player), pl.getName())) {
-                    pl.sendMessage(error("how"));
+                    pl.sendMessage(CUtl.error("how"));
                     return;
                 }
                 set(player, pl,true);
@@ -1340,19 +1337,19 @@ public class Destination {
                 // player is tracker, pl is tracked
                 Player player = Player.of(player2);
                 if (player == null) {
-                    pl.sendMessage(error("player",CTxT.of(player2).color(CUtl.s())));
+                    pl.sendMessage(CUtl.error("player",CTxT.of(player2).color(CUtl.s())));
                     return;
                 }
                 if (pl == player) {
-                    pl.sendMessage(error("how"));
+                    pl.sendMessage(CUtl.error("how"));
                     return;
                 }
                 if (PlayerData.get.temp.track.id(player) == null || !PlayerData.get.temp.track.id(player).equals(ID)) {
-                    pl.sendMessage(error("dest.track.expired"));
+                    pl.sendMessage(CUtl.error("dest.track.expired"));
                     return;
                 }
                 if (!Objects.equals(PlayerData.get.temp.track.target(player), pl.getName())) {
-                    pl.sendMessage(error("how"));
+                    pl.sendMessage(CUtl.error("how"));
                     return;
                 }
                 player.sendMessage(CUtl.tag().append(lang("track.denied",CTxT.of(pl.getName()).color(CUtl.s()))));
@@ -1407,7 +1404,7 @@ public class Destination {
             CTxT setTxT = CTxT.of("");
             if (type.equals(Settings.autoclear_rad)) {
                 if (!Utl.isInt(setting)) {
-                    player.sendMessage(error("number"));
+                    player.sendMessage(CUtl.error("number"));
                     return;
                 }
                 int i = Math.max(Math.min(Integer.parseInt(setting),15),1);
@@ -1518,7 +1515,7 @@ public class Destination {
             if (CUtl.color.checkValid(color,(String)PlayerData.get.dest.setting.get(player,type))) {
                 PlayerData.set.dest.setting.set(player,type,CUtl.color.format(color));
             } else {
-                player.sendMessage(error("color"));
+                player.sendMessage(CUtl.error("color"));
                 return;
             }
             CTxT msg = CUtl.tag().append(lang("settings.particles.color.set",uiType.toString().toUpperCase(),CUtl.color.getBadge(color)));

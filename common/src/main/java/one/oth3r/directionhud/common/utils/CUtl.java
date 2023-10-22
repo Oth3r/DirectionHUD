@@ -28,8 +28,8 @@ public class CUtl {
     public static String s() {
         return DirectionHUD.SECONDARY;
     }
-    public static CTxT error(CTxT s) {
-        return tag().append(lang("error").color(Assets.mainColors.error)).append(" ").append(s);
+    public static CTxT error(String key, Object... args) {
+        return tag().append(lang("error").color(Assets.mainColors.error)).append(" ").append(lang(key, args));
     }
     public static CTxT usage(String s) {
         return tag().append(lang("usage").color(Assets.mainColors.usage)).append(" ").append(s);
@@ -78,6 +78,9 @@ public class CUtl {
             // get the quotient of the index and the amount of items per page rounded to the next integer to get page of the current item
             if (list.contains(item)) return (int) Math.ceil((double) (list.indexOf(item) + 1) / perPage);
             else return 1;
+        }
+        public int getIndexOf(T item) {
+            return list.indexOf(item);
         }
         public ArrayList<T> getPage(int page) {
             //return a list with the entries in the page given
