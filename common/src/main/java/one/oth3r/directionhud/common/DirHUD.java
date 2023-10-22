@@ -27,7 +27,7 @@ public class DirHUD {
                     if (Utl.checkEnabled.reload(player)) reload(player);
                 }
                 case "defaults" -> defaultsCMD(player, trimmedArgs);
-                default -> player.sendMessage(CUtl.error(CUtl.lang("error.command")));
+                default -> player.sendMessage(CUtl.error("error.command"));
             }
         }
         public static void presetCMD(Player player, String[] args) {

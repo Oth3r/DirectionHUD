@@ -391,12 +391,15 @@ public class PlayerData {
             private static Map<String,Object> get(Player player) {
                 return (Map<String, Object>) fromMap(player).get("hud");
             }
-            public static boolean getModule(Player player, HUD.modules.Types module) {
+            public static boolean getModule(Player player, HUD.Modules module) {
                 Map<String,Object> map = (Map<String,Object>) get(player).get("module");
                 return (boolean) map.get(module.toString());
             }
-            public static ArrayList<String> order(Player player) {
-                return (ArrayList<String>) get(player).get("order");
+            public static ArrayList<HUD.Modules> order(Player player) {
+                ArrayList<String> modules = (ArrayList<String>) get(player).get("order");
+                ArrayList<HUD.Modules> types = new ArrayList<>();
+                for (String m:modules) types.add(HUD.Modules.get(m));
+                return types;
             }
             public static boolean state(Player player) {
                 return (boolean) get(player).get("enabled");
@@ -490,7 +493,7 @@ public class PlayerData {
                 mapToFile(player,map);
                 updatePlayerMap(player);
             }
-            public static void order(Player player, ArrayList<String> order) {
+            public static void order(Player player, ArrayList<HUD.Modules> order) {
                 Map<String,Object> data = get.hud.get(player);
                 data.put("order", order);
                 map(player, data);
@@ -525,18 +528,17 @@ public class PlayerData {
                     map(player,data);
                 }
             }
-            public static class module {
-                public static void map(Player player, Map<String,Object> module) {
-                    Map<String,Object> data = get.hud.get(player);
-                    data.put("module", module);
-                    hud.map(player, data);
-                }
-                public static void fromString(Player player, String moduleName, boolean b) {
-                    Map<String,Object> data = get.hud.get(player);
-                    data = (Map<String, Object>) data.get("module");
-                    data.put(moduleName, b);
-                    map(player, data);
-                }
+            public static void setModule(Player player, HUD.Modules module, boolean b) {
+                Map<String,Object> data = get.hud.get(player);
+                Map<String,Object> modules = (Map<String, Object>) data.get("module");
+                modules.put(module.toString(),b);
+                data.put("module",modules);
+                hud.map(player,data);
+            }
+            public static void setModuleMap(Player player, Map<String,Object> module) {
+                Map<String,Object> data = get.hud.get(player);
+                data.put("module", module);
+                hud.map(player, data);
             }
         }
         public static class dest {
