@@ -267,20 +267,11 @@ public class HUD {
     }
     public static String getGameTime(boolean t12hr) {
         int hr = hour;
+        // add 0 to the start, then set the string to the last to numbers to always have a 2-digit number
         String min = "0" + minute;
-        min = min.substring(min.length() - 2);
-        int minute = Integer.parseInt(min);
-        if (t12hr) {
-            String time = "";
-            if(hr == 0) hr = 12;
-            else if(hr > 12) {hr -= 12;}
-            time += hr;
-            time += ":";
-            if(minute < 10) time += "0";
-            time += minute;
-            return time;
-        }
-        return hr + ":" + min;
+        min = min.substring(min.length()-2);
+        if (t12hr) hr = (hr % 12 == 0)? 12:hr % 12;
+        return hr+":"+min;
     }
     public static String getAMPM() {
         int hr = hour;
