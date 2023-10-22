@@ -178,8 +178,9 @@ public class HUD {
         if ((boolean) PlayerData.get.hud.setting.get(player,Settings.module__time_24hr)) {
             time.add("s"+getGameTime(false));
         } else {
+            // 12 hr clock
             time.add("s"+getGameTime(true)+" ");
-            time.add("p"+getAMPM());
+            time.add("p"+(hour>=12?lang("module.time.pm"):lang("module.time.am")));
         }
         ArrayList<String> weather = new ArrayList<>();
         weather.add("p"+weatherIcon);
@@ -272,13 +273,6 @@ public class HUD {
         min = min.substring(min.length()-2);
         if (t12hr) hr = (hr % 12 == 0)? 12:hr % 12;
         return hr+":"+min;
-    }
-    public static String getAMPM() {
-        int hr = hour;
-        String ampm = "AM";
-        if(hr > 12) {ampm = "PM";}
-        else if(hr == 12) ampm = "PM";
-        return ampm;
     }
     public static String getTracking(Player player) {
         Loc target;
