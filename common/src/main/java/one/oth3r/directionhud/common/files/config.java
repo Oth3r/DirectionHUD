@@ -72,7 +72,7 @@ public class config {
     public static boolean HUDBarShowDistance = defaults.HUDBarShowDistance;
     public static int HUDBarDistanceMax = defaults.HUDBarDistanceMax;
     public static boolean HUDEnabled = defaults.HUDEnabled;
-    public static ArrayList<String> HUDOrder = defaults.HUDOrder;
+    public static ArrayList<HUD.Modules> HUDOrder = defaults.HUDOrder;
     public static boolean HUDCoordinates = defaults.HUDCoordinates;
     public static boolean HUDDistance = defaults.HUDDistance;
     public static boolean HUDTracking = defaults.HUDTracking;
@@ -206,13 +206,13 @@ public class config {
         HUDTrackingTarget = (String)PlayerData.get.hud.setting.get(player, HUD.Settings.module__tracking_target);
         //HUD MODULES
         HUDOrder = PlayerData.get.hud.order(player);
-        HUDCoordinates = PlayerData.get.hud.getModule(player,"coordinates");
-        HUDDistance = PlayerData.get.hud.getModule(player,"distance");
-        HUDTracking = PlayerData.get.hud.getModule(player,"tracking");
-        HUDDestination = PlayerData.get.hud.getModule(player,"destination");
-        HUDDirection = PlayerData.get.hud.getModule(player,"direction");
-        HUDTime = PlayerData.get.hud.getModule(player,"time");
-        HUDWeather = PlayerData.get.hud.getModule(player,"weather");
+        HUDCoordinates = PlayerData.get.hud.getModule(player, HUD.Modules.coordinates);
+        HUDDistance = PlayerData.get.hud.getModule(player, HUD.Modules.distance);
+        HUDTracking = PlayerData.get.hud.getModule(player, HUD.Modules.tracking);
+        HUDDestination = PlayerData.get.hud.getModule(player, HUD.Modules.destination);
+        HUDDirection = PlayerData.get.hud.getModule(player, HUD.Modules.direction);
+        HUDTime = PlayerData.get.hud.getModule(player, HUD.Modules.time);
+        HUDWeather = PlayerData.get.hud.getModule(player, HUD.Modules.weather);
         //HUD COLORS
         HUDPrimaryColor = HUD.color.getHUDColor(player,1);
         HUDPrimaryBold = HUD.color.getHUDBold(player,1);
@@ -277,6 +277,7 @@ public class config {
         online = Boolean.parseBoolean((String) properties.computeIfAbsent("online-mode", a -> String.valueOf(defaults.online)));
         //DIM
         Type arrayListMap = new TypeToken<ArrayList<String>>() {}.getType();
+        Type moduleListMap = new TypeToken<ArrayList<HUD.Modules>>() {}.getType();
         dimensions = new Gson().fromJson((String) properties.computeIfAbsent("dimensions", a -> String.valueOf(defaults.dimensions)),arrayListMap);
 
         if (version == 1.1f) HUDTracking = Boolean.parseBoolean((String) properties.computeIfAbsent("compass", a -> String.valueOf(defaults.HUDTracking)));
@@ -291,8 +292,12 @@ public class config {
             DESTDestParticleColor = CUtl.color.updateOld((String) properties.computeIfAbsent("dest-particle-color", a -> defaults.DESTDestParticleColor),defaults.DESTDestParticleColor);
             //HUD
             HUDEnabled = Boolean.parseBoolean((String) properties.computeIfAbsent("enabled", a -> String.valueOf(defaults.HUDEnabled)));
-            HUDOrder = HUD.modules.fixOrder(new ArrayList<>(List.of(((String) properties.computeIfAbsent("order", a -> defaults.HUDOrder
-                    .toString().substring(1).replace(",","").replace("]",""))).split(" "))));
+            //ORDER
+            ArrayList<String> order = (ArrayList<String>) List.of(((String) properties.computeIfAbsent("order", a -> defaults.HUDOrder
+                    .toString().substring(1).replace(",","").replace("]",""))).split(" "));
+            ArrayList<HUD.Modules> moduleOrder = new ArrayList<>();
+            for (String module:order) moduleOrder.add(HUD.Modules.get(module));
+            HUDOrder = HUD.module.fixOrder(moduleOrder);
             HUDTime24HR = Boolean.parseBoolean((String) properties.computeIfAbsent("time24hr", a -> String.valueOf(defaults.HUDTime24HR)));
             HUDPrimaryBold = Boolean.parseBoolean((String) properties.computeIfAbsent("primary-bold", a -> String.valueOf(defaults.HUDPrimaryBold)));
             HUDPrimaryItalics = Boolean.parseBoolean((String) properties.computeIfAbsent("primary-italics", a -> String.valueOf(defaults.HUDPrimaryItalics)));
@@ -329,8 +334,8 @@ public class config {
                     properties.computeIfAbsent("color-presets", a -> String.valueOf(defaults.colorPresets)),arrayListMap);
             //HUD
             HUDEnabled = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.enabled", a -> String.valueOf(defaults.HUDEnabled)));
-            HUDOrder = HUD.modules.fixOrder(new Gson().fromJson((String)
-                    properties.computeIfAbsent("hud.order", a -> String.valueOf(defaults.HUDOrder)),arrayListMap));
+            HUDOrder = HUD.module.fixOrder(new Gson().fromJson((String)
+                    properties.computeIfAbsent("hud.order", a -> String.valueOf(defaults.HUDOrder)),moduleListMap));
             //MODULES
             HUDCoordinates = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.coordinates", a -> String.valueOf(defaults.HUDCoordinates)));
             HUDDistance = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.distance", a -> String.valueOf(defaults.HUDDistance)));
@@ -496,7 +501,7 @@ public class config {
         public static final boolean HUDBarShowDistance = true;
         public static final int HUDBarDistanceMax = 0;
         public static final boolean HUDEnabled = true;
-        public static final ArrayList<String> HUDOrder = HUD.modules.DEFAULT;
+        public static final ArrayList<HUD.Modules> HUDOrder = HUD.module.DEFAULT;
         public static final boolean HUDCoordinates = true;
         public static final boolean HUDDistance = true;
         public static final boolean HUDTracking = false;

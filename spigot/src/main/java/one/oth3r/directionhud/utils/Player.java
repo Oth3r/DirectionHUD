@@ -85,7 +85,7 @@ public class Player {
             PacketHelper.sendPacket(this,Assets.packets.SETTINGS,gson.toJson(PlayerData.get.fromMap(this)));
         }
     }
-    public void sendHUDPackets(HashMap<HUD.modules.Types, ArrayList<String>> hudData) {
+    public void sendHUDPackets(HashMap<HUD.Modules, ArrayList<String>> hudData) {
         // send the instructions to build the hud to the client
         Gson gson = new GsonBuilder().disableHtmlEscaping().create();
         PacketHelper.sendPacket(this, Assets.packets.HUD, gson.toJson(hudData));
