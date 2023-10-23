@@ -283,119 +283,119 @@ public class FloodGateHandler {
                 }
                 public static void destination(Player player) {
                     //buttons
-                    String bAUTOCLEAR = lang("dest.settings."+Destination.Settings.autoclear);
-                    String bAUTOCONVERT = lang("dest.settings."+Destination.Settings.autoconvert);
-                    String bYLEVEL = lang("dest.settings."+Destination.Settings.ylevel);
+                    String bAUTOCLEAR = lang("dest.settings."+ Destination.Setting.autoclear);
+                    String bAUTOCONVERT = lang("dest.settings."+ Destination.Setting.autoconvert);
+                    String bYLEVEL = lang("dest.settings."+ Destination.Setting.ylevel);
                     SimpleForm.Builder builder = SimpleForm.builder().title(lang("dest.ui.settings"));
                     builder.button(bAUTOCLEAR).button(bAUTOCONVERT).button(bYLEVEL).button(bBACK);
                     builder.validResultHandler((form, response) -> {
                         String button = response.clickedButton().text();
                         if (button.equals(bAUTOCLEAR))
-                            viewSetting(player, Destination.Settings.autoclear,
-                                    CUtl.lang("dest.settings." + Destination.Settings.autoclear)
-                                            .append(": ").append(toggleText((boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.autoclear))),
-                                    CUtl.lang("dest.settings." + Destination.Settings.autoclear + ".info"),
-                                    CUtl.lang("dest.settings." + Destination.Settings.autoclear + ".info_2"),
+                            viewSetting(player, Destination.Setting.autoclear,
+                                    CUtl.lang("dest.settings." + Destination.Setting.autoclear)
+                                            .append(": ").append(toggleText((boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.autoclear))),
+                                    CUtl.lang("dest.settings." + Destination.Setting.autoclear + ".info"),
+                                    CUtl.lang("dest.settings." + Destination.Setting.autoclear + ".info_2"),
                                     CTxT.of(""),
-                                    CUtl.lang("dest.settings." + Destination.Settings.autoclear_rad)
-                                            .append(": ").append(String.valueOf(((Double)PlayerData.get.dest.setting.get(player, Destination.Settings.autoclear_rad)).intValue())),
-                                    CUtl.lang("dest.settings." + Destination.Settings.autoclear_rad + ".info"));
+                                    CUtl.lang("dest.settings." + Destination.Setting.autoclear_rad)
+                                            .append(": ").append(String.valueOf(((Double)PlayerData.get.dest.setting.get(player, Destination.Setting.autoclear_rad)).intValue())),
+                                    CUtl.lang("dest.settings." + Destination.Setting.autoclear_rad + ".info"));
                         if (button.equals(bAUTOCONVERT))
-                            viewSetting(player, Destination.Settings.autoconvert,
-                                    CUtl.lang("dest.settings." + Destination.Settings.autoconvert)
-                                            .append(": ").append(toggleText((boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.autoconvert))),
-                                    CUtl.lang("dest.settings." + Destination.Settings.autoconvert + ".info"),
-                                    CUtl.lang("dest.settings." + Destination.Settings.autoconvert + ".info_2"));
+                            viewSetting(player, Destination.Setting.autoconvert,
+                                    CUtl.lang("dest.settings." + Destination.Setting.autoconvert)
+                                            .append(": ").append(toggleText((boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.autoconvert))),
+                                    CUtl.lang("dest.settings." + Destination.Setting.autoconvert + ".info"),
+                                    CUtl.lang("dest.settings." + Destination.Setting.autoconvert + ".info_2"));
                         if (button.equals(bYLEVEL))
-                            viewSetting(player, Destination.Settings.ylevel,
-                                    CUtl.lang("dest.settings." + Destination.Settings.ylevel)
-                                            .append(": ").append(toggleText((boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.ylevel))),
-                                    CUtl.lang("dest.settings." + Destination.Settings.ylevel + ".info",
-                                            CUtl.lang("dest.settings." + Destination.Settings.ylevel + ".info_2"),
-                                            CUtl.lang("dest.settings." + Destination.Settings.ylevel + ".info_2")));
+                            viewSetting(player, Destination.Setting.ylevel,
+                                    CUtl.lang("dest.settings." + Destination.Setting.ylevel)
+                                            .append(": ").append(toggleText((boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.ylevel))),
+                                    CUtl.lang("dest.settings." + Destination.Setting.ylevel + ".info",
+                                            CUtl.lang("dest.settings." + Destination.Setting.ylevel + ".info_2"),
+                                            CUtl.lang("dest.settings." + Destination.Setting.ylevel + ".info_2")));
                         if (button.equals(bBACK)) base(player);
                     });
                     getFGPlayer(player).sendForm(builder);
                 }
                 public static void particles(Player player) {
                     //buttons
-                    String bDEST = lang("dest.settings."+Destination.Settings.particles__dest);
-                    String bLINE = lang("dest.settings."+Destination.Settings.particles__line);
-                    String bTRACKING = lang("dest.settings."+Destination.Settings.particles__tracking);
+                    String bDEST = lang("dest.settings."+ Destination.Setting.particles__dest);
+                    String bLINE = lang("dest.settings."+ Destination.Setting.particles__line);
+                    String bTRACKING = lang("dest.settings."+ Destination.Setting.particles__tracking);
                     SimpleForm.Builder builder = SimpleForm.builder().title(lang("dest.ui.settings"));
                     builder.button(bDEST).button(bLINE).button(bTRACKING).button(bBACK);
                     builder.validResultHandler((form, response) -> {
                         String button = response.clickedButton().text();
                         if (button.equals(bDEST))
-                            viewSetting(player, Destination.Settings.particles__dest,
-                                    CUtl.lang("dest.settings." + Destination.Settings.particles__dest)
-                                            .append(": ").append(toggleText((boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.particles__dest))),
-                                    CUtl.lang("dest.settings." + Destination.Settings.particles__dest + ".info"),
+                            viewSetting(player, Destination.Setting.particles__dest,
+                                    CUtl.lang("dest.settings." + Destination.Setting.particles__dest)
+                                            .append(": ").append(toggleText((boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.particles__dest))),
+                                    CUtl.lang("dest.settings." + Destination.Setting.particles__dest + ".info"),
                                     CTxT.of(""),
                                     CUtl.lang("ui.input.color").append(": ")
-                                            .append(CTxT.of((String)PlayerData.get.dest.setting.get(player,Destination.Settings.particles__dest_color))));
+                                            .append(CTxT.of((String)PlayerData.get.dest.setting.get(player, Destination.Setting.particles__dest_color))));
                         if (button.equals(bLINE))
-                            viewSetting(player, Destination.Settings.particles__line,
-                                    CUtl.lang("dest.settings." + Destination.Settings.particles__line)
-                                            .append(": ").append(toggleText((boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.particles__line))),
-                                    CUtl.lang("dest.settings." + Destination.Settings.particles__line + ".info"),
+                            viewSetting(player, Destination.Setting.particles__line,
+                                    CUtl.lang("dest.settings." + Destination.Setting.particles__line)
+                                            .append(": ").append(toggleText((boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.particles__line))),
+                                    CUtl.lang("dest.settings." + Destination.Setting.particles__line + ".info"),
                                     CTxT.of(""),
                                     CUtl.lang("ui.input.color").append(": ")
-                                            .append(CTxT.of((String)PlayerData.get.dest.setting.get(player,Destination.Settings.particles__line_color))));
+                                            .append(CTxT.of((String)PlayerData.get.dest.setting.get(player, Destination.Setting.particles__line_color))));
                         if (button.equals(bTRACKING))
-                            viewSetting(player, Destination.Settings.particles__tracking,
-                                    CUtl.lang("dest.settings." + Destination.Settings.particles__tracking)
-                                            .append(": ").append(toggleText((boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.particles__tracking))),
-                                    CUtl.lang("dest.settings." + Destination.Settings.particles__tracking + ".info"),
+                            viewSetting(player, Destination.Setting.particles__tracking,
+                                    CUtl.lang("dest.settings." + Destination.Setting.particles__tracking)
+                                            .append(": ").append(toggleText((boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.particles__tracking))),
+                                    CUtl.lang("dest.settings." + Destination.Setting.particles__tracking + ".info"),
                                     CTxT.of(""),
                                     CUtl.lang("ui.input.color").append(": ")
-                                            .append(CTxT.of((String)PlayerData.get.dest.setting.get(player,Destination.Settings.particles__tracking_color))));
+                                            .append(CTxT.of((String)PlayerData.get.dest.setting.get(player, Destination.Setting.particles__tracking_color))));
                         if (button.equals(bBACK)) base(player);
                     });
                     getFGPlayer(player).sendForm(builder);
                 }
                 public static void features(Player player) {
                     //buttons
-                    String bSEND = lang("dest.settings."+Destination.Settings.features__send);
-                    String bTRACK = lang("dest.settings."+Destination.Settings.features__track);
-                    String bLASTDEATH = lang("dest.settings."+Destination.Settings.features__lastdeath);
+                    String bSEND = lang("dest.settings."+ Destination.Setting.features__send);
+                    String bTRACK = lang("dest.settings."+ Destination.Setting.features__track);
+                    String bLASTDEATH = lang("dest.settings."+ Destination.Setting.features__lastdeath);
                     SimpleForm.Builder builder = SimpleForm.builder().title(lang("dest.ui.settings"));
                     builder.button(bSEND).button(bTRACK).button(bLASTDEATH).button(bBACK);
                     builder.validResultHandler((form, response) -> {
                         String button = response.clickedButton().text();
                         if (button.equals(bSEND))
-                            viewSetting(player, Destination.Settings.features__send,
-                                    CUtl.lang("dest.settings." + Destination.Settings.features__send)
-                                            .append(": ").append(toggleText((boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.features__send))),
-                                    CUtl.lang("dest.settings." + Destination.Settings.features__send+".info",
-                                            CUtl.lang("dest.settings."+Destination.Settings.features__send+".info_1"),
-                                            CUtl.lang("dest.settings."+Destination.Settings.features__send+".info_2"),
-                                            CUtl.lang("dest.settings."+Destination.Settings.features__send+".info_3")));
+                            viewSetting(player, Destination.Setting.features__send,
+                                    CUtl.lang("dest.settings." + Destination.Setting.features__send)
+                                            .append(": ").append(toggleText((boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.features__send))),
+                                    CUtl.lang("dest.settings." + Destination.Setting.features__send+".info",
+                                            CUtl.lang("dest.settings."+ Destination.Setting.features__send+".info_1"),
+                                            CUtl.lang("dest.settings."+ Destination.Setting.features__send+".info_2"),
+                                            CUtl.lang("dest.settings."+ Destination.Setting.features__send+".info_3")));
                         if (button.equals(bTRACK))
-                            viewSetting(player, Destination.Settings.features__track,
-                                    CUtl.lang("dest.settings." + Destination.Settings.features__track)
-                                            .append(": ").append(toggleText((boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.features__track))),
-                                    CUtl.lang("dest.settings." + Destination.Settings.features__track + ".info"),
+                            viewSetting(player, Destination.Setting.features__track,
+                                    CUtl.lang("dest.settings." + Destination.Setting.features__track)
+                                            .append(": ").append(toggleText((boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.features__track))),
+                                    CUtl.lang("dest.settings." + Destination.Setting.features__track + ".info"),
                                     CTxT.of(""),
-                                    CUtl.lang("dest.settings." + Destination.Settings.features__track_request_mode)
-                                            .append(": ").append(lang("dest.settings."+Destination.Settings.features__track_request_mode+"."+PlayerData.get.dest.setting.get(player, Destination.Settings.features__track_request_mode))),
-                                    CUtl.lang("dest.settings." + Destination.Settings.features__track_request_mode+"."+config.DESTTrackingRequestModes.instant).append(": ")
-                                            .append(CUtl.lang("dest.settings."+Destination.Settings.features__track_request_mode+"."+config.DESTTrackingRequestModes.instant+".info")),
-                                    CUtl.lang("dest.settings." + Destination.Settings.features__track_request_mode+"."+config.DESTTrackingRequestModes.request).append(": ")
-                                            .append(CUtl.lang("dest.settings."+Destination.Settings.features__track_request_mode+"."+config.DESTTrackingRequestModes.request+".info")));
+                                    CUtl.lang("dest.settings." + Destination.Setting.features__track_request_mode)
+                                            .append(": ").append(lang("dest.settings."+ Destination.Setting.features__track_request_mode+"."+PlayerData.get.dest.setting.get(player, Destination.Setting.features__track_request_mode))),
+                                    CUtl.lang("dest.settings." + Destination.Setting.features__track_request_mode+"."+config.DESTTrackingRequestModes.instant).append(": ")
+                                            .append(CUtl.lang("dest.settings."+ Destination.Setting.features__track_request_mode+"."+config.DESTTrackingRequestModes.instant+".info")),
+                                    CUtl.lang("dest.settings." + Destination.Setting.features__track_request_mode+"."+config.DESTTrackingRequestModes.request).append(": ")
+                                            .append(CUtl.lang("dest.settings."+ Destination.Setting.features__track_request_mode+"."+config.DESTTrackingRequestModes.request+".info")));
                         if (button.equals(bLASTDEATH))
-                            viewSetting(player, Destination.Settings.particles__tracking,
-                                    CUtl.lang("dest.settings." + Destination.Settings.particles__tracking)
-                                            .append(": ").append(toggleText((boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.particles__tracking))),
-                                    CUtl.lang("dest.settings." + Destination.Settings.particles__tracking + ".info"),
+                            viewSetting(player, Destination.Setting.particles__tracking,
+                                    CUtl.lang("dest.settings." + Destination.Setting.particles__tracking)
+                                            .append(": ").append(toggleText((boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.particles__tracking))),
+                                    CUtl.lang("dest.settings." + Destination.Setting.particles__tracking + ".info"),
                                     CTxT.of(""),
                                     CUtl.lang("ui.input.color").append(": ")
-                                            .append(CTxT.of((String)PlayerData.get.dest.setting.get(player,Destination.Settings.particles__tracking_color))));
+                                            .append(CTxT.of((String)PlayerData.get.dest.setting.get(player, Destination.Setting.particles__tracking_color))));
                         if (button.equals(bBACK)) base(player);
                     });
                     getFGPlayer(player).sendForm(builder);
                 }
-                public static void viewSetting(Player player, Destination.Settings setting,  CTxT... message) {
+                public static void viewSetting(Player player, Destination.Setting setting, CTxT... message) {
                     ModalForm.Builder builder = ModalForm.builder().title(lang("dest.settings."+setting));
                     // build the text that gives info about the setting
                     StringBuilder content = new StringBuilder();
@@ -405,55 +405,55 @@ public class FloodGateHandler {
                         String button = response.clickedButtonText();
                         if (button.equals(bEDIT)) editSetting(player,setting);
                         if (button.equals(bBACK)) {
-                            if (Destination.Settings.dest().contains(setting)) destination(player);
-                            if (Destination.Settings.particles().contains(setting)) particles(player);
-                            if (Destination.Settings.features().contains(setting)) features(player);
+                            if (Destination.Setting.dest().contains(setting)) destination(player);
+                            if (Destination.Setting.particles().contains(setting)) particles(player);
+                            if (Destination.Setting.features().contains(setting)) features(player);
                         }
                     });
                     getFGPlayer(player).sendForm(builder);
                 }
-                public static void editSetting(Player player, Destination.Settings setting) {
+                public static void editSetting(Player player, Destination.Setting setting) {
                     CustomForm.Builder builder = CustomForm.builder().title(lang("dest.ui.saved.edit"));
                     builder.toggle(lang("ui.input.reset"));
                     builder.toggle(lang("dest.settings."+setting),(boolean)PlayerData.get.dest.setting.get(player,setting));
-                    if (setting.equals(Destination.Settings.autoclear)) {
+                    if (setting.equals(Destination.Setting.autoclear)) {
                         // get all the valid AutoClearRads, and make an arraylist from 1-MAX
                         List<String> steps = new ArrayList<>();
                         IntStream.range(1, 16).forEach(n -> steps.add(String.valueOf(n)));
-                        builder.stepSlider(lang("dest.settings."+Destination.Settings.autoclear_rad),steps,
-                                ((Double)PlayerData.get.dest.setting.get(player, Destination.Settings.autoclear_rad)).intValue()-1);
+                        builder.stepSlider(lang("dest.settings."+ Destination.Setting.autoclear_rad),steps,
+                                ((Double)PlayerData.get.dest.setting.get(player, Destination.Setting.autoclear_rad)).intValue()-1);
                     }
                     // COLORS
-                    if (Destination.Settings.colors().contains(Destination.Settings.get(setting+"_color"))) {
+                    if (Destination.Setting.colors().contains(Destination.Setting.get(setting+"_color"))) {
                         builder.input(lang("ui.input.color"),lang("ui.input.color.placeholder"),
-                                (String)PlayerData.get.dest.setting.get(player,Destination.Settings.get(setting+"_color")));
+                                (String)PlayerData.get.dest.setting.get(player, Destination.Setting.get(setting+"_color")));
                     }
                     // track req
-                    if (setting.equals(Destination.Settings.features__track)) {
+                    if (setting.equals(Destination.Setting.features__track)) {
                         // long code but list the options and set the default to the current selected option
-                        builder.dropdown(lang("dest.settings."+Destination.Settings.features__track_request_mode),
-                                config.DESTTrackingRequestModes.get((String)PlayerData.get.dest.setting.get(player, Destination.Settings.features__track_request_mode)).equals(config.DESTTrackingRequestModes.instant)?0:1,
-                                lang("dest.settings." + Destination.Settings.features__track_request_mode+"."+config.DESTTrackingRequestModes.instant),
-                                lang("dest.settings." + Destination.Settings.features__track_request_mode+"."+config.DESTTrackingRequestModes.request));
+                        builder.dropdown(lang("dest.settings."+ Destination.Setting.features__track_request_mode),
+                                config.DESTTrackingRequestModes.get((String)PlayerData.get.dest.setting.get(player, Destination.Setting.features__track_request_mode)).equals(config.DESTTrackingRequestModes.instant)?0:1,
+                                lang("dest.settings." + Destination.Setting.features__track_request_mode+"."+config.DESTTrackingRequestModes.instant),
+                                lang("dest.settings." + Destination.Setting.features__track_request_mode+"."+config.DESTTrackingRequestModes.request));
                     }
                     builder.validResultHandler((response) -> {
                         boolean reset = response.asToggle();
                         boolean toggle = response.asToggle();
                         PlayerData.set.dest.setting.set(player,setting,toggle);
                         // AutoClear
-                        if (setting.equals(Destination.Settings.autoclear))
-                            PlayerData.set.dest.setting.set(player,Destination.Settings.autoclear_rad,response.asStepSlider()+1);
+                        if (setting.equals(Destination.Setting.autoclear))
+                            PlayerData.set.dest.setting.set(player, Destination.Setting.autoclear_rad,response.asStepSlider()+1);
                         // COLORS
-                        if (Destination.Settings.colors().contains(Destination.Settings.get(setting+"_color")))
-                            PlayerData.set.dest.setting.set(player,Destination.Settings.get(setting+"_color"),
-                                    CUtl.color.format(response.asInput(),(String)PlayerData.get.dest.setting.get(player,Destination.Settings.get(setting+"_color"))));
+                        if (Destination.Setting.colors().contains(Destination.Setting.get(setting+"_color")))
+                            PlayerData.set.dest.setting.set(player, Destination.Setting.get(setting+"_color"),
+                                    CUtl.color.format(response.asInput(),(String)PlayerData.get.dest.setting.get(player, Destination.Setting.get(setting+"_color"))));
                         // TRACK REQUEST MODE
-                        if (setting.equals(Destination.Settings.features__track))
-                            PlayerData.set.dest.setting.set(player, Destination.Settings.features__track_request_mode,response.asDropdown()==0?config.DESTTrackingRequestModes.instant:config.DESTTrackingRequestModes.request);
-                        if (reset) Destination.setting.reset(player,setting,false);
-                        if (Destination.Settings.dest().contains(setting)) destination(player);
-                        if (Destination.Settings.particles().contains(setting)) particles(player);
-                        if (Destination.Settings.features().contains(setting)) features(player);
+                        if (setting.equals(Destination.Setting.features__track))
+                            PlayerData.set.dest.setting.set(player, Destination.Setting.features__track_request_mode,response.asDropdown()==0?config.DESTTrackingRequestModes.instant:config.DESTTrackingRequestModes.request);
+                        if (reset) Destination.settings.reset(player,setting,false);
+                        if (Destination.Setting.dest().contains(setting)) destination(player);
+                        if (Destination.Setting.particles().contains(setting)) particles(player);
+                        if (Destination.Setting.features().contains(setting)) features(player);
                     });
                     getFGPlayer(player).sendForm(builder);
                 }

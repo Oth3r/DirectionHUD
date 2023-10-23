@@ -228,9 +228,9 @@ public class PlayerData {
             hudSetting.put("module",hudSettingModule);
             //FIX HUD ORDER - turn the arraylist of strings into an arraylist of enums
             ArrayList<String> order =new ArrayList<>(List.of(((String) hud.get("order")).split(" ")));
-            ArrayList<HUD.Modules> moduleOrder = new ArrayList<>();
-            for (String modules:order) moduleOrder.add(HUD.Modules.get(modules));
-            hud.put("order", HUD.module.fixOrder(moduleOrder));
+            ArrayList<HUD.Module> moduleOrder = new ArrayList<>();
+            for (String modules:order) moduleOrder.add(HUD.Module.get(modules));
+            hud.put("order", HUD.modules.fixOrder(moduleOrder));
             hud.put("setting",hudSetting);
             map.put("destination",dest);
             map.put("hud",hud);
@@ -391,14 +391,14 @@ public class PlayerData {
             private static Map<String,Object> get(Player player) {
                 return (Map<String, Object>) fromMap(player).get("hud");
             }
-            public static boolean getModule(Player player, HUD.Modules module) {
+            public static boolean getModule(Player player, HUD.Module module) {
                 Map<String,Object> map = (Map<String,Object>) get(player).get("module");
                 return (boolean) map.get(module.toString());
             }
-            public static ArrayList<HUD.Modules> order(Player player) {
+            public static ArrayList<HUD.Module> order(Player player) {
                 ArrayList<String> modules = (ArrayList<String>) get(player).get("order");
-                ArrayList<HUD.Modules> types = new ArrayList<>();
-                for (String m:modules) types.add(HUD.Modules.get(m));
+                ArrayList<HUD.Module> types = new ArrayList<>();
+                for (String m:modules) types.add(HUD.Module.get(m));
                 return types;
             }
             public static boolean state(Player player) {
@@ -411,7 +411,7 @@ public class PlayerData {
                 public static Map<String,Object> map(Player player) {
                     return (Map<String,Object>) hud.get(player).get("setting");
                 }
-                public static Object get(Player player, HUD.Settings type) {
+                public static Object get(Player player, HUD.Setting type) {
                     String string = type.toString();
                     if (string.contains(".")) {
                         String base = string.substring(0,string.indexOf('.'));
@@ -443,7 +443,7 @@ public class PlayerData {
                 private static Map<String,Object> map(Player player) {
                     return (Map<String,Object>) dest.get(player,true).get("setting");
                 }
-                public static Object get(Player player, Destination.Settings settings) {
+                public static Object get(Player player, Destination.Setting settings) {
                     String string = settings.toString();
                     if (string.contains(".")) {
                         String base = string.substring(0,string.indexOf('.'));
@@ -493,7 +493,7 @@ public class PlayerData {
                 mapToFile(player,map);
                 updatePlayerMap(player);
             }
-            public static void order(Player player, ArrayList<HUD.Modules> order) {
+            public static void order(Player player, ArrayList<HUD.Module> order) {
                 Map<String,Object> data = get.hud.get(player);
                 data.put("order", order);
                 map(player, data);
@@ -514,7 +514,7 @@ public class PlayerData {
                     data.put("setting", setting);
                     hud.map(player, data);
                 }
-                public static void set(Player player, HUD.Settings type, Object setting) {
+                public static void set(Player player, HUD.Setting type, Object setting) {
                     String string = type.toString();
                     Map<String,Object> data = get.hud.setting.map(player);
                     if (string.contains(".")) {
@@ -528,7 +528,7 @@ public class PlayerData {
                     map(player,data);
                 }
             }
-            public static void setModule(Player player, HUD.Modules module, boolean b) {
+            public static void setModule(Player player, HUD.Module module, boolean b) {
                 Map<String,Object> data = get.hud.get(player);
                 Map<String,Object> modules = (Map<String, Object>) data.get("module");
                 modules.put(module.toString(),b);
@@ -574,7 +574,7 @@ public class PlayerData {
                     data.put("setting", setting);
                     dest.set(player, data);
                 }
-                public static void set(Player player, Destination.Settings settings, Object setting) {
+                public static void set(Player player, Destination.Setting settings, Object setting) {
                     String string = settings.toString();
                     Map<String,Object> data = get.dest.setting.map(player);
                     if (string.contains(".")) {

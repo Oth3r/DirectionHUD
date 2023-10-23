@@ -72,7 +72,7 @@ public class config {
     public static boolean HUDBarShowDistance = defaults.HUDBarShowDistance;
     public static int HUDBarDistanceMax = defaults.HUDBarDistanceMax;
     public static boolean HUDEnabled = defaults.HUDEnabled;
-    public static ArrayList<HUD.Modules> HUDOrder = defaults.HUDOrder;
+    public static ArrayList<HUD.Module> HUDOrder = defaults.HUDOrder;
     public static boolean HUDCoordinates = defaults.HUDCoordinates;
     public static boolean HUDDistance = defaults.HUDDistance;
     public static boolean HUDTracking = defaults.HUDTracking;
@@ -198,21 +198,21 @@ public class config {
     public static void setToPlayer(Player player) {
         //HUD SETTINGS
         HUDEnabled = PlayerData.get.hud.state(player);
-        HUDType = (String)PlayerData.get.hud.setting.get(player, HUD.Settings.type);
-        HUDBarColor = (String)PlayerData.get.hud.setting.get(player, HUD.Settings.bossbar__color);
-        HUDBarShowDistance = (boolean)PlayerData.get.hud.setting.get(player, HUD.Settings.bossbar__distance);
-        HUDBarDistanceMax = ((Double)PlayerData.get.hud.setting.get(player, HUD.Settings.bossbar__distance_max)).intValue();
-        HUDTime24HR = (boolean)PlayerData.get.hud.setting.get(player, HUD.Settings.module__time_24hr);
-        HUDTrackingTarget = (String)PlayerData.get.hud.setting.get(player, HUD.Settings.module__tracking_target);
+        HUDType = (String)PlayerData.get.hud.setting.get(player, HUD.Setting.type);
+        HUDBarColor = (String)PlayerData.get.hud.setting.get(player, HUD.Setting.bossbar__color);
+        HUDBarShowDistance = (boolean)PlayerData.get.hud.setting.get(player, HUD.Setting.bossbar__distance);
+        HUDBarDistanceMax = ((Double)PlayerData.get.hud.setting.get(player, HUD.Setting.bossbar__distance_max)).intValue();
+        HUDTime24HR = (boolean)PlayerData.get.hud.setting.get(player, HUD.Setting.module__time_24hr);
+        HUDTrackingTarget = (String)PlayerData.get.hud.setting.get(player, HUD.Setting.module__tracking_target);
         //HUD MODULES
         HUDOrder = PlayerData.get.hud.order(player);
-        HUDCoordinates = PlayerData.get.hud.getModule(player, HUD.Modules.coordinates);
-        HUDDistance = PlayerData.get.hud.getModule(player, HUD.Modules.distance);
-        HUDTracking = PlayerData.get.hud.getModule(player, HUD.Modules.tracking);
-        HUDDestination = PlayerData.get.hud.getModule(player, HUD.Modules.destination);
-        HUDDirection = PlayerData.get.hud.getModule(player, HUD.Modules.direction);
-        HUDTime = PlayerData.get.hud.getModule(player, HUD.Modules.time);
-        HUDWeather = PlayerData.get.hud.getModule(player, HUD.Modules.weather);
+        HUDCoordinates = PlayerData.get.hud.getModule(player, HUD.Module.coordinates);
+        HUDDistance = PlayerData.get.hud.getModule(player, HUD.Module.distance);
+        HUDTracking = PlayerData.get.hud.getModule(player, HUD.Module.tracking);
+        HUDDestination = PlayerData.get.hud.getModule(player, HUD.Module.destination);
+        HUDDirection = PlayerData.get.hud.getModule(player, HUD.Module.direction);
+        HUDTime = PlayerData.get.hud.getModule(player, HUD.Module.time);
+        HUDWeather = PlayerData.get.hud.getModule(player, HUD.Module.weather);
         //HUD COLORS
         HUDPrimaryColor = HUD.color.getHUDColor(player,1);
         HUDPrimaryBold = HUD.color.getHUDBold(player,1);
@@ -224,21 +224,21 @@ public class config {
         HUDSecondaryItalics = HUD.color.getHUDItalics(player, 2);
         HUDSecondaryRainbow = HUD.color.getHUDRGB(player,2);
         //DEST SETTINGS
-        DESTAutoClear = (boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.autoclear);
-        DESTAutoClearRad = ((Double)PlayerData.get.dest.setting.get(player, Destination.Settings.autoclear_rad)).intValue();
-        DESTAutoConvert = (boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.autoconvert);
-        DESTYLevel = (boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.ylevel);
-        DESTSend = (boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.features__send);
-        DESTTrack = (boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.features__track);
-        DESTTrackingRequestMode = (String)PlayerData.get.dest.setting.get(player, Destination.Settings.features__track_request_mode);
-        DESTLastdeath = (boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.features__lastdeath);
+        DESTAutoClear = (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.autoclear);
+        DESTAutoClearRad = ((Double)PlayerData.get.dest.setting.get(player, Destination.Setting.autoclear_rad)).intValue();
+        DESTAutoConvert = (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.autoconvert);
+        DESTYLevel = (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.ylevel);
+        DESTSend = (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.features__send);
+        DESTTrack = (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.features__track);
+        DESTTrackingRequestMode = (String)PlayerData.get.dest.setting.get(player, Destination.Setting.features__track_request_mode);
+        DESTLastdeath = (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.features__lastdeath);
         //DEST PARTICLES
-        DESTDestParticles = (boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.particles__dest);
-        DESTDestParticleColor = (String)PlayerData.get.dest.setting.get(player, Destination.Settings.particles__dest_color);
-        DESTLineParticles = (boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.particles__line);
-        DESTLineParticleColor = (String)PlayerData.get.dest.setting.get(player, Destination.Settings.particles__line_color);
-        DESTTrackingParticles = (boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.particles__tracking);
-        DESTTrackingParticleColor = (String)PlayerData.get.dest.setting.get(player, Destination.Settings.particles__tracking_color);
+        DESTDestParticles = (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.particles__dest);
+        DESTDestParticleColor = (String)PlayerData.get.dest.setting.get(player, Destination.Setting.particles__dest_color);
+        DESTLineParticles = (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.particles__line);
+        DESTLineParticleColor = (String)PlayerData.get.dest.setting.get(player, Destination.Setting.particles__line_color);
+        DESTTrackingParticles = (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.particles__tracking);
+        DESTTrackingParticleColor = (String)PlayerData.get.dest.setting.get(player, Destination.Setting.particles__tracking_color);
         save();
     }
     public static File configFile() {
@@ -277,7 +277,7 @@ public class config {
         online = Boolean.parseBoolean((String) properties.computeIfAbsent("online-mode", a -> String.valueOf(defaults.online)));
         //DIM
         Type arrayListMap = new TypeToken<ArrayList<String>>() {}.getType();
-        Type moduleListMap = new TypeToken<ArrayList<HUD.Modules>>() {}.getType();
+        Type moduleListMap = new TypeToken<ArrayList<HUD.Module>>() {}.getType();
         dimensions = new Gson().fromJson((String) properties.computeIfAbsent("dimensions", a -> String.valueOf(defaults.dimensions)),arrayListMap);
 
         if (version == 1.1f) HUDTracking = Boolean.parseBoolean((String) properties.computeIfAbsent("compass", a -> String.valueOf(defaults.HUDTracking)));
@@ -295,9 +295,9 @@ public class config {
             //ORDER
             ArrayList<String> order = (ArrayList<String>) List.of(((String) properties.computeIfAbsent("order", a -> defaults.HUDOrder
                     .toString().substring(1).replace(",","").replace("]",""))).split(" "));
-            ArrayList<HUD.Modules> moduleOrder = new ArrayList<>();
-            for (String module:order) moduleOrder.add(HUD.Modules.get(module));
-            HUDOrder = HUD.module.fixOrder(moduleOrder);
+            ArrayList<HUD.Module> moduleOrder = new ArrayList<>();
+            for (String module:order) moduleOrder.add(HUD.Module.get(module));
+            HUDOrder = HUD.modules.fixOrder(moduleOrder);
             HUDTime24HR = Boolean.parseBoolean((String) properties.computeIfAbsent("time24hr", a -> String.valueOf(defaults.HUDTime24HR)));
             HUDPrimaryBold = Boolean.parseBoolean((String) properties.computeIfAbsent("primary-bold", a -> String.valueOf(defaults.HUDPrimaryBold)));
             HUDPrimaryItalics = Boolean.parseBoolean((String) properties.computeIfAbsent("primary-italics", a -> String.valueOf(defaults.HUDPrimaryItalics)));
@@ -334,7 +334,7 @@ public class config {
                     properties.computeIfAbsent("color-presets", a -> String.valueOf(defaults.colorPresets)),arrayListMap);
             //HUD
             HUDEnabled = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.enabled", a -> String.valueOf(defaults.HUDEnabled)));
-            HUDOrder = HUD.module.fixOrder(new Gson().fromJson((String)
+            HUDOrder = HUD.modules.fixOrder(new Gson().fromJson((String)
                     properties.computeIfAbsent("hud.order", a -> String.valueOf(defaults.HUDOrder)),moduleListMap));
             //MODULES
             HUDCoordinates = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.coordinates", a -> String.valueOf(defaults.HUDCoordinates)));
@@ -501,7 +501,7 @@ public class config {
         public static final boolean HUDBarShowDistance = true;
         public static final int HUDBarDistanceMax = 0;
         public static final boolean HUDEnabled = true;
-        public static final ArrayList<HUD.Modules> HUDOrder = HUD.module.DEFAULT;
+        public static final ArrayList<HUD.Module> HUDOrder = HUD.modules.DEFAULT;
         public static final boolean HUDCoordinates = true;
         public static final boolean HUDDistance = true;
         public static final boolean HUDTracking = false;
