@@ -146,9 +146,16 @@ public class Utl {
         return filteredCompletions;
     }
     public static List<Player> getPlayers() {
-        ArrayList<Player> array = new ArrayList<>(List.of());
+        ArrayList<Player> array = new ArrayList<>();
         for (org.bukkit.entity.Player p : Bukkit.getOnlinePlayers())
             array.add(Player.of(p));
+        return array;
+    }
+    public static List<String> getPlayersEx(Player player) {
+        //get player strings excluding the inputted player
+        ArrayList<String> array = new ArrayList<>();
+        for (org.bukkit.entity.Player p : Bukkit.getOnlinePlayers())
+            if (p!=player.getPlayer()) array.add(Player.of(p).getName());
         return array;
     }
     public static class vec {
