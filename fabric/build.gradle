@@ -13,6 +13,10 @@ group = project.maven_group
 repositories {
 	maven { url "https://maven.terraformersmc.com/releases/" }
 	maven { url "https://maven.isxander.dev/releases" }
+	maven {
+		name = "geyser"
+		url = uri("https://repo.opencollab.dev/main/")
+	}
 }
 
 sourceSets {
@@ -34,6 +38,8 @@ dependencies {
 		exclude(group: "com.twelvemonkeys.common")
 		exclude(group: "com.twelvemonkeys.imageio")
 	}
+
+	compileOnly ('org.geysermc.floodgate:api:2.2.2-SNAPSHOT')
 }
 
 processResources {
