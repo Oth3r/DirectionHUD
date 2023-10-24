@@ -27,7 +27,7 @@ import java.util.HashMap;
 public class DirectionHUDClient implements ClientModInitializer {
     public static boolean onSupportedServer = false;
     public static HashMap<String, Object> packetData = new HashMap<>();
-    public static HashMap<HUD.modules.Types, ArrayList<String>> hudData;
+    public static HashMap<HUD.Module, ArrayList<String>> hudData;
     private static KeyBinding keyBinding;
     private static int HUDRefresh;
     public static Text override = Text.of("");
@@ -65,7 +65,7 @@ public class DirectionHUDClient implements ClientModInitializer {
                     if (LoopManager.rainbowF >= 360) LoopManager.rainbowF = 0;
                 }
                 if (hudData != null && PlayerData.get.hud.state(player) &&
-                        config.HUDTypes.get((String) PlayerData.get.hud.setting.get(player, HUD.Settings.type)).equals(config.HUDTypes.actionbar)) {
+                        config.HUDTypes.get((String) PlayerData.get.hud.setting.get(player, HUD.Setting.type)).equals(config.HUDTypes.actionbar)) {
                     // make sure there is HUD data before looping, and that the hud type is an actionbar
                     HUDRefresh++;
                     if (HUDRefresh >= config.HUDRefresh) {
@@ -95,7 +95,7 @@ public class DirectionHUDClient implements ClientModInitializer {
             PacketBuilder packet = new PacketBuilder(buf);
             assert client.player != null;
             client.execute(() -> {
-                Type hashMapToken = new TypeToken<HashMap<HUD.modules.Types, ArrayList<String>>>() {}.getType();
+                Type hashMapToken = new TypeToken<HashMap<HUD.Module, ArrayList<String>>>() {}.getType();
                 Gson gson = new GsonBuilder().disableHtmlEscaping().create();
                 hudData = gson.fromJson(packet.getMessage(), hashMapToken);
             });

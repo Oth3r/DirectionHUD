@@ -84,11 +84,11 @@ public class Player {
         // if toggled off
         if (!PlayerData.get.hud.state(this)) {
             //if actionbar send empty to clear else remove bossbar
-            if (PlayerData.get.hud.setting.get(this,HUD.Settings.type).equals(config.HUDTypes.actionbar.toString()))
+            if (PlayerData.get.hud.setting.get(this,HUD.Setting.type).equals(config.HUDTypes.actionbar.toString()))
                 this.sendActionBar(CTxT.of(""));
             else DirectionHUD.bossBarManager.removePlayer(this);
         }
-        if (PlayerData.get.hud.setting.get(this, HUD.Settings.type).equals(config.HUDTypes.actionbar.toString()))
+        if (PlayerData.get.hud.setting.get(this, HUD.Setting.type).equals(config.HUDTypes.actionbar.toString()))
             DirectionHUD.bossBarManager.removePlayer(this);
         else this.sendActionBar(CTxT.of(""));
     }
@@ -100,7 +100,7 @@ public class Player {
             packet.sendToPlayer(Assets.packets.SETTINGS,player);
         }
     }
-    public void sendHUDPackets(HashMap<HUD.modules.Types, ArrayList<String>> hudData) {
+    public void sendHUDPackets(HashMap<HUD.Module, ArrayList<String>> hudData) {
         // send the instructions to build the hud to the client
         Gson gson = new GsonBuilder().disableHtmlEscaping().create();
         PacketBuilder packet = new PacketBuilder(gson.toJson(hudData));
@@ -111,7 +111,7 @@ public class Player {
             //if the HUD is enabled but there is no output
             if (PlayerData.getOneTime(this,"hud.enabled_but_off") == null) {
                 PlayerData.setOneTime(this,"hud.enabled_but_off","true");
-                if ((config.HUDTypes.get((String) PlayerData.get.hud.setting.get(this, HUD.Settings.type)).equals(config.HUDTypes.actionbar))) {
+                if ((config.HUDTypes.get((String) PlayerData.get.hud.setting.get(this, HUD.Setting.type)).equals(config.HUDTypes.actionbar))) {
                     player.sendMessage(CTxT.of("").b(),true);
                 } else {
                     DirectionHUD.bossBarManager.removePlayer(this);
@@ -122,7 +122,7 @@ public class Player {
             // if hud was in previous state and now isn't, remove the temp tag
             PlayerData.setOneTime(this,"hud.enabled_but_off",null);
         }
-        if ((config.HUDTypes.get((String) PlayerData.get.hud.setting.get(this, HUD.Settings.type)).equals(config.HUDTypes.actionbar))) {
+        if ((config.HUDTypes.get((String) PlayerData.get.hud.setting.get(this, HUD.Setting.type)).equals(config.HUDTypes.actionbar))) {
             player.sendMessage(message.b(),true);
         } else {
             DirectionHUD.bossBarManager.display(this,message);
