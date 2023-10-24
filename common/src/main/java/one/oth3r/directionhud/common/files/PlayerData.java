@@ -36,7 +36,7 @@ public class PlayerData {
     }
     public static void mapToFile(Player player, Map<String, Object> map) {
         try (FileWriter writer = new FileWriter(getFile(player))){
-            Gson gson = new GsonBuilder().create();
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
             writer.write(gson.toJson(addExpires(player,map)));
         } catch (Exception e) {
             e.printStackTrace();
