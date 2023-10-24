@@ -292,12 +292,8 @@ public class config {
             DESTDestParticleColor = CUtl.color.updateOld((String) properties.computeIfAbsent("dest-particle-color", a -> defaults.DESTDestParticleColor),defaults.DESTDestParticleColor);
             //HUD
             HUDEnabled = Boolean.parseBoolean((String) properties.computeIfAbsent("enabled", a -> String.valueOf(defaults.HUDEnabled)));
-            //ORDER
-            ArrayList<String> order = (ArrayList<String>) List.of(((String) properties.computeIfAbsent("order", a -> defaults.HUDOrder
-                    .toString().substring(1).replace(",","").replace("]",""))).split(" "));
-            ArrayList<HUD.Module> moduleOrder = new ArrayList<>();
-            for (String module:order) moduleOrder.add(HUD.Module.get(module));
-            HUDOrder = HUD.modules.fixOrder(moduleOrder);
+            HUDOrder = HUD.modules.fixOrder(HUD.Module.toModuleList((ArrayList<String>) List.of(((String) properties.computeIfAbsent("order", a -> defaults.HUDOrder
+                    .toString().substring(1).replace(",","").replace("]",""))).split(" "))));
             HUDTime24HR = Boolean.parseBoolean((String) properties.computeIfAbsent("time24hr", a -> String.valueOf(defaults.HUDTime24HR)));
             HUDPrimaryBold = Boolean.parseBoolean((String) properties.computeIfAbsent("primary-bold", a -> String.valueOf(defaults.HUDPrimaryBold)));
             HUDPrimaryItalics = Boolean.parseBoolean((String) properties.computeIfAbsent("primary-italics", a -> String.valueOf(defaults.HUDPrimaryItalics)));

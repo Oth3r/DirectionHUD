@@ -6,6 +6,7 @@ import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.*;
 import net.minecraft.text.Text;
 import one.oth3r.directionhud.common.Assets;
+import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.utils.CTxT;
@@ -137,7 +138,7 @@ public class ModMenu implements ModMenuApi {
                         .group(ListOption.<String>createBuilder()
                                 .name(lang("hud.order").b())
                                 .description(OptionDescription.of(lang("hud.order.info").b()))
-                                .binding(config.defaults.HUDOrder, () -> config.HUDOrder, n -> config.HUDOrder = new ArrayList<>(n))
+                                .binding(HUD.Module.toStringList(config.defaults.HUDOrder), () -> HUD.Module.toStringList(config.HUDOrder), n -> config.HUDOrder = HUD.Module.toModuleList(new ArrayList<>(n)))
                                 .controller(StringControllerBuilder::create)
                                 // CHANGE THIS WHEN MORE MODULES ARE OUT
                                 .maximumNumberOfEntries(7)

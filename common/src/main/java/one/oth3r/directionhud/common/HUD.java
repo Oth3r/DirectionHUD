@@ -55,6 +55,16 @@ public class HUD {
                 return unknown;
             }
         }
+        public static ArrayList<String> toStringList(ArrayList<Module> moduleList) {
+            ArrayList<String> stringList = new ArrayList<>();
+            for (Module module:moduleList) stringList.add(module.toString());
+            return stringList;
+        }
+        public static ArrayList<Module> toModuleList(ArrayList<String> stringList) {
+            ArrayList<HUD.Module> moduleList = new ArrayList<>();
+            for (String module:stringList) moduleList.add(get(module));
+            return moduleList;
+        }
     }
     public static int minute;
     public static int hour;
@@ -194,9 +204,8 @@ public class HUD {
             // if -r is attached, remove it and continue with the suggester
             if (args[0].contains("-r")) args[0] = args[0].replace("-r","");
             if (pos == 1) {
-                if (args[0].equalsIgnoreCase("order") || args[0].equalsIgnoreCase("toggle")) {
-                    for (Module m: Module.values()) if (!m.equals(Module.unknown)) suggester.add(m.toString());
-                }
+                if (args[0].equalsIgnoreCase("order") || args[0].equalsIgnoreCase("toggle"))
+                    suggester.addAll(Module.toStringList(modules.DEFAULT));
             }
             if (pos == 2 && args[0].equalsIgnoreCase("order"))
                 suggester.add(String.valueOf(PlayerData.get.hud.order(player).indexOf(Module.get(args[1]))+1));

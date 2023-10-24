@@ -226,11 +226,7 @@ public class PlayerData {
             hudSetting.put("time24h",null);
             hudSettingModule.put("tracking_target",config.HUDTrackingTarget);
             hudSetting.put("module",hudSettingModule);
-            //FIX HUD ORDER - turn the arraylist of strings into an arraylist of enums
-            ArrayList<String> order =new ArrayList<>(List.of(((String) hud.get("order")).split(" ")));
-            ArrayList<HUD.Module> moduleOrder = new ArrayList<>();
-            for (String modules:order) moduleOrder.add(HUD.Module.get(modules));
-            hud.put("order", HUD.modules.fixOrder(moduleOrder));
+            hud.put("order", HUD.modules.fixOrder(HUD.Module.toModuleList(new ArrayList<>(List.of(((String) hud.get("order")).split(" "))))));
             hud.put("setting",hudSetting);
             map.put("destination",dest);
             map.put("hud",hud);
