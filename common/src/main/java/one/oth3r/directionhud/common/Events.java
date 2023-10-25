@@ -12,17 +12,13 @@ import one.oth3r.directionhud.utils.Utl;
 import org.geysermc.floodgate.api.FloodgateApi;
 
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 
 public class Events {
     public static void serverStart() {
-        DirectionHUD.configDir = DirectionHUD.CONFIG_DIR;
-        DirectionHUD.playerData = DirectionHUD.PLAYERDATA_DIR;
-        Path dirPath = Paths.get(DirectionHUD.playerData);
         try {
-            Files.createDirectories(dirPath);
+            Files.createDirectories(Paths.get(DirectionHUD.DATA_DIR));
         } catch (Exception e) {
             DirectionHUD.LOGGER.info("Failed to create playerdata directory:\n" + e.getMessage());
         }

@@ -28,19 +28,17 @@ public class DirectionHUD extends JavaPlugin implements PluginMessageListener {
     public static final String PRIMARY = "#ff8e16";
     public static final String SECONDARY = "#42a0ff";
     public static BossBarManager bossBarManager = new BossBarManager();
-    public static String PLAYERDATA_DIR;
+    public static String DATA_DIR;
     public static String CONFIG_DIR;
     public static Logger LOGGER;
     public static String VERSION;
-    public static String playerData;
-    public static String configDir;
     public static final boolean isMod = false;
     public static boolean isClient = false;
 
     @Override
     public void onEnable() {
         plugin = this;
-        PLAYERDATA_DIR = this.getDataFolder().getPath()+"/playerdata/";
+        DATA_DIR = this.getDataFolder().getPath();
         CONFIG_DIR = this.getDataFolder().getPath()+"/";
         PluginDescriptionFile pdf = Objects.requireNonNull(Bukkit.getServer().getPluginManager().getPlugin("DirectionHUD")).getDescription();
         VERSION = pdf.getVersion();

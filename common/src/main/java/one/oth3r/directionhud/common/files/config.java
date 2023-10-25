@@ -242,7 +242,7 @@ public class config {
         save();
     }
     public static File configFile() {
-        return new File(DirectionHUD.configDir +"DirectionHUD.properties");
+        return new File(DirectionHUD.CONFIG_DIR+"DirectionHUD.properties");
     }
     public static void load() {
         if (!configFile().exists() || !configFile().canRead()) {

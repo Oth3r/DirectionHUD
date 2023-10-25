@@ -20,8 +20,8 @@ public class PlayerData {
     public static Map<Player,Map<String,Object>> playerMap = new HashMap<>();
     public static Map<Player,Map<String,String>> oneTimeMap = new HashMap<>();
     public static File getFile(Player player) {
-        if (config.online) return new File(DirectionHUD.playerData+player.getUUID()+".json");
-        else return new File(DirectionHUD.playerData+player.getName()+".json");
+        if (config.online) return new File(DirectionHUD.DATA_DIR+"playerdata/" +player.getUUID()+".json");
+        else return new File(DirectionHUD.DATA_DIR+"playerdata/"+player.getName()+".json");
     }
     public static Map<String, Object> fileToMap(Player player) {
         File file = getFile(player);
