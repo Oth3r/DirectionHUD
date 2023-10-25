@@ -65,7 +65,7 @@ public class DirectionHUDClient implements ClientModInitializer {
                     if (LoopManager.rainbowF >= 360) LoopManager.rainbowF = 0;
                 }
                 if (hudData != null && PlayerData.get.hud.state(player) &&
-                        config.HUDTypes.get((String) PlayerData.get.hud.setting.get(player, HUD.Setting.type)).equals(config.HUDTypes.actionbar)) {
+                        HUD.Setting.DisplayType.get((String) PlayerData.get.hud.setting.get(player, HUD.Setting.type)).equals(HUD.Setting.DisplayType.actionbar)) {
                     // make sure there is HUD data before looping, and that the hud type is an actionbar
                     HUDRefresh++;
                     if (HUDRefresh >= config.HUDRefresh) {

@@ -31,6 +31,7 @@ public class Destination {
         public String toString() {
             return name().replace("__",".");
         }
+        // . = _ and _ == __
         public static Setting get(String s) {
             try {
                 return Setting.valueOf(s.replace(".","__"));
@@ -71,7 +72,22 @@ public class Destination {
             list.add(features__lastdeath);
             return list;
         }
-        // . = _ and _ == __
+        public enum TrackingRequestMode {
+            request,
+            instant;
+            public static final TrackingRequestMode[] values = values();
+            public TrackingRequestMode next() {
+                return values[(ordinal() + 1) % values.length];
+            }
+            public static TrackingRequestMode get(String s) {
+                try {
+                    return TrackingRequestMode.valueOf(s);
+
+                } catch (IllegalArgumentException e) {
+                    return TrackingRequestMode.valueOf(config.dest.defaults.TrackingRequestMode);
+                }
+            }
+        }
     }
     public static class commandExecutor {
         public static void logic(Player player, String[] args) {
@@ -1289,7 +1305,7 @@ public class Destination {
                     player.sendMessage(CUtl.error("dest.track.already_tracking",CTxT.of(pl.getName()).color(CUtl.s())));
                     return;
                 }
-                if (config.DESTTrackingRequestModes.valueOf((String) PlayerData.get.dest.setting.get(pl, Setting.features__track_request_mode)).equals(config.DESTTrackingRequestModes.instant)) {
+                if (Setting.TrackingRequestMode.valueOf((String) PlayerData.get.dest.setting.get(pl, Setting.features__track_request_mode)).equals(Setting.TrackingRequestMode.instant)) {
                     set(player,pl,true);
                     return;
                 }
@@ -1362,20 +1378,20 @@ public class Destination {
         public static Object getConfig(Setting type) {
             Object output = false;
             switch (type) {
-                case autoclear -> output = config.DESTAutoClear;
-                case autoclear_rad -> output = config.DESTAutoClearRad;
-                case autoconvert -> output = config.DESTAutoConvert;
-                case ylevel -> output = config.DESTYLevel;
-                case particles__dest -> output = config.DESTDestParticles;
-                case particles__dest_color -> output = config.DESTDestParticleColor;
-                case particles__line -> output = config.DESTLineParticles;
-                case particles__line_color -> output = config.DESTLineParticleColor;
-                case particles__tracking -> output =config.DESTTrackingParticles;
-                case particles__tracking_color -> output=config.DESTTrackingParticleColor;
-                case features__send -> output=config.DESTSend;
-                case features__track -> output=config.DESTTrack;
-                case features__track_request_mode -> output=config.DESTTrackingRequestMode;
-                case features__lastdeath -> output=config.DESTLastdeath;
+                case autoclear -> output = config.dest.AutoClear;
+                case autoclear_rad -> output = config.dest.AutoClearRad;
+                case autoconvert -> output = config.dest.AutoConvert;
+                case ylevel -> output = config.dest.YLevel;
+                case particles__dest -> output = config.dest.particles.Dest;
+                case particles__dest_color -> output = config.dest.particles.DestColor;
+                case particles__line -> output = config.dest.particles.Line;
+                case particles__line_color -> output = config.dest.particles.LineColor;
+                case particles__tracking -> output = config.dest.particles.Tracking;
+                case particles__tracking_color -> output= config.dest.particles.TrackingColor;
+                case features__send -> output= config.dest.Send;
+                case features__track -> output= config.dest.Track;
+                case features__track_request_mode -> output= config.dest.TrackingRequestMode;
+                case features__lastdeath -> output= config.dest.Lastdeath;
             }
             return output;
         }
@@ -1412,8 +1428,8 @@ public class Destination {
                 setTxT.append(CTxT.of(String.valueOf(i)).color((boolean) PlayerData.get.dest.setting.get(player, Setting.autoclear)?'a':'c'));
             }
             if (type.equals(Setting.features__track_request_mode)) {
-                PlayerData.set.dest.setting.set(player, type, config.DESTTrackingRequestModes.valueOf(setting));
-                setTxT.append(lang("settings."+type+"." + config.DESTTrackingRequestModes.valueOf(setting)).color(CUtl.s()));
+                PlayerData.set.dest.setting.set(player, type, Setting.TrackingRequestMode.valueOf(setting));
+                setTxT.append(lang("settings."+type+"." + Setting.TrackingRequestMode.valueOf(setting)).color(CUtl.s()));
             }
             if (Setting.colors().contains(type)) {
                 colorUI(player,setting,type,null);
@@ -1460,8 +1476,8 @@ public class Destination {
             }
             if (type.equals(Setting.features__track)) {
                 Setting modeType = Setting.features__track_request_mode;
-                config.DESTTrackingRequestModes mode = config.DESTTrackingRequestModes.valueOf((String) PlayerData.get.dest.setting.get(player,modeType));
-                config.DESTTrackingRequestModes nextMode = mode.next();
+                Setting.TrackingRequestMode mode = Setting.TrackingRequestMode.valueOf((String) PlayerData.get.dest.setting.get(player,modeType));
+                Setting.TrackingRequestMode nextMode = mode.next();
                 button.append(CTxT.of(getSymbol(mode.toString())).btn(true).color(CUtl.s())
                         .cEvent(1,"/dest settings "+modeType+" "+nextMode)
                         .hEvent(lang("settings."+modeType+".current",lang("settings."+modeType+"."+mode).color(CUtl.s())).append("\n")
@@ -1477,10 +1493,10 @@ public class Destination {
             return button;
         }
         public static String getSymbol(String string) {
-            if (string.equals(config.DESTTrackingRequestModes.request.toString())) {
+            if (string.equals(Setting.TrackingRequestMode.request.toString())) {
                 return Assets.symbols.envelope;
             }
-            if (string.equals(config.DESTTrackingRequestModes.instant.toString())) {
+            if (string.equals(Setting.TrackingRequestMode.instant.toString())) {
                 return Assets.symbols.lighting_bolt;
             }
             return Assets.symbols.x;

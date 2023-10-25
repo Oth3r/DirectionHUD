@@ -1,7 +1,5 @@
 package one.oth3r.directionhud.common;
 
-import one.oth3r.directionhud.common.files.config;
-
 public class Assets {
     public static class mainColors {
         public static final String convert = "#ffa93f";
@@ -24,7 +22,7 @@ public class Assets {
         public static final String custom = "#c4ff14";
         public static final String presets = "#2dedff";
     }
-    public static String barColor(config.BarColors color) {
+    public static String barColor(HUD.Setting.BarColor color) {
         StringBuilder output = new StringBuilder();
         switch (color) {
             case pink -> output.append("#ec00b8");

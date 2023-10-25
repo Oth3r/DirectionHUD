@@ -8,7 +8,6 @@ import one.oth3r.directionhud.PacketHelper;
 import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.files.PlayerData;
-import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.utils.Loc;
 import org.bukkit.Bukkit;
 import org.bukkit.Particle;
@@ -70,11 +69,11 @@ public class Player {
         // if toggled off
         if (!PlayerData.get.hud.state(this)) {
             //if actionbar send empty to clear else remove bossbar
-            if (PlayerData.get.hud.setting.get(this, HUD.Setting.type).equals(config.HUDTypes.actionbar.toString()))
+            if (PlayerData.get.hud.setting.get(this, HUD.Setting.type).equals(HUD.Setting.DisplayTypes.actionbar.toString()))
                 this.sendActionBar(CTxT.of(""));
             else DirectionHUD.bossBarManager.removePlayer(this);
         }
-        if (PlayerData.get.hud.setting.get(this, HUD.Setting.type).equals(config.HUDTypes.actionbar.toString()))
+        if (PlayerData.get.hud.setting.get(this, HUD.Setting.type).equals(HUD.Setting.DisplayTypes.actionbar.toString()))
             DirectionHUD.bossBarManager.removePlayer(this);
         else this.sendActionBar(CTxT.of(""));
     }
@@ -95,7 +94,7 @@ public class Player {
             //if the HUD is enabled but there is no output
             if (PlayerData.getOneTime(this,"hud.enabled_but_off") == null) {
                 PlayerData.setOneTime(this,"hud.enabled_but_off","true");
-                if ((config.HUDTypes.get((String) PlayerData.get.hud.setting.get(this, HUD.Setting.type)).equals(config.HUDTypes.actionbar))) {
+                if ((HUD.Setting.DisplayTypes.get((String) PlayerData.get.hud.setting.get(this, HUD.Setting.type)).equals(HUD.Setting.DisplayTypes.actionbar))) {
                     player.spigot().sendMessage(ChatMessageType.ACTION_BAR, CTxT.of("").b());
                 } else {
                     DirectionHUD.bossBarManager.removePlayer(this);
@@ -106,7 +105,7 @@ public class Player {
             // if hud was in previous state and now isn't, remove the temp tag
             PlayerData.setOneTime(this,"hud.enabled_but_off",null);
         }
-        if ((config.HUDTypes.get((String) PlayerData.get.hud.setting.get(this, HUD.Setting.type)).equals(config.HUDTypes.actionbar))) {
+        if ((HUD.Setting.DisplayTypes.get((String) PlayerData.get.hud.setting.get(this, HUD.Setting.type)).equals(HUD.Setting.DisplayTypes.actionbar))) {
             player.spigot().sendMessage(ChatMessageType.ACTION_BAR, message.b());
         } else {
             DirectionHUD.bossBarManager.display(this,message);

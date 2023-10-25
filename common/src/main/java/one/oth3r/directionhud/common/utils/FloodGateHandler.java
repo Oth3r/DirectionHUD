@@ -3,7 +3,6 @@ package one.oth3r.directionhud.common.utils;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.files.PlayerData;
-import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
@@ -379,10 +378,10 @@ public class FloodGateHandler {
                                     CTxT.of(""),
                                     CUtl.lang("dest.settings." + Destination.Setting.features__track_request_mode)
                                             .append(": ").append(lang("dest.settings."+ Destination.Setting.features__track_request_mode+"."+PlayerData.get.dest.setting.get(player, Destination.Setting.features__track_request_mode))),
-                                    CUtl.lang("dest.settings." + Destination.Setting.features__track_request_mode+"."+config.DESTTrackingRequestModes.instant).append(": ")
-                                            .append(CUtl.lang("dest.settings."+ Destination.Setting.features__track_request_mode+"."+config.DESTTrackingRequestModes.instant+".info")),
-                                    CUtl.lang("dest.settings." + Destination.Setting.features__track_request_mode+"."+config.DESTTrackingRequestModes.request).append(": ")
-                                            .append(CUtl.lang("dest.settings."+ Destination.Setting.features__track_request_mode+"."+config.DESTTrackingRequestModes.request+".info")));
+                                    CUtl.lang("dest.settings." + Destination.Setting.features__track_request_mode+"."+ Destination.Setting.TrackingRequestMode.instant).append(": ")
+                                            .append(CUtl.lang("dest.settings."+ Destination.Setting.features__track_request_mode+"."+ Destination.Setting.TrackingRequestMode.instant+".info")),
+                                    CUtl.lang("dest.settings." + Destination.Setting.features__track_request_mode+"."+ Destination.Setting.TrackingRequestMode.request).append(": ")
+                                            .append(CUtl.lang("dest.settings."+ Destination.Setting.features__track_request_mode+"."+ Destination.Setting.TrackingRequestMode.request+".info")));
                         if (button.equals(bLASTDEATH))
                             viewSetting(player, Destination.Setting.particles__tracking,
                                     CUtl.lang("dest.settings." + Destination.Setting.particles__tracking)
@@ -432,9 +431,9 @@ public class FloodGateHandler {
                     if (setting.equals(Destination.Setting.features__track)) {
                         // long code but list the options and set the default to the current selected option
                         builder.dropdown(lang("dest.settings."+ Destination.Setting.features__track_request_mode),
-                                config.DESTTrackingRequestModes.get((String)PlayerData.get.dest.setting.get(player, Destination.Setting.features__track_request_mode)).equals(config.DESTTrackingRequestModes.instant)?0:1,
-                                lang("dest.settings." + Destination.Setting.features__track_request_mode+"."+config.DESTTrackingRequestModes.instant),
-                                lang("dest.settings." + Destination.Setting.features__track_request_mode+"."+config.DESTTrackingRequestModes.request));
+                                Destination.Setting.TrackingRequestMode.get((String)PlayerData.get.dest.setting.get(player, Destination.Setting.features__track_request_mode)).equals(Destination.Setting.TrackingRequestMode.instant)?0:1,
+                                lang("dest.settings." + Destination.Setting.features__track_request_mode+"."+ Destination.Setting.TrackingRequestMode.instant),
+                                lang("dest.settings." + Destination.Setting.features__track_request_mode+"."+ Destination.Setting.TrackingRequestMode.request));
                     }
                     builder.validResultHandler((response) -> {
                         boolean reset = response.asToggle();
@@ -449,7 +448,7 @@ public class FloodGateHandler {
                                     CUtl.color.format(response.asInput(),(String)PlayerData.get.dest.setting.get(player, Destination.Setting.get(setting+"_color"))));
                         // TRACK REQUEST MODE
                         if (setting.equals(Destination.Setting.features__track))
-                            PlayerData.set.dest.setting.set(player, Destination.Setting.features__track_request_mode,response.asDropdown()==0?config.DESTTrackingRequestModes.instant:config.DESTTrackingRequestModes.request);
+                            PlayerData.set.dest.setting.set(player, Destination.Setting.features__track_request_mode,response.asDropdown()==0? Destination.Setting.TrackingRequestMode.instant: Destination.Setting.TrackingRequestMode.request);
                         if (reset) Destination.settings.reset(player,setting,false);
                         if (Destination.Setting.dest().contains(setting)) destination(player);
                         if (Destination.Setting.particles().contains(setting)) particles(player);

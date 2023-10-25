@@ -49,7 +49,7 @@ public class PlayerData {
             map.put("version",1.1);
             Map<String,Object> dest = (Map<String, Object>) map.get("destination");
             Map<String,Object> dSet = (Map<String, Object>) dest.get("setting");
-            dSet.put("lastdeath", config.DESTLastdeath);
+            dSet.put("lastdeath", config.dest.Lastdeath);
             dest.put("setting",dSet);
             map.put("destination",dest);
         }
@@ -165,9 +165,9 @@ public class PlayerData {
             //ADD NEW PARTICLES & AUTOCONVERT
             Map<String,Object> setting = (Map<String, Object>) dest.get("setting");
             Map<String,Object> particles = (Map<String, Object>) setting.get("particles");
-            particles.put("tracking", config.DESTTrackingParticles);
-            particles.put("trackingcolor", config.DESTTrackingParticleColor);
-            setting.put("autoconvert", config.DESTAutoConvert);
+            particles.put("tracking", config.dest.particles.Tracking);
+            particles.put("trackingcolor", config.dest.particles.TrackingColor);
+            setting.put("autoconvert", config.dest.AutoConvert);
             setting.put("particles",particles);
             dest.put("setting",setting);
             map.put("destination",dest);
@@ -182,9 +182,9 @@ public class PlayerData {
             //UPDATE DEST PARTICLE COLORS TO NEW SYSTEM
             Map<String,Object> destSetting = (Map<String, Object>) dest.get("setting");
             Map<String,Object> particles = (Map<String, Object>) destSetting.get("particles");
-            particles.put("dest_color",CUtl.color.updateOld((String) particles.get("destcolor"),config.DESTDestParticleColor));
-            particles.put("line_color",CUtl.color.updateOld((String) particles.get("linecolor"),config.DESTLineParticleColor));
-            particles.put("tracking_color",CUtl.color.updateOld((String) particles.get("trackingcolor"),config.DESTTrackingParticleColor));
+            particles.put("dest_color",CUtl.color.updateOld((String) particles.get("destcolor"), config.dest.particles.DestColor));
+            particles.put("line_color",CUtl.color.updateOld((String) particles.get("linecolor"), config.dest.particles.LineColor));
+            particles.put("tracking_color",CUtl.color.updateOld((String) particles.get("trackingcolor"), config.dest.particles.TrackingColor));
             particles.remove("destcolor");
             particles.remove("linecolor");
             particles.remove("trackingcolor");
@@ -195,7 +195,7 @@ public class PlayerData {
             destFeatures.put("send",destSetting.get("send"));
             destFeatures.put("track",destSetting.get("track"));
             //ADD NEW DEST SETTING
-            destFeatures.put("track_request_mode",config.DESTTrackingRequestMode);
+            destFeatures.put("track_request_mode", config.dest.TrackingRequestMode);
             destFeatures.put("lastdeath",destSetting.get("lastdeath"));
             destSetting.remove("send");
             destSetting.remove("track");
@@ -212,19 +212,19 @@ public class PlayerData {
             //UPDATE HUD COLORS TO NEW SYSTEM
             Map<String,Object> hud = (Map<String, Object>) map.get("hud");
             String[] primary = ((String) hud.get("primary")).split("-");
-            primary[0] = CUtl.color.updateOld(primary[0],config.HUDPrimaryColor);
+            primary[0] = CUtl.color.updateOld(primary[0], config.hud.primary.Color);
             hud.put("primary",String.join("-",primary));
             String[] secondary = ((String) hud.get("secondary")).split("-");
-            secondary[0] = CUtl.color.updateOld(secondary[0],config.HUDSecondaryColor);
+            secondary[0] = CUtl.color.updateOld(secondary[0], config.hud.secondary.Color);
             hud.put("secondary",String.join("-",secondary));
             //ADD NEW HUD SETTINGS
             Map<String,Object> hudSetting = (Map<String, Object>) hud.get("setting");
-            hudSetting.put("type",config.HUDType);
+            hudSetting.put("type", config.hud.DisplayType);
             hudSetting.put("bossbar",defaults.hudBossBar());
             Map<String,Object> hudSettingModule = new HashMap<>();
             hudSettingModule.put("time_24hr",hudSetting.get("time24h"));
             hudSetting.put("time24h",null);
-            hudSettingModule.put("tracking_target",config.HUDTrackingTarget);
+            hudSettingModule.put("tracking_target", config.hud.TrackingTarget);
             hudSetting.put("module",hudSettingModule);
             hud.put("order", HUD.modules.fixOrder(HUD.Module.toModuleList(new ArrayList<>(List.of(((String) hud.get("order")).split(" "))))));
             hud.put("setting",hudSetting);
@@ -292,10 +292,10 @@ public class PlayerData {
             Map<String,Object> map = new HashMap<>();
             //hud
             Map<String,Object> hud = new HashMap<>();
-            hud.put("enabled", config.HUDEnabled);
+            hud.put("enabled", config.hud.Enabled);
             hud.put("setting", defaults.hudSetting());
             hud.put("module", defaults.hudModule());
-            hud.put("order", config.HUDOrder);
+            hud.put("order", config.hud.Order);
             hud.put("primary", HUD.color.defaultFormat(1));
             hud.put("secondary", HUD.color.defaultFormat(2));
             //dest
@@ -316,61 +316,61 @@ public class PlayerData {
         }
         public static Map<String,Object> hudSetting() {
             Map<String,Object> hudSetting = new HashMap<>();
-            hudSetting.put("type", config.HUDType);
+            hudSetting.put("type", config.hud.DisplayType);
             hudSetting.put("bossbar",hudBossBar());
             hudSetting.put("module",hudSettingModule());
             return hudSetting;
         }
         public static Map<String,Object> hudBossBar() {
             Map<String,Object> hudBossBar = new HashMap<>();
-            hudBossBar.put("color", config.HUDBarColor);
-            hudBossBar.put("distance",config.HUDBarShowDistance);
-            hudBossBar.put("distance_max",(double) config.HUDBarDistanceMax);
+            hudBossBar.put("color", config.hud.BarColor);
+            hudBossBar.put("distance", config.hud.BarShowDistance);
+            hudBossBar.put("distance_max",(double) config.hud.ShowDistanceMAX);
             return hudBossBar;
         }
         public static Map<String,Object> hudSettingModule() {
             Map<String,Object> module = new HashMap<>();
-            module.put("time_24hr", config.HUDTime24HR);
-            module.put("tracking_target",config.HUDTrackingTarget);
+            module.put("time_24hr", config.hud.Time24HR);
+            module.put("tracking_target", config.hud.TrackingTarget);
             return module;
         }
         public static Map<String,Object> hudModule() {
             Map<String,Object> hudModule = new HashMap<>();
-            hudModule.put("coordinates", config.HUDCoordinates);
-            hudModule.put("distance", config.HUDDistance);
-            hudModule.put("destination", config.HUDDestination);
-            hudModule.put("direction", config.HUDDirection);
-            hudModule.put("tracking", config.HUDTracking);
-            hudModule.put("time", config.HUDTime);
-            hudModule.put("weather", config.HUDWeather);
+            hudModule.put("coordinates", config.hud.Coordinates);
+            hudModule.put("distance", config.hud.Distance);
+            hudModule.put("destination", config.hud.Destination);
+            hudModule.put("direction", config.hud.Direction);
+            hudModule.put("tracking", config.hud.Tracking);
+            hudModule.put("time", config.hud.Time);
+            hudModule.put("weather", config.hud.Weather);
             return hudModule;
         }
         public static Map<String,Object> destSetting() {
             Map<String,Object> destSetting = new HashMap<>();
-            destSetting.put("autoclear", config.DESTAutoClear);
-            destSetting.put("autoclear_rad",(double)config.DESTAutoClearRad);
-            destSetting.put("autoconvert", config.DESTAutoConvert);
-            destSetting.put("ylevel", config.DESTYLevel);
+            destSetting.put("autoclear", config.dest.AutoClear);
+            destSetting.put("autoclear_rad",(double) config.dest.AutoClearRad);
+            destSetting.put("autoconvert", config.dest.AutoConvert);
+            destSetting.put("ylevel", config.dest.YLevel);
             destSetting.put("features", destFeatures());
             destSetting.put("particles", destParticles());
             return destSetting;
         }
         public static Map<String,Object> destFeatures() {
             Map<String,Object> destFeatures = new HashMap<>();
-            destFeatures.put("send", config.DESTSend);
-            destFeatures.put("track", config.DESTTrack);
-            destFeatures.put("track_request_mode",config.DESTTrackingRequestMode);
-            destFeatures.put("lastdeath", config.DESTLastdeath);
+            destFeatures.put("send", config.dest.Send);
+            destFeatures.put("track", config.dest.Track);
+            destFeatures.put("track_request_mode", config.dest.TrackingRequestMode);
+            destFeatures.put("lastdeath", config.dest.Lastdeath);
             return destFeatures;
         }
         public static Map<String,Object> destParticles() {
             Map<String,Object> destParticles = new HashMap<>();
-            destParticles.put("line", config.DESTLineParticles);
-            destParticles.put("line_color", config.DESTLineParticleColor);
-            destParticles.put("dest", config.DESTDestParticles);
-            destParticles.put("dest_color", config.DESTDestParticleColor);
-            destParticles.put("tracking", config.DESTTrackingParticles);
-            destParticles.put("tracking_color", config.DESTTrackingParticleColor);
+            destParticles.put("line", config.dest.particles.Line);
+            destParticles.put("line_color", config.dest.particles.LineColor);
+            destParticles.put("dest", config.dest.particles.Dest);
+            destParticles.put("dest_color", config.dest.particles.DestColor);
+            destParticles.put("tracking", config.dest.particles.Tracking);
+            destParticles.put("tracking_color", config.dest.particles.TrackingColor);
             return destParticles;
         }
     }

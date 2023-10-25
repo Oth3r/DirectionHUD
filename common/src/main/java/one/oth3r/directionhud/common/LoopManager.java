@@ -28,7 +28,7 @@ public class LoopManager {
                 if (PlayerData.get.hud.state(player)) {
                     HashMap<HUD.Module, ArrayList<String>> HUDData = HUD.getRawHUDText(player);
                     // if the client has directionhud and the hud type is the actionBar send as a packet
-                    if (DirectionHUD.clientPlayers.contains(player) && config.HUDTypes.get((String) PlayerData.get.hud.setting.get(player, HUD.Setting.type)).equals(config.HUDTypes.actionbar)) player.sendHUDPackets(HUDData);
+                    if (DirectionHUD.clientPlayers.contains(player) && HUD.Setting.DisplayType.get((String) PlayerData.get.hud.setting.get(player, HUD.Setting.type)).equals(HUD.Setting.DisplayType.actionbar)) player.sendHUDPackets(HUDData);
                     else player.displayHUD(HUD.build(player,HUDData));
                 }
                 if (Destination.get(player).hasXYZ() && (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.autoclear) &&

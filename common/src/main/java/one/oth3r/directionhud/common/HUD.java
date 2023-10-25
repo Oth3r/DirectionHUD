@@ -23,6 +23,7 @@ public class HUD {
         public String toString() {
             return name().replace("__",".");
         }
+        // . = _ and _ == __
         public static Setting get(String s) {
             try {
                 return Setting.valueOf(s.replace(".","__"));
@@ -37,7 +38,55 @@ public class HUD {
             list.remove(none);
             return list;
         }
-        // . = _ and _ == __
+        public enum DisplayType {
+            actionbar,
+            bossbar;
+            public static final DisplayType[] values = values();
+            public DisplayType next() {
+                return values[(ordinal() + 1) % values.length];
+            }
+            public static DisplayType get(String s) {
+                try {
+                    return DisplayType.valueOf(s);
+
+                } catch (IllegalArgumentException e) {
+                    return DisplayType.valueOf(config.hud.defaults.DisplayType);
+                }
+            }
+        }
+        public enum BarColor {
+            pink,
+            blue,
+            red,
+            green,
+            yellow,
+            purple,
+            white;
+            public static BarColor get(String s) {
+                try {
+                    return BarColor.valueOf(s);
+
+                } catch (IllegalArgumentException e) {
+                    return BarColor.valueOf(config.hud.defaults.BarColor);
+                }
+            }
+        }
+        public enum HUDTrackingTarget {
+            player,
+            dest;
+            public static final HUDTrackingTarget[] values = values();
+            public HUDTrackingTarget next() {
+                return values[(ordinal() + 1) % values.length];
+            }
+            public static HUDTrackingTarget get(String s) {
+                try {
+                    return HUDTrackingTarget.valueOf(s);
+
+                } catch (IllegalArgumentException e) {
+                    return HUDTrackingTarget.valueOf(config.hud.defaults.TrackingTarget);
+                }
+            }
+        }
     }
     public enum Module {
         coordinates,
@@ -183,7 +232,7 @@ public class HUD {
             }
             if (pos == 3 && args[0].equals("settings")) {
                 if (args[1].equals(Setting.bossbar__color.toString())) {
-                    for (config.BarColors color : config.BarColors.values())
+                    for (Setting.BarColor color : Setting.BarColor.values())
                         suggester.add(color.toString());
                 }
                 if (args[1].equals(Setting.bossbar__distance_max.toString()))
@@ -275,7 +324,7 @@ public class HUD {
             if (module.equals(Module.tracking)) {
                 // if tracking type is dest and dest is off, remove.
                 // else player tracking type and no player tracked, remove
-                if (PlayerData.get.hud.setting.get(player, Setting.module__tracking_target).equals(config.HUDTrackingTargets.dest.toString())) {
+                if (PlayerData.get.hud.setting.get(player, Setting.module__tracking_target).equals(Setting.HUDTrackingTarget.dest.toString())) {
                     if (!Destination.get(player).hasXYZ()) continue;
                 } else if (Destination.social.track.getTarget(player) == null) continue;
             }
@@ -341,7 +390,7 @@ public class HUD {
     }
     public static String getTracking(Player player) {
         Loc target;
-        if (PlayerData.get.hud.setting.get(player, Setting.module__tracking_target).equals(config.HUDTrackingTargets.player.toString())) {
+        if (PlayerData.get.hud.setting.get(player, Setting.module__tracking_target).equals(Setting.HUDTrackingTarget.player.toString())) {
             if (PlayerData.get.dest.getTracking(player) == null) return "???";
             Player pl = Destination.social.track.getTarget(player);
             if (pl == null) return "???";
@@ -377,7 +426,7 @@ public class HUD {
         private static final int PER_PAGE = 5;
         public static final ArrayList<Module> DEFAULT = new ArrayList<>(List.of(Module.coordinates, Module.distance, Module.tracking, Module.destination, Module.direction, Module.time, Module.weather));
         public static void reset(Player player, boolean Return) {
-            PlayerData.set.hud.order(player, config.HUDOrder);
+            PlayerData.set.hud.order(player, config.hud.Order);
             PlayerData.set.hud.setting.set(player, Setting.module__time_24hr, settings.getConfig(Setting.module__time_24hr));
             PlayerData.set.hud.setting.set(player, Setting.module__tracking_target, settings.getConfig(Setting.module__tracking_target));
             PlayerData.set.hud.setModuleMap(player, PlayerData.defaults.hudModule());
@@ -465,10 +514,10 @@ public class HUD {
             boolean yellow = false;
             if (!Destination.get(player).hasXYZ()) {
                 if (module.equals(Module.destination) || module.equals(Module.distance) || (module.equals(Module.tracking) &&
-                        config.HUDTrackingTargets.get((String)PlayerData.get.hud.setting.get(player, Setting.module__tracking_target)).equals(config.HUDTrackingTargets.dest)))
+                        Setting.HUDTrackingTarget.get((String)PlayerData.get.hud.setting.get(player, Setting.module__tracking_target)).equals(Setting.HUDTrackingTarget.dest)))
                     yellow = true;
             }
-            if (module.equals(Module.tracking) && Destination.social.track.getTarget(player)==null && config.HUDTrackingTargets.get((String)PlayerData.get.hud.setting.get(player, Setting.module__tracking_target)).equals(config.HUDTrackingTargets.player))
+            if (module.equals(Module.tracking) && Destination.social.track.getTarget(player)==null && Setting.HUDTrackingTarget.get((String)PlayerData.get.hud.setting.get(player, Setting.module__tracking_target)).equals(Setting.HUDTrackingTarget.player))
                 yellow = true;
             if (yellow) return "#fff419";
             return "#19ff21";
@@ -566,8 +615,8 @@ public class HUD {
             else player.sendMessage(msg);
         }
         public static String defaultFormat(int i) {
-            if (i==1) return config.HUDPrimaryColor+"-"+ config.HUDPrimaryBold+"-"+ config.HUDPrimaryItalics+"-"+ config.HUDPrimaryRainbow;
-            return config.HUDSecondaryColor+"-"+ config.HUDSecondaryBold+"-"+ config.HUDSecondaryItalics+"-"+ config.HUDSecondaryRainbow;
+            if (i==1) return config.hud.primary.Color +"-"+ config.hud.primary.Bold +"-"+ config.hud.primary.Italics +"-"+ config.hud.primary.Rainbow;
+            return config.hud.secondary.Color +"-"+ config.hud.secondary.Bold +"-"+ config.hud.secondary.Italics +"-"+ config.hud.secondary.Rainbow;
         }
         public static String getHUDColor(Player player, int i) {
             String[] p = PlayerData.get.hud.color(player,1).split("-");
@@ -659,12 +708,12 @@ public class HUD {
         public static Object getConfig(Setting type) {
             Object output = false;
             switch (type) {
-                case type -> output = config.HUDType;
-                case bossbar__color -> output = config.HUDBarColor;
-                case bossbar__distance -> output = config.HUDBarShowDistance;
-                case bossbar__distance_max -> output = config.HUDBarDistanceMax;
-                case module__time_24hr -> output = config.HUDTime24HR;
-                case module__tracking_target -> output = config.HUDTrackingTarget;
+                case type -> output = config.hud.DisplayType;
+                case bossbar__color -> output = config.hud.BarColor;
+                case bossbar__distance -> output = config.hud.BarShowDistance;
+                case bossbar__distance_max -> output = config.hud.ShowDistanceMAX;
+                case module__time_24hr -> output = config.hud.Time24HR;
+                case module__tracking_target -> output = config.hud.TrackingTarget;
             }
             return output;
         }
@@ -690,13 +739,13 @@ public class HUD {
             setting = setting.toLowerCase();
             CTxT setTxT = CTxT.of("");
             if (type.equals(Setting.type)) {
-                PlayerData.set.hud.setting.set(player,type,config.HUDTypes.valueOf(setting));
-                setTxT.append(lang("settings."+type+"."+config.HUDTypes.valueOf(setting)).color(CUtl.s()));
+                PlayerData.set.hud.setting.set(player,type, Setting.DisplayType.valueOf(setting));
+                setTxT.append(lang("settings."+type+"."+ Setting.DisplayType.valueOf(setting)).color(CUtl.s()));
                 player.updateHUD();
             }
             if (type.equals(Setting.bossbar__color)) {
-                PlayerData.set.hud.setting.set(player,type,config.BarColors.valueOf(setting));
-                setTxT.append(lang("settings."+type+"."+config.BarColors.valueOf(setting)).color(Assets.barColor(config.BarColors.valueOf(setting))));
+                PlayerData.set.hud.setting.set(player,type, Setting.BarColor.valueOf(setting));
+                setTxT.append(lang("settings."+type+"."+ Setting.BarColor.valueOf(setting)).color(Assets.barColor(Setting.BarColor.valueOf(setting))));
             }
             if (type.equals(Setting.bossbar__distance)) {
                 PlayerData.set.hud.setting.set(player,type,state);
@@ -712,8 +761,8 @@ public class HUD {
                 setTxT.append(lang("settings."+type+"."+(state?"on":"off")).color(CUtl.s()));
             }
             if (type.equals(Setting.module__tracking_target)) {
-                PlayerData.set.hud.setting.set(player, type, config.HUDTrackingTargets.valueOf(setting));
-                setTxT.append(lang("settings."+type+"." + config.HUDTrackingTargets.valueOf(setting)).color(CUtl.s()));
+                PlayerData.set.hud.setting.set(player, type, Setting.HUDTrackingTarget.valueOf(setting));
+                setTxT.append(lang("settings."+type+"." + Setting.HUDTrackingTarget.valueOf(setting)).color(CUtl.s()));
             }
             CTxT msg = CUtl.tag().append(lang("settings."+type+".set",setTxT));
             if (Return) UI(player, msg);
@@ -740,14 +789,14 @@ public class HUD {
             if (module.length != 0) end = " module";
             CTxT button = CTxT.of("");
             if (type.equals(Setting.type)) {
-                config.HUDTypes nextType = config.HUDTypes.valueOf((String) PlayerData.get.hud.setting.get(player,type)).next();
+                Setting.DisplayType nextType = Setting.DisplayType.valueOf((String) PlayerData.get.hud.setting.get(player,type)).next();
                 button.append(lang("settings."+type+"."+PlayerData.get.hud.setting.get(player,type)).btn(true).color(CUtl.s())
                         .cEvent(1,"/hud settings "+type+" "+nextType)
                         .hEvent(lang("settings."+type+".hover",lang("settings."+type+"."+nextType).color(CUtl.s()))));
             }
             if (type.equals(Setting.bossbar__color)) {
                 button.append(CUtl.lang("color.presets."+PlayerData.get.hud.setting.get(player,type)).btn(true)
-                        .color(Assets.barColor((config.BarColors.valueOf((String) PlayerData.get.hud.setting.get(player,type)))))
+                        .color(Assets.barColor((Setting.BarColor.valueOf((String) PlayerData.get.hud.setting.get(player,type)))))
                         .cEvent(2,"/hud settings "+type+" ").hEvent(lang("settings."+type+".hover")));
             }
             if (type.equals(Setting.bossbar__distance)) {
@@ -764,7 +813,7 @@ public class HUD {
                         .cEvent(1,"/hud settings "+type+" "+(state?"off":"on")+end));
             }
             if (type.equals(Setting.module__tracking_target)) {
-                config.HUDTrackingTargets nextType = config.HUDTrackingTargets.valueOf((String) PlayerData.get.hud.setting.get(player,type)).next();
+                Setting.HUDTrackingTarget nextType = Setting.HUDTrackingTarget.valueOf((String) PlayerData.get.hud.setting.get(player,type)).next();
                 button.append(lang("settings."+type+"."+PlayerData.get.hud.setting.get(player,type)).btn(true).color(CUtl.s())
                         .cEvent(1,"/hud settings "+type+" "+nextType+end)
                         .hEvent(lang("settings."+type+".hover",lang("settings."+type+"."+nextType).color(CUtl.s()))));
