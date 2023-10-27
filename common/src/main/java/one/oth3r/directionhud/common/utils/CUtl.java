@@ -29,7 +29,7 @@ public class CUtl {
         return DirectionHUD.SECONDARY;
     }
     public static CTxT error(String key, Object... args) {
-        return tag().append(lang("error").color(Assets.mainColors.error)).append(" ").append(lang(key, args));
+        return tag().append(lang("error").color(Assets.mainColors.error)).append(" ").append(lang("error."+key, args));
     }
     public static CTxT usage(String s) {
         return tag().append(lang("usage").color(Assets.mainColors.usage)).append(" ").append(s);
