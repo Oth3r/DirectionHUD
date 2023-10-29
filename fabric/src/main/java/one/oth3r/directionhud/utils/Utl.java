@@ -8,6 +8,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import one.oth3r.directionhud.DirectionHUD;
+import one.oth3r.directionhud.DirectionHUDClient;
 import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.HUD;
@@ -18,8 +19,8 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.joml.Vector3f;
 
 import java.awt.*;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 public class Utl {
     public static class Pair<A, B> {
@@ -164,6 +165,7 @@ public class Utl {
         }
     }
     public static class checkEnabled {
+        //todo add a bool for singleplayer for perm checking
         public static boolean destination(Player player) {
             return true;
         }
@@ -175,10 +177,13 @@ public class Utl {
             return true;
         }
         public static boolean reload(Player player) {
-            return DirectionHUD.server.isRemote() && player.getPlayer().hasPermissionLevel(2);
+            return player.getPlayer().hasPermissionLevel(2) || DirectionHUDClient.singleplayer;
         }
         public static boolean defaults(Player player) {
             return player.getPlayer().hasPermissionLevel(2) || DirectionHUDClient.singleplayer;
+        }
+        public static boolean global(Player player) {
+            return config.globalDESTs && (player.getPlayer().hasPermissionLevel(2) || DirectionHUDClient.singleplayer);
         }
         public static boolean saving(Player player) {
             return config.DESTSaving;

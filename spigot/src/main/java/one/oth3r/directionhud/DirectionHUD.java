@@ -38,7 +38,7 @@ public class DirectionHUD extends JavaPlugin implements PluginMessageListener {
     @Override
     public void onEnable() {
         plugin = this;
-        DATA_DIR = this.getDataFolder().getPath();
+        DATA_DIR = this.getDataFolder().getPath()+"/";
         CONFIG_DIR = this.getDataFolder().getPath()+"/";
         PluginDescriptionFile pdf = Objects.requireNonNull(Bukkit.getServer().getPluginManager().getPlugin("DirectionHUD")).getDescription();
         VERSION = pdf.getVersion();

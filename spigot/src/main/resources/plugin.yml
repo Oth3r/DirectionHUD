@@ -21,6 +21,9 @@ permissions:
   directionhud.destination:
     description: "Permissions for the '/destination' command"
     default: true
+  directionhud.destination.global-saving:
+    description: "Permissions for saving global destinations"
+    default: op
   directionhud.destination.saving:
     description: "Permissions for saving destinations"
     default: true

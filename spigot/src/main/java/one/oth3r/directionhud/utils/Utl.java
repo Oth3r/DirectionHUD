@@ -184,6 +184,9 @@ public class Utl {
         public static boolean defaults(Player player) {
             return player.getPlayer().hasPermission("directionhud.defaults");
         }
+        public static boolean global(Player player) {
+            return config.globalDESTs && player.getPlayer().hasPermission("directionhud.destination.global-saving");
+        }
         public static boolean saving(Player player) {
             return player.getPlayer().hasPermission("directionhud.destination.saving");
         }

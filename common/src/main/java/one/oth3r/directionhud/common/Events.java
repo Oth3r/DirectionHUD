@@ -18,10 +18,11 @@ import java.util.UUID;
 public class Events {
     public static void serverStart() {
         try {
-            Files.createDirectories(Paths.get(DirectionHUD.DATA_DIR));
+            Files.createDirectories(Paths.get(DirectionHUD.DATA_DIR+"playerdata/"));
         } catch (Exception e) {
             DirectionHUD.LOGGER.info("Failed to create playerdata directory:\n" + e.getMessage());
         }
+        GlobalDest.fileToMap();
         config.load();
         LangReader.loadLanguageFile();
         //load the config twice, first to load the lang and second to make all the comments the right language

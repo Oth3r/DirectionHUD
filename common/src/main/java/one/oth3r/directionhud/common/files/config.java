@@ -115,6 +115,24 @@ public class config {
         public static boolean Lastdeath = defaults.Lastdeath;
         public static String TrackingRequestMode = defaults.TrackingRequestMode;
     }
+    public static class defaults {
+        public static final float version = 1.3f;
+        public static final String lang = "en_us";
+        public static final boolean DESTSaving = true;
+        public static final int MAXSaved = 50;
+        public static final int MAXLastDeaths = 4;
+        public static final int MAXy = 512;
+        public static final int MAXxz = 30000000;
+        public static final boolean deathsaving = true;
+        public static final boolean social = true;
+        public static final boolean HUDEditing = true;
+        public static final int HUDRefresh = 1;
+        public static final boolean online = true;
+        public static final boolean globalDESTs = false;
+        public static final List<String> colorPresets = List.of("#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff");
+        public static final List<String> dimensions = Utl.dim.DEFAULT_DIMENSIONS;
+        public static final List<String> dimensionRatios = Utl.dim.DEFAULT_RATIOS;
+    }
     public static String lang = defaults.lang;
     public static boolean DESTSaving = defaults.DESTSaving;
     public static int MAXSaved = defaults.MAXSaved;
@@ -126,6 +144,7 @@ public class config {
     public static boolean HUDEditing = defaults.HUDEditing;
     public static int HUDRefresh = defaults.HUDRefresh;
     public static boolean online = defaults.online;
+    public static boolean globalDESTs = defaults.globalDESTs;
     public static List<String> colorPresets = defaults.colorPresets;
     public static List<String> dimensions = defaults.dimensions;
     public static List<String> dimensionRatios = defaults.dimensionRatios;
@@ -259,6 +278,7 @@ public class config {
         //CONFIG
         MAXxz = Integer.parseInt((String) properties.computeIfAbsent("max-xz", a -> String.valueOf(defaults.MAXxz)));
         MAXy = Integer.parseInt((String) properties.computeIfAbsent("max-y", a -> String.valueOf(defaults.MAXy)));
+        globalDESTs = Boolean.parseBoolean((String) properties.computeIfAbsent("global-destinations", a -> String.valueOf(defaults.globalDESTs)));
         DESTSaving = Boolean.parseBoolean((String) properties.computeIfAbsent("destination-saving", a -> String.valueOf(defaults.DESTSaving)));
         MAXSaved = Integer.parseInt((String) properties.computeIfAbsent("destination-max-saved", a -> String.valueOf(defaults.MAXSaved)));
         social = Boolean.parseBoolean((String) properties.computeIfAbsent("social-commands", a -> String.valueOf(defaults.social)));
@@ -394,6 +414,9 @@ public class config {
                     .append(CUtl.lang("config.dimension_ratios.info_2",CUtl.lang("config.dimension_ratios.info_2.1"),
                             CUtl.lang("config.dimension_ratios.info_2.2"))).toString()).getBytes());
 
+            file.write(("\nglobal-destinations=" + globalDESTs).getBytes());
+            file.write(("\n# "+CUtl.lang("config.global_dest.info").toString()).getBytes());
+            file.write(("\n# "+CUtl.lang("config.global_dest.info_3").toString()).getBytes());
             file.write(("\ndestination-saving=" + DESTSaving).getBytes());
             file.write(("\n# "+CUtl.lang("config.dest_saving.info").toString()).getBytes());
             file.write(("\ndestination-max-saved=" + MAXSaved).getBytes());
@@ -468,22 +491,5 @@ public class config {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-    public static class defaults {
-        public static final float version = 1.3f;
-        public static final String lang = "en_us";
-        public static final boolean DESTSaving = true;
-        public static final int MAXSaved = 50;
-        public static final int MAXLastDeaths = 4;
-        public static final int MAXy = 512;
-        public static final int MAXxz = 30000000;
-        public static final boolean deathsaving = true;
-        public static final boolean social = true;
-        public static final boolean HUDEditing = true;
-        public static final int HUDRefresh = 1;
-        public static final boolean online = true;
-        public static final List<String> colorPresets = List.of("#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff");
-        public static final List<String> dimensions = Utl.dim.DEFAULT_DIMENSIONS;
-        public static final List<String> dimensionRatios = Utl.dim.DEFAULT_RATIOS;
     }
 }

@@ -21,6 +21,7 @@ public class Assets {
         public static final String gray = "#8d8d8d";
         public static final String custom = "#c4ff14";
         public static final String presets = "#2dedff";
+        public static final String global = "#60a4fc";
     }
     public static String barColor(HUD.Setting.BarColor color) {
         StringBuilder output = new StringBuilder();
@@ -71,6 +72,8 @@ public class Assets {
         public static final String lighting_bolt = "\u26a1";
         public static final String convert = "\u2194";
         public static final String toggle = "\u21C4";
+        public static final String local = "\uD83D\uDCDA";
+        public static final String global = "\uD83E\uDDED";
     }
     public enum packets {
         INITIALIZATION("initialize_v1.0"),
