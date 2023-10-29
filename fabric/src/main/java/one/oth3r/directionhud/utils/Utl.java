@@ -178,7 +178,7 @@ public class Utl {
             return DirectionHUD.server.isRemote() && player.getPlayer().hasPermissionLevel(2);
         }
         public static boolean defaults(Player player) {
-            return !DirectionHUD.server.isRemote() && player.getPlayer().hasPermissionLevel(2);
+            return player.getPlayer().hasPermissionLevel(2) || DirectionHUDClient.singleplayer;
         }
         public static boolean saving(Player player) {
             return config.DESTSaving;
