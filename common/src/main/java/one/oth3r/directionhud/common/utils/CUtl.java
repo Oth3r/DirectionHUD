@@ -122,7 +122,7 @@ public class CUtl {
         }
         public static class dest {
             public static CTxT convert(String cmd) {
-                return TBtn("dest.convert").btn(true).color(Assets.mainColors.convert).cEvent(1,cmd).hEvent(
+                return CTxT.of(Assets.symbols.convert).btn(true).color(Assets.mainColors.convert).cEvent(1,cmd).hEvent(
                         CTxT.of(cmd).color(Assets.mainColors.convert).append("\n").append(TBtn("dest.convert.hover")));
             }
             public static CTxT set(String cmd) {
