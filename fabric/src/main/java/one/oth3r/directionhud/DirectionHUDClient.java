@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class DirectionHUDClient implements ClientModInitializer {
+    public static boolean singleplayer = false;
     public static boolean onSupportedServer = false;
     public static HashMap<String, Object> packetData = new HashMap<>();
     public static HashMap<HUD.Module, ArrayList<String>> hudData;
@@ -101,11 +102,17 @@ public class DirectionHUDClient implements ClientModInitializer {
             });
         });
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
+            if (client.isInSingleplayer()) singleplayer = true;
             // send an initialization packet whenever joining a server
             client.execute(() -> {
                 PacketBuilder sPacket = new PacketBuilder("Hello from DirectionHUD client!");
                 sPacket.sendToServer(PacketBuilder.getIdentifier(Assets.packets.INITIALIZATION));
             });
+        });
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+            singleplayer = false;
+            onSupportedServer = false;
+            packetData = new HashMap<>();
         });
     }
     public static Player getClientPlayer(MinecraftClient client) {

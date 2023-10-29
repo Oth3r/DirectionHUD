@@ -8,8 +8,7 @@
     "OnPlayerWorldChanged"
   ],
   "client": [
-    "ActionBarMixin",
-    "OnClientDisconnect"
+    "ActionBarMixin"
   ],
   "injectors": {
     "defaultRequire": 1
