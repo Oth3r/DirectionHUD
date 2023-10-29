@@ -1,7 +1,7 @@
 package one.oth3r.directionhud;
 
 import one.oth3r.directionhud.commands.DestinationCommand;
-import one.oth3r.directionhud.commands.DirHUDCommand;
+import one.oth3r.directionhud.commands.DHUDCommand;
 import one.oth3r.directionhud.commands.HUDCommand;
 import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.Events;
@@ -49,8 +49,8 @@ public class DirectionHUD extends JavaPlugin implements PluginMessageListener {
         Objects.requireNonNull(getCommand("destination")).setTabCompleter(new DestinationCommand());
         Objects.requireNonNull(getCommand("hud")).setExecutor(new HUDCommand());
         Objects.requireNonNull(getCommand("hud")).setTabCompleter(new HUDCommand());
-        Objects.requireNonNull(getCommand("directionhud")).setExecutor(new DirHUDCommand());
-        Objects.requireNonNull(getCommand("directionhud")).setTabCompleter(new DirHUDCommand());
+        Objects.requireNonNull(getCommand("directionhud")).setExecutor(new DHUDCommand());
+        Objects.requireNonNull(getCommand("directionhud")).setTabCompleter(new DHUDCommand());
         //LOOP & EVENTS
         getServer().getPluginManager().registerEvents(new EventManager(), this);
         new BukkitRunnable() {

@@ -9,7 +9,7 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import one.oth3r.directionhud.DirectionHUD;
-import one.oth3r.directionhud.common.DirHUD;
+import one.oth3r.directionhud.common.DHUD;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
 
@@ -18,9 +18,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
-public class DirHUDCommand {
+public class DHUDCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
-        dispatcher.register(CommandManager.literal("dirhud")
+        dispatcher.register(CommandManager.literal("dhud")
                 .requires((commandSource) -> commandSource.hasPermissionLevel(0))
                 .executes((context2) -> command(context2.getSource(), context2.getInput()))
                 .then(CommandManager.argument("args", StringArgumentType.word())
@@ -48,7 +48,7 @@ public class DirHUDCommand {
                                                                                 .suggests((context, builder) -> getSuggestions(context,builder,8))
                                                                                 .executes((context2) -> command(context2.getSource(), context2.getInput()))
                                                                                 .executes((context2) -> command(context2.getSource(), context2.getInput())))))))))));
-        dispatcher.register(CommandManager.literal("directionhud").redirect(dispatcher.getRoot().getChild("dirhud"))
+        dispatcher.register(CommandManager.literal("directionhud").redirect(dispatcher.getRoot().getChild("dhud"))
                 .executes((context2) -> command(context2.getSource(), context2.getInput())));
     }
     public static CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder, int pos) {
@@ -56,7 +56,7 @@ public class DirHUDCommand {
         String[] args = context.getInput().split(" ");
         if (pos > args.length) return builder.buildFuture();
         args = Utl.trimStart(args,1);
-        for (String s : DirHUD.commandSuggester.logic(player,pos, args)) builder.suggest(s);
+        for (String s : DHUD.commandSuggester.logic(player,pos, args)) builder.suggest(s);
         return builder.buildFuture();
     }
     private static int command(ServerCommandSource source, String arg) {
@@ -77,13 +77,13 @@ public class DirHUDCommand {
             args = arg.replaceFirst("(?i)dir(ection)?hud ", "").split(" ");
         if (spe == null) {
             if (args[0].equalsIgnoreCase("reload") && DirectionHUD.server.isRemote())
-                DirHUD.reload(null);
+                DHUD.reload(null);
             return 1;
         }
         Player player = Player.of(spe);
         if (args[0].equalsIgnoreCase("dirhud") || args[0].equalsIgnoreCase("directionhud"))
             args = new String[0];
-        DirHUD.commandExecutor.logic(player,args);
+        DHUD.commandExecutor.logic(player,args);
         return 1;
     }
 }

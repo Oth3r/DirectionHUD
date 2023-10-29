@@ -12,7 +12,7 @@ import one.oth3r.directionhud.utils.Utl;
 
 import java.util.ArrayList;
 
-public class DirHUD {
+public class DHUD {
     public static class commandExecutor {
         public static void logic(Player player, String[] args) {
             if (args.length == 0) {

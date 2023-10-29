@@ -12,7 +12,7 @@ import net.minecraft.server.PlayerManager;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.util.WorldSavePath;
 import one.oth3r.directionhud.commands.DestinationCommand;
-import one.oth3r.directionhud.commands.DirHUDCommand;
+import one.oth3r.directionhud.commands.DHUDCommand;
 import one.oth3r.directionhud.commands.HUDCommand;
 import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.Events;
@@ -75,7 +75,7 @@ public class DirectionHUD {
 				}));
 		//COMMANDS
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
-			DirHUDCommand.register(dispatcher);
+			DHUDCommand.register(dispatcher);
 			HUDCommand.register(dispatcher);
 			DestinationCommand.register(dispatcher);
 		});

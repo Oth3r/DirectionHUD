@@ -13,7 +13,7 @@ commands:
     description: "Handles all one.oth3r.directionhud.common.HUD actions"
   directionhud:
     description: "Base command"
-    aliases: "dirhud"
+    aliases: "dhud"
 permissions:
   directionhud.hud:
     description: "Permissions for the '/hud' command"
