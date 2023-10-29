@@ -110,7 +110,8 @@ public class CTxT {
         this.append.add((MutableText) append);
         return this;
     }
-    public String getString() {
+    @Override
+    public String toString() {
         return b().getString();
     }
     public MutableText b() {

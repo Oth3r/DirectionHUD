@@ -105,7 +105,7 @@ public class Player {
         packet.sendToPlayer(Assets.packets.HUD,player);
     }
     public void displayHUD(CTxT message) {
-        if (message.getString().equals("")) {
+        if (message.toString().equals("")) {
             //if the HUD is enabled but there is no output
             if (PlayerData.getOneTime(this,"hud.enabled_but_off") == null) {
                 PlayerData.setOneTime(this,"hud.enabled_but_off","true");
