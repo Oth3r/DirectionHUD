@@ -1,10 +1,12 @@
 package one.oth3r.directionhud.common;
 
 import one.oth3r.directionhud.DirectionHUD;
+import one.oth3r.directionhud.common.files.GlobalDest;
 import one.oth3r.directionhud.common.files.LangReader;
 import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.utils.CUtl;
+import one.oth3r.directionhud.common.utils.FloodGateHandler;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
@@ -34,10 +36,9 @@ public class Events {
     }
     public static void playerJoin(Player player) {
         PlayerData.addPlayer(player);
-        FloodgateApi floodgate = FloodgateApi.getInstance();
-        UUID uuid = UUID.fromString(player.getUUID());
-        if (floodgate.isFloodgatePlayer(uuid))
-            DirectionHUD.floodgatePlayers.put(player,floodgate.getPlayer(uuid));
+        // check if floodgate is installed, because if not it will crash
+        if (FloodGateHandler.isEnabled() && FloodGateHandler.isFloodgate(player))
+                DirectionHUD.floodgatePlayers.put(player,FloodGateHandler.getFGPlayer(player));
     }
     public static void playerLeave(Player player) {
         PlayerData.removePlayer(player);
