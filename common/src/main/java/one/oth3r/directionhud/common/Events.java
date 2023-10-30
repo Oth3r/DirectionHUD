@@ -11,11 +11,9 @@ import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
-import org.geysermc.floodgate.api.FloodgateApi;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.UUID;
 
 public class Events {
     public static void serverStart() {
