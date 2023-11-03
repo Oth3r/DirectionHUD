@@ -1325,8 +1325,8 @@ public class Destination {
                 player.sendMessage(CUtl.error("dest.send.disabled_player",CTxT.of(pl.getName()).color(CUtl.s())));
                 return;
             }
-            if (name != null && name.length() > 16) {
-                player.sendMessage(CUtl.error("dest.saved.length",16));
+            if (name != null && name.length() > saved.MAX_NAME) {
+                player.sendMessage(CUtl.error("dest.saved.length", saved.MAX_NAME));
                 return;
             }
             // if LOC is null it's a saved destination
