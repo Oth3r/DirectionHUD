@@ -1237,9 +1237,6 @@ public class Destination {
             player.sendMessage(msg);
         }
         public static void globalUI(Player player, int pg) {
-            CTxT addB = CUtl.TBtn("dest.add").btn(true).color(Assets.mainColors.add).cEvent(2, "/dest add ").hEvent(
-                    CTxT.of(Assets.cmdUsage.destAdd).color(Assets.mainColors.add).append("\n").append(CUtl.TBtn("dest.add.hover",
-                            CUtl.TBtn("dest.add.hover_2").color(Assets.mainColors.add))));
             CTxT msg = CTxT.of(" ");
             msg.append(lang("ui.saved.global").color(Assets.mainColors.global)).append(CUtl.LARGE).append("\n");
             CUtl.PageHelper<List<String>> pageHelper = new CUtl.PageHelper<>(new ArrayList<>(GlobalDest.dests), PER_PAGE);
