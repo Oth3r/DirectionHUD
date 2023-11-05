@@ -13,7 +13,7 @@ public class Assets {
         public static final String edit = "#665dff";
         public static final String dest = "#29a2ff";
         public static final String hud = "#29ff69";
-        public static final String defaults = "#ff6629";
+        public static final String inbox = "#7a6ef0";
         public static final String reload = "#69ff29";
         public static final String back = "#ff9500";
         public static final String usage = "#ff8b38";
@@ -53,6 +53,7 @@ public class Assets {
         public static final String destTrack = "/dest track <IGN> | /dest track .clear";
         public static final String destTrackClear = "/dest track .clear";
         public static final String reload = "/dirhud reload";
+        public static final String inbox = "/dhud inbox";
     }
     public static class symbols {
         public static final String square = "\u2588";

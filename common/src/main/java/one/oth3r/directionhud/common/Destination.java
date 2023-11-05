@@ -445,27 +445,26 @@ public class Destination {
         }
         public static void trackCMD(Player player, String[] args) {
             if (!Utl.checkEnabled.track(player)) return;
-            //dest track <name>
-            if (args.length == 1) {
-                if (args[0].equalsIgnoreCase(".clear")) {
-                    social.track.clear(player, null);
-                    return;
-                }
-                social.track.initialize(player, args[0]);
+            //dest track
+            if (args.length == 1 && args[0].equalsIgnoreCase("clear")) {
+                social.track.clear(player, null);
                 return;
             }
-            if (args.length == 3) {
-                //dest track accept/deny <name> <id>
-                if (args[0].equalsIgnoreCase("acp")) {
-                    social.track.accept(player, args[1], args[2]);
-                    return;
+            if (args.length == 2) {
+                boolean Return = false;
+                // if the type has -r, remove it and enable returning
+                if (args[0].contains("-r")) {
+                    args[0] = args[0].replace("-r", "");
+                    Return = true;
                 }
-                if (args[0].equalsIgnoreCase("dny")) {
-                    social.track.deny(player, args[1], args[2]);
-                    return;
+                switch (args[0]) {
+                    case "accept" -> social.track.process(player, args[1], social.track.ProcessType.accept, Return);
+                    case "deny" -> social.track.process(player, args[1], social.track.ProcessType.deny, Return);
+                    case "cancel" -> social.track.process(player, args[1], social.track.ProcessType.cancel, Return);
+                    case "set" -> social.track.initialize(player, args[1]);
+                    default -> player.sendMessage(CUtl.usage(Assets.cmdUsage.destTrack));
                 }
-            }
-            player.sendMessage(CUtl.usage(Assets.cmdUsage.destTrack));
+            } else player.sendMessage(CUtl.usage(Assets.cmdUsage.destTrack));
         }
     }
     public static class commandSuggester {
@@ -488,7 +487,7 @@ public class Destination {
                     }
                     case "set" -> suggester.addAll(setCMD(player,fixedPos,trimmedArgs));
                     case "send" -> suggester.addAll(sendCMD(player,fixedPos,trimmedArgs));
-                    case "track" -> suggester.addAll(trackCMD(player,fixedPos));
+                    case "track" -> suggester.addAll(trackCMD(player,fixedPos,trimmedArgs));
                 }
             }
             if (pos == args.length) return Utl.formatSuggestions(suggester,args);
@@ -808,14 +807,25 @@ public class Destination {
             }
             return suggester;
         }
-        public static ArrayList<String> trackCMD(Player player, int pos) {
+        public static ArrayList<String> trackCMD(Player player, int pos, String[] args) {
             ArrayList<String> suggester = new ArrayList<>();
-            // track <player>
+            // track (clear*|set|cancel*|accept*|deny*)
             if (pos == 0) {
-                suggester.add(".clear");
-                for (Player p : Utl.getPlayers()) {
-                    if (p.equals(player)) continue;
-                    suggester.add(p.getName());
+                if (social.track.getTarget(player)!=null) suggester.add("clear");
+                suggester.add("set");
+                if (DHUD.inbox.getAllMatches(player, DHUD.inbox.Type.track_pending)!=null) suggester.add("cancel");
+                if (DHUD.inbox.getAllMatches(player, DHUD.inbox.Type.track_request)!=null) {
+                    suggester.add("accept");
+                    suggester.add("deny");
+                }
+            }
+            if (pos == 1) {
+                if (args[0].equalsIgnoreCase("set"))
+                    suggester.addAll(Utl.getPlayersEx(player));
+                if (args[0].equalsIgnoreCase("accept") || args[0].equalsIgnoreCase("deny")) {
+                    ArrayList<HashMap<String,Object>> matches = DHUD.inbox.getAllMatches(player, DHUD.inbox.Type.track_request);
+                    if (matches==null) return suggester;
+                    for (HashMap<String,Object> entry:matches) suggester.add((String) entry.get("player_name"));
                 }
             }
             return suggester;
@@ -1305,23 +1315,27 @@ public class Destination {
     }
     public static class social {
         public static void send(Player player, String sendPLayer, Loc loc, String name,String color) {
-            Player pl = Player.of(sendPLayer);
-            if (pl == null) {
+            // remove bad data
+            Player target = Player.of(sendPLayer);
+            // cooldown check
+            if (PlayerData.get.socialCooldown(player) != null) {
+                player.sendMessage(CUtl.error("dest.social.cooldown"));
+                return;
+            }
+            if (target == null) {
                 player.sendMessage(CUtl.error("player", CTxT.of(sendPLayer).color(CUtl.s())));
                 return;
             }
-            if (!(boolean)PlayerData.get.dest.setting.get(player, Setting.features__send)) {
-                player.sendMessage(CUtl.error("disabled"));
-                return;
-            }
-            if (pl == player) {
+            if (target == player) {
                 player.sendMessage(CUtl.error("dest.send.alone"));
                 return;
             }
-            if (!(boolean)PlayerData.get.dest.setting.get(pl, Setting.features__send)) {
-                player.sendMessage(CUtl.error("dest.send.disabled_player",CTxT.of(pl.getName()).color(CUtl.s())));
+            // they don't have sending enabled
+            if (!(boolean)PlayerData.get.dest.setting.get(target, Setting.features__send)) {
+                player.sendMessage(CUtl.error("dest.send.disabled_player",CTxT.of(target.getName()).color(CUtl.s())));
                 return;
             }
+            // custom name too long
             if (name != null && name.length() > saved.MAX_NAME) {
                 player.sendMessage(CUtl.error("dest.saved.length", saved.MAX_NAME));
                 return;
@@ -1344,30 +1358,43 @@ public class Destination {
                 player.sendMessage(CUtl.error("dimension"));
                 return;
             }
-            CTxT xyzB = CTxT.of("");
+            // add the cooldown
+            PlayerData.set.socialCooldown(player,config.socialCooldown.doubleValue());
             if (color == null) color = "#ffffff";
             //if color is preset, get the preset color
-            if (color.contains("preset"))
-                color = PlayerData.get.colorPresets(player).get(Integer.parseInt(color.substring(7))-1);
-            color = CUtl.color.format(color);
-            if (name==null) {
-                name = lang("send.change_name").toString();
-                xyzB.append(loc.getBadge());
-            } else xyzB.append(loc.getBadge(name,color));
-            String plDimension = pl.getDimension();
-            String pColor = color.substring(1);
-            CTxT msg = CTxT.of("\n ");
-            msg.append(xyzB).append(" ");
+            if (color.contains("preset")) color = PlayerData.get.colorPresets(player).get(Integer.parseInt(color.substring(7))-1);
+            // get rid of the hashtag for error fixing
+            color = CUtl.color.format(color).substring(1);
+            player.sendMessage(CUtl.tag().append(lang("send",CTxT.of(target.getName()).color(CUtl.s()),
+                    CTxT.of("\n ").append(getSendBadge(name,loc,color)))));
+            target.sendMessage(CUtl.tag().append(lang("send_player",CTxT.of(player.getName()).color(CUtl.s()),getSendTxt(target,name,loc,color))));
+            DHUD.inbox.addDest(target,player,999,name,loc,color);
+        }
+        public static CTxT getSendBadge(String name, Loc loc, String color) {
+            if (name==null) return loc.getBadge();
+            else return loc.getBadge(name,color);
+        }
+        public static CTxT getSendTxt(Player player, String name, Loc loc, String color) {
+            CTxT txt = CTxT.of("").append(getSendBadge(name,loc,color)).append(" ");
+            name = name==null?lang("send.change_name").toString():name;
+            // if color is white, empty string
+            color = color.equals("ffffff")?"":" "+color;
+            // ADD
             if (Utl.checkEnabled.saving(player))
-                msg.append(CUtl.CButton.dest.add("/dest saved add "+name+" "+loc.getXYZ()+" "+loc.getDIM()+" "+pColor)).append(" ");
-            msg.append(CUtl.CButton.dest.set("/dest set "+loc.getXYZ()+" "+loc.getDIM())).append(" ");
-            if (Utl.dim.canConvert(plDimension,loc.getDIM()))
-                msg.append(CUtl.CButton.dest.convert("/dest set " +loc.getXYZ()+" "+loc.getDIM()+" convert")).append(" ");
-            player.sendMessage(CUtl.tag().append(lang("send",CTxT.of(pl.getName()).color(CUtl.s()),
-                    CTxT.of("\n ").append(xyzB))));
-            pl.sendMessage(CUtl.tag().append(lang("send_player",CTxT.of(player.getName()).color(CUtl.s()),msg)));
+                txt.append(CUtl.CButton.dest.add("/dest saved add "+name+" "+loc.getXYZ()+" "+loc.getDIM()+color)).append(" ");
+            // SET
+            txt.append(CUtl.CButton.dest.set("/dest set "+loc.getXYZ()+" "+loc.getDIM())).append(" ");
+            // CONVERT
+            if (Utl.dim.canConvert(player.getDimension(),loc.getDIM()))
+                txt.append(CUtl.CButton.dest.convert("/dest set " +loc.getXYZ()+" "+loc.getDIM()+" convert")).append(" ");
+            return txt;
         }
         public static class track {
+            public enum ProcessType {
+                accept,
+                deny,
+                cancel;
+            }
             public static Player getTarget(Player player) {
                 String track = PlayerData.get.dest.getTracking(player);
                 if (track == null) return null;
@@ -1393,107 +1420,109 @@ public class Destination {
                 //clear the player
                 PlayerData.set.dest.setTracking(player,null);
             }
-            public static void set(Player player, Player pl, boolean send) {
-                if (config.online) PlayerData.set.dest.setTracking(player,pl.getUUID());
-                else PlayerData.set.dest.setTracking(player,pl.getName());
+            public static void set(Player player, Player target, boolean send) {
+                if (config.online) PlayerData.set.dest.setTracking(player,target.getUUID());
+                else PlayerData.set.dest.setTracking(player,target.getName());
                 if (!send) return;
-                player.sendMessage(CUtl.tag().append(lang("track.set",CTxT.of(pl.getName()).color(CUtl.s()))));
-                pl.sendMessage(CUtl.tag()
+                player.sendMessage(CUtl.tag().append(lang("track.set",CTxT.of(target.getName()).color(CUtl.s()))));
+                target.sendMessage(CUtl.tag()
                         .append(lang("track.accept", CTxT.of(player.getName()).color(CUtl.s())))
                         .append(" ").append(CUtl.CButton.dest.settings()));
             }
-            public static void initialize(Player player, String player2) {
-                Player pl = Player.of(player2);
-                if (pl == null) {
-                    player.sendMessage(CUtl.error("player",CTxT.of(player2).color(CUtl.s())));
+            public static void initialize(Player player, String tracker) {
+                Player target = Player.of(tracker);
+                // cooldown check
+                if (PlayerData.get.socialCooldown(player) != null) {
+                    player.sendMessage(CUtl.error("dest.social.cooldown"));
                     return;
                 }
-                if (pl == player) {
+                if (target == null) {
+                    player.sendMessage(CUtl.error("player",CTxT.of(tracker).color(CUtl.s())));
+                    return;
+                }
+                if (target == player) {
                     player.sendMessage(CUtl.error("dest.track.alone"));
                     return;
                 }
-                if (!(boolean)PlayerData.get.dest.setting.get(player, Setting.features__track)) {
-                    player.sendMessage(CUtl.error("disabled"));
+                if (!(boolean)PlayerData.get.dest.setting.get(target, Setting.features__track)) {
+                    player.sendMessage(CUtl.error("dest.track.disabled",CTxT.of(target.getName()).color(CUtl.s())));
                     return;
                 }
-                if (!(boolean)PlayerData.get.dest.setting.get(pl, Setting.features__track)) {
-                    player.sendMessage(CUtl.error("dest.track.disabled",CTxT.of(pl.getName()).color(CUtl.s())));
+                // tracking request already pending
+                if (DHUD.inbox.search(player, DHUD.inbox.Type.track_pending,"player_name",tracker)!=null) {
+                    player.sendMessage(CUtl.error("dest.track.duplicate",CTxT.of(target.getName()).color(CUtl.s())));
                     return;
                 }
-                if (PlayerData.get.temp.track.exists(player)) {
-                    player.sendMessage(CUtl.error("dest.track.pending"));
+                // make sure the player isn't already tracking the player
+                if (getTarget(player) != null && Objects.equals(getTarget(player), target)) {
+                    player.sendMessage(CUtl.error("dest.track.already_tracking",CTxT.of(target.getName()).color(CUtl.s())));
                     return;
                 }
-                if (getTarget(player) != null && Objects.equals(getTarget(player), pl)) {
-                    player.sendMessage(CUtl.error("dest.track.already_tracking",CTxT.of(pl.getName()).color(CUtl.s())));
+                // add the cooldown
+                PlayerData.set.socialCooldown(player,config.socialCooldown.doubleValue());
+                // instant mode
+                if (Setting.TrackingRequestMode.valueOf((String) PlayerData.get.dest.setting.get(target, Setting.features__track_request_mode)).equals(Setting.TrackingRequestMode.instant)) {
+                    set(player,target,true);
                     return;
                 }
-                if (Setting.TrackingRequestMode.valueOf((String) PlayerData.get.dest.setting.get(pl, Setting.features__track_request_mode)).equals(Setting.TrackingRequestMode.instant)) {
-                    set(player,pl,true);
-                    return;
-                }
-                String trackID = Utl.createID();
-                PlayerData.set.temp.track.id(player, trackID);
-                PlayerData.set.temp.track.expire(player, 90);
-                PlayerData.set.temp.track.target(player, pl.getName());
-                player.sendMessage(CUtl.tag().append(lang("track",CTxT.of(pl.getName()).color(CUtl.s())))
-                        .append("\n ").append(lang("track_expire", 90).color('7').italic(true)));
-                pl.sendMessage(CUtl.tag().append(lang("track_player",CTxT.of(player.getName()).color(CUtl.s()))).append("\n ")
-                        .append(CUtl.TBtn("accept").btn(true).color('a').cEvent(1,"/dest track acp "+player.getName()+" "+trackID)
+                DHUD.inbox.addTracking(target,player,300);
+                player.sendMessage(CUtl.tag().append(lang("track",CTxT.of(target.getName()).color(CUtl.s())))
+                        .append("\n ").append(lang("track_expire", 300).color('7').italic(true)));
+                target.sendMessage(CUtl.tag().append(lang("track_player",CTxT.of(player.getName()).color(CUtl.s()))).append("\n ")
+                        .append(CUtl.TBtn("accept").btn(true).color('a').cEvent(1,"/dest track accept "+player.getName())
                                 .hEvent(CUtl.TBtn("accept.hover"))).append(" ")
-                        .append(CUtl.TBtn("deny").btn(true).color('c').cEvent(1,"/dest track dny "+player.getName()+" "+trackID)
+                        .append(CUtl.TBtn("deny").btn(true).color('c').cEvent(1,"/dest track deny "+player.getName())
                                 .hEvent(CUtl.TBtn("deny.hover"))));
             }
-            public static void accept(Player pl, String player2, String ID) {
-                Player player = Player.of(player2);
-                // player is tracker, pl is tracked
-                if (player == null) {
-                    pl.sendMessage(CUtl.error("player",CTxT.of(player2).color(CUtl.s())));
+            public static void process(Player player, String tracker, ProcessType type, boolean Return) {
+                // processing both accepting and denying @ same time because the code is so similar
+                // removing bad data woo
+                Player target = Player.of(tracker);
+                // if player in questions is null
+                if (target == null) {
+                    player.sendMessage(CUtl.error("player",CTxT.of(tracker).color(CUtl.s())));
                     return;
                 }
-                if (pl == player) {
-                    pl.sendMessage(CUtl.error("how"));
+                if (player == target) {
+                    player.sendMessage(CUtl.error("alone"));
                     return;
                 }
-                if (!PlayerData.get.temp.track.exists(player) || !PlayerData.get.temp.track.id(player).equals(ID)) {
-                    //expired
-                    pl.sendMessage(CUtl.error("dest.track.expired"));
+                // get the id from the player inbox
+                HashMap<String, Object> entry = DHUD.inbox.search(player, DHUD.inbox.Type.track_request,"player_name", tracker);
+                // tracK_request if accept or deny, track_pending if canceling
+                if (type.equals(ProcessType.cancel)) entry = DHUD.inbox.search(player, DHUD.inbox.Type.track_pending,"player_name", tracker);
+                // entry doesn't exist
+                if (entry == null) {
+                    player.sendMessage(CUtl.error("dest.track.none",CTxT.of(target.getName()).color(CUtl.s())));
                     return;
                 }
-                if (!(boolean)PlayerData.get.dest.setting.get(player, Setting.features__track)) {
-                    pl.sendMessage(CUtl.error("dest.track.disabled",CTxT.of(pl.getName()).color(CUtl.s())));
-                    PlayerData.set.temp.track.remove(player);
+                String ID = (String) entry.get("id");
+                // the IDs don't match - SYNC ERROR
+                if (DHUD.inbox.search(target, null,"id",ID)==null) {
+                    DHUD.inbox.removeEntry(player,entry);
+                    player.sendMessage(CUtl.tag().append("SYNC ERROR - REPORT IT! (ID-MISMATCH)"));
                     return;
                 }
-                if (!Objects.equals(PlayerData.get.temp.track.target(player), pl.getName())) {
-                    pl.sendMessage(CUtl.error("how"));
+                // if the target has tracking turned off - SYNC ERROR
+                if (!(boolean)PlayerData.get.dest.setting.get(target, Setting.features__track)) {
+                    DHUD.inbox.removeEntry(player,entry);
+                    player.sendMessage(CUtl.tag().append("SYNC ERROR - REPORT IT! (TARGET-TRACK-OFF)"));
                     return;
                 }
-                set(player, pl,true);
-                PlayerData.set.temp.track.remove(player);
-            }
-            public static void deny(Player pl, String player2, String ID) {
-                // player is tracker, pl is tracked
-                Player player = Player.of(player2);
-                if (player == null) {
-                    pl.sendMessage(CUtl.error("player",CTxT.of(player2).color(CUtl.s())));
-                    return;
+                // remove from both inboxes
+                DHUD.inbox.delete(player,ID,false);
+                DHUD.inbox.delete(target,ID,false);
+                //different message based on the type
+                if (type.equals(ProcessType.accept)) {
+                    set(target,player,true);
+                } else if (type.equals(ProcessType.deny)) {
+                    target.sendMessage(CUtl.tag().append(lang("track.denied",CTxT.of(player.getName()).color(CUtl.s()))));
+                    player.sendMessage(CUtl.tag().append(lang("track.deny",CTxT.of(target.getName()).color(CUtl.s()))));
+                } else if (type.equals(ProcessType.cancel)) {
+                    player.sendMessage(CUtl.tag().append(lang("track.cancel",CTxT.of(target.getName()).color(CUtl.s()))));
+                    target.sendMessage(CUtl.tag().append(lang("track.canceled",CTxT.of(player.getName()).color(CUtl.s()))));
                 }
-                if (pl == player) {
-                    pl.sendMessage(CUtl.error("how"));
-                    return;
-                }
-                if (PlayerData.get.temp.track.id(player) == null || !PlayerData.get.temp.track.id(player).equals(ID)) {
-                    pl.sendMessage(CUtl.error("dest.track.expired"));
-                    return;
-                }
-                if (!Objects.equals(PlayerData.get.temp.track.target(player), pl.getName())) {
-                    pl.sendMessage(CUtl.error("how"));
-                    return;
-                }
-                player.sendMessage(CUtl.tag().append(lang("track.denied",CTxT.of(pl.getName()).color(CUtl.s()))));
-                PlayerData.set.temp.track.remove(player);
-                pl.sendMessage(CUtl.tag().append(lang("track.deny",CTxT.of(player.getName()).color(CUtl.s()))));
+                if (Return) player.performCommand("dhud inbox");
             }
         }
     }

@@ -118,6 +118,7 @@ public class config {
     public static class defaults {
         public static final float version = 1.3f;
         public static final String lang = "en_us";
+        public static final int socialCooldown = 10;
         public static final boolean DESTSaving = true;
         public static final int MAXSaved = 50;
         public static final int MAXLastDeaths = 4;
@@ -134,6 +135,7 @@ public class config {
         public static final List<String> dimensionRatios = Utl.dim.DEFAULT_RATIOS;
     }
     public static String lang = defaults.lang;
+    public static Integer socialCooldown = defaults.socialCooldown;
     public static boolean DESTSaving = defaults.DESTSaving;
     public static int MAXSaved = defaults.MAXSaved;
     public static int MAXLastDeaths = defaults.MAXLastDeaths;
@@ -236,6 +238,7 @@ public class config {
         DESTSaving = Boolean.parseBoolean((String) properties.computeIfAbsent("destination-saving", a -> String.valueOf(defaults.DESTSaving)));
         MAXSaved = Integer.parseInt((String) properties.computeIfAbsent("destination-max-saved", a -> String.valueOf(defaults.MAXSaved)));
         social = Boolean.parseBoolean((String) properties.computeIfAbsent("social-commands", a -> String.valueOf(defaults.social)));
+        socialCooldown = Integer.parseInt((String) properties.computeIfAbsent("social-cooldown", a -> String.valueOf(defaults.socialCooldown)));
         deathsaving = Boolean.parseBoolean((String) properties.computeIfAbsent("death-saving", a -> String.valueOf(defaults.deathsaving)));
         HUDEditing = Boolean.parseBoolean((String) properties.computeIfAbsent("hud-editing", a -> String.valueOf(defaults.HUDEditing)));
         HUDRefresh = Math.min(20, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("hud-refresh", a -> String.valueOf(defaults.HUDRefresh)))));
@@ -377,6 +380,8 @@ public class config {
             file.write(("\n# "+CUtl.lang("config.dest_max_saved.info").toString()).getBytes());
             file.write(("\nsocial-commands=" + social).getBytes());
             file.write(("\n# "+CUtl.lang("config.social.info",CUtl.lang("config.social.info_2")).toString()).getBytes());
+            file.write(("\nsocial-cooldown=" + socialCooldown).getBytes());
+            file.write(("\n# "+CUtl.lang("config.social_cooldown.info").toString()).getBytes());
             file.write(("\ndeath-saving=" + deathsaving).getBytes());
             file.write(("\n# "+CUtl.lang("config.death_saving.info").toString()).getBytes());
             file.write(("\nhud-editing=" + HUDEditing).getBytes());

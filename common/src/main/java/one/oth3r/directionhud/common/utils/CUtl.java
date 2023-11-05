@@ -196,7 +196,7 @@ public class CUtl {
                         CTxT.of(Assets.cmdUsage.hudToggle).color(color).append("\n").append(TBtn("hud.toggle.hover")));
             }
         }
-        public static class dirHUD {
+        public static class DHUD {
             public static CTxT hud() {
                 return TBtn("hud").btn(true).color(Assets.mainColors.hud).cEvent(1,"/hud").hEvent(
                         CTxT.of(Assets.cmdUsage.hud).color(Assets.mainColors.hud).append("\n").append(TBtn("hud.hover")));
@@ -205,8 +205,12 @@ public class CUtl {
                 return TBtn("dest").btn(true).color(Assets.mainColors.dest).cEvent(1,"/dest").hEvent(
                         CTxT.of(Assets.cmdUsage.dest).color(Assets.mainColors.dest).append("\n").append(TBtn("dest.hover")));
             }
+            public static CTxT inbox() {
+                return TBtn("inbox").btn(true).color(Assets.mainColors.inbox).cEvent(1,"/dhud inbox").hEvent(
+                        CTxT.of(Assets.cmdUsage.inbox).color(Assets.mainColors.inbox).append("\n").append(TBtn("inbox.hover")));
+            }
             public static CTxT reload() {
-                return TBtn("dirhud.reload").btn(true).color(Assets.mainColors.reload).cEvent(1,"/dirhud reload").hEvent(
+                return TBtn("dirhud.reload").btn(true).color(Assets.mainColors.reload).cEvent(1,"/dhud reload").hEvent(
                         CTxT.of(Assets.cmdUsage.reload).color(Assets.mainColors.reload).append("\n").append(TBtn("dirhud.reload.hover")));
             }
         }

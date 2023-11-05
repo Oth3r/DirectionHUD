@@ -39,6 +39,7 @@ public class Events {
                 DirectionHUD.floodgatePlayers.put(player,FloodGateHandler.getFGPlayer(player));
     }
     public static void playerLeave(Player player) {
+        DHUD.inbox.removeAllTracking(player);
         PlayerData.removePlayer(player);
         DirectionHUD.clientPlayers.remove(player);
         DirectionHUD.floodgatePlayers.remove(player);

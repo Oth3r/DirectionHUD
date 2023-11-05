@@ -50,6 +50,12 @@ public class LoopManager {
         }
     }
     private static void secondLoop(Player player) {
+        DHUD.inbox.tick(player);
+        Double timer = PlayerData.get.socialCooldown(player);
+        if (timer != null) {
+            PlayerData.set.socialCooldown(player,timer-1);
+            if (timer<=1) PlayerData.set.socialCooldown(player,null);
+        }
         //PARTICLES
         if (Destination.get(player).hasXYZ()) {
             if ((boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.particles__dest)) {

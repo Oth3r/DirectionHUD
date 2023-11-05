@@ -14,6 +14,7 @@ import one.oth3r.directionhud.utils.Utl;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.lang.reflect.Type;
 import java.util.*;
 
 public class PlayerData {
@@ -261,6 +262,9 @@ public class PlayerData {
             } else mTemp.put("track",cTemp.get("track"));
         } else if (mTemp.get("track") != null) mTemp.put("track", null);
         map.put("temp",mTemp);
+        // add the inbox & trackCooldown to the map before saving
+        map.put("inbox",cache.get("inbox"));
+        map.put("social_cooldown",cache.get("social_cooldown"));
         return map;
     }
     public static void updatePlayerMap(Player player) {
@@ -312,6 +316,7 @@ public class PlayerData {
             map.put("destination", destination);
             map.put("color_presets",config.colorPresets);
             map.put("temp", new HashMap<>());
+            map.put("inbox",new ArrayList<>());
             return map;
         }
         public static Map<String,Object> hudSetting() {
@@ -450,6 +455,14 @@ public class PlayerData {
                 }
             }
         }
+        public static Double socialCooldown(Player player) {
+            return (Double) fromMap(player).get("social_cooldown");
+        }
+        public static ArrayList<HashMap<String, Object>> inbox(Player player) {
+            Type inboxType = new TypeToken<ArrayList<HashMap<String, Object>>>() {}.getType();
+            String json = String.valueOf(fromMap(player).get("inbox"));
+            return new Gson().fromJson(json,inboxType);
+        }
         public static class temp {
             private static Map<String,Object> get(Player player) {
                 if (fromMap(player).get("temp") == null) return new HashMap<>();
@@ -584,6 +597,16 @@ public class PlayerData {
                     map(player,data);
                 }
             }
+        }
+        public static void socialCooldown(Player player, Double d) {
+            Map<String,Object> map = get.fromMap(player);
+            map.put("social_cooldown", d);
+            playerMap.put(player,map);
+        }
+        public static void inbox(Player player, ArrayList<HashMap<String, Object>> inbox) {
+            Map<String, Object> map = get.fromMap(player);
+            map.put("inbox",inbox);
+            playerMap.put(player,map);
         }
         public static class temp {
             public static void setM(Player player, Map<String,Object> temp) {
