@@ -29,7 +29,7 @@ public class Events {
         config.load();
     }
     public static void serverEnd() {
-        for (Player player: Utl.getPlayers()) PlayerData.removePlayer(player);
+        for (Player player: Utl.getPlayers()) playerLeave(player);
         DirectionHUD.LOGGER.info("Safely shutdown!");
     }
     public static void playerJoin(Player player) {
