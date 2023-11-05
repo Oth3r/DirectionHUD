@@ -389,24 +389,31 @@ public class HUD {
         return hr+":"+min;
     }
     public static String getTracking(Player player) {
-        Loc target;
-        if (PlayerData.get.hud.setting.get(player, Setting.module__tracking_target).equals(Setting.HUDTrackingTarget.player.toString())) {
+        // pointer target
+        Loc pointLoc;
+        // player tracking mode
+        if (PlayerData.get.hud.setting.get(player, Setting.module__tracking_target).equals(Setting.HUDTrackingTarget.player.name())) {
+            // no target
             if (PlayerData.get.dest.getTracking(player) == null) return "???";
-            Player pl = Destination.social.track.getTarget(player);
-            if (pl == null) return "???";
-            Loc plLoc = new Loc(pl);
-            if (!player.getDimension().equals(pl.getDimension())) {
-                if (Utl.dim.canConvert(player.getDimension(),pl.getDimension())) {
+            Player target = Destination.social.track.getTarget(player);
+            if (target == null) return "???";
+            Loc plLoc = new Loc(target);
+            // not in the same dimension
+            if (!player.getDimension().equals(target.getDimension())) {
+                // can convert and autoconvert is on
+                if (Utl.dim.canConvert(player.getDimension(),target.getDimension()) && (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.autoconvert)) {
                     plLoc.convertTo(player.getDimension());
                 } else return "-?-";
             }
-            target = plLoc;
+            pointLoc = plLoc;
         } else {
+            // dest mode
             if (!Destination.get(player).hasXYZ()) return "???";
-            target = Destination.get(player);
+            pointLoc = Destination.get(player);
         }
-        int x = target.getX()-player.getBlockX();
-        int z = (target.getZ()-player.getBlockZ())*-1;
+        // pointer logic
+        int x = pointLoc.getX()-player.getBlockX();
+        int z = (pointLoc.getZ()-player.getBlockZ())*-1;
         double rotation = (player.getYaw() - 180) % 360;
         if (rotation < 0) {
             rotation += 360.0;
