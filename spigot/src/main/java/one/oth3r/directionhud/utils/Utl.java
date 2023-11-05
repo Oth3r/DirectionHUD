@@ -181,9 +181,6 @@ public class Utl {
         public static boolean reload(Player player) {
             return player.getPlayer().hasPermission("directionhud.reload");
         }
-        public static boolean defaults(Player player) {
-            return player.getPlayer().hasPermission("directionhud.defaults");
-        }
         public static boolean global(Player player) {
             return config.globalDESTs && player.getPlayer().hasPermission("directionhud.destination.global-saving");
         }

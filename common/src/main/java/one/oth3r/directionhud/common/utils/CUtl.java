@@ -205,10 +205,6 @@ public class CUtl {
                 return TBtn("dest").btn(true).color(Assets.mainColors.dest).cEvent(1,"/dest").hEvent(
                         CTxT.of(Assets.cmdUsage.dest).color(Assets.mainColors.dest).append("\n").append(TBtn("dest.hover")));
             }
-            public static CTxT defaults() {
-                return TBtn("dirhud.defaults").btn(true).color(Assets.mainColors.defaults).cEvent(1,"/dirhud defaults").hEvent(
-                        CTxT.of(Assets.cmdUsage.defaults).color(Assets.mainColors.defaults).append("\n").append(TBtn("dirhud.defaults.hover")));
-            }
             public static CTxT reload() {
                 return TBtn("dirhud.reload").btn(true).color(Assets.mainColors.reload).cEvent(1,"/dirhud reload").hEvent(
                         CTxT.of(Assets.cmdUsage.reload).color(Assets.mainColors.reload).append("\n").append(TBtn("dirhud.reload.hover")));

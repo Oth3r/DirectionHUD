@@ -179,9 +179,6 @@ public class Utl {
         public static boolean reload(Player player) {
             return player.getPlayer().hasPermissionLevel(2) || DirectionHUDClient.singleplayer;
         }
-        public static boolean defaults(Player player) {
-            return player.getPlayer().hasPermissionLevel(2) || DirectionHUDClient.singleplayer;
-        }
         public static boolean global(Player player) {
             return config.globalDESTs && (player.getPlayer().hasPermissionLevel(2) || DirectionHUDClient.singleplayer);
         }

@@ -26,7 +26,6 @@ public class DHUD {
                 case "reload" -> {
                     if (Utl.checkEnabled.reload(player)) reload(player);
                 }
-                case "defaults" -> defaultsCMD(player, trimmedArgs);
                 default -> player.sendMessage(CUtl.error("error.command"));
             }
         }
@@ -44,18 +43,6 @@ public class DHUD {
                 CUtl.color.presetUI(player,args[0],CUtl.unFormatCMD(args[1]),CUtl.unFormatCMD(args[2]));
             }
         }
-        public static void defaultsCMD(Player player, String[] args) {
-            if (!Utl.checkEnabled.defaults(player)) return;
-            //UI
-            if (args.length == 0)
-                defaults.UI(player);
-            if (args.length != 1) return;
-            String type = args[0].toLowerCase();
-            switch (type) {
-                case "set" -> defaults.set(player);
-                case "reset" -> defaults.reset(player);
-            }
-        }
     }
     public static class commandSuggester {
         public static ArrayList<String> logic(Player player, int pos, String[] args) {
@@ -63,41 +50,9 @@ public class DHUD {
             if (!Utl.checkEnabled.hud(player)) return suggester;
             if (pos == 1) {
                 if (Utl.checkEnabled.reload(player)) suggester.add("reload");
-                if (Utl.checkEnabled.defaults(player)) suggester.add("defaults");
-            }
-            if (pos > 1) {
-                if (args[0].equals("default") && Utl.checkEnabled.defaults(player)) {
-                    suggester.add("set");
-                    suggester.add("reset");
-                }
             }
             if (pos == args.length) return Utl.formatSuggestions(suggester,args);
             return suggester;
-        }
-    }
-    public static class defaults {
-        public static void set(Player player) {
-            config.setToPlayer(player);
-            player.sendMessage(CUtl.tag().append(CUtl.lang("dirhud.defaults.set")));
-        }
-        public static void reset(Player player) {
-            config.resetDefaults();
-            player.sendMessage(CUtl.tag().append(CUtl.lang("dirhud.defaults.reset")));
-        }
-        public static void UI(Player player) {
-            CTxT msg = CTxT.of("");
-            msg.append(CUtl.lang("dirhud.ui.defaults").color(CUtl.p()))
-                    .append(CTxT.of("\n                                 \n").strikethrough(true))
-                    .append(" ")
-                    .append(CUtl.TBtn("dirhud.defaults.set").btn(true).color(Assets.mainColors.set).cEvent(1,"/dirhud defaults set")
-                            .hEvent(CUtl.TBtn("dirhud.defaults.set.hover")))
-                    .append("  ")
-                    .append(CUtl.TBtn("reset").btn(true).color('c').cEvent(1,"/dirhud defaults reset")
-                            .hEvent(CUtl.TBtn("reset.hover_defaults_dirhud")))
-                    .append("  ")
-                    .append(CUtl.CButton.back("/dirhud"))
-                    .append(CTxT.of("\n                                 ").strikethrough(true));
-            player.sendMessage(msg);
         }
     }
     public static void reload(Player player) {

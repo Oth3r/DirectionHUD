@@ -205,52 +205,6 @@ public class config {
         dest.particles.TrackingColor = dest.defaults.particles.TrackingColor;
         save();
     }
-    public static void setToPlayer(Player player) {
-        //HUD SETTINGS
-        hud.Enabled = PlayerData.get.hud.state(player);
-        hud.DisplayType = (String)PlayerData.get.hud.setting.get(player, HUD.Setting.type);
-        hud.BarColor = (String)PlayerData.get.hud.setting.get(player, HUD.Setting.bossbar__color);
-        hud.BarShowDistance = (boolean)PlayerData.get.hud.setting.get(player, HUD.Setting.bossbar__distance);
-        hud.ShowDistanceMAX = ((Double)PlayerData.get.hud.setting.get(player, HUD.Setting.bossbar__distance_max)).intValue();
-        hud.Time24HR = (boolean)PlayerData.get.hud.setting.get(player, HUD.Setting.module__time_24hr);
-        hud.TrackingTarget = (String)PlayerData.get.hud.setting.get(player, HUD.Setting.module__tracking_target);
-        //HUD MODULES
-        hud.Order = PlayerData.get.hud.order(player);
-        hud.Coordinates = PlayerData.get.hud.getModule(player, HUD.Module.coordinates);
-        hud.Distance = PlayerData.get.hud.getModule(player, HUD.Module.distance);
-        hud.Tracking = PlayerData.get.hud.getModule(player, HUD.Module.tracking);
-        hud.Destination = PlayerData.get.hud.getModule(player, HUD.Module.destination);
-        hud.Direction = PlayerData.get.hud.getModule(player, HUD.Module.direction);
-        hud.Time = PlayerData.get.hud.getModule(player, HUD.Module.time);
-        hud.Weather = PlayerData.get.hud.getModule(player, HUD.Module.weather);
-        //HUD COLORS
-        hud.primary.Color = HUD.color.getHUDColor(player,1);
-        hud.primary.Bold = HUD.color.getHUDBold(player,1);
-        hud.primary.Italics = HUD.color.getHUDItalics(player, 1);
-        hud.primary.Rainbow = HUD.color.getHUDRGB(player,1);
-        //SEC
-        hud.secondary.Color = HUD.color.getHUDColor(player,2);
-        hud.secondary.Bold = HUD.color.getHUDBold(player,2);
-        hud.secondary.Italics = HUD.color.getHUDItalics(player, 2);
-        hud.secondary.Rainbow = HUD.color.getHUDRGB(player,2);
-        //DEST SETTINGS
-        dest.AutoClear = (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.autoclear);
-        dest.AutoClearRad = ((Double)PlayerData.get.dest.setting.get(player, Destination.Setting.autoclear_rad)).intValue();
-        dest.AutoConvert = (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.autoconvert);
-        dest.YLevel = (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.ylevel);
-        dest.Send = (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.features__send);
-        dest.Track = (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.features__track);
-        dest.TrackingRequestMode = (String)PlayerData.get.dest.setting.get(player, Destination.Setting.features__track_request_mode);
-        dest.Lastdeath = (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.features__lastdeath);
-        //DEST PARTICLES
-        dest.particles.Dest = (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.particles__dest);
-        dest.particles.DestColor = (String)PlayerData.get.dest.setting.get(player, Destination.Setting.particles__dest_color);
-        dest.particles.Line = (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.particles__line);
-        dest.particles.LineColor = (String)PlayerData.get.dest.setting.get(player, Destination.Setting.particles__line_color);
-        dest.particles.Tracking = (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.particles__tracking);
-        dest.particles.TrackingColor = (String)PlayerData.get.dest.setting.get(player, Destination.Setting.particles__tracking_color);
-        save();
-    }
     public static File configFile() {
         return new File(DirectionHUD.CONFIG_DIR+"DirectionHUD.properties");
     }
