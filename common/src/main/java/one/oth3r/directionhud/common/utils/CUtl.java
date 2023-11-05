@@ -145,8 +145,8 @@ public class CUtl {
                         CTxT.of(Assets.cmdUsage.destAdd).color(Assets.mainColors.add).append("\n").append(TBtn("dest.add.hover",TBtn("dest.add.hover_2").color(Assets.mainColors.add))));
             }
             public static CTxT add(String cmd) {
-                return CUtl.TBtn("dest.add").btn(true).color(Assets.mainColors.add).cEvent(2,cmd).hEvent(
-                        CTxT.of(Assets.cmdUsage.destAdd).color(Assets.mainColors.add).append("\n").append(TBtn("dest.add.hover",TBtn("dest.add.hover_2").color(Assets.mainColors.add))));
+                return CTxT.of("+").btn(true).color(Assets.mainColors.add).cEvent(2,cmd).hEvent(
+                        TBtn("dest.add.hover_save",TBtn("dest.add.hover_2").color(Assets.mainColors.add)));
             }
             public static CTxT set() {
                 return TBtn("dest.set").btn(true).color(Assets.mainColors.set).cEvent(2,"/dest set ").hEvent(
