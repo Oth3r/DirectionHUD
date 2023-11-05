@@ -337,7 +337,7 @@ public class Destination {
             }
         }
         public static void lastdeathCMD(Player player, String[] args) {
-            if (!config.deathsaving || !(boolean)PlayerData.get.dest.setting.get(player, Setting.features__lastdeath)) return;
+            if (!Utl.checkEnabled.lastdeath(player)) return;
             if (args.length == 0) {
                 lastdeath.UI(player,1,null);
                 return;
