@@ -60,9 +60,10 @@ public class DHUD {
         LangReader.loadLanguageFile();
         //config load twice for lang change support
         config.load();
+        // fully reload the players
         for (Player pl: Utl.getPlayers()) {
-            PlayerData.removePlayer(pl);
-            PlayerData.addPlayer(pl);
+            Events.playerLeave(pl);
+            Events.playerJoin(pl);
         }
         if (player == null) DirectionHUD.LOGGER.info(CUtl.lang("dirhud.reload", CUtl.lang("dirhud.reload_2")).toString());
         else player.sendMessage(CUtl.tag().append(CUtl.lang("dirhud.reload",CUtl.lang("dirhud.reload_2").color('a'))));
