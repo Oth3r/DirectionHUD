@@ -1792,7 +1792,7 @@ public class Destination {
             } else msg.append("   ");
         }
         //back
-        msg.append(CUtl.CButton.back("/directionhud")).append(CTxT.of("\n                                  ").strikethrough(true));
+        msg.append(CUtl.CButton.back("/dhud")).append(CTxT.of("\n                                  ").strikethrough(true));
         player.sendMessage(msg);
     }
 }

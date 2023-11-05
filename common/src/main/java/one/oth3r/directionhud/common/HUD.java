@@ -892,7 +892,7 @@ public class HUD {
         if (!PlayerData.get.hud.state(player)) { type = "true"; color = 'a'; }
         msg.append(CUtl.CButton.hud.toggle(color, type)).append("\n\n ");
         //BACK
-        msg.append(CUtl.CButton.back("/directionhud"));
+        msg.append(CUtl.CButton.back("/dhud"));
         msg.append(CTxT.of("\n                            ").strikethrough(true));
         player.sendMessage(msg);
     }
