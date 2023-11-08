@@ -151,63 +151,6 @@ public class config {
     public static List<String> colorPresets = defaults.colorPresets;
     public static List<String> dimensions = defaults.dimensions;
     public static List<String> dimensionRatios = defaults.dimensionRatios;
-    public static void resetDefaults() {
-        //CONFIG SETTINGS
-        DESTSaving = defaults.DESTSaving;
-        MAXSaved = defaults.MAXSaved;
-        MAXy = defaults.MAXy;
-        MAXxz = defaults.MAXxz;
-        deathsaving = defaults.deathsaving;
-        social = defaults.social;
-        HUDEditing = defaults.HUDEditing;
-        HUDRefresh = defaults.HUDRefresh;
-        dimensions = defaults.dimensions;
-        dimensionRatios = defaults.dimensionRatios;
-        //HUD SETTINGS
-        hud.Enabled = hud.defaults.Enabled;
-        hud.Order = hud.defaults.Order;
-        hud.DisplayType = hud.defaults.DisplayType;
-        hud.BarColor = hud.defaults.BarColor;
-        hud.BarShowDistance = hud.defaults.BarShowDistance;
-        hud.ShowDistanceMAX = hud.defaults.ShowDistanceMAX;
-        hud.Time24HR = hud.defaults.Time24HR;
-        hud.TrackingTarget = hud.defaults.TrackingTarget;
-        //HUD MODULES
-        hud.Coordinates = hud.defaults.Coordinates;
-        hud.Distance = hud.defaults.Distance;
-        hud.Tracking = hud.defaults.Tracking;
-        hud.Destination = hud.defaults.Destination;
-        hud.Direction = hud.defaults.Direction;
-        hud.Time = hud.defaults.Time;
-        hud.Weather = hud.defaults.Weather;
-        //HUD COLORS
-        hud.primary.Color = hud.defaults.primary.Color;
-        hud.primary.Bold = hud.defaults.primary.Bold;
-        hud.primary.Italics = hud.defaults.primary.Italics;
-        hud.primary.Rainbow = hud.defaults.primary.Rainbow;
-        //SEC
-        hud.secondary.Color = hud.defaults.secondary.Color;
-        hud.secondary.Bold = hud.defaults.secondary.Bold;
-        hud.secondary.Italics = hud.defaults.secondary.Italics;
-        hud.secondary.Rainbow = hud.defaults.secondary.Rainbow;
-        //DEST SETTINGS
-        dest.AutoClear = dest.defaults.AutoClear;
-        dest.AutoClearRad = dest.defaults.AutoClearRad;
-        dest.AutoConvert = dest.defaults.AutoConvert;
-        dest.YLevel = dest.defaults.YLevel;
-        dest.Send = dest.defaults.Send;
-        dest.Track = dest.defaults.Track;
-        dest.TrackingRequestMode = dest.defaults.TrackingRequestMode;
-        dest.Lastdeath = dest.defaults.Lastdeath;
-        //DEST PARTICLES
-        dest.particles.Line = dest.defaults.particles.Line;
-        dest.particles.LineColor = dest.defaults.particles.LineColor;
-        dest.particles.Dest = dest.defaults.particles.Dest;
-        dest.particles.DestColor = dest.defaults.particles.DestColor;
-        dest.particles.Tracking = dest.defaults.particles.Tracking;
-        dest.particles.TrackingColor = dest.defaults.particles.TrackingColor;
-        save();
-    }
     public static File configFile() {
         return new File(DirectionHUD.CONFIG_DIR+"DirectionHUD.properties");
     }
