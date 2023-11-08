@@ -14,16 +14,18 @@ import java.util.HashMap;
 
 public class LoopManager {
     public static int rainbowF;
-    private static int tickH;
-    private static int tickS;
-    private static int HUDRefresh;
+    private static int secondTick;
+    private static int HUDTick;
+    private static int ParticleTick;
     public static void tick() {
-        tickH++;
-        tickS++;
+        // tick the counters
+        secondTick++;
         rainbowF += 10;
-        HUDRefresh++;
-        if (HUDRefresh >= config.HUDRefresh) {
-            HUDRefresh = 0;
+        HUDTick++;
+        ParticleTick++;
+
+        if (HUDTick >= config.HUDLoop) {
+            HUDTick = 0;
             for (Player player : Utl.getPlayers()) {
                 if (PlayerData.get.hud.state(player)) {
                     HashMap<HUD.Module, ArrayList<String>> HUDData = HUD.getRawHUDText(player);
@@ -31,21 +33,63 @@ public class LoopManager {
                     if (DirectionHUD.clientPlayers.contains(player) && HUD.Setting.DisplayType.get((String) PlayerData.get.hud.setting.get(player, HUD.Setting.type)).equals(HUD.Setting.DisplayType.actionbar)) player.sendHUDPackets(HUDData);
                     else player.displayHUD(HUD.build(player,HUDData));
                 }
+                // if player has DEST, AutoClear is on, and the distance is in the AutoClear range, clear
                 if (Destination.get(player).hasXYZ() && (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.autoclear) &&
                         Destination.getDist(player) <= (double)PlayerData.get.dest.setting.get(player, Destination.Setting.autoclear_rad)) {
                     Destination.clear(player, CUtl.lang("dest.changed.cleared.reached").color('7').italic(true));
                 }
             }
         }
-        if (rainbowF >= 360) rainbowF = 0;
-        if (tickH >= 5) {
-            tickH = 0;
-            Utl.setTime();
+        if (ParticleTick >= config.ParticleLoop) {
+            ParticleTick = 0;
+            for (Player player :Utl.getPlayers()) particles(player);
         }
-        if (tickS >= 20) {
-            tickS = 0;
-            for (Player player :Utl.getPlayers()) {
-                secondLoop(player);
+        // reset the rainbow at 360
+        if (rainbowF >= 360) rainbowF = 0;
+        // update the time every five ticks
+        if (secondTick%5==0) Utl.setTime();
+        // every 20 ticks
+        if (secondTick >= 20) {
+            secondTick = 0;
+            for (Player player :Utl.getPlayers()) secondLoop(player);
+        }
+    }
+    private static void particles(Player player) {
+        // spawn all the particles
+        if (Destination.get(player).hasXYZ()) {
+            // destination particles
+            if ((boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.particles__dest)) {
+                ArrayList<Double> destVec1 = Destination.get(player).getVec(player);
+                ArrayList<Double> destVec2 = new ArrayList<>(destVec1);
+                destVec1.set(1,destVec1.get(1)+3);
+                destVec2.set(1,destVec2.get(1)-3);
+                Utl.particle.spawnLine(player, destVec1, destVec2, Utl.particle.DEST);
+            }
+            // line particles
+            if ((boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.particles__line))
+                player.spawnParticleLine(Destination.get(player).getVec(player),Utl.particle.LINE);
+        }
+        // track particles
+        if ((boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.particles__tracking)) {
+            // make sure there's a target
+            Player target = Destination.social.track.getTarget(player);
+            if (target != null) {
+                boolean sendParticles = true;
+                ArrayList<Double> targetVec = target.getVec();
+                if (!target.getDimension().equals(player.getDimension())) {
+                    sendParticles = false;
+                    // if convertible and autoconvert is enabled, send the particles
+                    if (Utl.dim.canConvert(player.getDimension(), target.getDimension()) &&
+                            (boolean) PlayerData.get.dest.setting.get(player, Destination.Setting.autoconvert)) {
+                        sendParticles = true;
+                        // update the vec to the converted loc
+                        Loc targetLoc = target.getLoc();
+                        targetLoc.convertTo(player.getDimension());
+                        targetVec = targetLoc.getVec(player);
+                    }
+                }
+                // actually send the particles
+                if (sendParticles) player.spawnParticleLine(targetVec,Utl.particle.TRACKING);
             }
         }
     }
@@ -56,110 +100,82 @@ public class LoopManager {
             PlayerData.set.socialCooldown(player,timer-1);
             if (timer<=1) PlayerData.set.socialCooldown(player,null);
         }
-        //PARTICLES
-        if (Destination.get(player).hasXYZ()) {
-            if ((boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.particles__dest)) {
-                ArrayList<Double> destVec1 = Destination.get(player).getVec(player);
-                ArrayList<Double> destVec2 = new ArrayList<>(destVec1);
-                destVec1.set(1,destVec1.get(1)+3);
-                destVec2.set(1,destVec2.get(1)-3);
-                Utl.particle.spawnLine(player, destVec1, destVec2, Utl.particle.DEST);
-            }
-            if ((boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.particles__line))
-                player.spawnParticleLine(Destination.get(player).getVec(player),Utl.particle.LINE);
-        }
-        // INFO
-        // tracking.offline = offline message, null if not sent
-        // tracking.dimension = not in same dimension message, null if not sent
-        // tracking.converted = tracker converted message, null if not sent
+        // TRACKING MESSAGE HANDLER
+        // INFO (null if not sent, not if otherwise)
+        // tracking.offline = target offline
+        // tracking.dimension = not in same dimension & cant convert (trail cold)
+        // tracking.converted = tracker converted message
+
+        // if there is an entry in the tracking
         if (PlayerData.get.dest.getTracking(player) != null) {
-            //if they turned it off
+            // player turned off tracking
             if (!(boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.features__track))
                 Destination.social.track.clear(player, CUtl.lang("dest.track.clear.tracking_off").color('7').italic(true));
-            //if server is off
+            // if the server turned social off, just clear
             if (!Utl.checkEnabled.track(player)) Destination.social.track.clear(player);
         }
-        Player trackingP = Destination.social.track.getTarget(player);
-        //TRACKING
-        if (trackingP != null && (boolean)PlayerData.get.dest.setting.get(trackingP, Destination.Setting.features__track)) {
-            //TRACKING OFFLINE MSG RESET
+        Player target = Destination.social.track.getTarget(player);
+        // if the target isn't null and the target has tracking on
+        if (target != null && (boolean)PlayerData.get.dest.setting.get(target, Destination.Setting.features__track)) {
+            // if the offline message was sent, reset it and send the back message
             if (PlayerData.getOneTime(player, "tracking.offline") != null) {
                 player.sendMessage(CUtl.tag().append(CUtl.lang("dest.track.back")));
                 PlayerData.setOneTime(player, "tracking.offline", null);
             }
-            ArrayList<Double> trackingVec = trackingP.getVec();
-            boolean particleState = true;
-            //IF NOT IN SAME DIM
-            if (!trackingP.getDimension().equals(player.getDimension())) {
-                particleState = false;
+            // target isn't in the same dimension as the player
+            if (!target.getDimension().equals(player.getDimension())) {
                 // AUTOCONVERT ON AND CONVERTIBLE
                 if ((boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.autoconvert) &&
-                        Utl.dim.canConvert(player.getDimension(),trackingP.getDimension())) {
+                        Utl.dim.canConvert(player.getDimension(),target.getDimension())) {
+                    // send the tracking resumed message if not reset
+                    if (PlayerData.getOneTime(player, "tracking.dimension") != null) {
+                        player.sendMessage(CUtl.tag().append(CUtl.lang("dest.track.back")));
+                        PlayerData.setOneTime(player, "tracking.dimension", null);
+                    }
+                    // send the convert message if it hasn't been sent
                     if (PlayerData.getOneTime(player, "tracking.converted") == null) {
-                        //SEND MSG IF HAVENT B4
                         player.sendMessage(CUtl.tag().append(CUtl.lang("dest.autoconvert.tracking")).append("\n ")
                                 .append(CUtl.lang("dest.autoconvert.tracking.info",
-                                                CTxT.of(Utl.dim.getName(trackingP.getDimension())).italic(true).color(Utl.dim.getHEX(trackingP.getDimension())))
+                                                CTxT.of(Utl.dim.getName(target.getDimension())).italic(true).color(Utl.dim.getHEX(target.getDimension())))
                                         .italic(true).color('7')));
-                        PlayerData.setOneTime(player, "tracking.converted",trackingP.getDimension());
+                        // change the status on the convert message
+                        PlayerData.setOneTime(player, "tracking.converted",target.getDimension());
                     }
-                    particleState = true;
-                    Loc tLoc = new Loc(trackingP);
-                    tLoc.convertTo(player.getDimension());
-                    trackingVec = tLoc.getVec(player);
                 } else if (PlayerData.getOneTime(player, "tracking.dimension") == null) {
-                    //NOT CONVERTIBLE OR AUTOCONVERT OFF -- SEND DIM MSG
-                    //RESET CONVERT
-                    PlayerData.setOneTime(player, "tracking.converted", null);
+                    // if not convertible or AutoConvert is off, & the dimension message hasn't been sent,
+                    // send the dimension message
                     player.sendMessage(CUtl.tag().append(CUtl.lang("dest.track.dimension").append("\n ")
                             .append(CUtl.lang("dest.autoconvert.tracking.info",
-                                            CTxT.of(Utl.dim.getName(trackingP.getDimension())).italic(true).color(Utl.dim.getHEX(trackingP.getDimension())))
+                                            CTxT.of(Utl.dim.getName(target.getDimension())).italic(true).color(Utl.dim.getHEX(target.getDimension())))
                                     .italic(true).color('7'))));
                     PlayerData.setOneTime(player, "tracking.dimension", "1");
+                    // make sure converted is reset
+                    PlayerData.setOneTime(player, "tracking.converted", null);
                 }
             } else if (PlayerData.getOneTime(player, "tracking.converted") != null) {
-                //SAME DIM & RESET CONVERT MSG
+                // in the same dimension, but has been converted before
                 player.sendMessage(CUtl.tag().append(CUtl.lang("dest.autoconvert.tracking")).append("\n ")
                         .append(CUtl.lang("dest.autoconvert.tracking.info",
-                                        CTxT.of(Utl.dim.getName(trackingP.getDimension())).italic(true).color(Utl.dim.getHEX(trackingP.getDimension())))
+                                        CTxT.of(Utl.dim.getName(target.getDimension())).italic(true).color(Utl.dim.getHEX(target.getDimension())))
                                 .italic(true).color('7')));
                 PlayerData.setOneTime(player, "tracking.converted", null);
             } else if (PlayerData.getOneTime(player, "tracking.dimension") != null) {
-                //SAME DIM, RESET DIM MSG
+                // in the same dimension, but tracking was stopped
                 player.sendMessage(CUtl.tag().append(CUtl.lang("dest.track.back")));
                 PlayerData.setOneTime(player, "tracking.dimension", null);
             }
-            //PARTICLES
-            if ((boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.particles__tracking) && particleState) {
-                player.spawnParticleLine(trackingVec,Utl.particle.TRACKING);
-            }
-        } else if (trackingP != null) {
-            //TRACKING PLAYER TURNED OFF TRACKING
+        } else if (target != null) {
+            // if tracking player isn't null, but they turned off tracking
             Destination.social.track.clear(player, CUtl.lang("dest.track.clear.tracking_off_tracked").color('7').italic(true));
         } else if (PlayerData.getOneTime(player, "tracking.offline") == null && PlayerData.get.dest.getTracking(player) != null) {
-            //TRACKING PLAYER OFFLINE
+            // if the target is null, means the player cant be found, probably offline
+            // AND the offline message hasn't been sent yet
             player.sendMessage(CUtl.tag().append(CUtl.lang("dest.track.offline")).append(" ")
                     .append(CUtl.CButton.dest.clear()));
             PlayerData.setOneTime(player, "tracking.offline", "1");
-            //RESET OTHER MSGS
+            // reset all other messages
             PlayerData.setOneTime(player, "tracking.converted", null);
             PlayerData.setOneTime(player, "tracking.dimension", null);
-        }
-        //TRACK TIMER
-        if (PlayerData.get.temp.track.exists(player)) {
-            //REMOVE IF TRACKING IS OFF
-            if (!(boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.features__track)) {
-                PlayerData.set.temp.track.remove(player);
-            } else if (PlayerData.get.temp.track.expire(player) == 0) { //RAN OUT OF TIME
-                player.sendMessage(CUtl.tag().append(CUtl.lang("dest.track.expired")));
-                PlayerData.set.temp.track.remove(player);
-            } else if (PlayerData.get.temp.track.expire(player) > 0) { //TICK DOWN
-                PlayerData.set.temp.track.expire(player, PlayerData.get.temp.track.expire(player) - 1);
-                if (Player.of(PlayerData.get.temp.track.target(player)) == null) { //TARGET PLAYER LEFT
-                    player.sendMessage(CUtl.tag().append(CUtl.lang("dest.track.expired")));
-                    PlayerData.set.temp.track.remove(player);
-                }
-            }
         }
     }
 }
