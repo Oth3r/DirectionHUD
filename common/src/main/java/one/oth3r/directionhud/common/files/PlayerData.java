@@ -233,6 +233,10 @@ public class PlayerData {
             map.put("hud",hud);
             map.put("color_presets",config.colorPresets);
         }
+        if (map.get("version").equals(1.5)) {
+            map.put("version",1.51);
+            map.put("temp",null);
+        }
         return map;
     }
     @SuppressWarnings("unchecked")
@@ -246,22 +250,10 @@ public class PlayerData {
         //removes map.presets, map.name, map.destination.saved, map.destination.lastdeath
         return map;
     }
-    @SuppressWarnings("unchecked")
     public static Map<String,Object> addExpires(Player player, Map<String,Object> map) {
-        //since the counters are stored in the map, when the file gets saved, it updates the file.
+        //since the counters are stored in the map to reduce load, when the file gets saved, it updates the file with the current counter times.
         Map<String,Object> cache = playerMap.get(player);
         if (cache == null) return map;
-        Map<String,Object> cTemp = (Map<String, Object>) cache.get("temp");
-        Map<String,Object> mTemp = (Map<String, Object>) map.get("temp");
-        //if the count-down is still in the map, make sure the target player is online, then save it to file
-        //  if not, don't save & remove the countdown if there is one already in the file
-        if (cTemp.get("track")!=null) {
-            Map<String,Object> track = (Map<String, Object>) cTemp.get("track");
-            if (Player.of((String) track.get("target")) == null) {
-                mTemp.put("track", null);
-            } else mTemp.put("track",cTemp.get("track"));
-        } else if (mTemp.get("track") != null) mTemp.put("track", null);
-        map.put("temp",mTemp);
         // add the inbox & trackCooldown to the map before saving
         map.put("inbox",cache.get("inbox"));
         map.put("social_cooldown",cache.get("social_cooldown"));
@@ -310,7 +302,7 @@ public class PlayerData {
             destination.put("lastdeath", new ArrayList<String>());
             destination.put("tracking", null);
             //base
-            map.put("version", 1.5);
+            map.put("version", 1.51);
             map.put("name", player.getName());
             map.put("hud", hud);
             map.put("destination", destination);
@@ -463,30 +455,6 @@ public class PlayerData {
             String json = String.valueOf(fromMap(player).get("inbox"));
             return new Gson().fromJson(json,inboxType);
         }
-        public static class temp {
-            private static Map<String,Object> get(Player player) {
-                if (fromMap(player).get("temp") == null) return new HashMap<>();
-                return (Map<String,Object>) fromMap(player).get("temp");
-            }
-            public static class track {
-                public static boolean exists(Player player) {
-                    return get(player).get("track") != null;
-                }
-                private static Map<String,Object> map(Player player) {
-                    if (get(player).get("track") == null) return new HashMap<>();
-                    return (Map<String,Object>) get(player).get("track");
-                }
-                public static String id(Player player) {
-                    return (String) map(player).get("id");
-                }
-                public static int expire(Player player) {
-                    return ((Double) map(player).get("expire")).intValue();
-                }
-                public static String target(Player player) {
-                    return (String) map(player).get("target");
-                }
-            }
-        }
     }
     @SuppressWarnings("unchecked")
     public static class set {
@@ -607,43 +575,6 @@ public class PlayerData {
             Map<String, Object> map = get.fromMap(player);
             map.put("inbox",inbox);
             playerMap.put(player,map);
-        }
-        public static class temp {
-            public static void setM(Player player, Map<String,Object> temp) {
-                Map<String,Object> map = get.fromMap(player);
-                map.put("temp",temp);
-                playerMap.put(player,map);
-            }
-            public static class track {
-                private static void set(Player player, Map<String,Object> setting) {
-                    Map<String,Object> data = get.temp.get(player);
-                    data.put("track", setting);
-                    setM(player, data);
-                }
-                public static void remove(Player player) {
-                    Map<String,Object> data = get.temp.get(player);
-                    data.put("track", null);
-                    setM(player, data);
-                }
-                public static void id(Player player, String b) {
-                    Map<String,Object> data = get.temp.track.map(player);
-                    data.put("id", b);
-                    set(player, data);
-                }
-                public static void expire(Player player, Integer i) {
-                    // GSON saves and reads all int type things as doubles...
-                    // convert them to and from doubles when reading and writing when possible
-                    // the map is directly read from the file, so shouldnt be much of an issue
-                    Map<String,Object> data = get.temp.track.map(player);
-                    data.put("expire", i.doubleValue());
-                    set(player, data);
-                }
-                public static void target(Player player, String b) {
-                    Map<String,Object> data = get.temp.track.map(player);
-                    data.put("target", b);
-                    set(player, data);
-                }
-            }
         }
     }
 }
