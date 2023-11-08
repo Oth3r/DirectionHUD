@@ -8,7 +8,6 @@ import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.utils.CUtl;
-import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
 
 import java.io.File;
@@ -127,7 +126,8 @@ public class config {
         public static final boolean deathsaving = true;
         public static final boolean social = true;
         public static final boolean HUDEditing = true;
-        public static final int HUDRefresh = 1;
+        public static final int HUDLoop = 1;
+        public static final int ParticleLoop = 20;
         public static final boolean online = true;
         public static final boolean globalDESTs = false;
         public static final List<String> colorPresets = List.of("#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff");
@@ -144,7 +144,8 @@ public class config {
     public static boolean deathsaving = defaults.deathsaving;
     public static boolean social = defaults.social;
     public static boolean HUDEditing = defaults.HUDEditing;
-    public static int HUDRefresh = defaults.HUDRefresh;
+    public static int HUDLoop = defaults.HUDLoop;
+    public static int ParticleLoop = defaults.ParticleLoop;
     public static boolean online = defaults.online;
     public static boolean globalDESTs = defaults.globalDESTs;
     public static List<String> colorPresets = defaults.colorPresets;
@@ -227,7 +228,6 @@ public class config {
         } catch (Exception f) {
             //read fail
             f.printStackTrace();
-            resetDefaults();
         }
     }
     public static void loadVersion(Properties properties, float version) {
@@ -241,13 +241,15 @@ public class config {
         socialCooldown = Integer.parseInt((String) properties.computeIfAbsent("social-cooldown", a -> String.valueOf(defaults.socialCooldown)));
         deathsaving = Boolean.parseBoolean((String) properties.computeIfAbsent("death-saving", a -> String.valueOf(defaults.deathsaving)));
         HUDEditing = Boolean.parseBoolean((String) properties.computeIfAbsent("hud-editing", a -> String.valueOf(defaults.HUDEditing)));
-        HUDRefresh = Math.min(20, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("hud-refresh", a -> String.valueOf(defaults.HUDRefresh)))));
+        ParticleLoop = Math.min(20, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("particle-loop", a -> String.valueOf(defaults.ParticleLoop)))));
+        HUDLoop = Math.min(20, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("hud-loop", a -> String.valueOf(defaults.HUDLoop)))));
         online = Boolean.parseBoolean((String) properties.computeIfAbsent("online-mode", a -> String.valueOf(defaults.online)));
         //DIM
         Type arrayListMap = new TypeToken<ArrayList<String>>() {}.getType();
         Type moduleListMap = new TypeToken<ArrayList<HUD.Module>>() {}.getType();
         dimensions = new Gson().fromJson((String) properties.computeIfAbsent("dimensions", a -> String.valueOf(defaults.dimensions)),arrayListMap);
 
+        // config updater
         if (version == 1.1f) hud.Tracking = Boolean.parseBoolean((String) properties.computeIfAbsent("compass", a -> String.valueOf(hud.defaults.Tracking)));
         // old config entries
         if (version <= 1.2f) {
@@ -292,6 +294,9 @@ public class config {
             dest.particles.TrackingColor = CUtl.color.updateOld((String) properties.computeIfAbsent("tracking-particle-color", a -> dest.defaults.particles.TrackingColor), dest.defaults.particles.DestColor);
         }
         if (version == 1.21f) dimensionRatios = new Gson().fromJson((String) properties.computeIfAbsent("dimension-ratios", a -> String.valueOf(defaults.dimensionRatios)),arrayListMap);
+        if (version <= 1.3f) {
+            HUDLoop = Math.min(20, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("hud-refresh", a -> String.valueOf(defaults.HUDLoop)))));
+        }
         if (version >= 1.3f) {
             //PRESETS
             dimensionRatios = new Gson().fromJson((String)
@@ -386,8 +391,11 @@ public class config {
             file.write(("\n# "+CUtl.lang("config.death_saving.info").toString()).getBytes());
             file.write(("\nhud-editing=" + HUDEditing).getBytes());
             file.write(("\n# "+CUtl.lang("config.hud_editing.info").toString()).getBytes());
-            file.write(("\nhud-refresh=" + HUDRefresh).getBytes());
-            file.write(("\n# "+CUtl.lang("config.hud_refresh.info").toString()).getBytes());
+            file.write(("\n").getBytes());
+            file.write(("\nhud-loop=" + HUDLoop).getBytes());
+            file.write(("\n# "+CUtl.lang("config.hud_loop.info").toString()).getBytes());
+            file.write(("\nparticle-loop=" + ParticleLoop).getBytes());
+            file.write(("\n# "+CUtl.lang("config.particle_loop.info").toString()).getBytes());
 
             file.write(("\n\n\n# "+CUtl.lang("config.default").toString()).getBytes());
             file.write(("\n# "+CUtl.lang("config.default.info").toString()).getBytes());
