@@ -109,7 +109,7 @@ public class Destination {
                 case "color" -> colorCMD(player,trimmedArgs);
                 case "send" -> sendCMD(player, trimmedArgs);
                 case "track" -> trackCMD(player, trimmedArgs);
-                default -> player.sendMessage(CUtl.error("error.command"));
+                default -> player.sendMessage(CUtl.error("command"));
             }
         }
         public static void colorCMD(Player player, String[] args) {

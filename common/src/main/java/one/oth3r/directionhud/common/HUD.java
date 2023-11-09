@@ -133,7 +133,7 @@ public class HUD {
                 case "settings" -> settingsCMD(player,trimmedArgs);
                 case "color" -> colorCMD(player, trimmedArgs);
                 case "toggle" -> player.sendMessage(settings.change(player,Setting.state,(boolean)PlayerData.get.hud.setting.get(player,Setting.state)?"off":"on",false));
-                default -> player.sendMessage(CUtl.error("error.command"));
+                default -> player.sendMessage(CUtl.error("command"));
             }
         }
         public static void settingsCMD(Player player, String[] args) {
@@ -163,14 +163,14 @@ public class HUD {
             //RESET
             if (args[0].equals("reset")) modules.reset(player, Return);
             if (args[0].equals("toggle")) {
-                if (args.length < 2) player.sendMessage(CUtl.error("error.hud.module"));
-                modules.toggle(player, Module.valueOf(args[1]),null,Return);
+                if (args.length < 2) player.sendMessage(CUtl.error("hud.module"));
+                else modules.toggle(player, Module.valueOf(args[1]),null,Return);
             }
             if (args[0].equals("order")) {
-                if (args.length < 2) player.sendMessage(CUtl.lang("error.hud.module"));
-                if (args.length == 3 && Utl.isInt(args[2]))
+                if (args.length < 2) player.sendMessage(CUtl.error("hud.module"));
+                else if (args.length == 3 && Utl.isInt(args[2]))
                     modules.move(player, Module.get(args[1]), Integer.parseInt(args[2]), Return);
-                else player.sendMessage(CUtl.error("error.number"));
+                else player.sendMessage(CUtl.error("number"));
             }
         }
         public static void colorCMD(Player player, String[] args) {
