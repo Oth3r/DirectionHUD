@@ -28,7 +28,7 @@ public class ActionBarMixin {
             if (client.player == null) return;
             Player player = DirectionHUDClient.getClientPlayer(client);
             // if on supported server and hud is on AND hud type is actionbar
-            if (DirectionHUDClient.onSupportedServer && PlayerData.get.hud.state(player) &&
+            if (DirectionHUDClient.onSupportedServer && (boolean)PlayerData.get.hud.setting.get(player, HUD.Setting.state) &&
                     PlayerData.get.hud.setting.get(player, HUD.Setting.type).equals(HUD.Setting.DisplayType.actionbar.toString())) {
                 DirectionHUDClient.override = message;
                 DirectionHUDClient.overrideCd = 40;
