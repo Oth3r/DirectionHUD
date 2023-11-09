@@ -152,20 +152,12 @@ public class DHUD {
                 // remove from inbox when expire is 0
                 if (expire <= 0) {
                     iterator.remove();
-                    // send expire messages if tracking
-                    if (entry.get("type").equals(Type.track_request.name()) || entry.get("type").equals(Type.track_pending.name())) {
+                    // send expire messages if pending expired
+                    if (entry.get("type").equals(Type.track_pending.name())) {
                         Player target = Player.of((String) entry.get("player_name"));
-                        Player normal = player;
-                        // flip the players if request
-                        if (entry.get("type").equals(Type.track_request.name())) {
-                            normal = target;
-                            target = player;
-                        }
-                        // make sure nothing is null
-                        if (normal==null || target==null) return;
-                        // for present and past tense
-                        normal.sendMessage(CUtl.lang("dest.track.expired",CTxT.of(target.getName()).color(CUtl.s())));
-                        target.sendMessage(CUtl.lang("dest.track.expired.target",CTxT.of(normal.getName()).color(CUtl.s())));
+                        if (target==null) continue;
+                        target.sendMessage(CUtl.tag().append(CUtl.lang("dest.track.expired.target",CTxT.of(player.getName()).color(CUtl.s()))));
+                        player.sendMessage(CUtl.tag().append(CUtl.lang("dest.track.expired",CTxT.of(target.getName()).color(CUtl.s()))));
                     }
                 }
             }
