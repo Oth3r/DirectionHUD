@@ -26,7 +26,7 @@ public class config {
             public static final boolean BarShowDistance = true;
             public static final int ShowDistanceMAX = 0;
             public static final boolean State = true;
-            public static final ArrayList<HUD.Module> Order = HUD.modules.DEFAULT;
+            public static final ArrayList<HUD.Module> Order = HUD.modules.getDefault();
             public static final boolean Coordinates = true;
             public static final boolean Distance = true;
             public static final boolean Tracking = false;

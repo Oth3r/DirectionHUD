@@ -249,8 +249,9 @@ public class HUD {
             // if -r is attached, remove it and continue with the suggester
             if (args[0].contains("-r")) args[0] = args[0].replace("-r","");
             if (pos == 1) {
-                if (args[0].equalsIgnoreCase("order") || args[0].equalsIgnoreCase("toggle"))
-                    suggester.addAll(Module.toStringList(modules.DEFAULT));
+                if (args[0].equalsIgnoreCase("order") || args[0].equalsIgnoreCase("toggle")) {
+                    suggester.addAll(Module.toStringList(modules.getDefault()));
+                }
             }
             if (pos == 2 && args[0].equalsIgnoreCase("order"))
                 suggester.add(String.valueOf(PlayerData.get.hud.order(player).indexOf(Module.get(args[1]))+1));
@@ -427,7 +428,17 @@ public class HUD {
     }
     public static class modules {
         private static final int PER_PAGE = 5;
-        public static final ArrayList<Module> DEFAULT = new ArrayList<>(List.of(Module.coordinates, Module.distance, Module.tracking, Module.destination, Module.direction, Module.time, Module.weather));
+        public static ArrayList<Module> getDefault() {
+            ArrayList<Module> list = new ArrayList<>();
+            list.add(Module.coordinates);
+            list.add(Module.distance);
+            list.add(Module.tracking);
+            list.add(Module.destination);
+            list.add(Module.direction);
+            list.add(Module.time);
+            list.add(Module.weather);
+            return list;
+        }
         public static void reset(Player player, boolean Return) {
             PlayerData.set.hud.order(player, config.hud.Order);
             PlayerData.set.hud.setting.set(player, Setting.module__time_24hr, settings.getConfig(Setting.module__time_24hr));
@@ -467,7 +478,7 @@ public class HUD {
             else player.sendMessage(msg);
         }
         public static ArrayList<Module> fixOrder(ArrayList<Module> list) {
-            ArrayList<Module> allModules = DEFAULT;
+            ArrayList<Module> allModules = getDefault();
             // if the module isn't valid, remove
             list.removeIf(s -> s.equals(Module.unknown));
             // if there is more than one of the same module, remove it
