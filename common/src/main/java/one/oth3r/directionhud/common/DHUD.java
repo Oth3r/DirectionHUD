@@ -34,7 +34,9 @@ public class DHUD {
                 case "reload" -> {
                     if (Utl.checkEnabled.reload(player)) reload(player);
                 }
-                default -> player.sendMessage(CUtl.error("error.command"));
+                case "dest", "destination" -> Destination.commandExecutor.logic(player,trimmedArgs);
+                case "hud" -> HUD.commandExecutor.logic(player,trimmedArgs);
+                default -> player.sendMessage(CUtl.error("command"));
             }
         }
         public static void inboxCMD(Player player, String[] args) {
@@ -75,6 +77,19 @@ public class DHUD {
             if (pos == 1) {
                 if (config.social) suggester.add("inbox");
                 if (Utl.checkEnabled.reload(player)) suggester.add("reload");
+                suggester.add("dest");
+                suggester.add("hud");
+            }
+            if (pos > 1) {
+                String command = args[0].toLowerCase();
+                // trim the start
+                String[] trimmedArgs = Utl.trimStart(args, 1);
+                // fix the pos
+                int fixedPos = pos - 1;
+                switch (command) {
+                    case "dest","destination" -> suggester.addAll(Destination.commandSuggester.logic(player,fixedPos,trimmedArgs));
+                    case "hud" -> suggester.addAll(HUD.commandSuggester.logic(player,fixedPos,trimmedArgs));
+                }
             }
             if (pos == args.length) return Utl.formatSuggestions(suggester,args);
             return suggester;
