@@ -234,8 +234,17 @@ public class PlayerData {
             map.put("color_presets",config.colorPresets);
         }
         if (map.get("version").equals(1.5)) {
-            map.put("version",1.51);
+            map.put("version",1.6);
+            // new inbox system
             map.put("temp",null);
+            map.put("inbox",new ArrayList<>());
+            // move hud.enabled to hud.setting.state
+            Map<String,Object> hud = (Map<String, Object>) map.get("hud");
+            Map<String,Object> hudSetting = (Map<String, Object>) hud.get("setting");
+            hudSetting.put("state",hud.get("enabled"));
+            hud.put("setting",hudSetting);
+            hud.put("enabled",null);
+            map.put("hud",hud);
         }
         return map;
     }
@@ -288,7 +297,6 @@ public class PlayerData {
             Map<String,Object> map = new HashMap<>();
             //hud
             Map<String,Object> hud = new HashMap<>();
-            hud.put("enabled", config.hud.Enabled);
             hud.put("setting", defaults.hudSetting());
             hud.put("module", defaults.hudModule());
             hud.put("order", config.hud.Order);
@@ -302,17 +310,17 @@ public class PlayerData {
             destination.put("lastdeath", new ArrayList<String>());
             destination.put("tracking", null);
             //base
-            map.put("version", 1.51);
+            map.put("version", 1.6);
             map.put("name", player.getName());
             map.put("hud", hud);
             map.put("destination", destination);
             map.put("color_presets",config.colorPresets);
-            map.put("temp", new HashMap<>());
             map.put("inbox",new ArrayList<>());
             return map;
         }
         public static Map<String,Object> hudSetting() {
             Map<String,Object> hudSetting = new HashMap<>();
+            hudSetting.put("state", config.hud.State);
             hudSetting.put("type", config.hud.DisplayType);
             hudSetting.put("bossbar",hudBossBar());
             hudSetting.put("module",hudSettingModule());
