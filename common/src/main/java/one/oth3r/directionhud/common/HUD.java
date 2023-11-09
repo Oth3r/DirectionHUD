@@ -12,6 +12,7 @@ import java.util.*;
 
 public class HUD {
     public enum Setting {
+        state,
         type,
         bossbar__color,
         bossbar__distance,
@@ -131,7 +132,7 @@ public class HUD {
                 case "modules" -> modulesCMD(player, trimmedArgs);
                 case "settings" -> settingsCMD(player,trimmedArgs);
                 case "color" -> colorCMD(player, trimmedArgs);
-                case "toggle" -> toggleCMD(player, trimmedArgs);
+                case "toggle" -> player.sendMessage(settings.change(player,Setting.state,(boolean)PlayerData.get.hud.setting.get(player,Setting.state)?"off":"on",false));
                 default -> player.sendMessage(CUtl.error("error.command"));
             }
         }
@@ -202,11 +203,6 @@ public class HUD {
                 case "italics" -> color.setItalics(player, args[1], args[2], Boolean.parseBoolean(args[3]), true);
                 case "rgb" -> color.setRGB(player, args[1], args[2], Boolean.parseBoolean(args[3]), true);
             }
-        }
-        public static void toggleCMD(Player player, String[] args) {
-            if (args.length == 0) toggle(player, null, false);
-            if (args.length != 1) return;
-            toggle(player, Boolean.parseBoolean(args[0]), true);
         }
     }
     public static class commandSuggester {
@@ -715,6 +711,7 @@ public class HUD {
         public static Object getConfig(Setting type) {
             Object output = false;
             switch (type) {
+                case state -> output = config.hud.State;
                 case type -> output = config.hud.DisplayType;
                 case bossbar__color -> output = config.hud.BarColor;
                 case bossbar__distance -> output = config.hud.BarShowDistance;
@@ -745,6 +742,13 @@ public class HUD {
             CTxT stateTxT = CUtl.TBtn(state?"on":"off").color(state?'a':'c');
             setting = setting.toLowerCase();
             CTxT setTxT = CTxT.of("");
+            // simple on off toggle
+            if (type.equals(Setting.bossbar__distance) || type.equals(Setting.state)) {
+                PlayerData.set.hud.setting.set(player,type,state);
+                // if changing the state update the hud
+                if (type.equals(Setting.state)) player.updateHUD();
+                setTxT.append(stateTxT);
+            }
             if (type.equals(Setting.type)) {
                 PlayerData.set.hud.setting.set(player,type, Setting.DisplayType.valueOf(setting));
                 setTxT.append(lang("settings."+type+"."+ Setting.DisplayType.valueOf(setting)).color(CUtl.s()));
@@ -753,10 +757,6 @@ public class HUD {
             if (type.equals(Setting.bossbar__color)) {
                 PlayerData.set.hud.setting.set(player,type, Setting.BarColor.valueOf(setting));
                 setTxT.append(lang("settings."+type+"."+ Setting.BarColor.valueOf(setting)).color(Assets.barColor(Setting.BarColor.valueOf(setting))));
-            }
-            if (type.equals(Setting.bossbar__distance)) {
-                PlayerData.set.hud.setting.set(player,type,state);
-                setTxT.append(stateTxT);
             }
             if (type.equals(Setting.bossbar__distance_max)) {
                 int i = Math.max(Integer.parseInt(setting),0);
@@ -793,8 +793,12 @@ public class HUD {
         }
         public static CTxT getButtons(Player player, Setting type, boolean... module) {
             String end = "";
+            // if there's something in module the command 'end's in module, to return to the module command instead of the settings command
             if (module.length != 0) end = " module";
             CTxT button = CTxT.of("");
+            if (type.equals(Setting.state)) {
+                button.append(CUtl.toggleBtn((boolean)PlayerData.get.hud.setting.get(player,type),"/hud settings "+type+" ")).append(" ");
+            }
             if (type.equals(Setting.type)) {
                 Setting.DisplayType nextType = Setting.DisplayType.valueOf((String) PlayerData.get.hud.setting.get(player,type)).next();
                 button.append(lang("settings."+type+"."+PlayerData.get.hud.setting.get(player,type)).btn(true).color(CUtl.s())
@@ -833,6 +837,11 @@ public class HUD {
             msg.append(" ").append(lang("ui.settings").color(Assets.mainColors.setting)).append(CTxT.of("\n                              \n").strikethrough(true));
             //HUD
             msg.append(" ").append(lang("settings.hud").color(CUtl.p())).append(":\n  ");
+            msg     //STATE
+                    .append(resetB(player, Setting.state)).append(" ")
+                    .append(lang("settings."+ Setting.state).hEvent(lang("settings."+ Setting.state+".info"))).append(": ")
+                    .append(getButtons(player, Setting.state))
+                    .append("\n  ");
             msg     //TYPE
                     .append(resetB(player, Setting.type)).append(" ")
                     .append(lang("settings."+ Setting.type).hEvent(lang("settings."+ Setting.type+".info"))).append(": ")
@@ -876,13 +885,6 @@ public class HUD {
             player.sendMessage(msg);
         }
     }
-    public static void toggle(Player player, Boolean state, boolean Return) {
-        PlayerData.set.hud.state(player, Objects.requireNonNullElseGet(state, () -> !PlayerData.get.hud.state(player)));
-        player.updateHUD();
-        CTxT msg = CUtl.tag().append(lang("toggle",CUtl.TBtn((PlayerData.get.hud.state(player)?"on":"off")).color(PlayerData.get.hud.state(player)?'a':'c')));
-        if (Return) UI(player, msg);
-        else player.sendMessage(msg);
-    }
     public static void UI(Player player, CTxT abovemsg) {
         CTxT msg = CTxT.of("");
         if (abovemsg != null) msg.append(abovemsg).append("\n");
@@ -893,11 +895,6 @@ public class HUD {
         msg.append(CUtl.CButton.hud.settings()).append("\n\n ");
         //MODULES
         msg.append(CUtl.CButton.hud.modules()).append(" ");
-        //TOGGLE
-        char color = 'c';
-        String type = "false";
-        if (!PlayerData.get.hud.state(player)) { type = "true"; color = 'a'; }
-        msg.append(CUtl.CButton.hud.toggle(color, type)).append("\n\n ");
         //BACK
         msg.append(CUtl.CButton.back("/dhud"));
         msg.append(CTxT.of("\n                            ").strikethrough(true));

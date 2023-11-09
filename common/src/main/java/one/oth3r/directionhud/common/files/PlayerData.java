@@ -394,9 +394,6 @@ public class PlayerData {
                 for (String m:modules) types.add(HUD.Module.get(m));
                 return types;
             }
-            public static boolean state(Player player) {
-                return (boolean) get(player).get("enabled");
-            }
             public static String color(Player player, int typ) {
                 return (String) get(player).get(typ==1?"primary":"secondary");
             }
@@ -473,11 +470,6 @@ public class PlayerData {
             public static void order(Player player, ArrayList<HUD.Module> order) {
                 Map<String,Object> data = get.hud.get(player);
                 data.put("order", order);
-                map(player, data);
-            }
-            public static void state(Player player, boolean b) {
-                Map<String,Object> data = get.hud.get(player);
-                data.put("enabled", b);
                 map(player, data);
             }
             public static void color(Player player, int typ, String color) {

@@ -25,7 +25,7 @@ public class config {
             public static final String BarColor = HUD.Setting.BarColor.white.toString();
             public static final boolean BarShowDistance = true;
             public static final int ShowDistanceMAX = 0;
-            public static final boolean Enabled = true;
+            public static final boolean State = true;
             public static final ArrayList<HUD.Module> Order = HUD.modules.DEFAULT;
             public static final boolean Coordinates = true;
             public static final boolean Distance = true;
@@ -346,7 +346,7 @@ public class config {
             file.write(("\n# "+CUtl.lang("config.color_presets.info").toString()).getBytes());
 
             file.write(("\n\n# "+CUtl.lang("config.hud").toString()).getBytes());
-            file.write(("\nhud.enabled=" + hud.Enabled).getBytes());
+            file.write(("\nhud.state=" + hud.State).getBytes());
             file.write(("\nhud.order=" + hud.Order).getBytes());
             file.write(("\n# "+CUtl.lang("config.hud.order.options").toString()).getBytes());
             file.write(("\n\n# "+CUtl.lang("config.hud.module").toString()).getBytes());
