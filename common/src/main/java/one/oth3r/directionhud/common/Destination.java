@@ -827,6 +827,11 @@ public class Destination {
                     if (matches==null) return suggester;
                     for (HashMap<String,Object> entry:matches) suggester.add((String) entry.get("player_name"));
                 }
+                if (args[0].equalsIgnoreCase("cancel")) {
+                    ArrayList<HashMap<String,Object>> matches = DHUD.inbox.getAllMatches(player, DHUD.inbox.Type.track_pending);
+                    if (matches==null) return suggester;
+                    for (HashMap<String,Object> entry:matches) suggester.add((String) entry.get("player_name"));
+                }
             }
             return suggester;
         }
