@@ -183,10 +183,10 @@ public class Utl {
             return config.globalDESTs && (player.getPlayer().hasPermissionLevel(2) || DirectionHUDClient.singleplayer);
         }
         public static boolean saving(Player player) {
-            return config.DESTSaving;
+            return config.DestSaving;
         }
         public static boolean lastdeath(Player player) {
-            return (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.features__lastdeath) && config.deathsaving;
+            return (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.features__lastdeath) && config.LastDeathSaving;
         }
         public static boolean send(Player player) {
             return (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.features__send) && config.social && DirectionHUD.server.isRemote();

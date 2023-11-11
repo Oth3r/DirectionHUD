@@ -117,36 +117,37 @@ public class config {
     public static class defaults {
         public static final float version = 1.4f;
         public static final String lang = "en_us";
-        public static final int socialCooldown = 10;
-        public static final boolean DESTSaving = true;
-        public static final int MAXSaved = 50;
-        public static final int MAXLastDeaths = 4;
         public static final int MAXy = 512;
         public static final int MAXxz = 30000000;
-        public static final boolean deathsaving = true;
-        public static final boolean social = true;
+        public static final boolean online = true;
+        public static final boolean DestSaving = true;
+        public static final int DestMAX = 50;
+        public static final int LastDeathMAX = 4;
+        public static final boolean LastDeathSaving = true;
         public static final boolean HUDEditing = true;
+        public static final boolean social = true;
+        public static final int socialCooldown = 10;
         public static final int HUDLoop = 1;
         public static final int ParticleLoop = 20;
-        public static final boolean online = true;
+
         public static final boolean globalDESTs = false;
         public static final List<String> colorPresets = List.of("#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff");
         public static final List<String> dimensions = Utl.dim.DEFAULT_DIMENSIONS;
         public static final List<String> dimensionRatios = Utl.dim.DEFAULT_RATIOS;
     }
     public static String lang = defaults.lang;
-    public static Integer socialCooldown = defaults.socialCooldown;
-    public static boolean DESTSaving = defaults.DESTSaving;
-    public static int MAXSaved = defaults.MAXSaved;
-    public static int MAXLastDeaths = defaults.MAXLastDeaths;
     public static int MAXy = defaults.MAXy;
     public static int MAXxz = defaults.MAXxz;
-    public static boolean deathsaving = defaults.deathsaving;
-    public static boolean social = defaults.social;
+    public static boolean online = defaults.online;
+    public static boolean DestSaving = defaults.DestSaving;
+    public static int DestMAX = defaults.DestMAX;
+    public static boolean LastDeathSaving = defaults.LastDeathSaving;
     public static boolean HUDEditing = defaults.HUDEditing;
+    public static int LastDeathMAX = defaults.LastDeathMAX;
+    public static boolean social = defaults.social;
+    public static Integer socialCooldown = defaults.socialCooldown;
     public static int HUDLoop = defaults.HUDLoop;
     public static int ParticleLoop = defaults.ParticleLoop;
-    public static boolean online = defaults.online;
     public static boolean globalDESTs = defaults.globalDESTs;
     public static List<String> colorPresets = defaults.colorPresets;
     public static List<String> dimensions = defaults.dimensions;
@@ -181,9 +182,10 @@ public class config {
         MAXxz = Integer.parseInt((String) properties.computeIfAbsent("max-xz", a -> String.valueOf(defaults.MAXxz)));
         MAXy = Integer.parseInt((String) properties.computeIfAbsent("max-y", a -> String.valueOf(defaults.MAXy)));
         globalDESTs = Boolean.parseBoolean((String) properties.computeIfAbsent("global-destinations", a -> String.valueOf(defaults.globalDESTs)));
-        DESTSaving = Boolean.parseBoolean((String) properties.computeIfAbsent("destination-saving", a -> String.valueOf(defaults.DESTSaving)));
-        MAXSaved = Integer.parseInt((String) properties.computeIfAbsent("destination-max-saved", a -> String.valueOf(defaults.MAXSaved)));
-        deathsaving = Boolean.parseBoolean((String) properties.computeIfAbsent("death-saving", a -> String.valueOf(defaults.deathsaving)));
+        DestSaving = Boolean.parseBoolean((String) properties.computeIfAbsent("destination-saving", a -> String.valueOf(defaults.DestSaving)));
+        DestMAX = Integer.parseInt((String) properties.computeIfAbsent("destination-max", a -> String.valueOf(defaults.DestMAX)));
+        LastDeathSaving = Boolean.parseBoolean((String) properties.computeIfAbsent("lastdeath-saving", a -> String.valueOf(defaults.LastDeathSaving)));
+        LastDeathMAX = Integer.parseInt((String) properties.computeIfAbsent("lastdeath-max", a -> String.valueOf(defaults.LastDeathMAX)));
         HUDEditing = Boolean.parseBoolean((String) properties.computeIfAbsent("hud-editing", a -> String.valueOf(defaults.HUDEditing)));
         online = Boolean.parseBoolean((String) properties.computeIfAbsent("online-mode", a -> String.valueOf(defaults.online)));
         // SOCIAL
@@ -243,12 +245,18 @@ public class config {
         dest.Track = Boolean.parseBoolean((String) properties.computeIfAbsent("dest.settings.features.track", a -> String.valueOf(dest.defaults.Track)));
         dest.TrackingRequestMode = Destination.Setting.TrackingRequestMode.get((String) properties.computeIfAbsent("dest.settings.features.track_request_mode", a -> dest.defaults.TrackingRequestMode)).toString();
         dest.Lastdeath = Boolean.parseBoolean((String) properties.computeIfAbsent("dest.settings.features.lastdeath", a -> String.valueOf(dest.defaults.Lastdeath)));
-        // CONFIG UPDATER
-        // only in 1.1
-        if (version == 1.1f) hud.Tracking = Boolean.parseBoolean((String) properties.computeIfAbsent("compass", a -> String.valueOf(hud.defaults.Tracking)));
-        // everything before & 1.2
-        if (version <= 1.2f) {
-            if (!DirectionHUD.isMod)
+        // CONFIG UPDATER, if the version is lower than the current, load from the old config
+        // everything before & 1.3
+        if (version <= 1.3f) {
+            DestMAX = Integer.parseInt((String) properties.computeIfAbsent("destination-max-saved", a -> String.valueOf(defaults.DestMAX)));
+            LastDeathSaving = Boolean.parseBoolean((String) properties.computeIfAbsent("death-saving", a -> String.valueOf(defaults.LastDeathSaving)));
+            hud.State = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.enabled", a -> String.valueOf(hud.defaults.State)));
+            HUDLoop = Math.min(20, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("hud-refresh", a -> String.valueOf(defaults.HUDLoop)))));
+        }
+        // everything before & 1.21
+        if (version <= 1.21f) {
+            // I don't know why but oh well backwards compatibility
+            if (!DirectionHUD.isMod || version == 1.21f)
                 dimensionRatios = new Gson().fromJson((String) properties.computeIfAbsent("dimension-ratios", a -> String.valueOf(defaults.dimensionRatios)),arrayListMap);
             // update colors to new system
             hud.primary.Color = CUtl.color.updateOld((String) properties.computeIfAbsent("primary-color", a -> hud.defaults.primary.Color), hud.defaults.primary.Color);
@@ -273,6 +281,7 @@ public class config {
             hud.Direction = Boolean.parseBoolean((String) properties.computeIfAbsent("direction", a -> String.valueOf(hud.defaults.Direction)));
             hud.Time = Boolean.parseBoolean((String) properties.computeIfAbsent("time", a -> String.valueOf(hud.defaults.Time)));
             hud.Weather = Boolean.parseBoolean((String) properties.computeIfAbsent("weather", a -> String.valueOf(hud.defaults.Weather)));
+            hud.Tracking = Boolean.parseBoolean((String) properties.computeIfAbsent("tracking", a -> String.valueOf(hud.defaults.Tracking)));
             //DEST
             dest.AutoClear = Boolean.parseBoolean((String) properties.computeIfAbsent("autoclear", a -> String.valueOf(dest.defaults.AutoClear)));
             dest.AutoClearRad = Math.min(15, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("autoclear-radius", a -> String.valueOf(dest.defaults.AutoClearRad)))));
@@ -281,21 +290,12 @@ public class config {
             dest.particles.Dest = Boolean.parseBoolean((String) properties.computeIfAbsent("dest-particles", a -> String.valueOf(dest.defaults.particles.Dest)));
             dest.Send = Boolean.parseBoolean((String) properties.computeIfAbsent("send", a -> String.valueOf(dest.defaults.Send)));
             dest.Track = Boolean.parseBoolean((String) properties.computeIfAbsent("track", a -> String.valueOf(dest.defaults.Track)));
-        }
-        // only in 1.2 and 1.21
-        if (version == 1.2f || version == 1.21f) {
             dest.AutoConvert = Boolean.parseBoolean((String) properties.computeIfAbsent("autoconvert", a -> String.valueOf(dest.defaults.AutoConvert)));
-            hud.Tracking = Boolean.parseBoolean((String) properties.computeIfAbsent("tracking", a -> String.valueOf(hud.defaults.Tracking)));
             dest.particles.Tracking = Boolean.parseBoolean((String) properties.computeIfAbsent("tracking-particles", a -> String.valueOf(dest.defaults.particles.Tracking)));
             dest.particles.TrackingColor = CUtl.color.updateOld((String) properties.computeIfAbsent("tracking-particle-color", a -> dest.defaults.particles.TrackingColor), dest.defaults.particles.DestColor);
         }
-        if (version == 1.21f) dimensionRatios = new Gson().fromJson((String) properties.computeIfAbsent("dimension-ratios", a -> String.valueOf(defaults.dimensionRatios)),arrayListMap);
-        // everything before & 1.3
-        if (version <= 1.3f)
-            HUDLoop = Math.min(20, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("hud-refresh", a -> String.valueOf(defaults.HUDLoop)))));
-        // only in 1.3
-        if (version == 1.3)
-            hud.State = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.enabled", a -> String.valueOf(hud.defaults.State)));
+        // only in 1.1
+        if (version == 1.1f) hud.Tracking = Boolean.parseBoolean((String) properties.computeIfAbsent("compass", a -> String.valueOf(hud.defaults.Tracking)));
     }
     public static void save() {
         try (var file = new FileOutputStream(configFile(), false)) {
@@ -308,28 +308,17 @@ public class config {
             file.write(("\n# "+CUtl.lang("config.max.info",CUtl.lang("config.max.info_2")).toString()).getBytes());
             file.write(("\nonline-mode=" + online).getBytes());
             file.write(("\n# "+CUtl.lang("config.online_mode.info").toString()).getBytes());
-
-            file.write(("\ndimensions="+gson.toJson(dimensions)).getBytes());
-            file.write(("\n# "+CUtl.lang("config.dimensions.info").append("\n# ")
-                    .append(CUtl.lang("config.dimensions.info_3",CUtl.lang("config.dimensions.info_3.1"),
-                            CUtl.lang("config.dimensions.info_3.2"),CUtl.lang("config.dimensions.info_3.3"))).append("\n# ")
-                    .append(CUtl.lang("config.dimensions.info_4")).append("\n# ")
-                    .append(CUtl.lang("config.dimensions.info_5")).append("\n# ")
-                    .append(CUtl.lang("config.dimensions.info_6")).toString()).getBytes());
-            file.write(("\ndimension-ratios="+gson.toJson(dimensionRatios)).getBytes());
-            file.write(("\n# "+CUtl.lang("config.dimension_ratios.info").append("\n# ")
-                    .append(CUtl.lang("config.dimension_ratios.info_2",CUtl.lang("config.dimension_ratios.info_2.1"),
-                            CUtl.lang("config.dimension_ratios.info_2.2"))).toString()).getBytes());
-
             file.write(("\nglobal-destinations=" + globalDESTs).getBytes());
             file.write(("\n# "+CUtl.lang("config.global_dest.info").toString()).getBytes());
             file.write(("\n# "+CUtl.lang("config.global_dest.info_3").toString()).getBytes());
-            file.write(("\ndestination-saving=" + DESTSaving).getBytes());
+            file.write(("\ndestination-saving=" + DestSaving).getBytes());
             file.write(("\n# "+CUtl.lang("config.dest_saving.info").toString()).getBytes());
-            file.write(("\ndestination-max-saved=" + MAXSaved).getBytes());
-            file.write(("\n# "+CUtl.lang("config.dest_max_saved.info").toString()).getBytes());
-            file.write(("\ndeath-saving=" + deathsaving).getBytes());
-            file.write(("\n# "+CUtl.lang("config.death_saving.info").toString()).getBytes());
+            file.write(("\ndestination-max=" + DestMAX).getBytes());
+            file.write(("\n# "+CUtl.lang("config.dest_max.info").toString()).getBytes());
+            file.write(("\nlastdeath-saving=" + LastDeathSaving).getBytes());
+            file.write(("\n# "+CUtl.lang("config.lastdeath_saving.info").toString()).getBytes());
+            file.write(("\nlastdeath-max=" + LastDeathMAX).getBytes());
+            file.write(("\n# "+CUtl.lang("config.lastdeath_max.info").toString()).getBytes());
             file.write(("\nhud-editing=" + HUDEditing).getBytes());
             file.write(("\n# "+CUtl.lang("config.hud_editing.info").toString()).getBytes());
             file.write(("\n").getBytes()); //SOCIAL
@@ -342,6 +331,18 @@ public class config {
             file.write(("\n# "+CUtl.lang("config.hud_loop.info").toString()).getBytes());
             file.write(("\nparticle-loop=" + ParticleLoop).getBytes());
             file.write(("\n# "+CUtl.lang("config.particle_loop.info").toString()).getBytes());
+            file.write(("\n").getBytes()); //DIMS
+            file.write(("\ndimensions="+gson.toJson(dimensions)).getBytes());
+            file.write(("\n# "+CUtl.lang("config.dimensions.info").append("\n# ")
+                    .append(CUtl.lang("config.dimensions.info_3",CUtl.lang("config.dimensions.info_3.1"),
+                            CUtl.lang("config.dimensions.info_3.2"),CUtl.lang("config.dimensions.info_3.3"))).append("\n# ")
+                    .append(CUtl.lang("config.dimensions.info_4")).append("\n# ")
+                    .append(CUtl.lang("config.dimensions.info_5")).append("\n# ")
+                    .append(CUtl.lang("config.dimensions.info_6")).toString()).getBytes());
+            file.write(("\ndimension-ratios="+gson.toJson(dimensionRatios)).getBytes());
+            file.write(("\n# "+CUtl.lang("config.dimension_ratios.info").append("\n# ")
+                    .append(CUtl.lang("config.dimension_ratios.info_2",CUtl.lang("config.dimension_ratios.info_2.1"),
+                            CUtl.lang("config.dimension_ratios.info_2.2"))).toString()).getBytes());
 
             file.write(("\n\n\n# "+CUtl.lang("config.default").toString()).getBytes());
             file.write(("\n# "+CUtl.lang("config.default.info").toString()).getBytes());

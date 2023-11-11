@@ -188,7 +188,7 @@ public class Utl {
             return player.getPlayer().hasPermission("directionhud.destination.saving");
         }
         public static boolean lastdeath(Player player) {
-            return (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.features__lastdeath) && config.deathsaving;
+            return (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.features__lastdeath) && config.LastDeathSaving;
         }
         public static boolean send(Player player) {
             return (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.features__send) && config.social;

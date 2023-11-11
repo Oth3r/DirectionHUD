@@ -67,7 +67,7 @@ public class Events {
         }
     }
     public static void playerDeath(Player player, Loc death) {
-        if (!config.deathsaving || !(boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.features__lastdeath)) return;
+        if (!config.LastDeathSaving || !(boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.features__lastdeath)) return;
         Destination.lastdeath.add(player, death);
         CTxT msg = CUtl.tag().append(CUtl.lang("dest.lastdeath.save"))
                 .append(" ").append(death.getBadge())

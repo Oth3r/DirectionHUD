@@ -495,7 +495,7 @@ public class Destination {
         }
         public static ArrayList<String> base(Player player) {
             ArrayList<String> suggester = new ArrayList<>();
-            if (config.deathsaving && (boolean)PlayerData.get.dest.setting.get(player, Setting.features__lastdeath)) suggester.add("lastdeath");
+            if (config.LastDeathSaving && (boolean)PlayerData.get.dest.setting.get(player, Setting.features__lastdeath)) suggester.add("lastdeath");
             if (Utl.checkEnabled.saving(player)) {
                 suggester.add("add");
                 suggester.add("saved");
@@ -1025,7 +1025,7 @@ public class Destination {
         public static void add(boolean send, Player player,List<List<String>> list,String name, Loc loc, String color) {
             //get rid of spaces for now
             name = name.replace(" ","");
-            if (list.size() >= config.MAXSaved) {
+            if (list.size() >= config.DestMAX) {
                 if (send) player.sendMessage(CUtl.error("dest.saved.max"));
                 return;
             }
@@ -1289,7 +1289,7 @@ public class Destination {
                 //add to the top of the list
                 deaths.add(0,loc.toArray());
                 // WHILE more than max, remove the last entry (to deal with the size changing to be smaller in the future)
-                while (deaths.size() > config.MAXLastDeaths) deaths.remove(deaths.size()-1);
+                while (deaths.size() > config.LastDeathMAX) deaths.remove(deaths.size()-1);
             }
             PlayerData.set.dest.setLastdeaths(player,deaths);
         }
@@ -1731,7 +1731,7 @@ public class Destination {
                     .append(resetB(player, Setting.particles__tracking)).append(" ")
                     .append(lang("settings."+ Setting.particles__tracking).hEvent(lang("settings."+ Setting.particles__tracking+".info"))).append(": ")
                     .append(getButtons(player, Setting.particles__tracking)).append("\n ");
-            if (config.social || config.deathsaving) {
+            if (config.social || config.LastDeathSaving) {
                 //FEATURES
                 msg.append(lang("ui.settings.features").color(CUtl.p())).append(":\n  ");
                 if (config.social) {
@@ -1747,7 +1747,7 @@ public class Destination {
                             .append(lang("settings."+ Setting.features__track).hEvent(lang("settings."+ Setting.features__track +".info"))).append(": ")
                             .append(getButtons(player, Setting.features__track)).append("\n  ");
                 }
-                if (config.deathsaving) {
+                if (config.LastDeathSaving) {
                     msg     //LASTDEATH
                             .append(resetB(player, Setting.features__lastdeath)).append(" ")
                             .append(lang("settings."+ Setting.features__lastdeath).hEvent(lang("settings."+ Setting.features__lastdeath +".info"))).append(": ")
@@ -1758,7 +1758,7 @@ public class Destination {
             boolean resetOn = false;
             for (Setting t: Setting.base()) {
                 if (resetOn) break;
-                if (!config.deathsaving && t.equals(Setting.features__lastdeath)) continue;
+                if (!config.LastDeathSaving && t.equals(Setting.features__lastdeath)) continue;
                 if (!config.social && (t.equals(Setting.features__send) || t.equals(Setting.features__track))) continue;
                 resetOn = canBeReset(player,t);
             }
@@ -1774,7 +1774,7 @@ public class Destination {
         msg.append(lang("ui").color(Assets.mainColors.dest)).append(CTxT.of("\n                                  ").strikethrough(true)).append("\n ");
         // lmao this is a mess but is it the best way to do it? dunno
         boolean line1Free = false;
-        boolean line2Free = !((boolean) PlayerData.get.dest.setting.get(player, Setting.features__lastdeath) && config.deathsaving);
+        boolean line2Free = !((boolean) PlayerData.get.dest.setting.get(player, Setting.features__lastdeath) && config.LastDeathSaving);
         boolean trackBig = PlayerData.get.dest.getTracking(player) != null;
         boolean sendThird = Utl.checkEnabled.send(player);
         //SAVED + ADD
