@@ -201,7 +201,6 @@ public class config {
         // PLAYER DEFAULTS
         colorPresets = new Gson().fromJson((String) properties.computeIfAbsent("color-presets", a -> String.valueOf(defaults.colorPresets)),arrayListMap);
         // HUD
-        hud.State = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.state", a -> String.valueOf(hud.defaults.State)));
         hud.Order = HUD.modules.fixOrder(new Gson().fromJson((String)
                 properties.computeIfAbsent("hud.order", a -> String.valueOf(hud.defaults.Order)),moduleListMap));
         // HUD MODULES
@@ -222,6 +221,7 @@ public class config {
         hud.secondary.Italics = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.color.secondary-italics", a -> String.valueOf(hud.defaults.secondary.Italics)));
         hud.secondary.Rainbow = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.color.secondary-rainbow", a -> String.valueOf(hud.defaults.secondary.Rainbow)));
         // HUD SETTINGS
+        hud.State = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.settings.state", a -> String.valueOf(hud.defaults.State)));
         hud.DisplayType = HUD.Setting.DisplayType.get((String) properties.computeIfAbsent("hud.settings.type", a -> hud.defaults.DisplayType)).toString();
         hud.BarColor = HUD.Setting.BarColor.get((String) properties.computeIfAbsent("hud.settings.bossbar.color", a -> hud.defaults.BarColor)).toString();
         hud.BarShowDistance = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.settings.bossbar.distance", a -> String.valueOf(hud.defaults.BarShowDistance)));
@@ -350,7 +350,6 @@ public class config {
             file.write(("\n# "+CUtl.lang("config.color_presets.info").toString()).getBytes());
 
             file.write(("\n\n# "+CUtl.lang("config.hud").toString()).getBytes());
-            file.write(("\nhud.state=" + hud.State).getBytes());
             file.write(("\nhud.order=" + hud.Order).getBytes());
             file.write(("\n# "+CUtl.lang("config.hud.order.options").toString()).getBytes());
             file.write(("\n\n# "+CUtl.lang("config.hud.module").toString()).getBytes());
@@ -362,6 +361,7 @@ public class config {
             file.write(("\nhud.module.time=" + hud.Time).getBytes());
             file.write(("\nhud.module.weather=" + hud.Weather).getBytes());
             file.write(("\n\n# "+CUtl.lang("config.settings").toString()).getBytes());
+            file.write(("\nhud.settings.state=" + hud.State).getBytes());
             file.write(("\nhud.settings.type=" + hud.DisplayType).getBytes());
             file.write(("\n# "+CUtl.lang("config.hud.settings.type.options").toString()).getBytes());
             file.write(("\nhud.settings.bossbar.color=" + hud.BarColor).getBytes());
