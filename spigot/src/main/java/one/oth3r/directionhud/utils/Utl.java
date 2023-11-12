@@ -174,10 +174,6 @@ public class Utl {
         public static boolean hud(Player player) {
             return player.getPlayer().hasPermission("directionhud.hud");
         }
-        @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-        public static boolean dirhud(Player player) {
-            return player.getPlayer().hasPermission("directionhud.directionhud");
-        }
         public static boolean reload(Player player) {
             return player.getPlayer().hasPermission("directionhud.reload");
         }

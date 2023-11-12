@@ -172,10 +172,6 @@ public class Utl {
         public static boolean hud(Player player) {
             return config.HUDEditing;
         }
-        @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-        public static boolean dirhud(Player player) {
-            return true;
-        }
         public static boolean reload(Player player) {
             return player.getPlayer().hasPermissionLevel(2) || DirectionHUDClient.singleplayer;
         }
