@@ -107,27 +107,6 @@ public class DHUD {
         if (player == null) DirectionHUD.LOGGER.info(lang("reload",lang("reload_2")).toString());
         else player.sendMessage(CUtl.tag().append(lang("reload",lang("reload_2").color('a'))));
     }
-    public static void UI(Player player) {
-        CTxT msg = CTxT.of("")
-                .append(CTxT.of(" DirectionHUD ").color(CUtl.p()))
-                .append(CTxT.of(DirectionHUD.VERSION+Assets.symbols.link).color(CUtl.s()).cEvent(3,"https://modrinth.com/mod/directionhud/changelog")
-                        .hEvent(CUtl.TBtn("version.hover").color(CUtl.s())))
-                .append(CUtl.LINE_35).append("\n ");
-        //hud
-        if (Utl.checkEnabled.hud(player)) msg.append(CUtl.CButton.DHUD.hud()).append("  ");
-        //dest
-        if (Utl.checkEnabled.destination(player)) msg.append(CUtl.CButton.DHUD.dest());
-        //inbox
-        if (config.social) {
-            msg.append("\n\n ").append(CUtl.CButton.DHUD.inbox());
-            // reload button
-            if (Utl.checkEnabled.reload(player)) msg.append(" ").append(CUtl.CButton.DHUD.reload());
-        }
-        // reload button without inbox button
-        else if (Utl.checkEnabled.reload(player)) msg.append("\n\n ").append(CUtl.CButton.DHUD.reload());
-        msg.append(CUtl.LINE_35);
-        player.sendMessage(msg);
-    }
     public static class inbox {
         public static final int PER_PAGE = 3;
         public enum Type {
@@ -309,5 +288,26 @@ public class DHUD {
             msg.append(CUtl.CButton.back("/dhud")).append(CUtl.LINE_35);
             player.sendMessage(msg);
         }
+    }
+    public static void UI(Player player) {
+        CTxT msg = CTxT.of("")
+                .append(CTxT.of(" DirectionHUD ").color(CUtl.p()))
+                .append(CTxT.of(DirectionHUD.VERSION+Assets.symbols.link).color(CUtl.s()).cEvent(3,"https://modrinth.com/mod/directionhud/changelog")
+                        .hEvent(CUtl.TBtn("version.hover").color(CUtl.s())))
+                .append(CUtl.LINE_35).append("\n ");
+        //hud
+        if (Utl.checkEnabled.hud(player)) msg.append(CUtl.CButton.DHUD.hud()).append("  ");
+        //dest
+        if (Utl.checkEnabled.destination(player)) msg.append(CUtl.CButton.DHUD.dest());
+        //inbox
+        if (config.social) {
+            msg.append("\n\n ").append(CUtl.CButton.DHUD.inbox());
+            // reload button
+            if (Utl.checkEnabled.reload(player)) msg.append(" ").append(CUtl.CButton.DHUD.reload());
+        }
+        // reload button without inbox button
+        else if (Utl.checkEnabled.reload(player)) msg.append("\n\n ").append(CUtl.CButton.DHUD.reload());
+        msg.append(CUtl.LINE_35);
+        player.sendMessage(msg);
     }
 }
