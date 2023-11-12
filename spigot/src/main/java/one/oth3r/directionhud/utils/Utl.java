@@ -172,7 +172,7 @@ public class Utl {
             return player.getPlayer().hasPermission("directionhud.destination");
         }
         public static boolean hud(Player player) {
-            return player.getPlayer().hasPermission("directionhud.hud");
+            return player.getPlayer().hasPermission("directionhud.hud") && config.HUDEditing;
         }
         public static boolean reload(Player player) {
             return player.getPlayer().hasPermission("directionhud.reload");
