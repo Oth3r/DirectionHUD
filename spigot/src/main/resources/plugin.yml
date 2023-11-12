@@ -27,8 +27,5 @@ permissions:
   directionhud.destination.saving:
     description: "Permissions for saving destinations"
     default: true
-  directionhud.directionhud:
-    description: "Permissions for the '/directionhud' command"
-    default: true
   directionhud.reload:
     description: "Permissions for the reload command. (Requires directionhud permissions)"
