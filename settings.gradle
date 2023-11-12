@@ -9,5 +9,5 @@ pluginManagement {
     }
 }
 
-//include('fabric')
-include('spigot')
+include('fabric')
+//include('spigot')
