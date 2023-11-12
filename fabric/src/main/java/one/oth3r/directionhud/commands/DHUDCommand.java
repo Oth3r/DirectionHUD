@@ -63,7 +63,7 @@ public class DHUDCommand {
         ServerPlayerEntity spe = source.getPlayer();
         String[] args;
         //trim all the arguments before the command
-        List<String> keywords = Arrays.asList("dirhud", "directionhud");
+        List<String> keywords = Arrays.asList("dhud", "directionhud");
         int index = Integer.MAX_VALUE;
         //finds the index for the words
         for (String keyword : keywords) {
@@ -73,15 +73,15 @@ public class DHUDCommand {
         //trims the words before the text
         if (index != Integer.MAX_VALUE) arg = arg.substring(index).trim();
         args = arg.split(" ");
-        if (args[0].equals("dirhud") || args[0].equals("directionhud"))
-            args = arg.replaceFirst("(?i)dir(ection)?hud ", "").split(" ");
+        if (args[0].equals("dhud") || args[0].equals("directionhud"))
+            args = arg.replaceFirst("(?i)d(irection)?hud ", "").split(" ");
         if (spe == null) {
             if (args[0].equalsIgnoreCase("reload") && DirectionHUD.server.isRemote())
                 DHUD.reload(null);
             return 1;
         }
         Player player = Player.of(spe);
-        if (args[0].equalsIgnoreCase("dirhud") || args[0].equalsIgnoreCase("directionhud"))
+        if (args[0].equalsIgnoreCase("dhud") || args[0].equalsIgnoreCase("directionhud"))
             args = new String[0];
         DHUD.commandExecutor.logic(player,args);
         return 1;
