@@ -48,6 +48,8 @@ public class Events {
     public static void playerChangeWorld(Player player, String fromDIM, String toDIM) {
         if (Destination.get(player).hasXYZ()) {
             Loc loc = Destination.get(player);
+            // don't clear if the dest's dim is the same as the new dim
+            if (toDIM.equals(Destination.get(player).getDIM())) return;
             if (Utl.dim.canConvert(toDIM, Destination.get(player).getDIM()) &&
                     (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.autoconvert)) {
                 //DEST AutoConvert logic

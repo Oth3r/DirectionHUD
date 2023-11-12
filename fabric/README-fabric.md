@@ -1,9 +1,11 @@
 # DirectionHUD
-[![github](https://img.shields.io/github/issues/Oth3r/DirectionHUD?label=Issues)](https://github.com/Oth3r/DirectionHUD/issues)  [![discord](https://dcbadge.vercel.app/api/server/Mec6yNQ9B7?style=flat)](https://discord.gg/Mec6yNQ9B7) [![modrinth](https://img.shields.io/modrinth/dt/directionhud?label=Modrinth&logo=modrinth)](https://modrinth.com/mod/directionhud) [![curseforge](https://cf.way2muchnoise.eu/843483.svg)](https://www.curseforge.com/minecraft/mc-mods/directionhud-fabric)
+[![github](https://img.shields.io/github/issues/Oth3r/DirectionHUD?label=Issues)](https://github.com/Oth3r/DirectionHUD/issues) [![Crowdin](https://badges.crowdin.net/directionhud/localized.svg)](https://crowdin.com/project/directionhud) [![discord](https://dcbadge.vercel.app/api/server/Mec6yNQ9B7?style=flat)](https://discord.gg/Mec6yNQ9B7) 
+
+[![modrinth](https://img.shields.io/modrinth/dt/directionhud?label=Modrinth&logo=modrinth)](https://modrinth.com/mod/directionhud) [![curseforge](https://cf.way2muchnoise.eu/843483.svg)](https://www.curseforge.com/minecraft/mc-mods/directionhud-fabric)
 
 DirectionHUD is a fully customizable Minecraft Fabric mod that enhances the vanilla navigation experience.
 With the mod, you can save coordinates, track other players, see death locations, all with full customization with the **/hud** and **/destination** commands.
-## Help localize DirectionHUD on [Loco](https://localise.biz/oth3r/directionhud#!l=1)!
+## Help localize DirectionHUD on [Crowdin](https://crowdin.com/project/directionhud/)!
 ![overview](https://github.com/Oth3r/DirectionHUD/blob/master/media/directionhud%20overview.gif?raw=true)
 
 ***Where does the mod work?*** - DirectionHUD both works on client and server, but for now the client side only supports single player & DirectionHUD servers. As with anything, that can change with time.
@@ -58,7 +60,4 @@ Change default HUD configurations and settings using the **config file** when ru
 \
 **/directionhud defaults** also works on the client - Set defaults to your current settings with one click!
 
-## Future Goals
-* More UI options
-  * Custom client UI: Straying away from the plugin feel for client users.
-  * Server inventory UI: Chat scrolling too fast? Want that classic inventory UI feel? 
+## Future Goals - [GitHub](https://github.com/Oth3r/DirectionHUD)

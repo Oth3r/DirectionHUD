@@ -340,8 +340,10 @@ public class HUD {
                 msg.append(color.addColor(player,string,typ,LoopManager.rainbowF+start,5)
                         .strikethrough(strike));
                 // if rainbow, move the starting position by how many characters were turned into a rainbow, for a seamless rainbow
-                if (color.getHUDColor(player,typ).equals("rainbow"))
-                    start = start + (string.replaceAll("\\s", "").length()*5);
+                if (color.getHUDRGB(player,typ)) {
+                    String rgbStr = string.replaceAll("\\s", "");
+                    start = start + rgbStr.codePointCount(0, rgbStr.length())*5;
+                }
             }
             if (count < modules.getEnabled(player).size()) msg.append(" ");
         }
@@ -688,7 +690,7 @@ public class HUD {
             CTxT italicsButton = CUtl.TBtn("color.italics").btn(true).color(getHUDItalics(player, typ)?'a':'c')
                     .cEvent(1,"/hud color italics "+setting+" "+type+" "+(getHUDItalics(player,typ)?"false":"true"))
                     .hEvent(CUtl.TBtn("color.italics.hover",CUtl.TBtn(getHUDItalics(player,typ)?"off":"on").color(getHUDItalics(player, typ)?'a':'c'),lang("color."+type)));
-            CTxT rgbButton = CTxT.of(CUtl.color.rainbow(CUtl.TBtn("color.rgb").toString(),15,95)).btn(true).bold(getHUDRGB(player,typ))
+            CTxT rgbButton = CUtl.TBtn("color.rgb").btn(true).color(getHUDRGB(player, typ)?'a':'c')
                     .cEvent(1,"/hud color rgb "+setting+" "+type+" "+(getHUDRGB(player,typ)?"false":"true"))
                     .hEvent(CUtl.TBtn("color.rgb.hover",CUtl.TBtn(getHUDRGB(player,typ)?"off":"on").color(getHUDRGB(player, typ)?'a':'c'),lang("color."+type)));
             msg.append(" ")
@@ -702,7 +704,7 @@ public class HUD {
         public static void UI(Player player, CTxT abovemsg) {
             CTxT msg = CTxT.of("");
             if (abovemsg != null) msg.append(abovemsg).append("\n");
-            msg.append(" ").append(CUtl.color.rainbow(lang("ui.color").toString(),15f,45f))
+            msg.append(" ").append(lang("ui.color").rainbow(true,15f,45f))
                     .append(CTxT.of("\n                                \n").strikethrough(true)).append(" ");
             //PRIMARY
             msg.append(CTxT.of(addColor(player,CUtl.TBtn("color.primary").toString(),1,15,20)).btn(true).cEvent(1,"/hud color edit normal primary")

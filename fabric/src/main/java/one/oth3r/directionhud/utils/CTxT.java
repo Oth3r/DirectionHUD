@@ -4,6 +4,7 @@ import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import one.oth3r.directionhud.common.utils.CUtl;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -116,9 +117,27 @@ public class CTxT {
     }
     public MutableText b() {
         MutableText output = Text.literal("");
+        if (this.rainbow) {
+            float hue = start % 360f;
+            String string = name.getString();
+            MutableText rainbow = Text.empty();
+            for (int i = 0; i < string.codePointCount(0, string.length()); i++) {
+                if (string.charAt(i) == ' ') {
+                    rainbow.append(" ");
+                    continue;
+                }
+                Color color = Color.getHSBColor(hue / 360.0f, 1.0f, 1.0f);
+                int red = color.getRed();
+                int green = color.getGreen();
+                int blue = color.getBlue();
+                String hexColor = String.format("#%02x%02x%02x", red, green, blue);
+                rainbow.append(Text.literal(Character.toString(string.codePointAt(i))).styled(style -> style.withColor(TextColor.parse(CUtl.color.format(hexColor)))));
+                hue = ((hue % 360f)+step)%360f;
+            }
+            this.name = rainbow;
+        }
         if (this.button) output.append("[").setStyle(Style.EMPTY.withColor(Formatting.byCode('f')));
-        if (this.rainbow) output.append(CUtl.color.rainbow(this.name.getString(),this.start,this.step).b());
-        else output.append(this.name.styled(style -> style.withColor(this.color)
+        output.append(this.name.styled(style -> style.withColor(this.color)
                 .withClickEvent(this.clickEvent)
                 .withHoverEvent(this.hoverEvent)
                 .withItalic(this.italic)

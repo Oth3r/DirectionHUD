@@ -8,6 +8,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import one.oth3r.directionhud.common.utils.CUtl;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -118,7 +119,27 @@ public class CTxT {
     public TextComponent b() {
         TextComponent output = new TextComponent();
         TextComponent text = this.name;
-        text.setColor(this.color);
+        if (this.rainbow) {
+            float hue = start % 360f;
+            String string = name.toPlainText();
+            TextComponent rainbow = new TextComponent();
+            for (int i = 0; i < string.codePointCount(0, string.length()); i++) {
+                if (string.charAt(i) == ' ') {
+                    rainbow.addExtra(" ");
+                    continue;
+                }
+                Color color = Color.getHSBColor(hue / 360.0f, 1.0f, 1.0f);
+                int red = color.getRed();
+                int green = color.getGreen();
+                int blue = color.getBlue();
+                String hexColor = String.format("#%02x%02x%02x", red, green, blue);
+                TextComponent add = new TextComponent(Character.toString(string.codePointAt(i)));
+                add.setColor(ChatColor.of(CUtl.color.format(hexColor)));
+                rainbow.addExtra(add);
+                hue = ((hue % 360f)+step)%360f;
+            }
+            text = rainbow;
+        } else text.setColor(this.color);
         text.setClickEvent(this.clickEvent);
         text.setHoverEvent(this.hoverEvent);
         text.setItalic(this.italic);
@@ -127,8 +148,7 @@ public class CTxT {
         text.setUnderlined(this.underline);
 
         if (this.button) output.addExtra("[");
-        if (this.rainbow) output.addExtra(CUtl.color.rainbow(this.name.toPlainText(),this.start,this.step).b());
-        else output.addExtra(text);
+        output.addExtra(text);
         if (this.button) output.addExtra("]");
         output.setClickEvent(this.clickEvent);
         output.setHoverEvent(this.hoverEvent);
