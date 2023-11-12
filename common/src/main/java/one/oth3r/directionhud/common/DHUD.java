@@ -4,7 +4,6 @@ import one.oth3r.directionhud.common.files.LangReader;
 import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.DirectionHUD;
-import one.oth3r.directionhud.common.utils.FloodGateHandler;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.utils.CTxT;
@@ -109,10 +108,6 @@ public class DHUD {
         else player.sendMessage(CUtl.tag().append(lang("reload",lang("reload_2").color('a'))));
     }
     public static void UI(Player player) {
-        if (FloodGateHandler.isFloodgate(player)) {
-            FloodGateHandler.UI.base(player);
-            return;
-        }
         CTxT msg = CTxT.of("")
                 .append(CTxT.of(" DirectionHUD ").color(CUtl.p()))
                 .append(CTxT.of(DirectionHUD.VERSION+Assets.symbols.link).color(CUtl.s()).cEvent(3,"https://modrinth.com/mod/directionhud/changelog")

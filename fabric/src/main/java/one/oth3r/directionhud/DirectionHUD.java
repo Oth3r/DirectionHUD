@@ -35,7 +35,6 @@ public class DirectionHUD {
 	public static String CONFIG_DIR = FabricLoader.getInstance().getConfigDir().toFile()+"/";
 	public static final Logger LOGGER = LogManager.getLogger("DirectionHUD");
 	public static ArrayList<Player> clientPlayers = new ArrayList<>();
-	public static HashMap<Player, FloodgatePlayer> floodgatePlayers = new HashMap<>();
 	public static final String MOD_ID = "directionhud";
 	public static final Version VERSION = FabricLoader.getInstance().getModContainer(MOD_ID).orElseThrow().getMetadata().getVersion();
 	public static boolean isClient;
