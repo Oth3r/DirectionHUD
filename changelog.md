@@ -34,12 +34,15 @@
 * sending destinations and track requests now have a cooldown to combat command spamming
 ### Config Changes
 * updated to v1.4
+* reordered the config for easier reading
 * new `social-cooldown` config option, default `10` seconds, `0` to disable
 * new `global-destinations` config option, default `false`
-* moved `hud.enabled` to `hud.settings.state`
-* added `particle-loop` config option to change particle loop speed
-* renamed `hud-refresh` config option to `hud-loop`
-* lastdeath config~!!!!!!
+* new `particle-loop` config option to change particle loop speed
+* new `lastdeath-max` for setting the max amount of deaths saved, default `4`
+* renamed `hud.enabled` to `hud.settings.state`
+* renamed `hud-refresh` to `hud-loop`
+* renamed `death-saving` to `lastdeath-saving`
+* renamed `destination-max-saved` to `destination-max`
 ### Fixes and Changes
 * Renamed `/dirhud` command to `/dhud`
   * the `/dhud` command now works to execute every command in DirectionHUD (eg. `/dhud dest saved`)
@@ -52,3 +55,7 @@
 * fixed players not unloading fully on server shutdown
 * fixed tracking module pointing to player target when the target is in another dimension and AutoConvert is off
 * fixed `tracking resumed` message not showing up when turning on AutoConvert
+### Spigot Changes
+* removed `directionhud.directionhud` permission
+* removed `directionhud.defaults` permission
+* fixed `hud-editing` config option not working
