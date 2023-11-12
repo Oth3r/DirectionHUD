@@ -101,7 +101,7 @@ public class DHUD {
         config.load();
         // fully reload the players
         for (Player pl: Utl.getPlayers()) {
-            Events.playerLeave(pl);
+            Events.playerSoftLeave(pl);
             Events.playerJoin(pl);
         }
         if (player == null) DirectionHUD.LOGGER.info(lang("reload",lang("reload_2")).toString());

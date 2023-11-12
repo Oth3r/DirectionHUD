@@ -35,9 +35,12 @@ public class Events {
         PlayerData.addPlayer(player);
     }
     public static void playerLeave(Player player) {
+        playerSoftLeave(player);
+        DirectionHUD.clientPlayers.remove(player);
+    }
+    public static void playerSoftLeave(Player player) {
         DHUD.inbox.removeAllTracking(player);
         PlayerData.removePlayer(player);
-        DirectionHUD.clientPlayers.remove(player);
         DirectionHUD.bossBarManager.removePlayer(player);
     }
     public static void playerChangeWorld(Player player, String fromDIM, String toDIM) {
