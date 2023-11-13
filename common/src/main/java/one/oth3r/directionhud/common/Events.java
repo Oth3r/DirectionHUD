@@ -26,9 +26,15 @@ public class Events {
         LangReader.loadLanguageFile();
         //load the config twice, first to load the lang and second to make all the comments the right language
         config.load();
+        DirectionHUD.LOGGER.info("Started server!");
     }
     public static void serverEnd() {
         for (Player player: Utl.getPlayers()) playerLeave(player);
+        // clear everything as serverEnd on client can just be exiting single-player
+        GlobalDest.dests.clear();
+        PlayerData.playerMap.clear();
+        PlayerData.oneTimeMap.clear();
+        DirectionHUD.clientPlayers.clear();
         DirectionHUD.LOGGER.info("Safely shutdown!");
     }
     public static void playerJoin(Player player) {
