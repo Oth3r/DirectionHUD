@@ -1,5 +1,6 @@
 package one.oth3r.directionhud.common;
 
+import one.oth3r.directionhud.common.files.GlobalDest;
 import one.oth3r.directionhud.common.files.LangReader;
 import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.common.files.config;
@@ -97,6 +98,7 @@ public class DHUD {
     public static void reload(Player player) {
         config.load();
         LangReader.loadLanguageFile();
+        GlobalDest.fileToMap();
         //config load twice for lang change support
         config.load();
         // fully reload the players
