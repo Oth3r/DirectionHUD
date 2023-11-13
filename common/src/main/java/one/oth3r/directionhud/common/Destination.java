@@ -636,6 +636,7 @@ public class Destination {
                 suggester.add("color");
                 suggester.add("name");
                 suggester.add("order");
+                return suggester;
             }
             // saved edit type (name)
             if (pos == 1) suggester.addAll(saved.getNames(list));
