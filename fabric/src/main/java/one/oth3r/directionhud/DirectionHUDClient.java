@@ -54,32 +54,19 @@ public class DirectionHUDClient implements ClientModInitializer {
                     client.player.networkHandler.sendCommand("hud toggle");
                 }
             }
-            // loop if on a directionHUD server
+            // only loop if on a directionHUD server
             if (onSupportedServer) {
-                Player player = getClientPlayer(client);
                 // tick down the override actionbar (every tick) if there is one
                 if (overrideCd > 0) overrideCd -= 1;
-                // hud loop
                 if (!client.isInSingleplayer()) {
-                    //update the rainbow if not in singleplayer as it doesn't
+                    //update the rainbow if not in single-player as it doesn't move
                     LoopManager.rainbowF += 10;
                     if (LoopManager.rainbowF >= 360) LoopManager.rainbowF = 0;
-                }
-                if (hudData != null && (boolean)PlayerData.get.hud.setting.get(player, HUD.Setting.state) &&
-                        HUD.Setting.DisplayType.get((String) PlayerData.get.hud.setting.get(player, HUD.Setting.type)).equals(HUD.Setting.DisplayType.actionbar)) {
-                    // make sure there is HUD data before looping, and that the hud type is an actionbar
-                    HUDRefresh++;
-                    if (HUDRefresh >= config.HUDLoop) {
-                        HUDRefresh = 0;
-                        // refreshes based on the client's config setting (maybe fix later)
-                        // if there is no actionbar override, build and send the HUD
-                        if (overrideCd <= 0) client.player.sendMessage(HUD.build(player,hudData).b(),true);
-                    }
                 }
             }
         });
         ClientPlayNetworking.registerGlobalReceiver(PacketBuilder.getIdentifier(Assets.packets.SETTINGS), (client, handler, buf, responseSender) -> {
-            // receiving data packets from the server
+            // receiving setting packets from the server
             PacketBuilder packet = new PacketBuilder(buf);
             assert client.player != null;
             client.execute(() -> {
@@ -91,13 +78,15 @@ public class DirectionHUDClient implements ClientModInitializer {
             });
         });
         ClientPlayNetworking.registerGlobalReceiver(PacketBuilder.getIdentifier(Assets.packets.HUD), (client, handler, buf, responseSender) -> {
-            // receiving data packets from the server
+            // receiving HUD packets from the server
             PacketBuilder packet = new PacketBuilder(buf);
             assert client.player != null;
             client.execute(() -> {
                 Type hashMapToken = new TypeToken<HashMap<HUD.Module, ArrayList<String>>>() {}.getType();
                 Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-                hudData = gson.fromJson(packet.getMessage(), hashMapToken);
+                // if there is no actionbar override, build and send the HUD
+                if (overrideCd <= 0)
+                    client.player.sendMessage(HUD.build(getClientPlayer(client),gson.fromJson(packet.getMessage(), hashMapToken)).b(),true);
             });
         });
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
