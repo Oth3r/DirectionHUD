@@ -112,6 +112,7 @@ public class DirectionHUDClient implements ClientModInitializer {
             singleplayer = false;
             onSupportedServer = false;
             packetData = new HashMap<>();
+            PlayerData.playerMap.clear();
         });
     }
     public static Player getClientPlayer(MinecraftClient client) {
