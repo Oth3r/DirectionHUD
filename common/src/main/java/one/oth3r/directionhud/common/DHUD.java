@@ -91,7 +91,6 @@ public class DHUD {
                     case "hud" -> suggester.addAll(HUD.commandSuggester.logic(player,fixedPos,trimmedArgs));
                 }
             }
-            if (pos == args.length) return Utl.formatSuggestions(suggester,args);
             return suggester;
         }
     }

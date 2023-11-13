@@ -118,30 +118,6 @@ public class Utl {
         } else if (world.isNight()) HUD.weatherIcon = Assets.symbols.moon;
         else HUD.weatherIcon = Assets.symbols.sun;
     }
-    public static ArrayList<String> xyzSuggester(Player player, String type) {
-        ArrayList<String> arr = new ArrayList<>();
-        if (type.equalsIgnoreCase("x")) {
-            arr.add(player.getBlockX()+"");
-            arr.add(player.getBlockX()+" "+player.getBlockZ());
-            arr.add(player.getBlockX()+" "+player.getBlockY()+" "+player.getBlockZ());
-        }
-        if (type.equalsIgnoreCase("y")) {
-            arr.add(player.getBlockY()+"");
-            arr.add(player.getBlockY()+" "+player.getBlockZ());
-        }
-        if (type.equalsIgnoreCase("z")) arr.add(player.getBlockZ()+"");
-        return arr;
-    }
-    public static ArrayList<String> formatSuggestions(ArrayList<String> suggester, String[] args) {
-        ArrayList<String> filteredCompletions = new ArrayList<>();
-        String currentInput = args[args.length - 1].toLowerCase();
-        for (String completion : suggester) {
-            if (completion.toLowerCase().startsWith(currentInput)) {
-                filteredCompletions.add(completion);
-            }
-        }
-        return filteredCompletions;
-    }
     public static List<Player> getPlayers() {
         ArrayList<Player> array = new ArrayList<>();
         for (ServerPlayerEntity p : DirectionHUD.server.getPlayerManager().getPlayerList())

@@ -234,7 +234,6 @@ public class HUD {
                 if (args[1].equals(Setting.bossbar__distance_max.toString()))
                     suggester.add("0");
             }
-            if (pos == args.length) return Utl.formatSuggestions(suggester,args);
             return suggester;
         }
         public static ArrayList<String> moduleCMD(Player player, int pos, String[] args) {
