@@ -957,6 +957,8 @@ public class Destination {
                 if (global) {
                     GlobalDest.dests = list;
                     GlobalDest.mapToFile();
+                    // make the default entry move back to the bottom & set it to the internal list
+                    list = GlobalDest.fileToMap();
                 } else PlayerData.set.dest.setSaved(player,list);
             }
             public List<String> getDest() {
@@ -1019,7 +1021,11 @@ public class Destination {
         public static List<String> getNames(List<List<String>> list) {
             // get all name from a destination list
             List<String> all = new ArrayList<>();
-            for (List<String> i: list) all.add(i.get(0));
+            for (int i = 0; i < list.size(); i++) {
+                // skip the last entry if global
+                if (i==list.size()-1 && list==GlobalDest.dests) continue;
+                all.add(list.get(i).get(0));
+            }
             return all;
         }
         public static void add(boolean send, Player player,List<List<String>> list,String name, Loc loc, String color) {
@@ -1258,6 +1264,8 @@ public class Destination {
             int count = 0;
             for (List<String> entry : pageHelper.getPage(pg)) {
                 count++;
+                // skip the last one because dummy entry
+                if (count==pageHelper.getList().size()) continue;
                 Dest dest = new Dest(player, GlobalDest.dests, entry);
                 msg.append(" ")//BADGE
                         .append(dest.getLoc().getBadge(dest.getName(), dest.getColor())).append(" ")
@@ -1269,7 +1277,7 @@ public class Destination {
                 msg.append("\n");
             }
             // no saved
-            if (count == 0) {
+            if (count == 1) {
                 msg.append(" ").append(lang("saved.global.none")).append("\n");
             }
             msg.append("\n ").append(CTxT.of(Assets.symbols.local).btn(true).color(Assets.mainColors.saved)
