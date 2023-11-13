@@ -1,5 +1,7 @@
 package one.oth3r.directionhud.common;
 
+import one.oth3r.directionhud.common.files.config;
+
 public class Assets {
     public static class mainColors {
         public static final String convert = "#ffa93f";
@@ -43,15 +45,15 @@ public class Assets {
         public static final String hudModules = "/hud modules";
         public static final String hudSettings = "/hud settings";
         public static final String dest = "/dest | /destination";
-        public static final String destAdd = "/dest (saved) add <name> <x> (y) <z> (dimension) (color)";
-        public static final String destSet = "/dest set <x> (y) <z> (dimension) (convert) | /dest set saved <name> (convert)";
+        public static final String destAdd = "/dest (saved) add <name> (x) (y) (z) (dimension) (color)";
+        public static String destSet = "/dest set <x> (y) <z> (dimension) (convert) | /dest set "+(config.globalDESTs?"(saved, global)":"saved")+" <name> (convert)";
         public static final String destLastdeath = "/dest lastdeath";
         public static final String destClear = "/dest clear";
-        public static final String destSaved = "/dest saved";
+        public static String destSaved = "/dest saved (add, edit, delete, send"+(config.globalDESTs?", global)":")");
         public static final String destSettings = "/dest settings";
         public static final String destSend = "/dest send <IGN> saved <name> | /dest send <IGN> (name) (x) (y) (z) (dimension) (color)";
-        public static final String destTrack = "/dest track <IGN> | /dest track .clear";
-        public static final String destTrackClear = "/dest track .clear";
+        public static final String destTrack = "/dest track (set, accept, deny, cancel) <IGN> | /dest track clear";
+        public static final String destTrackClear = "/dest track clear";
         public static final String reload = "/dirhud reload";
         public static final String inbox = "/dhud inbox";
     }
