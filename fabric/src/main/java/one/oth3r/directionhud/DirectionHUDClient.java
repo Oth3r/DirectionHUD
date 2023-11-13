@@ -86,7 +86,6 @@ public class DirectionHUDClient implements ClientModInitializer {
                 Type hashMapToken = new TypeToken<HashMap<String, Object>>() {}.getType();
                 Gson gson = new GsonBuilder().disableHtmlEscaping().create();
                 packetData = gson.fromJson(packet.getMessage(), hashMapToken);
-                DirectionHUD.LOGGER.info(packet.getMessage());
                 if (!client.isInSingleplayer()) PlayerData.playerMap.put(Player.of(),packetData);
                 onSupportedServer = true;
             });
