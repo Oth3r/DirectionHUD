@@ -157,10 +157,6 @@ public class CUtl {
                 return CTxT.of(Assets.symbols.x).btn(true).color(o?'c':'7').cEvent(o?1:0,"/dest clear").hEvent(
                         CTxT.of(Assets.cmdUsage.destClear).color(o?'c':'7').append("\n").append(TBtn("dest.clear.hover")));
             }
-            public static CTxT clear() {
-                return TBtn("clear").btn(true).color('c').cEvent(1,"/dest track .clear").hEvent(
-                        CTxT.of(Assets.cmdUsage.destTrackClear).color('c').append("\n").append(TBtn("dest.track_clear.hover")));
-            }
             public static CTxT lastdeath() {
                 return TBtn("dest.lastdeath").btn(true).color(Assets.mainColors.lastdeath).cEvent(1,"/dest lastdeath").hEvent(
                         CTxT.of(Assets.cmdUsage.destLastdeath).color(Assets.mainColors.lastdeath).append("\n").append(TBtn("dest.lastdeath.hover")));
@@ -190,10 +186,6 @@ public class CUtl {
             public static CTxT settings() {
                 return TBtn("settings").btn(true).color(Assets.mainColors.setting).cEvent(1,"/hud settings").hEvent(
                         CTxT.of(Assets.cmdUsage.hudSettings).color(Assets.mainColors.setting).append("\n").append(TBtn("settings.hover",lang("hud"))));
-            }
-            public static CTxT toggle(Character color, String type) {
-                return TBtn("hud.toggle").btn(true).color(color).cEvent(1,"/hud toggle "+type).hEvent(
-                        CTxT.of(Assets.cmdUsage.hudToggle).color(color).append("\n").append(TBtn("hud.toggle.hover")));
             }
         }
         public static class DHUD {
