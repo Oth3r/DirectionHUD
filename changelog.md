@@ -52,10 +52,13 @@
   * removed toggle button from HUD menu, the command still is functional
 * PlayerData v1.6
   * The PlayerData JSON is now formatted in a readable way
-* fixed players not unloading fully on server shutdown
+* fixed players & files not unloading fully on server shutdown
 * fixed tracking module pointing to player target when the target is in another dimension and AutoConvert is off
 * fixed `tracking resumed` message not showing up when turning on AutoConvert
+* removed suggestions formatter
 ### Spigot Changes
 * removed `directionhud.directionhud` permission
 * removed `directionhud.defaults` permission
 * fixed `hud-editing` config option not working
+### Fabric Changes
+* fixed tracking target option not being set correctly in ModMenu
