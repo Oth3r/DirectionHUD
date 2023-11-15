@@ -661,7 +661,10 @@ public class Destination {
                     suggester.add("name");
                     suggester.add(new saved.Dest(player,list,args[1]).getName());
                 }
-                if (args[0].equalsIgnoreCase("color")) suggester.add("ffffff");
+                if (args[0].equalsIgnoreCase("color")) {
+                    suggester.addAll(CUtl.color.presetsSuggester(player));
+                    suggester.add("ffffff");
+                }
                 if (args[0].equalsIgnoreCase("order")) suggester.add(String.valueOf(new saved.Dest(player,list,args[1]).getOrder()));
                 return suggester;
             }
@@ -1147,6 +1150,8 @@ public class Destination {
                 player.sendMessage(CUtl.error("dest.invalid"));
                 return;
             }
+            //if color is preset, get the preset color
+            if (color.contains("preset")) color = PlayerData.get.colorPresets(player).get(Integer.parseInt(color.substring(7))-1);
             if (!CUtl.color.checkValid(color,dest.getColor())) {
                 player.sendMessage(CUtl.error("color"));
                 return;
