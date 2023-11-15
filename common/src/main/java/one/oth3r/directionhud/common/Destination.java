@@ -811,7 +811,7 @@ public class Destination {
             ArrayList<String> suggester = new ArrayList<>();
             // track (clear*|set|cancel*|accept*|deny*)
             if (pos == 0) {
-                if (social.track.getTarget(player)!=null) suggester.add("clear");
+                if (PlayerData.get.dest.getTracking(player)!=null) suggester.add("clear");
                 suggester.add("set");
                 if (DHUD.inbox.getAllMatches(player, DHUD.inbox.Type.track_pending)!=null) suggester.add("cancel");
                 if (DHUD.inbox.getAllMatches(player, DHUD.inbox.Type.track_request)!=null) {
