@@ -170,8 +170,7 @@ public class LoopManager {
         } else if (PlayerData.getOneTime(player, "tracking.offline") == null && PlayerData.get.dest.getTracking(player) != null) {
             // if the target is null, means the player cant be found, probably offline
             // AND the offline message hasn't been sent yet
-            player.sendMessage(CUtl.tag().append(CUtl.lang("dest.track.offline")).append(" ")
-                    .append(CUtl.CButton.dest.clear()));
+            player.sendMessage(CUtl.tag().append(CUtl.lang("dest.track.offline")));
             PlayerData.setOneTime(player, "tracking.offline", "1");
             // reset all other messages
             PlayerData.setOneTime(player, "tracking.converted", null);
