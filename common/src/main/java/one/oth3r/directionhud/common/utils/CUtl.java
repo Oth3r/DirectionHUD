@@ -295,9 +295,9 @@ public class CUtl {
         }
         public static void presetUI(Player player, String type, String setCMD, String backCMD) {
             String formattedReturnCMDArgs = formatCMD(setCMD)+" "+formatCMD(backCMD);
-            CTxT defaultBtn = TBtn("color.presets.default").color(CUtl.s()).cEvent(1,"/dirhud presets default "+formattedReturnCMDArgs).btn(true);
-            CTxT minecraftBtn = TBtn("color.presets.minecraft").color(CUtl.s()).cEvent(1,"/dirhud presets minecraft "+formattedReturnCMDArgs).btn(true);
-            CTxT customBtn = TBtn("color.custom").color(CUtl.s()).cEvent(1,"/dirhud presets custom "+formattedReturnCMDArgs).btn(true);
+            CTxT defaultBtn = TBtn("color.presets.default").color(CUtl.s()).cEvent(1,"/dhud presets default "+formattedReturnCMDArgs).btn(true);
+            CTxT minecraftBtn = TBtn("color.presets.minecraft").color(CUtl.s()).cEvent(1,"/dhud presets minecraft "+formattedReturnCMDArgs).btn(true);
+            CTxT customBtn = TBtn("color.custom").color(CUtl.s()).cEvent(1,"/dhud presets custom "+formattedReturnCMDArgs).btn(true);
             List<String> colorStrings;
             List<String> colors;
             int rowAmt;
@@ -345,14 +345,14 @@ public class CUtl {
         }
         public static void customUI(Player player, String setCMD, String backCMD) {
             String formattedReturnCMDArgs = formatCMD(setCMD)+" "+formatCMD(backCMD);
-            CTxT defaultBtn = TBtn("color.presets.default").color(CUtl.s()).cEvent(1, "/dirhud presets default " + formattedReturnCMDArgs).btn(true);
-            CTxT minecraftBtn = TBtn("color.presets.minecraft").color(CUtl.s()).cEvent(1, "/dirhud presets minecraft " + formattedReturnCMDArgs).btn(true);
+            CTxT defaultBtn = TBtn("color.presets.default").color(CUtl.s()).cEvent(1, "/dhud presets default " + formattedReturnCMDArgs).btn(true);
+            CTxT minecraftBtn = TBtn("color.presets.minecraft").color(CUtl.s()).cEvent(1, "/dhud presets minecraft " + formattedReturnCMDArgs).btn(true);
             CTxT customBtn = TBtn("color.custom").btn(true).color('7');
             CTxT list = CTxT.of("\n   ");
             int i = 0;
             for (String s : PlayerData.get.colorPresets(player)) {
                 boolean x = !s.equals("#ffffff");
-                CTxT xBtn = CTxT.of(Assets.symbols.x).btn(true).color(x ? 'c' : '7').cEvent(x ? 1 : 0, "/dirhud presets custom reset " + i + " " + formattedReturnCMDArgs);
+                CTxT xBtn = CTxT.of(Assets.symbols.x).btn(true).color(x ? 'c' : '7').cEvent(x ? 1 : 0, "/dhud presets custom reset " + i + " " + formattedReturnCMDArgs);
                 CTxT squareBtn = CTxT.of(Assets.symbols.square).color(s).btn(true).cEvent(1, setCMD + s.substring(1))
                         .hEvent(TBtn("color.hover", getBadge(s)));
                 if (i % 2 == 0) list.append(xBtn).append(" ").append(squareBtn).append(" -=- ");
@@ -386,7 +386,7 @@ public class CUtl {
             int i = 0;
             for (String s: PlayerData.get.colorPresets(player)) {
                 CTxT square = CTxT.of(Assets.symbols.square).color(s).btn(true).hEvent(getBadge(s));
-                CTxT plusBtn = CTxT.of("+").btn(true).color('a').cEvent(1,"/dirhud presets custom add "+i+" "+color.substring(1)+" "+formattedReturnCMD)
+                CTxT plusBtn = CTxT.of("+").btn(true).color('a').cEvent(1,"/dhud presets custom add "+i+" "+color.substring(1)+" "+formattedReturnCMD)
                         .hEvent(TBtn("color.presets.plus.hover",CTxT.of("#"+(i+1)).color(s()),getBadge(color)));
                 if (i%2==0) list.append(plusBtn).append(" ").append(square).append(" -=- ");
                 else list.append(square).append(" ").append(plusBtn).append("\n   ");

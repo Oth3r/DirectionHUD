@@ -54,7 +54,7 @@ public class Assets {
         public static final String destSend = "/dest send <IGN> saved <name> | /dest send <IGN> (name) (x) (y) (z) (dimension) (color)";
         public static final String destTrack = "/dest track (set, accept, deny, cancel) <IGN> | /dest track clear";
         public static final String destTrackClear = "/dest track clear";
-        public static final String reload = "/dirhud reload";
+        public static final String reload = "/dhud reload";
         public static final String inbox = "/dhud inbox";
     }
     public static class symbols {
