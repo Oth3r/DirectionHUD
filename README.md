@@ -17,8 +17,7 @@ Hop in the discord for any questions or support! [Discord](https://discord.gg/Me
 
 ## Future Goals
 * Continued updates and QOL
-* Spigot server and fabric client compatibility
 * More UI options (very far in the future)
     * Spigot & Fabric server - chest inventory ui
     * Fabric client - custom UI, for HUD and settings pages
-    * Geyser bedrock UI
+    * Geyser bedrock UI (BETA SOON!!)
