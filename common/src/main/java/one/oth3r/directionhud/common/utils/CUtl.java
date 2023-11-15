@@ -166,7 +166,7 @@ public class CUtl {
                         CTxT.of(Assets.cmdUsage.destSend).color(Assets.mainColors.send).append("\n").append(TBtn("dest.send.hover")));
             }
             public static CTxT track() {
-                return TBtn("dest.track").btn(true).color(Assets.mainColors.track).cEvent(2,"/dest track ").hEvent(
+                return TBtn("dest.track").btn(true).color(Assets.mainColors.track).cEvent(2,"/dest track set").hEvent(
                         CTxT.of(Assets.cmdUsage.destTrack).color(Assets.mainColors.track).append("\n").append(TBtn("dest.track.hover")));
             }
             public static CTxT trackX() {
