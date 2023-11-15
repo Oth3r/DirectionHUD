@@ -28,9 +28,7 @@ public class DirectionHUDClient implements ClientModInitializer {
     public static boolean singleplayer = false;
     public static boolean onSupportedServer = false;
     public static HashMap<String, Object> packetData = new HashMap<>();
-    public static HashMap<HUD.Module, ArrayList<String>> hudData;
     private static KeyBinding keyBinding;
-    private static int HUDRefresh;
     public static Text override = Text.of("");
     public static int overrideCd = 0;
     @Override
