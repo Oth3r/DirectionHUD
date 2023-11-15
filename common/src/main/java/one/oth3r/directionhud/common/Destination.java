@@ -965,7 +965,7 @@ public class Destination {
                 return dest;
             }
             public String getName() {
-                return dest.get(0);
+                return dest==null?"":dest.get(0);
             }
             public void setName(String name) {
                 name = name.replace(" ","");
@@ -1141,9 +1141,12 @@ public class Destination {
             if (Return) player.performCommand("dest saved edit "+name);
         }
         public static void setColor(Player player,List<List<String>> list, String stepSize, String name, String color, boolean Return) {
-            Dest dest = new Dest(player,getList(player),name);
+            Dest dest = new Dest(player,list,name);
             // remove the bad data
-            if (!getNames(list).contains(name)) return;
+            if (dest.getDest() == null) {
+                player.sendMessage(CUtl.error("dest.invalid"));
+                return;
+            }
             if (!CUtl.color.checkValid(color,dest.getColor())) {
                 player.sendMessage(CUtl.error("color"));
                 return;
