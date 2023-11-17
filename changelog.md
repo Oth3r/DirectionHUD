@@ -1,4 +1,7 @@
 # v1.5
+Another round of fixes, and prep for bigger things.
+[![thumbnail](https://i.imgur.com/APdFJkP.png)](https://youtu.be/13kI53UI20k)
+[Watch the update video!]((https://youtu.be/13kI53UI20k))
 ### Rewrites & Refreshes
 * rewrote client-server networking
   * DirectionHUD clients are now compatible with Spigot servers
