@@ -6,6 +6,7 @@ import one.oth3r.directionhud.common.files.LangReader;
 import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.utils.CUtl;
+import one.oth3r.directionhud.common.utils.FloodGateHandler;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
@@ -39,6 +40,9 @@ public class Events {
     }
     public static void playerJoin(Player player) {
         PlayerData.addPlayer(player);
+        // check if floodgate is installed, because if not it will crash
+        if (FloodGateHandler.isEnabled() && FloodGateHandler.isFloodgate(player))
+                DirectionHUD.floodgatePlayers.put(player,FloodGateHandler.getFGPlayer(player));
     }
     public static void playerLeave(Player player) {
         playerSoftLeave(player);
@@ -47,6 +51,8 @@ public class Events {
     public static void playerSoftLeave(Player player) {
         DHUD.inbox.removeAllTracking(player);
         PlayerData.removePlayer(player);
+        DirectionHUD.clientPlayers.remove(player);
+        DirectionHUD.floodgatePlayers.remove(player);
         DirectionHUD.bossBarManager.removePlayer(player);
     }
     public static void playerChangeWorld(Player player, String fromDIM, String toDIM) {

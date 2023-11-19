@@ -23,7 +23,7 @@ Ever wanted everything to be RGB?
 \
 Toggle and sort HUD modules to your liking, change the colors and style.
 
-![hud customization](https://github.com/Oth3r/DirectionHUD/blob/master/media/hud%20customization.gif?raw=true)
+![hud customization](https://github.com/Oth3r/DirectionHUD/blob/master/media/hud-modules.gif?raw=true)
 
 ### Saving Coordinates
 Tired of writing down base locations?
@@ -44,7 +44,7 @@ Send a tracking request and start your adventures!
 \
 See your last deaths in each dimension.
 \
-![lastdeath](https://github.com/Oth3r/DirectionHUD/blob/master/media/lastdeath.gif?raw=true)
+![lastdeath](https://github.com/Oth3r/DirectionHUD/blob/master/media/lastdeath.png?raw=true)
 
 ### Destination Customization
 MORE CUSTOMIZATION

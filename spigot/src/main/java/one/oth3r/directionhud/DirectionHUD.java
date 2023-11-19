@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 
 public class DirectionHUD extends JavaPlugin implements PluginMessageListener {
     public static ArrayList<Player> clientPlayers = new ArrayList<>();
+    public static HashMap<Player, FloodgatePlayer> floodgatePlayers = new HashMap<>();
     public static Plugin plugin;
     public static final String PRIMARY = "#ff8e16";
     public static final String SECONDARY = "#42a0ff";
