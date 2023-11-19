@@ -36,6 +36,7 @@ public class Events {
         PlayerData.playerMap.clear();
         PlayerData.oneTimeMap.clear();
         DirectionHUD.clientPlayers.clear();
+        DirectionHUD.floodgatePlayers.clear();
         DirectionHUD.LOGGER.info("Safely shutdown!");
     }
     public static void playerJoin(Player player) {
