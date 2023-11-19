@@ -175,127 +175,137 @@ public class config {
         }
     }
     public static void loadVersion(Properties properties, float version) {
-        //json maps
-        Type arrayListMap = new TypeToken<ArrayList<String>>() {}.getType();
-        Type moduleListMap = new TypeToken<ArrayList<HUD.Module>>() {}.getType();
-        // CONFIG
-        MAXxz = Integer.parseInt((String) properties.computeIfAbsent("max-xz", a -> String.valueOf(defaults.MAXxz)));
-        MAXy = Integer.parseInt((String) properties.computeIfAbsent("max-y", a -> String.valueOf(defaults.MAXy)));
-        globalDESTs = Boolean.parseBoolean((String) properties.computeIfAbsent("global-destinations", a -> String.valueOf(defaults.globalDESTs)));
-        DestSaving = Boolean.parseBoolean((String) properties.computeIfAbsent("destination-saving", a -> String.valueOf(defaults.DestSaving)));
-        DestMAX = Integer.parseInt((String) properties.computeIfAbsent("destination-max", a -> String.valueOf(defaults.DestMAX)));
-        LastDeathSaving = Boolean.parseBoolean((String) properties.computeIfAbsent("lastdeath-saving", a -> String.valueOf(defaults.LastDeathSaving)));
-        LastDeathMAX = Integer.parseInt((String) properties.computeIfAbsent("lastdeath-max", a -> String.valueOf(defaults.LastDeathMAX)));
-        HUDEditing = Boolean.parseBoolean((String) properties.computeIfAbsent("hud-editing", a -> String.valueOf(defaults.HUDEditing)));
-        online = Boolean.parseBoolean((String) properties.computeIfAbsent("online-mode", a -> String.valueOf(defaults.online)));
-        // SOCIAL
-        social = Boolean.parseBoolean((String) properties.computeIfAbsent("social-commands", a -> String.valueOf(defaults.social)));
-        socialCooldown = Integer.parseInt((String) properties.computeIfAbsent("social-cooldown", a -> String.valueOf(defaults.socialCooldown)));
-        // LOOPS
-        ParticleLoop = Math.min(20, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("particle-loop", a -> String.valueOf(defaults.ParticleLoop)))));
-        HUDLoop = Math.min(20, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("hud-loop", a -> String.valueOf(defaults.HUDLoop)))));
-        // DIM
-        dimensions = new Gson().fromJson((String) properties.computeIfAbsent("dimensions", a -> String.valueOf(defaults.dimensions)),arrayListMap);
-        dimensionRatios = new Gson().fromJson((String) properties.computeIfAbsent("dimension-ratios", a -> String.valueOf(defaults.dimensionRatios)),arrayListMap);
+        try {
+            Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+            //json maps
+            Type arrayListMap = new TypeToken<ArrayList<String>>() {
+            }.getType();
+            Type moduleListMap = new TypeToken<ArrayList<HUD.Module>>() {
+            }.getType();
+            // CONFIG
+            MAXxz = Integer.parseInt((String) properties.computeIfAbsent("max-xz", a -> String.valueOf(defaults.MAXxz)));
+            MAXy = Integer.parseInt((String) properties.computeIfAbsent("max-y", a -> String.valueOf(defaults.MAXy)));
+            globalDESTs = Boolean.parseBoolean((String) properties.computeIfAbsent("global-destinations", a -> String.valueOf(defaults.globalDESTs)));
+            DestSaving = Boolean.parseBoolean((String) properties.computeIfAbsent("destination-saving", a -> String.valueOf(defaults.DestSaving)));
+            DestMAX = Integer.parseInt((String) properties.computeIfAbsent("destination-max", a -> String.valueOf(defaults.DestMAX)));
+            LastDeathSaving = Boolean.parseBoolean((String) properties.computeIfAbsent("lastdeath-saving", a -> String.valueOf(defaults.LastDeathSaving)));
+            LastDeathMAX = Integer.parseInt((String) properties.computeIfAbsent("lastdeath-max", a -> String.valueOf(defaults.LastDeathMAX)));
+            HUDEditing = Boolean.parseBoolean((String) properties.computeIfAbsent("hud-editing", a -> String.valueOf(defaults.HUDEditing)));
+            online = Boolean.parseBoolean((String) properties.computeIfAbsent("online-mode", a -> String.valueOf(defaults.online)));
+            // SOCIAL
+            social = Boolean.parseBoolean((String) properties.computeIfAbsent("social-commands", a -> String.valueOf(defaults.social)));
+            socialCooldown = Integer.parseInt((String) properties.computeIfAbsent("social-cooldown", a -> String.valueOf(defaults.socialCooldown)));
+            // LOOPS
+            ParticleLoop = Math.min(20, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("particle-loop", a -> String.valueOf(defaults.ParticleLoop)))));
+            HUDLoop = Math.min(20, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("hud-loop", a -> String.valueOf(defaults.HUDLoop)))));
+            // DIM
+            dimensions = new Gson().fromJson((String) properties.computeIfAbsent("dimensions", a -> gson.toJson(defaults.dimensions)), arrayListMap);
+            dimensionRatios = new Gson().fromJson((String) properties.computeIfAbsent("dimension-ratios", a -> gson.toJson(defaults.dimensionRatios)), arrayListMap);
 
-        // PLAYER DEFAULTS
-        colorPresets = new Gson().fromJson((String) properties.computeIfAbsent("color-presets", a -> String.valueOf(defaults.colorPresets)),arrayListMap);
-        // HUD
-        hud.Order = HUD.modules.fixOrder(new Gson().fromJson((String)
-                properties.computeIfAbsent("hud.order", a -> String.valueOf(hud.defaults.Order)),moduleListMap));
-        // HUD MODULES
-        hud.Coordinates = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.coordinates", a -> String.valueOf(hud.defaults.Coordinates)));
-        hud.Distance = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.distance", a -> String.valueOf(hud.defaults.Distance)));
-        hud.Tracking = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.tracking", a -> String.valueOf(hud.defaults.Tracking)));
-        hud.Destination = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.destination", a -> String.valueOf(hud.defaults.Destination)));
-        hud.Direction = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.direction", a -> String.valueOf(hud.defaults.Direction)));
-        hud.Time = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.time", a -> String.valueOf(hud.defaults.Time)));
-        hud.Weather = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.weather", a -> String.valueOf(hud.defaults.Weather)));
-        // HUD COLOR
-        hud.primary.Color = CUtl.color.format((String) properties.computeIfAbsent("hud.color.primary", a -> hud.defaults.primary.Color), hud.defaults.primary.Color);
-        hud.primary.Bold = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.color.primary-bold", a -> String.valueOf(hud.defaults.primary.Bold)));
-        hud.primary.Italics = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.color.primary-italics", a -> String.valueOf(hud.defaults.primary.Italics)));
-        hud.primary.Rainbow = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.color.primary-rainbow", a -> String.valueOf(hud.defaults.primary.Rainbow)));
-        hud.secondary.Color = CUtl.color.format((String) properties.computeIfAbsent("hud.color.secondary", a -> hud.defaults.secondary.Color), hud.defaults.secondary.Color);
-        hud.secondary.Bold = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.color.secondary-bold", a -> String.valueOf(hud.defaults.secondary.Bold)));
-        hud.secondary.Italics = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.color.secondary-italics", a -> String.valueOf(hud.defaults.secondary.Italics)));
-        hud.secondary.Rainbow = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.color.secondary-rainbow", a -> String.valueOf(hud.defaults.secondary.Rainbow)));
-        // HUD SETTINGS
-        hud.State = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.settings.state", a -> String.valueOf(hud.defaults.State)));
-        hud.DisplayType = HUD.Setting.DisplayType.get((String) properties.computeIfAbsent("hud.settings.type", a -> hud.defaults.DisplayType)).toString();
-        hud.BarColor = HUD.Setting.BarColor.get((String) properties.computeIfAbsent("hud.settings.bossbar.color", a -> hud.defaults.BarColor)).toString();
-        hud.BarShowDistance = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.settings.bossbar.distance", a -> String.valueOf(hud.defaults.BarShowDistance)));
-        hud.ShowDistanceMAX = Integer.parseInt((String) properties.computeIfAbsent("hud.settings.bossbar.distance_max", a -> String.valueOf(hud.defaults.ShowDistanceMAX)));
-        hud.Time24HR = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.settings.module.time_24hr", a -> String.valueOf(hud.defaults.Time24HR)));
-        hud.TrackingTarget = HUD.Setting.HUDTrackingTarget.get((String) properties.computeIfAbsent("hud.settings.module.tracking_target", a -> hud.defaults.TrackingTarget)).toString();
-        // DEST SETTINGS
-        dest.AutoClear = Boolean.parseBoolean((String) properties.computeIfAbsent("dest.settings.autoclear", a -> String.valueOf(dest.defaults.AutoClear)));
-        dest.AutoClearRad = Math.min(15, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("dest.settings.autoclear_rad", a -> String.valueOf(dest.defaults.AutoClearRad)))));
-        dest.AutoConvert = Boolean.parseBoolean((String) properties.computeIfAbsent("dest.settings.autoconvert", a -> String.valueOf(dest.defaults.AutoConvert)));
-        dest.YLevel = Boolean.parseBoolean((String) properties.computeIfAbsent("dest.settings.ylevel", a -> String.valueOf(dest.defaults.YLevel)));
-        // DEST COLOR
-        dest.particles.Dest = Boolean.parseBoolean((String) properties.computeIfAbsent("dest.settings.particles.dest", a -> String.valueOf(dest.defaults.particles.Dest)));
-        dest.particles.DestColor = CUtl.color.format((String) properties.computeIfAbsent("dest.settings.particles.dest_color", a -> dest.defaults.particles.DestColor), dest.defaults.particles.DestColor);
-        dest.particles.Line = Boolean.parseBoolean((String) properties.computeIfAbsent("dest.settings.particles.line", a -> String.valueOf(dest.defaults.particles.Line)));
-        dest.particles.LineColor = CUtl.color.format((String) properties.computeIfAbsent("dest.settings.particles.line_color", a -> dest.defaults.particles.LineColor), dest.defaults.particles.LineColor);
-        dest.particles.Tracking = Boolean.parseBoolean((String) properties.computeIfAbsent("dest.settings.particles.tracking", a -> String.valueOf(dest.defaults.particles.Tracking)));
-        dest.particles.TrackingColor = CUtl.color.format((String) properties.computeIfAbsent("dest.settings.particles.tracking_color", a -> dest.defaults.particles.TrackingColor), dest.defaults.particles.DestColor);
-        // DEST FEATURES
-        dest.Send = Boolean.parseBoolean((String) properties.computeIfAbsent("dest.settings.features.send", a -> String.valueOf(dest.defaults.Send)));
-        dest.Track = Boolean.parseBoolean((String) properties.computeIfAbsent("dest.settings.features.track", a -> String.valueOf(dest.defaults.Track)));
-        dest.TrackingRequestMode = Destination.Setting.TrackingRequestMode.get((String) properties.computeIfAbsent("dest.settings.features.track_request_mode", a -> dest.defaults.TrackingRequestMode)).toString();
-        dest.Lastdeath = Boolean.parseBoolean((String) properties.computeIfAbsent("dest.settings.features.lastdeath", a -> String.valueOf(dest.defaults.Lastdeath)));
-        // CONFIG UPDATER, if the version is lower than the current, load from the old config
-        // everything before & 1.3
-        if (version <= 1.3f) {
-            DestMAX = Integer.parseInt((String) properties.computeIfAbsent("destination-max-saved", a -> String.valueOf(defaults.DestMAX)));
-            LastDeathSaving = Boolean.parseBoolean((String) properties.computeIfAbsent("death-saving", a -> String.valueOf(defaults.LastDeathSaving)));
-            hud.State = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.enabled", a -> String.valueOf(hud.defaults.State)));
-            HUDLoop = Math.min(20, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("hud-refresh", a -> String.valueOf(defaults.HUDLoop)))));
+            // PLAYER DEFAULTS
+            colorPresets = new Gson().fromJson((String) properties.computeIfAbsent("color-presets", a -> gson.toJson(defaults.colorPresets)), arrayListMap);
+            // HUD
+            hud.Order = HUD.modules.fixOrder(new Gson().fromJson((String) properties.computeIfAbsent("hud.order", a -> gson.toJson(hud.defaults.Order)), moduleListMap));
+            // HUD MODULES
+            hud.Coordinates = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.coordinates", a -> String.valueOf(hud.defaults.Coordinates)));
+            hud.Distance = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.distance", a -> String.valueOf(hud.defaults.Distance)));
+            hud.Tracking = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.tracking", a -> String.valueOf(hud.defaults.Tracking)));
+            hud.Destination = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.destination", a -> String.valueOf(hud.defaults.Destination)));
+            hud.Direction = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.direction", a -> String.valueOf(hud.defaults.Direction)));
+            hud.Time = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.time", a -> String.valueOf(hud.defaults.Time)));
+            hud.Weather = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.weather", a -> String.valueOf(hud.defaults.Weather)));
+            // HUD COLOR
+            hud.primary.Color = CUtl.color.format((String) properties.computeIfAbsent("hud.color.primary", a -> hud.defaults.primary.Color), hud.defaults.primary.Color);
+            hud.primary.Bold = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.color.primary-bold", a -> String.valueOf(hud.defaults.primary.Bold)));
+            hud.primary.Italics = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.color.primary-italics", a -> String.valueOf(hud.defaults.primary.Italics)));
+            hud.primary.Rainbow = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.color.primary-rainbow", a -> String.valueOf(hud.defaults.primary.Rainbow)));
+            hud.secondary.Color = CUtl.color.format((String) properties.computeIfAbsent("hud.color.secondary", a -> hud.defaults.secondary.Color), hud.defaults.secondary.Color);
+            hud.secondary.Bold = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.color.secondary-bold", a -> String.valueOf(hud.defaults.secondary.Bold)));
+            hud.secondary.Italics = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.color.secondary-italics", a -> String.valueOf(hud.defaults.secondary.Italics)));
+            hud.secondary.Rainbow = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.color.secondary-rainbow", a -> String.valueOf(hud.defaults.secondary.Rainbow)));
+            // HUD SETTINGS
+            hud.State = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.settings.state", a -> String.valueOf(hud.defaults.State)));
+            hud.DisplayType = HUD.Setting.DisplayType.get((String) properties.computeIfAbsent("hud.settings.type", a -> hud.defaults.DisplayType)).toString();
+            hud.BarColor = HUD.Setting.BarColor.get((String) properties.computeIfAbsent("hud.settings.bossbar.color", a -> hud.defaults.BarColor)).toString();
+            hud.BarShowDistance = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.settings.bossbar.distance", a -> String.valueOf(hud.defaults.BarShowDistance)));
+            hud.ShowDistanceMAX = Integer.parseInt((String) properties.computeIfAbsent("hud.settings.bossbar.distance_max", a -> String.valueOf(hud.defaults.ShowDistanceMAX)));
+            hud.Time24HR = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.settings.module.time_24hr", a -> String.valueOf(hud.defaults.Time24HR)));
+            hud.TrackingTarget = HUD.Setting.HUDTrackingTarget.get((String) properties.computeIfAbsent("hud.settings.module.tracking_target", a -> hud.defaults.TrackingTarget)).toString();
+            // DEST SETTINGS
+            dest.AutoClear = Boolean.parseBoolean((String) properties.computeIfAbsent("dest.settings.autoclear", a -> String.valueOf(dest.defaults.AutoClear)));
+            dest.AutoClearRad = Math.min(15, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("dest.settings.autoclear_rad", a -> String.valueOf(dest.defaults.AutoClearRad)))));
+            dest.AutoConvert = Boolean.parseBoolean((String) properties.computeIfAbsent("dest.settings.autoconvert", a -> String.valueOf(dest.defaults.AutoConvert)));
+            dest.YLevel = Boolean.parseBoolean((String) properties.computeIfAbsent("dest.settings.ylevel", a -> String.valueOf(dest.defaults.YLevel)));
+            // DEST COLOR
+            dest.particles.Dest = Boolean.parseBoolean((String) properties.computeIfAbsent("dest.settings.particles.dest", a -> String.valueOf(dest.defaults.particles.Dest)));
+            dest.particles.DestColor = CUtl.color.format((String) properties.computeIfAbsent("dest.settings.particles.dest_color", a -> dest.defaults.particles.DestColor), dest.defaults.particles.DestColor);
+            dest.particles.Line = Boolean.parseBoolean((String) properties.computeIfAbsent("dest.settings.particles.line", a -> String.valueOf(dest.defaults.particles.Line)));
+            dest.particles.LineColor = CUtl.color.format((String) properties.computeIfAbsent("dest.settings.particles.line_color", a -> dest.defaults.particles.LineColor), dest.defaults.particles.LineColor);
+            dest.particles.Tracking = Boolean.parseBoolean((String) properties.computeIfAbsent("dest.settings.particles.tracking", a -> String.valueOf(dest.defaults.particles.Tracking)));
+            dest.particles.TrackingColor = CUtl.color.format((String) properties.computeIfAbsent("dest.settings.particles.tracking_color", a -> dest.defaults.particles.TrackingColor), dest.defaults.particles.DestColor);
+            // DEST FEATURES
+            dest.Send = Boolean.parseBoolean((String) properties.computeIfAbsent("dest.settings.features.send", a -> String.valueOf(dest.defaults.Send)));
+            dest.Track = Boolean.parseBoolean((String) properties.computeIfAbsent("dest.settings.features.track", a -> String.valueOf(dest.defaults.Track)));
+            dest.TrackingRequestMode = Destination.Setting.TrackingRequestMode.get((String) properties.computeIfAbsent("dest.settings.features.track_request_mode", a -> dest.defaults.TrackingRequestMode)).toString();
+            dest.Lastdeath = Boolean.parseBoolean((String) properties.computeIfAbsent("dest.settings.features.lastdeath", a -> String.valueOf(dest.defaults.Lastdeath)));
+            // CONFIG UPDATER, if the version is lower than the current, load from the old config
+            // everything before & 1.3
+            if (version <= 1.3f) {
+                DestMAX = Integer.parseInt((String) properties.computeIfAbsent("destination-max-saved", a -> String.valueOf(defaults.DestMAX)));
+                LastDeathSaving = Boolean.parseBoolean((String) properties.computeIfAbsent("death-saving", a -> String.valueOf(defaults.LastDeathSaving)));
+                hud.State = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.enabled", a -> String.valueOf(hud.defaults.State)));
+                HUDLoop = Math.min(20, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("hud-refresh", a -> String.valueOf(defaults.HUDLoop)))));
+            }
+            // everything before & 1.21
+            if (version <= 1.21f) {
+                // I don't know why but oh well backwards compatibility
+                if (!DirectionHUD.isMod || version == 1.21f)
+                    dimensionRatios = new Gson().fromJson((String) properties.computeIfAbsent("dimension-ratios", a -> gson.toJson(defaults.dimensionRatios)), arrayListMap);
+                // update colors to new system
+                hud.primary.Color = CUtl.color.updateOld((String) properties.computeIfAbsent("primary-color", a -> hud.defaults.primary.Color), hud.defaults.primary.Color);
+                hud.secondary.Color = CUtl.color.updateOld((String) properties.computeIfAbsent("secondary-color", a -> hud.defaults.secondary.Color), hud.defaults.secondary.Color);
+                dest.particles.LineColor = CUtl.color.updateOld((String) properties.computeIfAbsent("line-particle-color", a -> dest.defaults.particles.LineColor), dest.defaults.particles.LineColor);
+                dest.particles.DestColor = CUtl.color.updateOld((String) properties.computeIfAbsent("dest-particle-color", a -> dest.defaults.particles.DestColor), dest.defaults.particles.DestColor);
+                //HUD
+                hud.State = Boolean.parseBoolean((String) properties.computeIfAbsent("enabled", a -> String.valueOf(hud.defaults.State)));
+                List<String> orderList = List.of(((String) properties.computeIfAbsent("order", a -> hud.defaults.Order.toString().substring(1).replace(",", "").replace("]", ""))).split(" "));
+                ArrayList<HUD.Module> moduleArray = new ArrayList<>();
+                for (String entry : orderList) moduleArray.add(HUD.Module.get(entry));
+                hud.Order = HUD.modules.fixOrder(moduleArray);
+                hud.Time24HR = Boolean.parseBoolean((String) properties.computeIfAbsent("time24hr", a -> String.valueOf(hud.defaults.Time24HR)));
+                hud.primary.Bold = Boolean.parseBoolean((String) properties.computeIfAbsent("primary-bold", a -> String.valueOf(hud.defaults.primary.Bold)));
+                hud.primary.Italics = Boolean.parseBoolean((String) properties.computeIfAbsent("primary-italics", a -> String.valueOf(hud.defaults.primary.Italics)));
+                hud.primary.Rainbow = Boolean.parseBoolean((String) properties.computeIfAbsent("primary-rainbow", a -> String.valueOf(hud.defaults.primary.Rainbow)));
+                hud.secondary.Bold = Boolean.parseBoolean((String) properties.computeIfAbsent("secondary-bold", a -> String.valueOf(hud.defaults.secondary.Bold)));
+                hud.secondary.Italics = Boolean.parseBoolean((String) properties.computeIfAbsent("secondary-italics", a -> String.valueOf(hud.defaults.secondary.Italics)));
+                hud.secondary.Rainbow = Boolean.parseBoolean((String) properties.computeIfAbsent("secondary-rainbow", a -> String.valueOf(hud.defaults.secondary.Rainbow)));
+                //MODULES
+                hud.Coordinates = Boolean.parseBoolean((String) properties.computeIfAbsent("coordinates", a -> String.valueOf(hud.defaults.Coordinates)));
+                hud.Distance = Boolean.parseBoolean((String) properties.computeIfAbsent("distance", a -> String.valueOf(hud.defaults.Distance)));
+                hud.Destination = Boolean.parseBoolean((String) properties.computeIfAbsent("destination", a -> String.valueOf(hud.defaults.Destination)));
+                hud.Direction = Boolean.parseBoolean((String) properties.computeIfAbsent("direction", a -> String.valueOf(hud.defaults.Direction)));
+                hud.Time = Boolean.parseBoolean((String) properties.computeIfAbsent("time", a -> String.valueOf(hud.defaults.Time)));
+                hud.Weather = Boolean.parseBoolean((String) properties.computeIfAbsent("weather", a -> String.valueOf(hud.defaults.Weather)));
+                hud.Tracking = Boolean.parseBoolean((String) properties.computeIfAbsent("tracking", a -> String.valueOf(hud.defaults.Tracking)));
+                //DEST
+                dest.AutoClear = Boolean.parseBoolean((String) properties.computeIfAbsent("autoclear", a -> String.valueOf(dest.defaults.AutoClear)));
+                dest.AutoClearRad = Math.min(15, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("autoclear-radius", a -> String.valueOf(dest.defaults.AutoClearRad)))));
+                dest.YLevel = Boolean.parseBoolean((String) properties.computeIfAbsent("y-level", a -> String.valueOf(dest.defaults.YLevel)));
+                dest.particles.Line = Boolean.parseBoolean((String) properties.computeIfAbsent("line-particles", a -> String.valueOf(dest.defaults.particles.Line)));
+                dest.particles.Dest = Boolean.parseBoolean((String) properties.computeIfAbsent("dest-particles", a -> String.valueOf(dest.defaults.particles.Dest)));
+                dest.Send = Boolean.parseBoolean((String) properties.computeIfAbsent("send", a -> String.valueOf(dest.defaults.Send)));
+                dest.Track = Boolean.parseBoolean((String) properties.computeIfAbsent("track", a -> String.valueOf(dest.defaults.Track)));
+                dest.AutoConvert = Boolean.parseBoolean((String) properties.computeIfAbsent("autoconvert", a -> String.valueOf(dest.defaults.AutoConvert)));
+                dest.particles.Tracking = Boolean.parseBoolean((String) properties.computeIfAbsent("tracking-particles", a -> String.valueOf(dest.defaults.particles.Tracking)));
+                dest.particles.TrackingColor = CUtl.color.updateOld((String) properties.computeIfAbsent("tracking-particle-color", a -> dest.defaults.particles.TrackingColor), dest.defaults.particles.DestColor);
+            }
+            // only in 1.1
+            if (version == 1.1f)
+                hud.Tracking = Boolean.parseBoolean((String) properties.computeIfAbsent("compass", a -> String.valueOf(hud.defaults.Tracking)));
+        } catch (Exception e) {
+            DirectionHUD.LOGGER.info("ERROR LOADING CONFIG - PLEASE REPORT WITH THE ERROR LOG");
+            e.printStackTrace();
         }
-        // everything before & 1.21
-        if (version <= 1.21f) {
-            // I don't know why but oh well backwards compatibility
-            if (!DirectionHUD.isMod || version == 1.21f)
-                dimensionRatios = new Gson().fromJson((String) properties.computeIfAbsent("dimension-ratios", a -> String.valueOf(defaults.dimensionRatios)),arrayListMap);
-            // update colors to new system
-            hud.primary.Color = CUtl.color.updateOld((String) properties.computeIfAbsent("primary-color", a -> hud.defaults.primary.Color), hud.defaults.primary.Color);
-            hud.secondary.Color = CUtl.color.updateOld((String) properties.computeIfAbsent("secondary-color", a -> hud.defaults.secondary.Color), hud.defaults.secondary.Color);
-            dest.particles.LineColor = CUtl.color.updateOld((String) properties.computeIfAbsent("line-particle-color", a -> dest.defaults.particles.LineColor), dest.defaults.particles.LineColor);
-            dest.particles.DestColor = CUtl.color.updateOld((String) properties.computeIfAbsent("dest-particle-color", a -> dest.defaults.particles.DestColor), dest.defaults.particles.DestColor);
-            //HUD
-            hud.State = Boolean.parseBoolean((String) properties.computeIfAbsent("enabled", a -> String.valueOf(hud.defaults.State)));
-            hud.Order = HUD.modules.fixOrder(HUD.Module.toModuleList((ArrayList<String>) List.of(((String) properties.computeIfAbsent("order", a -> hud.defaults.Order
-                    .toString().substring(1).replace(",","").replace("]",""))).split(" "))));
-            hud.Time24HR = Boolean.parseBoolean((String) properties.computeIfAbsent("time24hr", a -> String.valueOf(hud.defaults.Time24HR)));
-            hud.primary.Bold = Boolean.parseBoolean((String) properties.computeIfAbsent("primary-bold", a -> String.valueOf(hud.defaults.primary.Bold)));
-            hud.primary.Italics = Boolean.parseBoolean((String) properties.computeIfAbsent("primary-italics", a -> String.valueOf(hud.defaults.primary.Italics)));
-            hud.primary.Rainbow = Boolean.parseBoolean((String) properties.computeIfAbsent("primary-rainbow", a -> String.valueOf(hud.defaults.primary.Rainbow)));
-            hud.secondary.Bold = Boolean.parseBoolean((String) properties.computeIfAbsent("secondary-bold", a -> String.valueOf(hud.defaults.secondary.Bold)));
-            hud.secondary.Italics = Boolean.parseBoolean((String) properties.computeIfAbsent("secondary-italics", a -> String.valueOf(hud.defaults.secondary.Italics)));
-            hud.secondary.Rainbow = Boolean.parseBoolean((String) properties.computeIfAbsent("secondary-rainbow", a -> String.valueOf(hud.defaults.secondary.Rainbow)));
-            //MODULES
-            hud.Coordinates = Boolean.parseBoolean((String) properties.computeIfAbsent("coordinates", a -> String.valueOf(hud.defaults.Coordinates)));
-            hud.Distance = Boolean.parseBoolean((String) properties.computeIfAbsent("distance", a -> String.valueOf(hud.defaults.Distance)));
-            hud.Destination = Boolean.parseBoolean((String) properties.computeIfAbsent("destination", a -> String.valueOf(hud.defaults.Destination)));
-            hud.Direction = Boolean.parseBoolean((String) properties.computeIfAbsent("direction", a -> String.valueOf(hud.defaults.Direction)));
-            hud.Time = Boolean.parseBoolean((String) properties.computeIfAbsent("time", a -> String.valueOf(hud.defaults.Time)));
-            hud.Weather = Boolean.parseBoolean((String) properties.computeIfAbsent("weather", a -> String.valueOf(hud.defaults.Weather)));
-            hud.Tracking = Boolean.parseBoolean((String) properties.computeIfAbsent("tracking", a -> String.valueOf(hud.defaults.Tracking)));
-            //DEST
-            dest.AutoClear = Boolean.parseBoolean((String) properties.computeIfAbsent("autoclear", a -> String.valueOf(dest.defaults.AutoClear)));
-            dest.AutoClearRad = Math.min(15, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("autoclear-radius", a -> String.valueOf(dest.defaults.AutoClearRad)))));
-            dest.YLevel = Boolean.parseBoolean((String) properties.computeIfAbsent("y-level", a -> String.valueOf(dest.defaults.YLevel)));
-            dest.particles.Line = Boolean.parseBoolean((String) properties.computeIfAbsent("line-particles", a -> String.valueOf(dest.defaults.particles.Line)));
-            dest.particles.Dest = Boolean.parseBoolean((String) properties.computeIfAbsent("dest-particles", a -> String.valueOf(dest.defaults.particles.Dest)));
-            dest.Send = Boolean.parseBoolean((String) properties.computeIfAbsent("send", a -> String.valueOf(dest.defaults.Send)));
-            dest.Track = Boolean.parseBoolean((String) properties.computeIfAbsent("track", a -> String.valueOf(dest.defaults.Track)));
-            dest.AutoConvert = Boolean.parseBoolean((String) properties.computeIfAbsent("autoconvert", a -> String.valueOf(dest.defaults.AutoConvert)));
-            dest.particles.Tracking = Boolean.parseBoolean((String) properties.computeIfAbsent("tracking-particles", a -> String.valueOf(dest.defaults.particles.Tracking)));
-            dest.particles.TrackingColor = CUtl.color.updateOld((String) properties.computeIfAbsent("tracking-particle-color", a -> dest.defaults.particles.TrackingColor), dest.defaults.particles.DestColor);
-        }
-        // only in 1.1
-        if (version == 1.1f) hud.Tracking = Boolean.parseBoolean((String) properties.computeIfAbsent("compass", a -> String.valueOf(hud.defaults.Tracking)));
     }
     public static void save() {
         try (var file = new FileOutputStream(configFile(), false)) {
