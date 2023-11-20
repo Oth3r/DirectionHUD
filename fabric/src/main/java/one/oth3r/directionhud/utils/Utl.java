@@ -8,6 +8,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import one.oth3r.directionhud.DirectionHUD;
+import one.oth3r.directionhud.DirectionHUDClient;
 import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.HUD;
@@ -18,8 +19,8 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.joml.Vector3f;
 
 import java.awt.*;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 public class Utl {
     public static class Pair<A, B> {
@@ -117,34 +118,17 @@ public class Utl {
         } else if (world.isNight()) HUD.weatherIcon = Assets.symbols.moon;
         else HUD.weatherIcon = Assets.symbols.sun;
     }
-    public static ArrayList<String> xyzSuggester(Player player, String type) {
-        ArrayList<String> arr = new ArrayList<>();
-        if (type.equalsIgnoreCase("x")) {
-            arr.add(player.getBlockX()+"");
-            arr.add(player.getBlockX()+" "+player.getBlockZ());
-            arr.add(player.getBlockX()+" "+player.getBlockY()+" "+player.getBlockZ());
-        }
-        if (type.equalsIgnoreCase("y")) {
-            arr.add(player.getBlockY()+"");
-            arr.add(player.getBlockY()+" "+player.getBlockZ());
-        }
-        if (type.equalsIgnoreCase("z")) arr.add(player.getBlockZ()+"");
-        return arr;
-    }
-    public static ArrayList<String> formatSuggestions(ArrayList<String> suggester, String[] args) {
-        ArrayList<String> filteredCompletions = new ArrayList<>();
-        String currentInput = args[args.length - 1].toLowerCase();
-        for (String completion : suggester) {
-            if (completion.toLowerCase().startsWith(currentInput)) {
-                filteredCompletions.add(completion);
-            }
-        }
-        return filteredCompletions;
-    }
     public static List<Player> getPlayers() {
-        ArrayList<Player> array = new ArrayList<>(List.of());
+        ArrayList<Player> array = new ArrayList<>();
         for (ServerPlayerEntity p : DirectionHUD.server.getPlayerManager().getPlayerList())
             array.add(Player.of(p));
+        return array;
+    }
+    public static List<String> getPlayersEx(Player player) {
+        //get player strings excluding the inputted player
+        ArrayList<String> array = new ArrayList<>();
+        for (ServerPlayerEntity p : DirectionHUD.server.getPlayerManager().getPlayerList())
+            if (p!=player.getPlayer()) array.add(Player.of(p).getName());
         return array;
     }
     public static class vec {
@@ -157,33 +141,30 @@ public class Utl {
         }
     }
     public static class checkEnabled {
+        //todo add a bool for singleplayer for perm checking
         public static boolean destination(Player player) {
             return true;
         }
         public static boolean hud(Player player) {
             return config.HUDEditing;
         }
-        @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-        public static boolean dirhud(Player player) {
-            return true;
-        }
         public static boolean reload(Player player) {
-            return DirectionHUD.server.isRemote() && player.getPlayer().hasPermissionLevel(2);
+            return player.getPlayer().hasPermissionLevel(2) || DirectionHUDClient.singleplayer;
         }
-        public static boolean defaults(Player player) {
-            return !DirectionHUD.server.isRemote() && player.getPlayer().hasPermissionLevel(2);
+        public static boolean global(Player player) {
+            return config.globalDESTs && (player.getPlayer().hasPermissionLevel(2) || DirectionHUDClient.singleplayer);
         }
         public static boolean saving(Player player) {
-            return config.DESTSaving;
+            return config.DestSaving;
         }
         public static boolean lastdeath(Player player) {
-            return (boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.features__lastdeath) && config.deathsaving;
+            return (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.features__lastdeath) && config.LastDeathSaving;
         }
         public static boolean send(Player player) {
-            return (boolean)PlayerData.get.dest.setting.get(player, Destination.Settings.features__send) && config.social && DirectionHUD.server.isRemote();
+            return (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.features__send) && config.social && DirectionHUD.server.isRemote();
         }
         public static boolean track(Player player) {
-            return (boolean) PlayerData.get.dest.setting.get(player, Destination.Settings.features__track) && config.social && DirectionHUD.server.isRemote();
+            return (boolean) PlayerData.get.dest.setting.get(player, Destination.Setting.features__track) && config.social && DirectionHUD.server.isRemote();
         }
     }
     public static class particle {
@@ -207,11 +188,11 @@ public class Utl {
             }
         }
         public static DustParticleEffect getParticle(String particleType, Player player) {
-            String hex = (String) PlayerData.get.dest.setting.get(player, Destination.Settings.particles__dest_color);
+            String hex = (String) PlayerData.get.dest.setting.get(player, Destination.Setting.particles__dest_color);
             if (particleType.equals(DEST)) return new DustParticleEffect(new Vector3f(Vec3d.unpackRgb(Color.decode(CUtl.color.format(hex)).getRGB()).toVector3f()),3);
-            hex = (String) PlayerData.get.dest.setting.get(player, Destination.Settings.particles__line_color);
+            hex = (String) PlayerData.get.dest.setting.get(player, Destination.Setting.particles__line_color);
             if (particleType.equals(LINE)) return new DustParticleEffect(new Vector3f(Vec3d.unpackRgb(Color.decode(CUtl.color.format(hex)).getRGB()).toVector3f()),1);
-            hex = (String) PlayerData.get.dest.setting.get(player, Destination.Settings.particles__tracking_color);
+            hex = (String) PlayerData.get.dest.setting.get(player, Destination.Setting.particles__tracking_color);
             if (particleType.equals(TRACKING)) return new DustParticleEffect(new Vector3f(Vec3d.unpackRgb(Color.decode(CUtl.color.format(hex)).getRGB()).toVector3f()),0.5f);
             hex = "#000000";
             return new DustParticleEffect(new Vector3f(Vec3d.unpackRgb(Color.decode(CUtl.color.format(hex)).getRGB()).toVector3f()),5f);

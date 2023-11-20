@@ -56,14 +56,15 @@ public class Loc {
         if (xyz.charAt(0)=='[' && xyz.charAt(xyz.length()-1)==']') {
             String[] list = xyz.substring(1, xyz.length() - 1).split(", ");
             if (list.length >= 3)  {
-                this.x = Integer.parseInt(list[0]);
-                if (list[1] != null && !list[1].equals("null")) this.y = Integer.parseInt(list[1]);
-                this.z = Integer.parseInt(list[2]);
+                this.x = Helper.forceInt(list[0]);
+                if (list[1] != null && !list[1].equals("null")) this.y = Helper.forceInt(list[1]);
+                this.z = Helper.forceInt(list[2]);
             }
             if (list.length == 4) this.dimension = list[3];
             return;
         }
         ArrayList<String> sp = new ArrayList<>(Arrays.asList(xyz.split(" ")));
+        if (sp.size() == 0) return;
         if (sp.size() == 1) {
             this.x = 0;
             this.z = 0;
@@ -71,14 +72,14 @@ public class Loc {
         }
         if (!Utl.isInt(sp.get(0))) sp.set(0, "0");
         if (!Utl.isInt(sp.get(1))) sp.set(1, "0");
-        if (sp.size() == 3 && !Utl.isInt(sp.get(2))) sp.set(2,"0");
-        this.x = xzBounds(Integer.parseInt(sp.get(0)));
+        if (sp.size() == 3 && !Helper.isNum(sp.get(2))) sp.set(2,"0");
+        this.x = xzBounds(Helper.forceInt(sp.get(0)));
         if (sp.size() == 2) {
-            this.z = xzBounds(Integer.parseInt(sp.get(1)));
+            this.z = xzBounds(Helper.forceInt(sp.get(1)));
             return;
         }
-        this.y = yBounds(Integer.parseInt(sp.get(1)));
-        this.z = xzBounds(Integer.parseInt(sp.get(2)));
+        this.y = yBounds(Helper.forceInt(sp.get(1)));
+        this.z = xzBounds(Helper.forceInt(sp.get(2)));
     }
     public Loc(Player player) {
         this.x = xzBounds(player.getBlockX());
@@ -116,7 +117,7 @@ public class Loc {
         if (y == null) return x+" "+z;
         return x+" "+y+" "+z;
     }
-    public String getLocC() {
+    public String toArray() {
         if (x == null || z == null) return "null";
         if (this.dimension == null) return Arrays.toString(new String[]{this.x+"",this.y+"",this.z+""});
         return Arrays.toString(new String[]{this.x+"",this.y+"",this.z+"",this.dimension});

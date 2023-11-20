@@ -17,6 +17,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CUtl {
+    public static CTxT LARGE = CTxT.of("\n                                             ").strikethrough(true);
+    public static CTxT LINE_35 = CTxT.of("\n                                   ").strikethrough(true);
     public static CTxT tag() {
         return CTxT.of("").append(CTxT.of("DirectionHUD").btn(true).color(p())).append(" ");
     }
@@ -26,8 +28,8 @@ public class CUtl {
     public static String s() {
         return DirectionHUD.SECONDARY;
     }
-    public static CTxT error(CTxT s) {
-        return tag().append(lang("error").color(Assets.mainColors.error)).append(" ").append(s);
+    public static CTxT error(String key, Object... args) {
+        return tag().append(lang("error").color(Assets.mainColors.error)).append(" ").append(lang("error."+key, args));
     }
     public static CTxT usage(String s) {
         return tag().append(lang("usage").color(Assets.mainColors.usage)).append(" ").append(s);
@@ -57,13 +59,70 @@ public class CUtl {
     public static CTxT TBtn(String key, Object... args) {
         return lang("button."+key,args);
     }
+    public static class PageHelper<T> {
+        //helper for things that have pages??
+        private ArrayList<T> list;
+        private int perPage;
+        public PageHelper(ArrayList<T> list, int perPage) {
+            this.list = list;
+            this.perPage = perPage;
+        }
+        public int getTotalPages() {
+            // get max pages, min = 1
+            return Math.max(1,(int) Math.ceil((double) list.size() / perPage));
+        }
+        public ArrayList<T> getList() {
+            return list;
+        }
+        public int getPageOf(T item) {
+            // get the quotient of the index and the amount of items per page rounded to the next integer to get page of the current item
+            if (list.contains(item)) return (int) Math.ceil((double) (list.indexOf(item) + 1) / perPage);
+            else return 1;
+        }
+        public int getIndexOf(T item) {
+            return list.indexOf(item);
+        }
+        public ArrayList<T> getPage(int page) {
+            //return a list with the entries in the page given
+            int max = getTotalPages();
+            if (max < page) page = max;
+            if (page <= 0) page = 1;
+            ArrayList<T> pageList = new ArrayList<>();
+            // loop for amount per page
+            for (int i = 0;i < perPage;i++) {
+                // get the current index, (page-1) * amt per page + current page index
+                int index = (page-1)*perPage+i;
+                if (list.size() > index) pageList.add(list.get(index));
+            }
+            return pageList;
+        }
+        public CTxT getNavButtons(int page, String command) {
+            // return the buttons to change page
+            int max = getTotalPages();
+            if (page > max) page = max;
+            if (page < 2) page = 1;
+            CTxT left = CTxT.of("");
+            CTxT right = CTxT.of("");
+            // if at the start left is gray else not
+            if (page==1) left.append(CTxT.of("<<").btn(true).color('7'));
+            else left.append(CTxT.of("<<").btn(true).color(s()).cEvent(1,command+(page-1)));
+            // if at the end right is gray else not
+            if (page==max) right.append(CTxT.of(">>").btn(true).color('7'));
+            else right.append(CTxT.of(">>").btn(true).color(s()).cEvent(1,command+(page+1)));
+            // build and return
+            return CTxT.of("")
+                    .append(left).append(" ")
+                    .append(CTxT.of(String.valueOf(page)).btn(true).color(p()).cEvent(2,command).hEvent(TBtn("page.set").color(p())))
+                    .append(" ").append(right);
+        }
+    }
     public static class CButton {
         public static CTxT back(String cmd) {
             return TBtn("back").btn(true).color(Assets.mainColors.back).cEvent(1,cmd).hEvent(CTxT.of(cmd).color(Assets.mainColors.back).append("\n").append(TBtn("back.hover")));
         }
         public static class dest {
             public static CTxT convert(String cmd) {
-                return TBtn("dest.convert").btn(true).color(Assets.mainColors.convert).cEvent(1,cmd).hEvent(
+                return CTxT.of(Assets.symbols.convert).btn(true).color(Assets.mainColors.convert).cEvent(1,cmd).hEvent(
                         CTxT.of(cmd).color(Assets.mainColors.convert).append("\n").append(TBtn("dest.convert.hover")));
             }
             public static CTxT set(String cmd) {
@@ -86,8 +145,8 @@ public class CUtl {
                         CTxT.of(Assets.cmdUsage.destAdd).color(Assets.mainColors.add).append("\n").append(TBtn("dest.add.hover",TBtn("dest.add.hover_2").color(Assets.mainColors.add))));
             }
             public static CTxT add(String cmd) {
-                return CUtl.TBtn("dest.add").btn(true).color(Assets.mainColors.add).cEvent(2,cmd).hEvent(
-                        CTxT.of(Assets.cmdUsage.destAdd).color(Assets.mainColors.add).append("\n").append(TBtn("dest.add.hover",TBtn("dest.add.hover_2").color(Assets.mainColors.add))));
+                return CTxT.of("+").btn(true).color(Assets.mainColors.add).cEvent(2,cmd).hEvent(
+                        TBtn("dest.add.hover_save",TBtn("dest.add.hover_2").color(Assets.mainColors.add)));
             }
             public static CTxT set() {
                 return TBtn("dest.set").btn(true).color(Assets.mainColors.set).cEvent(2,"/dest set ").hEvent(
@@ -98,10 +157,6 @@ public class CUtl {
                 return CTxT.of(Assets.symbols.x).btn(true).color(o?'c':'7').cEvent(o?1:0,"/dest clear").hEvent(
                         CTxT.of(Assets.cmdUsage.destClear).color(o?'c':'7').append("\n").append(TBtn("dest.clear.hover")));
             }
-            public static CTxT clear() {
-                return TBtn("clear").btn(true).color('c').cEvent(1,"/dest track .clear").hEvent(
-                        CTxT.of(Assets.cmdUsage.destTrackClear).color('c').append("\n").append(TBtn("dest.track_clear.hover")));
-            }
             public static CTxT lastdeath() {
                 return TBtn("dest.lastdeath").btn(true).color(Assets.mainColors.lastdeath).cEvent(1,"/dest lastdeath").hEvent(
                         CTxT.of(Assets.cmdUsage.destLastdeath).color(Assets.mainColors.lastdeath).append("\n").append(TBtn("dest.lastdeath.hover")));
@@ -111,11 +166,11 @@ public class CUtl {
                         CTxT.of(Assets.cmdUsage.destSend).color(Assets.mainColors.send).append("\n").append(TBtn("dest.send.hover")));
             }
             public static CTxT track() {
-                return TBtn("dest.track").btn(true).color(Assets.mainColors.track).cEvent(2,"/dest track ").hEvent(
+                return TBtn("dest.track").btn(true).color(Assets.mainColors.track).cEvent(2,"/dest track set").hEvent(
                         CTxT.of(Assets.cmdUsage.destTrack).color(Assets.mainColors.track).append("\n").append(TBtn("dest.track.hover")));
             }
             public static CTxT trackX() {
-                return CTxT.of(Assets.symbols.x).btn(true).color('c').cEvent(1,"/dest track .clear").hEvent(
+                return CTxT.of(Assets.symbols.x).btn(true).color('c').cEvent(1,"/dest track clear").hEvent(
                         CTxT.of(Assets.cmdUsage.destTrackClear).color('c').append("\n").append(TBtn("dest.track_clear.hover")));
             }
         }
@@ -132,26 +187,22 @@ public class CUtl {
                 return TBtn("settings").btn(true).color(Assets.mainColors.setting).cEvent(1,"/hud settings").hEvent(
                         CTxT.of(Assets.cmdUsage.hudSettings).color(Assets.mainColors.setting).append("\n").append(TBtn("settings.hover",lang("hud"))));
             }
-            public static CTxT toggle(Character color, String type) {
-                return TBtn("hud.toggle").btn(true).color(color).cEvent(1,"/hud toggle "+type).hEvent(
-                        CTxT.of(Assets.cmdUsage.hudToggle).color(color).append("\n").append(TBtn("hud.toggle.hover")));
-            }
         }
-        public static class dirHUD {
+        public static class DHUD {
             public static CTxT hud() {
-                return TBtn("dirhud.hud").btn(true).color(Assets.mainColors.hud).cEvent(1,"/hud").hEvent(
-                        CTxT.of(Assets.cmdUsage.hud).color(Assets.mainColors.hud).append("\n").append(TBtn("dirhud.hud.hover")));
+                return TBtn("hud").btn(true).color(Assets.mainColors.hud).cEvent(1,"/hud").hEvent(
+                        CTxT.of(Assets.cmdUsage.hud).color(Assets.mainColors.hud).append("\n").append(TBtn("hud.hover")));
             }
             public static CTxT dest() {
-                return TBtn("dirhud.dest").btn(true).color(Assets.mainColors.dest).cEvent(1,"/dest").hEvent(
-                        CTxT.of(Assets.cmdUsage.dest).color(Assets.mainColors.dest).append("\n").append(TBtn("dirhud.dest.hover")));
+                return TBtn("dest").btn(true).color(Assets.mainColors.dest).cEvent(1,"/dest").hEvent(
+                        CTxT.of(Assets.cmdUsage.dest).color(Assets.mainColors.dest).append("\n").append(TBtn("dest.hover")));
             }
-            public static CTxT defaults() {
-                return TBtn("dirhud.defaults").btn(true).color(Assets.mainColors.defaults).cEvent(1,"/dirhud defaults").hEvent(
-                        CTxT.of(Assets.cmdUsage.defaults).color(Assets.mainColors.defaults).append("\n").append(TBtn("dirhud.defaults.hover")));
+            public static CTxT inbox() {
+                return TBtn("inbox").btn(true).color(Assets.mainColors.inbox).cEvent(1,"/dhud inbox").hEvent(
+                        CTxT.of(Assets.cmdUsage.inbox).color(Assets.mainColors.inbox).append("\n").append(TBtn("inbox.hover")));
             }
             public static CTxT reload() {
-                return TBtn("dirhud.reload").btn(true).color(Assets.mainColors.reload).cEvent(1,"/dirhud reload").hEvent(
+                return TBtn("dirhud.reload").btn(true).color(Assets.mainColors.reload).cEvent(1,"/dhud reload").hEvent(
                         CTxT.of(Assets.cmdUsage.reload).color(Assets.mainColors.reload).append("\n").append(TBtn("dirhud.reload.hover")));
             }
         }
@@ -244,9 +295,9 @@ public class CUtl {
         }
         public static void presetUI(Player player, String type, String setCMD, String backCMD) {
             String formattedReturnCMDArgs = formatCMD(setCMD)+" "+formatCMD(backCMD);
-            CTxT defaultBtn = TBtn("color.presets.default").color(CUtl.s()).cEvent(1,"/dirhud presets default "+formattedReturnCMDArgs).btn(true);
-            CTxT minecraftBtn = TBtn("color.presets.minecraft").color(CUtl.s()).cEvent(1,"/dirhud presets minecraft "+formattedReturnCMDArgs).btn(true);
-            CTxT customBtn = TBtn("color.custom").color(CUtl.s()).cEvent(1,"/dirhud presets custom "+formattedReturnCMDArgs).btn(true);
+            CTxT defaultBtn = TBtn("color.presets.default").color(CUtl.s()).cEvent(1,"/dhud presets default "+formattedReturnCMDArgs).btn(true);
+            CTxT minecraftBtn = TBtn("color.presets.minecraft").color(CUtl.s()).cEvent(1,"/dhud presets minecraft "+formattedReturnCMDArgs).btn(true);
+            CTxT customBtn = TBtn("color.custom").color(CUtl.s()).cEvent(1,"/dhud presets custom "+formattedReturnCMDArgs).btn(true);
             List<String> colorStrings;
             List<String> colors;
             int rowAmt;
@@ -294,14 +345,14 @@ public class CUtl {
         }
         public static void customUI(Player player, String setCMD, String backCMD) {
             String formattedReturnCMDArgs = formatCMD(setCMD)+" "+formatCMD(backCMD);
-            CTxT defaultBtn = TBtn("color.presets.default").color(CUtl.s()).cEvent(1, "/dirhud presets default " + formattedReturnCMDArgs).btn(true);
-            CTxT minecraftBtn = TBtn("color.presets.minecraft").color(CUtl.s()).cEvent(1, "/dirhud presets minecraft " + formattedReturnCMDArgs).btn(true);
+            CTxT defaultBtn = TBtn("color.presets.default").color(CUtl.s()).cEvent(1, "/dhud presets default " + formattedReturnCMDArgs).btn(true);
+            CTxT minecraftBtn = TBtn("color.presets.minecraft").color(CUtl.s()).cEvent(1, "/dhud presets minecraft " + formattedReturnCMDArgs).btn(true);
             CTxT customBtn = TBtn("color.custom").btn(true).color('7');
             CTxT list = CTxT.of("\n   ");
             int i = 0;
             for (String s : PlayerData.get.colorPresets(player)) {
                 boolean x = !s.equals("#ffffff");
-                CTxT xBtn = CTxT.of(Assets.symbols.x).btn(true).color(x ? 'c' : '7').cEvent(x ? 1 : 0, "/dirhud presets custom reset " + i + " " + formattedReturnCMDArgs);
+                CTxT xBtn = CTxT.of(Assets.symbols.x).btn(true).color(x ? 'c' : '7').cEvent(x ? 1 : 0, "/dhud presets custom reset " + i + " " + formattedReturnCMDArgs);
                 CTxT squareBtn = CTxT.of(Assets.symbols.square).color(s).btn(true).cEvent(1, setCMD + s.substring(1))
                         .hEvent(TBtn("color.hover", getBadge(s)));
                 if (i % 2 == 0) list.append(xBtn).append(" ").append(squareBtn).append(" -=- ");
@@ -335,7 +386,7 @@ public class CUtl {
             int i = 0;
             for (String s: PlayerData.get.colorPresets(player)) {
                 CTxT square = CTxT.of(Assets.symbols.square).color(s).btn(true).hEvent(getBadge(s));
-                CTxT plusBtn = CTxT.of("+").btn(true).color('a').cEvent(1,"/dirhud presets custom add "+i+" "+color.substring(1)+" "+formattedReturnCMD)
+                CTxT plusBtn = CTxT.of("+").btn(true).color('a').cEvent(1,"/dhud presets custom add "+i+" "+color.substring(1)+" "+formattedReturnCMD)
                         .hEvent(TBtn("color.presets.plus.hover",CTxT.of("#"+(i+1)).color(s()),getBadge(color)));
                 if (i%2==0) list.append(plusBtn).append(" ").append(square).append(" -=- ");
                 else list.append(square).append(" ").append(plusBtn).append("\n   ");

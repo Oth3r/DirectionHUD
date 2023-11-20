@@ -7,12 +7,12 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Vec3d;
+import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.PacketBuilder;
+import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.files.PlayerData;
-import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.utils.Loc;
-import one.oth3r.directionhud.DirectionHUD;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,6 +43,12 @@ public class Player {
         return "DirectionHUD Player: "+this.getName();
     }
     public Player() {}
+    public static Player of() {
+        // creates a player object with a null inside for client use
+        Player instance = new Player();
+        instance.player = null;
+        return instance;
+    }
     public static Player of(@NotNull ServerPlayerEntity player) {
         Player instance = new Player();
         instance.player = player;
@@ -74,37 +80,36 @@ public class Player {
     // Call after toggling the hud.
     public void updateHUD() {
         // if toggled off
-        if (!PlayerData.get.hud.state(this)) {
+        if (!(boolean)PlayerData.get.hud.setting.get(this, HUD.Setting.state)) {
             //if actionbar send empty to clear else remove bossbar
-            if (PlayerData.get.hud.setting.get(this,HUD.Settings.type).equals(config.HUDTypes.actionbar.toString()))
+            if (PlayerData.get.hud.setting.get(this,HUD.Setting.type).equals(HUD.Setting.DisplayType.actionbar.toString()))
                 this.sendActionBar(CTxT.of(""));
             else DirectionHUD.bossBarManager.removePlayer(this);
         }
-        if (PlayerData.get.hud.setting.get(this, HUD.Settings.type).equals(config.HUDTypes.actionbar.toString()))
+        if (PlayerData.get.hud.setting.get(this, HUD.Setting.type).equals(HUD.Setting.DisplayType.actionbar.toString()))
             DirectionHUD.bossBarManager.removePlayer(this);
         else this.sendActionBar(CTxT.of(""));
-        //todo switch to a system to make the HUD on the client, or atleast look into it -
-        // as bossbar may not be able to be simulated on client without server
-        //send the player a packet with the current hud state
-        sendPackets();
     }
-    public void sendPackets() {
+    public void sendSettingPackets() {
         // if player has DirectionHUD on client, send a hashmap with data
-        if (DirectionHUD.players.get(this)) {
+        if (DirectionHUD.clientPlayers.contains(this)) {
             Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-            HashMap<String,Object> map = new HashMap<>();
-            map.put("state",PlayerData.get.hud.state(Player.of(player)));
-            map.put("type",PlayerData.get.hud.setting.get(Player.of(player), HUD.Settings.type));
-            PacketBuilder packet = new PacketBuilder(gson.toJson(map));
-            packet.sendToPlayer(PacketBuilder.DATA_PACKET,player);
+            PacketBuilder packet = new PacketBuilder(gson.toJson(PlayerData.get.fromMap(this)));
+            packet.sendToPlayer(Assets.packets.SETTINGS,player);
         }
     }
-    public void buildHUD(CTxT message) {
-        if (message.getString().equals("")) {
+    public void sendHUDPackets(HashMap<HUD.Module, ArrayList<String>> hudData) {
+        // send the instructions to build the hud to the client
+        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+        PacketBuilder packet = new PacketBuilder(gson.toJson(hudData));
+        packet.sendToPlayer(Assets.packets.HUD,player);
+    }
+    public void displayHUD(CTxT message) {
+        if (message.toString().equals("")) {
             //if the HUD is enabled but there is no output
             if (PlayerData.getOneTime(this,"hud.enabled_but_off") == null) {
                 PlayerData.setOneTime(this,"hud.enabled_but_off","true");
-                if ((config.HUDTypes.get((String) PlayerData.get.hud.setting.get(this, HUD.Settings.type)).equals(config.HUDTypes.actionbar))) {
+                if ((HUD.Setting.DisplayType.get((String) PlayerData.get.hud.setting.get(this, HUD.Setting.type)).equals(HUD.Setting.DisplayType.actionbar))) {
                     player.sendMessage(CTxT.of("").b(),true);
                 } else {
                     DirectionHUD.bossBarManager.removePlayer(this);
@@ -115,7 +120,7 @@ public class Player {
             // if hud was in previous state and now isn't, remove the temp tag
             PlayerData.setOneTime(this,"hud.enabled_but_off",null);
         }
-        if ((config.HUDTypes.get((String) PlayerData.get.hud.setting.get(this, HUD.Settings.type)).equals(config.HUDTypes.actionbar))) {
+        if ((HUD.Setting.DisplayType.get((String) PlayerData.get.hud.setting.get(this, HUD.Setting.type)).equals(HUD.Setting.DisplayType.actionbar))) {
             player.sendMessage(message.b(),true);
         } else {
             DirectionHUD.bossBarManager.display(this,message);

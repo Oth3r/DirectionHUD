@@ -15,7 +15,7 @@ public class Assets {
         public static final String edit = "#665dff";
         public static final String dest = "#29a2ff";
         public static final String hud = "#29ff69";
-        public static final String defaults = "#ff6629";
+        public static final String inbox = "#7a6ef0";
         public static final String reload = "#69ff29";
         public static final String back = "#ff9500";
         public static final String usage = "#ff8b38";
@@ -23,8 +23,9 @@ public class Assets {
         public static final String gray = "#8d8d8d";
         public static final String custom = "#c4ff14";
         public static final String presets = "#2dedff";
+        public static final String global = "#60a4fc";
     }
-    public static String barColor(config.BarColors color) {
+    public static String barColor(HUD.Setting.BarColor color) {
         StringBuilder output = new StringBuilder();
         switch (color) {
             case pink -> output.append("#ec00b8");
@@ -41,20 +42,20 @@ public class Assets {
         public static final String hud = "/hud";
         public static final String hudToggle = "/hud toggle";
         public static final String hudColor = "/hud color";
-        public static final String hudModules = "/hud modules";
+        public static final String hudModules = "/hud modules (order, toggle, reset)";
         public static final String hudSettings = "/hud settings";
         public static final String dest = "/dest | /destination";
-        public static final String destAdd = "/dest (saved) add <name> <x> (y) <z> (dimension) (color)";
-        public static final String destSet = "/dest set <x> (y) <z> (dimension) (convert) | /dest set saved <name> (convert)";
+        public static final String destAdd = "/dest (saved) add <name> (x) (y) (z) (dimension) (color)";
+        public static String destSet = "/dest set <x> (y) <z> (dimension) (convert) | /dest set "+(config.globalDESTs?"(saved, global)":"saved")+" <name> (convert)";
         public static final String destLastdeath = "/dest lastdeath";
         public static final String destClear = "/dest clear";
-        public static final String destSaved = "/dest saved";
+        public static String destSaved = "/dest saved (add, edit, delete, send"+(config.globalDESTs?", global)":")");
         public static final String destSettings = "/dest settings";
         public static final String destSend = "/dest send <IGN> saved <name> | /dest send <IGN> (name) (x) (y) (z) (dimension) (color)";
-        public static final String destTrack = "/dest track <IGN> | /dest track .clear";
-        public static final String destTrackClear = "/dest track .clear";
-        public static final String defaults = "/dirhud defaults";
-        public static final String reload = "/dirhud reload";
+        public static final String destTrack = "/dest track (set, accept, deny, cancel) <IGN> | /dest track clear";
+        public static final String destTrackClear = "/dest track clear";
+        public static final String reload = "/dhud reload";
+        public static final String inbox = "/dhud inbox";
     }
     public static class symbols {
         public static final String square = "\u2588";
@@ -71,5 +72,21 @@ public class Assets {
         public static final String link = "\u29c9";
         public static final String envelope = "\u2709";
         public static final String lighting_bolt = "\u26a1";
+        public static final String convert = "\u2194";
+        public static final String toggle = "\u21C4";
+        public static final String local = "\uD83D\uDCDA";
+        public static final String global = "\uD83E\uDDED";
+    }
+    public enum packets {
+        INITIALIZATION("initialize_v1.0"),
+        SETTINGS("player_settings_v1.0"),
+        HUD("hud_v1.0");
+        private final String identifier;
+        packets(String key) {
+            this.identifier = key;
+        }
+        public String getIdentifier() {
+            return identifier;
+        }
     }
 }
