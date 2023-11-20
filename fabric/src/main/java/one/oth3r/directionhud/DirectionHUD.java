@@ -11,8 +11,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.util.WorldSavePath;
-import one.oth3r.directionhud.commands.DestinationCommand;
 import one.oth3r.directionhud.commands.DHUDCommand;
+import one.oth3r.directionhud.commands.DestinationCommand;
 import one.oth3r.directionhud.commands.HUDCommand;
 import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.Events;
@@ -22,10 +22,8 @@ import one.oth3r.directionhud.utils.BossBarManager;
 import one.oth3r.directionhud.utils.Player;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.geysermc.floodgate.api.player.FloodgatePlayer;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class DirectionHUD {
 	public static final String PRIMARY = "#2993ff";
