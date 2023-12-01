@@ -108,9 +108,7 @@ public class FloodGateHandler {
                     if (button.equals(bLASTDEATH)) lastdeath.base(player,1);
                     if (button.equals(bSETTINGS)) setting.base(player);
                     if (button.equals(bSEND)) send(player);
-                    if (button.equals(bTRACK)) {
-                        //a
-                    }
+                    if (button.equals(bTRACK)) track(player);
                     if (button.equals(bBACK)) UI.base(player);
                 });
                 getFGPlayer(player).sendForm(builder);
@@ -527,22 +525,15 @@ public class FloodGateHandler {
                     getFGPlayer(player).sendForm(builder);
                 }
             }
-            public static void add(Player player) {
-                CustomForm.Builder builder = CustomForm.builder().title(lang("dest.ui.add"));
-                builder
-                        .input(lang("ui.input.name"), lang("ui.input.name.placeholder"))
-                        .input(lang("ui.input.location"), lang("ui.input.location.placeholder"))
-                        .dropdown(lang("ui.input.dimension"),dims(player))
-                        .input(lang("ui.input.color"), lang("ui.input.color.placeholder"));
+            public static void track(Player player) {
+                CustomForm.Builder builder = CustomForm.builder().title(lang("dest.ui.send"));
+                List<String> players = Utl.getPlayersEx(player);
+                builder.dropdown(lang("ui.input.player"),players);
                 builder.validResultHandler((response) -> {
-                    // if responses are empty, set to default
-                    String name = response.next();
-                    if (name == null || name.equals("")) name = "name";
-                    String xyz = response.next();
-                    if (xyz == null || xyz.equals("")) xyz = player.getLoc().getXYZ();
-                    Loc loc = new Loc(xyz,dims(player).get(response.asDropdown()));
-                    String color = CUtl.color.format(response.next());
-                    Destination.saved.add(true,player,Destination.saved.getList(player),name,loc,color);
+                    // if there's no players or no selection, return
+                    if (players.size() == 0) return;
+                    String targetP = players.get(response.asDropdown());
+                    Destination.social.track.initialize(player,targetP);
                 });
                 getFGPlayer(player).sendForm(builder);
             }
