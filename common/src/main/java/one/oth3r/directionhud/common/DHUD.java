@@ -292,10 +292,10 @@ public class DHUD {
         }
     }
     public static void UI(Player player) {
-        if (FloodGateHandler.isFloodgate(player)) {
-            FloodGateHandler.UI.base(player);
-            return;
-        }
+//        if (FloodGateHandler.isFloodgate(player)) {
+//            FloodGateHandler.UI.base(player);
+//            return;
+//        }
         CTxT msg = CTxT.of("")
                 .append(CTxT.of(" DirectionHUD ").color(CUtl.p()))
                 .append(CTxT.of(DirectionHUD.VERSION+Assets.symbols.link).color(CUtl.s()).cEvent(3,"https://modrinth.com/mod/directionhud/changelog")
