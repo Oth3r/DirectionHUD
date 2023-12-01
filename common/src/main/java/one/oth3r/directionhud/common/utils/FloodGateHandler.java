@@ -50,7 +50,7 @@ public class FloodGateHandler {
         public static void base(Player player) {
             SimpleForm.Builder builder = SimpleForm.builder().title("DirectionHUD");
             builder.button(btn("dest"));
-            if (Utl.checkEnabled.hud(player)) builder.button(btn("hud"));
+//            if (Utl.checkEnabled.hud(player)) builder.button(btn("hud"));
             builder.validResultHandler((form, response) -> {
                 String button = response.clickedButton().text();
                 if (button.equals(btn("dest"))) dest.base(player);
