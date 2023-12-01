@@ -2,13 +2,16 @@ package one.oth3r.directionhud.common.utils;
 
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.Destination;
+import one.oth3r.directionhud.common.files.GlobalDest;
 import one.oth3r.directionhud.common.files.PlayerData;
+import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
 import org.geysermc.cumulus.form.CustomForm;
 import org.geysermc.cumulus.form.ModalForm;
 import org.geysermc.cumulus.form.SimpleForm;
+import org.geysermc.floodgate.api.FloodgateApi;
 import org.geysermc.floodgate.api.player.FloodgatePlayer;
 
 import java.util.ArrayList;
@@ -16,6 +19,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 public class FloodGateHandler {
+    public static FloodgateApi API = FloodgateApi.getInstance();
     public static boolean isEnabled() {
         try {
             Class.forName("org.geysermc.floodgate.api.FloodgateApi");
@@ -102,9 +106,9 @@ public class FloodGateHandler {
 //                builder.button(bBACK);
                 builder.validResultHandler((form, response) -> {
                     String button = response.clickedButton().text();
-                    if (button.equals(bSAVED)) saved.base(player,1);
+                    if (button.equals(bSAVED)) saved.base(player,Destination.saved.getList(player),1);
                     if (button.equals(bSET)) set(player);
-                    if (button.equals(bCLEAR)) Destination.clear(player);
+                    if (button.equals(bCLEAR)) Destination.clear(player,null);
                     if (button.equals(bLASTDEATH)) lastdeath.base(player,1);
                     if (button.equals(bSETTINGS)) setting.base(player);
                     if (button.equals(bSEND)) send(player);
@@ -140,16 +144,30 @@ public class FloodGateHandler {
             }
             public static class saved {
                 public static final int PER_PAGE = 5;
-                public static void base(Player player, int pg) {
-                    CUtl.PageHelper<List<String>> pageHelper = new CUtl.PageHelper<>(new ArrayList<>(Destination.saved.getList(player)),PER_PAGE);
+                public static void base(Player player, List<List<String>> list, int pg) {
+                    CUtl.PageHelper<List<String>> pageHelper = new CUtl.PageHelper<>(new ArrayList<>(list),PER_PAGE);
                     SimpleForm.Builder builder = SimpleForm.builder().title(lang("dest.ui.saved")+" "+pg);
+                    boolean isGlobal = list.equals(GlobalDest.dests);
                     //buttons
+                    // button to switch from global and local
+                    String bSwitcher = isGlobal?btn("dest.saved.local"):btn("dest.saved.global");
                     String bADD = btn("dest.add");
                     String bLEFT = "<<<<";
                     String bRIGHT = ">>>>";
-                    builder.button(bADD);
+                    // if global is enabled, add the switcher
+                    if (config.globalDESTs) {
+                        builder.button(bSwitcher);
+                        // add button if perms
+                        if (Utl.checkEnabled.global(player) && isGlobal) builder.button(bADD);
+                    }
+                    // always have the add button if local
+                    if (!isGlobal) builder.button(bADD);
+                    int count = 0;
                     for (List<String> entry: pageHelper.getPage(pg)) {
-                        Destination.saved.Dest dest = new Destination.saved.Dest(player,Destination.saved.getList(player), entry);
+                        count++;
+                        // skip the last one because dummy entry if global
+                        if (isGlobal && count==pageHelper.getList().size()) continue;
+                        Destination.saved.Dest dest = new Destination.saved.Dest(player,list, entry);
                         builder.button(dest.getName());
                     }
                     // add the nav buttons if necessary
@@ -158,17 +176,22 @@ public class FloodGateHandler {
                     builder.button(bBACK);
                     builder.validResultHandler((form, response) -> {
                         String button = response.clickedButton().text();
-                        if (button.equals(bADD)) add(player);
-                        if (Destination.saved.getNames(Destination.saved.getList(player)).contains(button)) view(player,button);
-                        if (button.equals(bLEFT)) base(player,pg-1);
-                        if (button.equals(bRIGHT)) base(player,pg+1);
+                        if (button.equals(bSwitcher)) {
+                            if (isGlobal) base(player,Destination.saved.getList(player),1);
+                            else base(player,GlobalDest.dests,1);
+                        }
+                        if (button.equals(bADD)) add(player,list);
+                        if (Destination.saved.getNames(list).contains(button)) view(player,list,button);
+                        if (button.equals(bLEFT)) base(player,list,pg-1);
+                        if (button.equals(bRIGHT)) base(player,list,pg+1);
                         if (button.equals(btn("back"))) dest.base(player);
                     });
                     getFGPlayer(player).sendForm(builder);
                 }
-                public static void view(Player player, String name) {
-                    CUtl.PageHelper<List<String>> pageHelper = new CUtl.PageHelper<>(new ArrayList<>(Destination.saved.getList(player)),PER_PAGE);
-                    Destination.saved.Dest dest = new Destination.saved.Dest(player,Destination.saved.getList(player), name);
+                public static void view(Player player, List<List<String>> list, String name) {
+                    // view local
+                    CUtl.PageHelper<List<String>> pageHelper = new CUtl.PageHelper<>(new ArrayList<>(list),PER_PAGE);
+                    Destination.saved.Dest dest = new Destination.saved.Dest(player,list, name);
                     //all the buttons
                     String bORDER = "#"+dest.getOrder();
                     String bNAME = dest.getName();
@@ -180,8 +203,8 @@ public class FloodGateHandler {
                     //build the buttons
                     SimpleForm.Builder builder = SimpleForm.builder().title(lang("dest"));
                     builder.button(bORDER).button(bNAME).button(bLOC).button(bCOLOR);
-                    //SEND BUTTON
-                    if (Utl.checkEnabled.send(player)) builder.button(bSEND);
+                    //SEND BUTTON, if not global
+                    if (Utl.checkEnabled.send(player) && !GlobalDest.dests.equals(list)) builder.button(bSEND);
                     //SET BUTTON
                     builder.button(bSET);
                     //CONVERT
@@ -189,46 +212,50 @@ public class FloodGateHandler {
                     builder.button(bBACK);
                     builder.validResultHandler((form, response) -> {
                         String button = response.clickedButton().text();
-                        if (button.equals(bORDER)) editOrder(player,name);
-                        if (button.equals(bNAME)) editName(player,name);
-                        if (button.equals(bLOC)) editLoc(player,name);
-                        if (button.equals(bCOLOR)) editColor(player,name);
-                        if (button.equals(bSEND)) sendSaved(player,name);
-                        if (button.equals(bSET)) Destination.setSaved(player,Destination.saved.getList(player),name,false);
-                        if (button.equals(bCONVERT)) Destination.setSaved(player,Destination.saved.getList(player),name,true);
-                        if (button.equals(bBACK)) base(player,pageHelper.getPageOf(dest.getDest()));
+                        // only send if not global
+                        if (!list.equals(GlobalDest.dests)) if (button.equals(bSEND)) sendSaved(player,name);
+                        // edit if not global or if they have the permissions
+                        if (!list.equals(GlobalDest.dests) || Utl.checkEnabled.global(player)) {
+                            if (button.equals(bORDER)) editOrder(player,list, name);
+                            if (button.equals(bNAME)) editName(player,list, name);
+                            if (button.equals(bLOC)) editLoc(player,list, name);
+                            if (button.equals(bCOLOR)) editColor(player,list, name);
+                        }
+                        if (button.equals(bSET)) Destination.setSaved(player,list,name,false);
+                        if (button.equals(bCONVERT)) Destination.setSaved(player,list,name,true);
+                        if (button.equals(bBACK)) base(player,list,pageHelper.getPageOf(dest.getDest()));
                     });
                     getFGPlayer(player).sendForm(builder);
                 }
-                public static void editOrder(Player player, String name) {
-                    Destination.saved.Dest dest = new Destination.saved.Dest(player,Destination.saved.getList(player), name);
+                public static void editOrder(Player player, List<List<String>> list, String name) {
+                    Destination.saved.Dest dest = new Destination.saved.Dest(player,list, name);
                     // get all the names, and make an arraylist from 1-MAX
                     List<String> steps = new ArrayList<>();
-                    for (int i = 0; i < Destination.saved.getNames(Destination.saved.getList(player)).size(); i++) steps.add(String.valueOf(i+1));
+                    for (int i = 0; i < Destination.saved.getNames(list).size(); i++) steps.add(String.valueOf(i+1));
                     CustomForm.Builder builder = CustomForm.builder().title(lang("dest.ui.saved.edit"));
                     builder.stepSlider(lang("ui.input.order"),steps);
                     builder.validResultHandler((response) -> {
                         // order is off by 1, adjust
                         int order = response.asStepSlider()+1;
                         dest.setOrder(order);
-                        view(player,name);
+                        view(player,list, name);
                     });
                     getFGPlayer(player).sendForm(builder);
                 }
-                public static void editName(Player player, String name) {
-                    Destination.saved.Dest dest = new Destination.saved.Dest(player,Destination.saved.getList(player), name);
+                public static void editName(Player player, List<List<String>> list, String name) {
+                    Destination.saved.Dest dest = new Destination.saved.Dest(player,list, name);
                     CustomForm.Builder builder = CustomForm.builder().title(lang("dest.ui.saved.edit"));
                     builder.input(lang("ui.input.name"), lang("ui.input.name.placeholder"));
                     builder.validResultHandler((response) -> {
                         String newName = response.next();
                         // if null or empty, just return
                         if (!(newName == null || newName.equals(""))) dest.setName(newName);
-                        view(player,dest.getName());
+                        view(player,list,dest.getName());
                     });
                     getFGPlayer(player).sendForm(builder);
                 }
-                public static void editLoc(Player player, String name) {
-                    Destination.saved.Dest dest = new Destination.saved.Dest(player,Destination.saved.getList(player), name);
+                public static void editLoc(Player player, List<List<String>> list, String name) {
+                    Destination.saved.Dest dest = new Destination.saved.Dest(player,list, name);
                     CustomForm.Builder builder = CustomForm.builder().title(lang("dest.ui.saved.edit"));
                     builder.input(lang("ui.input.location"), lang("ui.input.location.placeholder"))
                             .dropdown(lang("ui.input.dimension"),dims(player));
@@ -238,12 +265,12 @@ public class FloodGateHandler {
                         if (xyz == null || xyz.equals("")) xyz = player.getLoc().getXYZ();
                         Loc loc = new Loc(xyz,dims(player).get(response.asDropdown()));
                         dest.setLoc(loc);
-                        view(player,name);
+                        view(player,list,name);
                     });
                     getFGPlayer(player).sendForm(builder);
                 }
-                public static void editColor(Player player, String name) {
-                    Destination.saved.Dest dest = new Destination.saved.Dest(player,Destination.saved.getList(player), name);
+                public static void editColor(Player player, List<List<String>> list, String name) {
+                    Destination.saved.Dest dest = new Destination.saved.Dest(player,list, name);
                     CustomForm.Builder builder = CustomForm.builder().title(lang("dest.ui.saved.edit"));
                     builder.input(lang("ui.input.color"), lang("ui.input.color.placeholder"));
                     builder.validResultHandler((response) -> {
@@ -253,7 +280,7 @@ public class FloodGateHandler {
                             color = CUtl.color.format(color);
                             dest.setColor(color);
                         }
-                        view(player,name);
+                        view(player,list,name);
                     });
                     getFGPlayer(player).sendForm(builder);
                 }
@@ -263,7 +290,28 @@ public class FloodGateHandler {
                     List<String> players = Utl.getPlayersEx(player);
                     builder.dropdown(lang("ui.input.player"),players);
                     builder.validResultHandler((response) -> {
+                        // if there's no players, just don't even try
+                        if (players.size() == 0) return;
                         Destination.social.send(player, players.get(response.asDropdown()),dest.getLoc(),dest.getName(),dest.getColor());
+                    });
+                    getFGPlayer(player).sendForm(builder);
+                }
+                public static void add(Player player, List<List<String>> list) {
+                    CustomForm.Builder builder = CustomForm.builder().title(lang("dest.ui.add"));
+                    builder
+                            .input(lang("ui.input.name"), lang("ui.input.name.placeholder"))
+                            .input(lang("ui.input.location"), lang("ui.input.location.placeholder"))
+                            .dropdown(lang("ui.input.dimension"),dims(player))
+                            .input(lang("ui.input.color"), lang("ui.input.color.placeholder"));
+                    builder.validResultHandler((response) -> {
+                        // if responses are empty, set to default
+                        String name = response.next();
+                        if (name == null || name.equals("")) name = "name";
+                        String xyz = response.next();
+                        if (xyz == null || xyz.equals("")) xyz = player.getLoc().getXYZ();
+                        Loc loc = new Loc(xyz,dims(player).get(response.asDropdown()));
+                        String color = CUtl.color.format(response.next());
+                        Destination.saved.add(true,player,list,name,loc,color);
                     });
                     getFGPlayer(player).sendForm(builder);
                 }
@@ -546,6 +594,8 @@ public class FloodGateHandler {
                         .dropdown(lang("ui.input.dimension"),dims(player))
                         .input(lang("ui.input.color"), lang("ui.input.color.placeholder"));
                 builder.validResultHandler((response) -> {
+                    // if there's no players or no selection, return
+                    if (players.size() == 0) return;
                     String targetP = players.get(response.asDropdown());
                     // if responses are empty, set to default
                     String name = response.next();
