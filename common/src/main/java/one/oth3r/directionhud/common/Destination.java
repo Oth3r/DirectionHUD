@@ -3,10 +3,11 @@ package one.oth3r.directionhud.common;
 import one.oth3r.directionhud.common.files.GlobalDest;
 import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.common.files.config;
+import one.oth3r.directionhud.common.utils.CUtl;
+import one.oth3r.directionhud.common.utils.FloodGateHandler;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.utils.CTxT;
-import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
 
@@ -1786,6 +1787,10 @@ public class Destination {
         }
     }
     public static void UI(Player player) {
+        if (FloodGateHandler.isFloodgate(player)) {
+            FloodGateHandler.UI.dest.base(player);
+            return;
+        }
         CTxT msg = CTxT.of(" ");
         msg.append(lang("ui").color(Assets.mainColors.dest)).append(CTxT.of("\n                                  ").strikethrough(true)).append("\n ");
         // lmao this is a mess but is it the best way to do it? dunno
