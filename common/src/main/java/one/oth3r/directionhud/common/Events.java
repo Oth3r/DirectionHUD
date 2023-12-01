@@ -14,6 +14,7 @@ import one.oth3r.directionhud.utils.Utl;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.UUID;
 
 public class Events {
     public static void serverStart() {
@@ -42,18 +43,17 @@ public class Events {
     public static void playerJoin(Player player) {
         PlayerData.addPlayer(player);
         // check if floodgate is installed, because if not it will crash
-        if (FloodGateHandler.isEnabled() && FloodGateHandler.isFloodgate(player))
-                DirectionHUD.floodgatePlayers.put(player,FloodGateHandler.getFGPlayer(player));
+        if (FloodGateHandler.isEnabled() && FloodGateHandler.API.isFloodgatePlayer(UUID.fromString(player.getUUID())))
+                DirectionHUD.floodgatePlayers.put(player,FloodGateHandler.API.getPlayer(UUID.fromString(player.getUUID())));
     }
     public static void playerLeave(Player player) {
         playerSoftLeave(player);
         DirectionHUD.clientPlayers.remove(player);
+        DirectionHUD.floodgatePlayers.remove(player);
     }
     public static void playerSoftLeave(Player player) {
         DHUD.inbox.removeAllTracking(player);
         PlayerData.removePlayer(player);
-        DirectionHUD.clientPlayers.remove(player);
-        DirectionHUD.floodgatePlayers.remove(player);
         DirectionHUD.bossBarManager.removePlayer(player);
     }
     public static void playerChangeWorld(Player player, String fromDIM, String toDIM) {
