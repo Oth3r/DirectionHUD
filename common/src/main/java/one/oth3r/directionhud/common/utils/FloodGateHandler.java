@@ -99,7 +99,7 @@ public class FloodGateHandler {
                 builder.button(bSETTINGS);
                 if (Utl.checkEnabled.send(player)) builder.button(bSEND);
                 if (Utl.checkEnabled.track(player)) builder.button(bTRACK);
-                builder.button(bBACK);
+//                builder.button(bBACK);
                 builder.validResultHandler((form, response) -> {
                     String button = response.clickedButton().text();
                     if (button.equals(bSAVED)) saved.base(player,1);
