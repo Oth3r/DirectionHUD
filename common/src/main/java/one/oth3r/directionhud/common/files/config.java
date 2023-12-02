@@ -14,6 +14,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -308,111 +310,113 @@ public class config {
         }
     }
     public static void save() {
-        try (var file = new FileOutputStream(configFile(), false)) {
+        try (var file = Files.newBufferedWriter(configFile().toPath(), StandardCharsets.UTF_8)) {
             Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-            file.write("# DirectionHUD Config\n".getBytes());
-            file.write(("version="+defaults.version).getBytes());
-            file.write("\n".getBytes());
-            file.write(("\nmax-xz=" + MAXxz).getBytes());
-            file.write(("\nmax-y=" + MAXy).getBytes());
-            file.write(("\n# "+CUtl.lang("config.max.info",CUtl.lang("config.max.info_2")).toString()).getBytes());
-            file.write(("\nonline-mode=" + online).getBytes());
-            file.write(("\n# "+CUtl.lang("config.online_mode.info").toString()).getBytes());
-            file.write(("\nglobal-destinations=" + globalDESTs).getBytes());
-            file.write(("\n# "+CUtl.lang("config.global_dest.info").toString()).getBytes());
-            file.write(("\n# "+CUtl.lang("config.global_dest.info_3").toString()).getBytes());
-            file.write(("\ndestination-saving=" + DestSaving).getBytes());
-            file.write(("\n# "+CUtl.lang("config.dest_saving.info").toString()).getBytes());
-            file.write(("\ndestination-max=" + DestMAX).getBytes());
-            file.write(("\n# "+CUtl.lang("config.dest_max.info").toString()).getBytes());
-            file.write(("\nlastdeath-saving=" + LastDeathSaving).getBytes());
-            file.write(("\n# "+CUtl.lang("config.lastdeath_saving.info").toString()).getBytes());
-            file.write(("\nlastdeath-max=" + LastDeathMAX).getBytes());
-            file.write(("\n# "+CUtl.lang("config.lastdeath_max.info").toString()).getBytes());
-            file.write(("\nhud-editing=" + HUDEditing).getBytes());
-            file.write(("\n# "+CUtl.lang("config.hud_editing.info").toString()).getBytes());
-            file.write(("\n").getBytes()); //SOCIAL
-            file.write(("\nsocial-commands=" + social).getBytes());
-            file.write(("\n# "+CUtl.lang("config.social.info",CUtl.lang("config.social.info_2")).toString()).getBytes());
-            file.write(("\nsocial-cooldown=" + socialCooldown).getBytes());
-            file.write(("\n# "+CUtl.lang("config.social_cooldown.info").toString()).getBytes());
-            file.write(("\n").getBytes()); //LOOPS
-            file.write(("\nhud-loop=" + HUDLoop).getBytes());
-            file.write(("\n# "+CUtl.lang("config.hud_loop.info").toString()).getBytes());
-            file.write(("\nparticle-loop=" + ParticleLoop).getBytes());
-            file.write(("\n# "+CUtl.lang("config.particle_loop.info").toString()).getBytes());
-            file.write(("\n").getBytes()); //DIMS
-            file.write(("\ndimensions="+gson.toJson(dimensions)).getBytes());
-            file.write(("\n# "+CUtl.lang("config.dimensions.info").append("\n# ")
+            file.write("# DirectionHUD Config\n");
+            file.write("version="+defaults.version);
+            file.write("\n");
+            file.write("\nmax-xz=" + MAXxz);
+            file.write("\nmax-y=" + MAXy);
+            file.write("\n# "+CUtl.lang("config.max.info",CUtl.lang("config.max.info_2")).toString());
+            file.write("\nonline-mode=" + online);
+            file.write("\n# "+CUtl.lang("config.online_mode.info").toString());
+            file.write("\nglobal-destinations=" + globalDESTs);
+            file.write("\n# "+CUtl.lang("config.global_dest.info").toString());
+            file.write("\n# "+CUtl.lang("config.global_dest.info_3").toString());
+            file.write("\ndestination-saving=" + DestSaving);
+            file.write("\n# "+CUtl.lang("config.dest_saving.info").toString());
+            file.write("\ndestination-max=" + DestMAX);
+            file.write("\n# "+CUtl.lang("config.dest_max.info").toString());
+            file.write("\nlastdeath-saving=" + LastDeathSaving);
+            file.write("\n# "+CUtl.lang("config.lastdeath_saving.info").toString());
+            file.write("\nlastdeath-max=" + LastDeathMAX);
+            file.write("\n# "+CUtl.lang("config.lastdeath_max.info").toString());
+            file.write("\nhud-editing=" + HUDEditing);
+            file.write("\n# "+CUtl.lang("config.hud_editing.info").toString());
+            file.write("\n"); //SOCIAL
+            file.write("\nsocial-commands=" + social);
+            file.write("\n# "+CUtl.lang("config.social.info",CUtl.lang("config.social.info_2")).toString());
+            file.write("\nsocial-cooldown=" + socialCooldown);
+            file.write("\n# "+CUtl.lang("config.social_cooldown.info").toString());
+            file.write("\n"); //LOOPS
+            file.write("\nhud-loop=" + HUDLoop);
+            file.write("\n# "+CUtl.lang("config.hud_loop.info").toString());
+            file.write("\nparticle-loop=" + ParticleLoop);
+            file.write("\n# "+CUtl.lang("config.particle_loop.info").toString());
+            file.write("\n"); //DIMS
+            file.write("\ndimensions="+gson.toJson(dimensions));
+            file.write("\n# "+CUtl.lang("config.dimensions.info")
+                    .append("\n# ")
                     .append(CUtl.lang("config.dimensions.info_3",CUtl.lang("config.dimensions.info_3.1"),
                             CUtl.lang("config.dimensions.info_3.2"),CUtl.lang("config.dimensions.info_3.3"))).append("\n# ")
                     .append(CUtl.lang("config.dimensions.info_4")).append("\n# ")
                     .append(CUtl.lang("config.dimensions.info_5")).append("\n# ")
-                    .append(CUtl.lang("config.dimensions.info_6")).toString()).getBytes());
-            file.write(("\ndimension-ratios="+gson.toJson(dimensionRatios)).getBytes());
-            file.write(("\n# "+CUtl.lang("config.dimension_ratios.info").append("\n# ")
+                    .append(CUtl.lang("config.dimensions.info_6")).toString());
+            file.write("\ndimension-ratios="+gson.toJson(dimensionRatios));
+            file.write("\n# "+CUtl.lang("config.dimension_ratios.info").append("\n# ")
                     .append(CUtl.lang("config.dimension_ratios.info_2",CUtl.lang("config.dimension_ratios.info_2.1"),
-                            CUtl.lang("config.dimension_ratios.info_2.2"))).toString()).getBytes());
+                            CUtl.lang("config.dimension_ratios.info_2.2"))).toString());
 
-            file.write(("\n\n\n# "+CUtl.lang("config.default").toString()).getBytes());
-            file.write(("\n# "+CUtl.lang("config.default.info").toString()).getBytes());
-            file.write(("\ncolor-presets=" + gson.toJson(colorPresets)).getBytes());
-            file.write(("\n# "+CUtl.lang("config.color_presets.info").toString()).getBytes());
+            file.write("\n\n\n# "+CUtl.lang("config.default").toString());
+            file.write("\n# "+CUtl.lang("config.default.info").toString());
+            file.write("\ncolor-presets=" + gson.toJson(colorPresets));
+            file.write("\n# "+CUtl.lang("config.color_presets.info").toString());
 
-            file.write(("\n\n# "+CUtl.lang("config.hud").toString()).getBytes());
-            file.write(("\nhud.order=" + hud.Order).getBytes());
-            file.write(("\n# "+CUtl.lang("config.hud.order.options").toString()).getBytes());
-            file.write(("\n\n# "+CUtl.lang("config.hud.module").toString()).getBytes());
-            file.write(("\nhud.module.coordinates=" + hud.Coordinates).getBytes());
-            file.write(("\nhud.module.distance=" + hud.Distance).getBytes());
-            file.write(("\nhud.module.tracking=" + hud.Tracking).getBytes());
-            file.write(("\nhud.module.destination=" + hud.Destination).getBytes());
-            file.write(("\nhud.module.direction=" + hud.Direction).getBytes());
-            file.write(("\nhud.module.time=" + hud.Time).getBytes());
-            file.write(("\nhud.module.weather=" + hud.Weather).getBytes());
-            file.write(("\n\n# "+CUtl.lang("config.settings").toString()).getBytes());
-            file.write(("\nhud.settings.state=" + hud.State).getBytes());
-            file.write(("\nhud.settings.type=" + hud.DisplayType).getBytes());
-            file.write(("\n# "+CUtl.lang("config.hud.settings.type.options").toString()).getBytes());
-            file.write(("\nhud.settings.bossbar.color=" + hud.BarColor).getBytes());
-            file.write(("\n# "+CUtl.lang("config.hud.settings.bossbar.color.options").toString()).getBytes());
-            file.write(("\nhud.settings.bossbar.distance=" + hud.BarShowDistance).getBytes());
-            file.write(("\nhud.settings.bossbar.distance_max=" + hud.ShowDistanceMAX).getBytes());
-            file.write(("\nhud.settings.module.time_24hr=" + hud.Time24HR).getBytes());
-            file.write(("\nhud.settings.module.tracking_target=" + hud.TrackingTarget).getBytes());
-            file.write(("\n# "+CUtl.lang("config.hud.settings.module.tracking_target.options").toString()).getBytes());
-            file.write(("\n\n# "+CUtl.lang("config.hud.color").toString()).getBytes());
-            file.write(("\n# "+CUtl.lang("config.color.options").toString()).getBytes());
-            file.write(("\nhud.color.primary=" + hud.primary.Color).getBytes());
-            file.write(("\nhud.color.primary-bold=" + hud.primary.Bold).getBytes());
-            file.write(("\nhud.color.primary-italics=" + hud.primary.Italics).getBytes());
-            file.write(("\nhud.color.primary-rainbow=" + hud.primary.Rainbow).getBytes());
-            file.write(("\nhud.color.secondary=" + hud.secondary.Color).getBytes());
-            file.write(("\nhud.color.secondary-bold=" + hud.secondary.Bold).getBytes());
-            file.write(("\nhud.color.secondary-italics=" + hud.secondary.Italics).getBytes());
-            file.write(("\nhud.color.secondary-rainbow=" + hud.secondary.Rainbow).getBytes());
+            file.write("\n\n# "+CUtl.lang("config.hud").toString());
+            file.write("\nhud.order=" + hud.Order);
+            file.write("\n# "+CUtl.lang("config.hud.order.options").toString());
+            file.write("\n\n# "+CUtl.lang("config.hud.module").toString());
+            file.write("\nhud.module.coordinates=" + hud.Coordinates);
+            file.write("\nhud.module.distance=" + hud.Distance);
+            file.write("\nhud.module.tracking=" + hud.Tracking);
+            file.write("\nhud.module.destination=" + hud.Destination);
+            file.write("\nhud.module.direction=" + hud.Direction);
+            file.write("\nhud.module.time=" + hud.Time);
+            file.write("\nhud.module.weather=" + hud.Weather);
+            file.write("\n\n# "+CUtl.lang("config.settings").toString());
+            file.write("\nhud.settings.state=" + hud.State);
+            file.write("\nhud.settings.type=" + hud.DisplayType);
+            file.write("\n# "+CUtl.lang("config.hud.settings.type.options").toString());
+            file.write("\nhud.settings.bossbar.color=" + hud.BarColor);
+            file.write("\n# "+CUtl.lang("config.hud.settings.bossbar.color.options").toString());
+            file.write("\nhud.settings.bossbar.distance=" + hud.BarShowDistance);
+            file.write("\nhud.settings.bossbar.distance_max=" + hud.ShowDistanceMAX);
+            file.write("\nhud.settings.module.time_24hr=" + hud.Time24HR);
+            file.write("\nhud.settings.module.tracking_target=" + hud.TrackingTarget);
+            file.write("\n# "+CUtl.lang("config.hud.settings.module.tracking_target.options").toString());
+            file.write("\n\n# "+CUtl.lang("config.hud.color").toString());
+            file.write("\n# "+CUtl.lang("config.color.options").toString());
+            file.write("\nhud.color.primary=" + hud.primary.Color);
+            file.write("\nhud.color.primary-bold=" + hud.primary.Bold);
+            file.write("\nhud.color.primary-italics=" + hud.primary.Italics);
+            file.write("\nhud.color.primary-rainbow=" + hud.primary.Rainbow);
+            file.write("\nhud.color.secondary=" + hud.secondary.Color);
+            file.write("\nhud.color.secondary-bold=" + hud.secondary.Bold);
+            file.write("\nhud.color.secondary-italics=" + hud.secondary.Italics);
+            file.write("\nhud.color.secondary-rainbow=" + hud.secondary.Rainbow);
 
-            file.write(("\n\n\n# "+CUtl.lang("config.dest").toString()).getBytes());
-            file.write(("\n# "+CUtl.lang("config.settings").toString()).getBytes());
-            file.write(("\ndest.settings.autoclear=" + dest.AutoClear).getBytes());
-            file.write(("\ndest.settings.autoclear_rad=" + dest.AutoClearRad).getBytes());
-            file.write(("\ndest.settings.autoconvert=" + dest.AutoConvert).getBytes());
-            file.write(("\ndest.settings.ylevel=" + dest.YLevel).getBytes());
-            file.write(("\n\n# "+CUtl.lang("config.hud.color").toString()).getBytes());
-            file.write(("\n# "+CUtl.lang("config.color.options").toString()).getBytes());
-            file.write(("\ndest.settings.particles.dest=" + dest.particles.Dest).getBytes());
-            file.write(("\ndest.settings.particles.dest_color=" + dest.particles.DestColor).getBytes());
-            file.write(("\ndest.settings.particles.line=" + dest.particles.Line).getBytes());
-            file.write(("\ndest.settings.particles.line_color=" + dest.particles.LineColor).getBytes());
-            file.write(("\ndest.settings.particles.tracking=" + dest.particles.Tracking).getBytes());
-            file.write(("\ndest.settings.particles.tracking_color=" + dest.particles.TrackingColor).getBytes());
-            file.write(("\n\n# "+CUtl.lang("config.dest.settings.features").toString()).getBytes());
-            file.write(("\ndest.settings.features.send=" + dest.Send).getBytes());
-            file.write(("\ndest.settings.features.track=" + dest.Track).getBytes());
-            file.write(("\ndest.settings.features.track_request_mode=" + dest.TrackingRequestMode).getBytes());
-            file.write(("\n# "+CUtl.lang("config.dest.settings.features.track_request_mode.options").toString()).getBytes());
-            file.write(("\ndest.settings.features.lastdeath=" + dest.Lastdeath).getBytes());
+            file.write("\n\n\n# "+CUtl.lang("config.dest").toString());
+            file.write("\n# "+CUtl.lang("config.settings").toString());
+            file.write("\ndest.settings.autoclear=" + dest.AutoClear);
+            file.write("\ndest.settings.autoclear_rad=" + dest.AutoClearRad);
+            file.write("\ndest.settings.autoconvert=" + dest.AutoConvert);
+            file.write("\ndest.settings.ylevel=" + dest.YLevel);
+            file.write("\n\n# "+CUtl.lang("config.hud.color").toString());
+            file.write("\n# "+CUtl.lang("config.color.options").toString());
+            file.write("\ndest.settings.particles.dest=" + dest.particles.Dest);
+            file.write("\ndest.settings.particles.dest_color=" + dest.particles.DestColor);
+            file.write("\ndest.settings.particles.line=" + dest.particles.Line);
+            file.write("\ndest.settings.particles.line_color=" + dest.particles.LineColor);
+            file.write("\ndest.settings.particles.tracking=" + dest.particles.Tracking);
+            file.write("\ndest.settings.particles.tracking_color=" + dest.particles.TrackingColor);
+            file.write("\n\n# "+CUtl.lang("config.dest.settings.features").toString());
+            file.write("\ndest.settings.features.send=" + dest.Send);
+            file.write("\ndest.settings.features.track=" + dest.Track);
+            file.write("\ndest.settings.features.track_request_mode=" + dest.TrackingRequestMode);
+            file.write("\n# "+CUtl.lang("config.dest.settings.features.track_request_mode.options").toString());
+            file.write("\ndest.settings.features.lastdeath=" + dest.Lastdeath);
         } catch (Exception e) {
+            DirectionHUD.LOGGER.error("ERROR WRITING CONFIG!");
             e.printStackTrace();
         }
     }
