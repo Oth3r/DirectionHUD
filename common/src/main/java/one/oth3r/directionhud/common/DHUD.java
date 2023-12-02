@@ -96,10 +96,7 @@ public class DHUD {
     }
     public static void reload(Player player) {
         config.load();
-        LangReader.loadLanguageFile();
         GlobalDest.fileToMap();
-        //config load twice for lang change support
-        config.load();
         // fully reload the players
         for (Player pl: Utl.getPlayers()) {
             Events.playerSoftLeave(pl);

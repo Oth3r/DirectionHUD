@@ -169,6 +169,7 @@ public class config {
             String version = (String) properties.computeIfAbsent("version", a -> String.valueOf(defaults.version));
             if (version.contains("v")) version = version.substring(1);
             loadVersion(properties,Float.parseFloat(version));
+            LangReader.loadLanguageFile();
             Utl.dim.loadConfig();
             save();
         } catch (Exception f) {
