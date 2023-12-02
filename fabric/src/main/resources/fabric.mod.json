@@ -16,11 +16,11 @@
   "icon": "assets/directionhud/icon.png",
   "environment": "*",
   "entrypoints": {
+    "main": [
+      "one.oth3r.directionhud.DirectionHUD"
+    ],
     "client": [
       "one.oth3r.directionhud.DirectionHUDClient"
-    ],
-    "server": [
-      "one.oth3r.directionhud.DirectionHUDServer"
     ],
     "modmenu": [
       "one.oth3r.directionhud.ModMenu"

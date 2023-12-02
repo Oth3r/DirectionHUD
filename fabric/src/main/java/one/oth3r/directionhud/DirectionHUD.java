@@ -1,5 +1,6 @@
 package one.oth3r.directionhud;
 
+import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -25,7 +26,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 
-public class DirectionHUD {
+public class DirectionHUD implements ModInitializer {
 	public static final String PRIMARY = "#2993ff";
 	public static final String SECONDARY = "#ffee35";
 	public static BossBarManager bossBarManager = new BossBarManager();
@@ -35,12 +36,13 @@ public class DirectionHUD {
 	public static ArrayList<Player> clientPlayers = new ArrayList<>();
 	public static final String MOD_ID = "directionhud";
 	public static final Version VERSION = FabricLoader.getInstance().getModContainer(MOD_ID).orElseThrow().getMetadata().getVersion();
-	public static boolean isClient;
+	public static boolean isClient = false;
 	public static final boolean isMod = true;
 	public static PlayerManager playerManager;
 	public static MinecraftServer server;
 	public static CommandManager commandManager;
-	public static void initializeCommon() {
+	@Override
+	public void onInitialize() {
 		config.load();
 		//START
 		ServerLifecycleEvents.SERVER_STARTED.register(s -> {

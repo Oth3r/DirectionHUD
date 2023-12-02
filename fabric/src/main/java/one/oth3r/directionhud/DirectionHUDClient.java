@@ -34,7 +34,6 @@ public class DirectionHUDClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         DirectionHUD.isClient = true;
-        DirectionHUD.initializeCommon();
         //CLIENT ONLY
         keyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.directionhud.keybind.toggle",
