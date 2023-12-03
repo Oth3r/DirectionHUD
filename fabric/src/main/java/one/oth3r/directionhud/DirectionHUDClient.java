@@ -16,7 +16,6 @@ import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.LoopManager;
 import one.oth3r.directionhud.common.files.PlayerData;
-import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.utils.Player;
 import org.lwjgl.glfw.GLFW;
 
@@ -63,8 +62,8 @@ public class DirectionHUDClient implements ClientModInitializer {
             }
         });
         ClientPlayNetworking.registerGlobalReceiver(PacketBuilder.getIdentifier(Assets.packets.SETTINGS), (client, handler, buf, responseSender) -> {
-            // receiving setting packets from the server
-            PacketBuilder packet = new PacketBuilder(buf);
+            // receiving setting packets from the server, copy to not throw an error
+            PacketBuilder packet = new PacketBuilder(buf.copy());
             assert client.player != null;
             client.execute(() -> {
                 Type hashMapToken = new TypeToken<HashMap<String, Object>>() {}.getType();
@@ -76,7 +75,7 @@ public class DirectionHUDClient implements ClientModInitializer {
         });
         ClientPlayNetworking.registerGlobalReceiver(PacketBuilder.getIdentifier(Assets.packets.HUD), (client, handler, buf, responseSender) -> {
             // receiving HUD packets from the server
-            PacketBuilder packet = new PacketBuilder(buf);
+            PacketBuilder packet = new PacketBuilder(buf.copy());
             assert client.player != null;
             client.execute(() -> {
                 Type hashMapToken = new TypeToken<HashMap<HUD.Module, ArrayList<String>>>() {}.getType();
