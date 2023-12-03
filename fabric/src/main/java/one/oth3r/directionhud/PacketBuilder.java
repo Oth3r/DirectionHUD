@@ -1,5 +1,6 @@
 package one.oth3r.directionhud;
 
+import io.netty.buffer.ByteBuf;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -13,15 +14,15 @@ import java.nio.charset.StandardCharsets;
 
 public class PacketBuilder {
     private final String message;
-    private PacketByteBuf packetByteBuf = PacketByteBufs.create();
-    public PacketBuilder(PacketByteBuf buf) {
+    private final PacketByteBuf packetByteBuf = PacketByteBufs.create();
+    public PacketBuilder(ByteBuf buf) {
         // Read any data sent in the packet
-        message = StandardCharsets.UTF_8.decode(ByteBuffer.wrap(buf.array())).toString().trim();
-        packetByteBuf = buf;
+        packetByteBuf.writeBytes(buf);
+        message = packetByteBuf.toString(StandardCharsets.UTF_8);
     }
     public PacketBuilder(String message) {
         this.message = message;
-        packetByteBuf.writeBytes(ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)).array());
+        packetByteBuf.writeBytes(ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)));
     }
     public static Identifier getIdentifier(Assets.packets packetType) {
         return new Identifier(DirectionHUD.MOD_ID, packetType.getIdentifier());
