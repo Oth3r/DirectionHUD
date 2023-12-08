@@ -97,11 +97,11 @@ public class Loc {
         String fromDimension = this.getDIM();
         if (fromDimension.equalsIgnoreCase(toDimension)) return;
         if (!Utl.dim.checkValid(toDimension)) return;
-        Utl.Pair<String, String> dimensionPair = new Utl.Pair<>(fromDimension, toDimension);
+        Helper.Pair<String, String> dimensionPair = new Helper.Pair<>(fromDimension, toDimension);
         Double ratio;
         if (Utl.dim.conversionRatios.containsKey(dimensionPair)) ratio = Utl.dim.conversionRatios.get(dimensionPair);
         else {
-            dimensionPair = new Utl.Pair<>(toDimension,fromDimension);
+            dimensionPair = new Helper.Pair<>(toDimension,fromDimension);
             if (Utl.dim.conversionRatios.containsKey(dimensionPair)) ratio = 1/ Utl.dim.conversionRatios.get(dimensionPair);
             else return;
         }

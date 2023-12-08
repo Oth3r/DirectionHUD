@@ -10,8 +10,8 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.DHUD;
+import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.utils.Player;
-import one.oth3r.directionhud.utils.Utl;
 
 import java.util.Arrays;
 import java.util.List;
@@ -55,7 +55,7 @@ public class DHUDCommand {
         Player player = Player.of(Objects.requireNonNull(context.getSource().getPlayer()));
         String[] args = context.getInput().split(" ");
         if (pos > args.length) return builder.buildFuture();
-        args = Utl.trimStart(args,1);
+        args = Helper.trimStart(args,1);
         for (String s : DHUD.commandSuggester.logic(player,pos, args)) builder.suggest(s);
         return builder.buildFuture();
     }

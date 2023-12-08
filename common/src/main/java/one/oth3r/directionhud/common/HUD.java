@@ -3,6 +3,7 @@ package one.oth3r.directionhud.common;
 import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.utils.CUtl;
+import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
@@ -127,7 +128,7 @@ public class HUD {
                 return;
             }
             String type = args[0].toLowerCase();
-            String[] trimmedArgs = Utl.trimStart(args, 1);
+            String[] trimmedArgs = Helper.trimStart(args, 1);
             switch (type) {
                 case "modules" -> modulesCMD(player, trimmedArgs);
                 case "settings" -> settingsCMD(player,trimmedArgs);
@@ -217,7 +218,7 @@ public class HUD {
             }
             if (pos > 1) {
                 String command = args[0].toLowerCase();
-                String[] trimmedArgs = Utl.trimStart(args, 1);
+                String[] trimmedArgs = Helper.trimStart(args, 1);
                 int fixedPos = pos - 2;
                 switch (command) {
                     case "modules" -> suggester.addAll(moduleCMD(player,fixedPos,trimmedArgs));
@@ -412,19 +413,18 @@ public class HUD {
         // pointer logic
         int x = pointLoc.getX()-player.getBlockX();
         int z = (pointLoc.getZ()-player.getBlockZ())*-1;
+        double target = Math.toDegrees(Math.atan2(x, z));
         double rotation = (player.getYaw() - 180) % 360;
-        if (rotation < 0) {
-            rotation += 360.0;
-        }
-        double d = Math.toDegrees(Math.atan2(x, z));
-        if (d < 0) d = d + 360;
-        if (Utl.inBetweenD(rotation, Utl.sub(d, 15, 360), (d+15)%360)) return "-"+Assets.symbols.up+"-";
-        if (Utl.inBetweenD(rotation, d, (d+65)%360)) return Assets.symbols.left+Assets.symbols.up+"-";
-        if (Utl.inBetweenD(rotation, d, (d+115)%360)) return Assets.symbols.left+"--";
-        if (Utl.inBetweenD(rotation, d, (d+165)%360)) return Assets.symbols.left+Assets.symbols.down+"-";
-        if (Utl.inBetweenD(rotation, Utl.sub(d, 65, 360), d)) return "-"+Assets.symbols.up+Assets.symbols.right;
-        if (Utl.inBetweenD(rotation, Utl.sub(d, 115, 360), d)) return "--"+Assets.symbols.right;
-        if (Utl.inBetweenD(rotation, Utl.sub(d, 165, 360), d)) return "-"+Assets.symbols.down+Assets.symbols.right;
+        // make sure 0 - 360
+        if (rotation < 0) rotation += 360;
+        if (target < 0) target += 360;
+        if (Helper.inBetween(rotation, Helper.wSubtract(target,15,360), Helper.wAdd(target,15,360))) return "-"+Assets.symbols.up+"-";
+        if (Helper.inBetween(rotation, target, Helper.wAdd(target,65,360))) return Assets.symbols.left+Assets.symbols.up+"-";
+        if (Helper.inBetween(rotation, target, Helper.wAdd(target,115,360))) return Assets.symbols.left+"--";
+        if (Helper.inBetween(rotation, target, Helper.wAdd(target,165,360))) return Assets.symbols.left+Assets.symbols.down+"-";
+        if (Helper.inBetween(rotation, Helper.wSubtract(target, 65, 360), target)) return "-"+Assets.symbols.up+Assets.symbols.right;
+        if (Helper.inBetween(rotation, Helper.wSubtract(target, 115, 360), target)) return "--"+Assets.symbols.right;
+        if (Helper.inBetween(rotation, Helper.wSubtract(target, 165, 360), target)) return "-"+Assets.symbols.down+Assets.symbols.right;
         return "-"+Assets.symbols.down+"-";
     }
     public static class modules {
@@ -670,7 +670,7 @@ public class HUD {
             else if (type.equals("secondary")) typ = 2;
             else return;
             String currentColor = getHUDColor(player,typ);
-            msg.append(" ").append(addColor(player,Utl.capitalizeFirst(lang("color."+type).toString()),typ,15,20))
+            msg.append(" ").append(addColor(player, Helper.capitalizeFirst(lang("color."+type).toString()),typ,15,20))
                     .append(CTxT.of("\n                               \n").strikethrough(true));
             CTxT reset = CUtl.TBtn("reset").btn(true).color('c').cEvent(1, "/hud color reset "+setting+" "+type)
                     .hEvent(CUtl.lang("button.reset.hover_color_hud",addColor(player,lang("color."+type).toString().toUpperCase(),typ,15,20)));

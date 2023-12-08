@@ -99,7 +99,7 @@ public class Destination {
                 return;
             }
             String type = args[0].toLowerCase();
-            String[] trimmedArgs = Utl.trimStart(args, 1);
+            String[] trimmedArgs = Helper.trimStart(args, 1);
             switch (type) {
                 case "set" -> setCMD(player, trimmedArgs);
                 case "clear" -> clear(player, null);
@@ -132,7 +132,7 @@ public class Destination {
             }
         }
         public static void setCMD(Player player, String[] args) {
-            if (!Utl.inBetween(args.length, 2,5)) {
+            if (!Helper.inBetween(args.length, 2,5)) {
                 player.sendMessage(CUtl.usage(Assets.cmdUsage.destSet));
                 return;
             }
@@ -177,7 +177,7 @@ public class Destination {
                 saved.add(true,player,list,args[0],new Loc(player),null);
                 return;
             }
-            if (!Utl.inBetween(args.length, 2, 6)) {
+            if (!Helper.inBetween(args.length, 2, 6)) {
                 player.sendMessage(CUtl.usage(Assets.cmdUsage.destAdd));
                 return;
             }
@@ -234,7 +234,7 @@ public class Destination {
                 return;
             }
             if (args[0].equalsIgnoreCase("edit")) {
-                destEditCMD(player,GlobalDest.dests,Utl.trimStart(args,1),false);
+                destEditCMD(player,GlobalDest.dests, Helper.trimStart(args,1),false);
                 return;
             }
             //DELETE
@@ -245,7 +245,7 @@ public class Destination {
             }
             //ADD
             if (args[0].equalsIgnoreCase("add")) {
-                addCMD(player,GlobalDest.dests,Utl.trimStart(args,1));
+                addCMD(player,GlobalDest.dests, Helper.trimStart(args,1));
                 return;
             }
             player.sendMessage(CUtl.usage(Assets.cmdUsage.destSaved));
@@ -275,11 +275,11 @@ public class Destination {
                     saved.globalUI(player, Integer.parseInt(args[1]));
                     return;
                 }
-                globalCMD(player,Utl.trimStart(args,1));
+                globalCMD(player, Helper.trimStart(args,1));
                 return;
             }
             if (args[0].equalsIgnoreCase("edit")) {
-                destEditCMD(player, saved.getList(player), Utl.trimStart(args, 1), Return);
+                destEditCMD(player, saved.getList(player), Helper.trimStart(args, 1), Return);
                 return;
             }
             //SEND
@@ -296,7 +296,7 @@ public class Destination {
             }
             //ADD
             if (args[0].equalsIgnoreCase("add")) {
-                addCMD(player,saved.getList(player),Utl.trimStart(args,1));
+                addCMD(player,saved.getList(player), Helper.trimStart(args,1));
                 return;
             }
             player.sendMessage(CUtl.usage(Assets.cmdUsage.destSaved));
@@ -369,7 +369,7 @@ public class Destination {
                 social.send(player,args[0],player.getLoc(),args[1],null);
                 return;
             }
-            if (!Utl.inBetween(args.length, 3, 7)) {
+            if (!Helper.inBetween(args.length, 3, 7)) {
                 player.sendMessage(CUtl.usage(Assets.cmdUsage.destSend));
                 return;
             }
@@ -475,7 +475,7 @@ public class Destination {
             if (pos == 1) suggester.addAll(base(player));
             if (pos > 1) {
                 String command = args[0].toLowerCase();
-                String[] trimmedArgs = Utl.trimStart(args, 1);
+                String[] trimmedArgs = Helper.trimStart(args, 1);
                 int fixedPos = pos - 2;
                 switch (command) {
                     case "saved" -> suggester.addAll(savedCMD(player,fixedPos,trimmedArgs));
@@ -576,11 +576,11 @@ public class Destination {
             }
             // saved add
             if (args[0].equalsIgnoreCase("add")) {
-                return commandSuggester.addCMD(player,pos-1,Utl.trimStart(args,1));
+                return commandSuggester.addCMD(player,pos-1, Helper.trimStart(args,1));
             }
             // global edit
             if (args[0].equalsIgnoreCase("edit")) {
-                return savedEdit(player,GlobalDest.dests,pos-1,Utl.trimStart(args,1));
+                return savedEdit(player,GlobalDest.dests,pos-1, Helper.trimStart(args,1));
             }
             return suggester;
         }
@@ -599,7 +599,7 @@ public class Destination {
                 return suggester;
             }
             if (args[0].equalsIgnoreCase("global"))
-                suggester.addAll(globalCMD(player,pos-1,Utl.trimStart(args,1)));
+                suggester.addAll(globalCMD(player,pos-1, Helper.trimStart(args,1)));
             // if -r is attached, remove it and continue with the suggester
             if (args[0].contains("-r")) args[0] = args[0].replace("-r","");
             // saved delete
@@ -620,11 +620,11 @@ public class Destination {
             }
             // saved add
             if (args[0].equalsIgnoreCase("add")) {
-                return commandSuggester.addCMD(player,pos-1,Utl.trimStart(args,1));
+                return commandSuggester.addCMD(player,pos-1, Helper.trimStart(args,1));
             }
             // saved edit
             if (args[0].equalsIgnoreCase("edit")) {
-                return savedEdit(player,saved.getList(player),pos-1,Utl.trimStart(args,1));
+                return savedEdit(player,saved.getList(player),pos-1, Helper.trimStart(args,1));
             }
             return suggester;
         }

@@ -15,7 +15,7 @@ import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.utils.CUtl;
-import org.apache.commons.lang3.RandomStringUtils;
+import one.oth3r.directionhud.common.utils.Helper;
 import org.joml.Vector3f;
 
 import java.awt.*;
@@ -23,32 +23,6 @@ import java.util.List;
 import java.util.*;
 
 public class Utl {
-    public static class Pair<A, B> {
-        private final A first;
-        private final B second;
-        public Pair(A first, B second) {
-            this.first = first;
-            this.second = second;
-        }
-        public String toString() {
-            return "("+this.first+", "+this.second+")";
-        }
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (obj == null || getClass() != obj.getClass()) {
-                return false;
-            }
-            Pair<?, ?> otherPair = (Pair<?, ?>) obj;
-            return Objects.equals(first, otherPair.first) && Objects.equals(second, otherPair.second);
-        }
-        @Override
-        public int hashCode() {
-            return Objects.hash(first, second);
-        }
-    }
     public static CTxT getTranslation(String key, Object... args) {
         return CTxT.of(Text.translatable(key, args));
     }
@@ -66,35 +40,6 @@ public class Utl {
         } catch (NumberFormatException e) {
             return null;
         }
-    }
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public static boolean inBetween(int i, int min, int max) {
-        return i >= min && i <= max;
-    }
-    public static boolean inBetweenD(double i, double min, double max) {
-        if (min > max) {
-            return i >= min || i <= max;
-        }
-        return i >= min && i <= max;
-    }
-    public static double sub(double i, double sub, double max) {
-        double s = i - sub;
-        if (s < 0) s = max - (s*-1);
-        return s;
-    }
-    public static String createID() {
-        return RandomStringUtils.random(8, true, true);
-    }
-    public static String[] trimStart(String[] arr, int numToRemove) {
-        if (numToRemove > arr.length) {
-            return new String[0];
-        }
-        String[] result = new String[arr.length - numToRemove];
-        System.arraycopy(arr, numToRemove, result, 0, result.length);
-        return result;
-    }
-    public static String capitalizeFirst(String string) {
-        return string.toUpperCase().charAt(0)+string.substring(1);
     }
     public static CTxT getTxTFromObj(Object obj) {
         CTxT txt = CTxT.of("");
@@ -215,8 +160,8 @@ public class Utl {
         public static boolean canConvert(String DIM1, String DIM2) {
             // both in same dim, cant convert
             if (DIM1.equalsIgnoreCase(DIM2)) return false;
-            Pair<String, String> key = new Pair<>(DIM1, DIM2);
-            Pair<String, String> flippedKey = new Pair<>(DIM2, DIM1);
+            Helper.Pair<String, String> key = new Helper.Pair<>(DIM1, DIM2);
+            Helper.Pair<String, String> flippedKey = new Helper.Pair<>(DIM2, DIM1);
             // if the ratio exists, show the button
             return conversionRatios.containsKey(key) || conversionRatios.containsKey(flippedKey);
         }
@@ -234,18 +179,18 @@ public class Utl {
             return CTxT.of(map.get("name").charAt(0)+"".toUpperCase()).btn(true).color(map.get("color"))
                     .hEvent(CTxT.of(map.get("name").toUpperCase()).color(map.get("color")));
         }
-        public static HashMap<Pair<String, String>, Double> conversionRatios = new HashMap<>();
+        public static HashMap<Helper.Pair<String, String>, Double> conversionRatios = new HashMap<>();
         public static HashMap<String,HashMap<String,String>> dims = new HashMap<>();
         //only works when the server is on, loads server dimensions into the config.
         public static void loadConfig() {
             if (DirectionHUD.server == null) return;
             //LOAD DIM RATIOS
-            HashMap<Pair<String, String>, Double> configRatios = new HashMap<>();
+            HashMap<Helper.Pair<String, String>, Double> configRatios = new HashMap<>();
             for (String s : config.dimensionRatios) {
                 String[] split = s.split("\\|");
                 if (split.length != 2) continue;
                 double ratio = Double.parseDouble(split[0].split("=")[1])/Double.parseDouble(split[1].split("=")[1]);
-                configRatios.put(new Pair<>(split[0].split("=")[0], split[1].split("=")[0]), ratio);
+                configRatios.put(new Helper.Pair<>(split[0].split("=")[0], split[1].split("=")[0]), ratio);
             }
             conversionRatios = configRatios;
             //CONFIG TO MAP

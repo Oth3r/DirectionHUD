@@ -1,7 +1,6 @@
 package one.oth3r.directionhud.common;
 
 import one.oth3r.directionhud.common.files.GlobalDest;
-import one.oth3r.directionhud.common.files.LangReader;
 import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.DirectionHUD;
@@ -27,7 +26,7 @@ public class DHUD {
                 return;
             }
             String type = args[0].toLowerCase();
-            String[] trimmedArgs = Utl.trimStart(args, 1);
+            String[] trimmedArgs = Helper.trimStart(args, 1);
             switch (type) {
                 case "inbox" -> inboxCMD(player,trimmedArgs);
                 case "presets" -> presetCMD(player,trimmedArgs);
@@ -83,7 +82,7 @@ public class DHUD {
             if (pos > 1) {
                 String command = args[0].toLowerCase();
                 // trim the start
-                String[] trimmedArgs = Utl.trimStart(args, 1);
+                String[] trimmedArgs = Helper.trimStart(args, 1);
                 // fix the pos
                 int fixedPos = pos - 1;
                 switch (command) {
@@ -178,7 +177,7 @@ public class DHUD {
             return null;
         }
         public static void addTracking(Player to, Player from, int time) {
-            String ID = Utl.createID();
+            String ID = Helper.createID();
             //create the track request
             ArrayList<HashMap<String, Object>> inbox = PlayerData.get.inbox(to);
             HashMap<String, Object> entry = new HashMap<>();
@@ -206,7 +205,7 @@ public class DHUD {
             entry.put("type", Type.destination.name());
             entry.put("player_name",from.getName());
             entry.put("player_uuid",from.getUUID());
-            entry.put("id",Utl.createID());
+            entry.put("id", Helper.createID());
             entry.put("expire",String.valueOf(time));
             entry.put("name",name);
             entry.put("loc",String.valueOf(loc.toArray()));
