@@ -803,10 +803,8 @@ public class HUD {
             }
             return msg;
         }
-        public static CTxT getButtons(Player player, Setting type, boolean... module) {
-            String end = "";
+        public static CTxT getButtons(Player player, Setting type) {
             // if there's something in module the command 'end's in module, to return to the module command instead of the settings command
-            if (module.length != 0) end = " module";
             CTxT button = CTxT.of("");
             if (type.equals(Setting.state)) {
                 button.append(CUtl.toggleBtn((boolean)PlayerData.get.hud.setting.get(player,type),"/hud settings "+type+" ")).append(" ");
@@ -828,18 +826,6 @@ public class HUD {
                 button.append(CTxT.of(String.valueOf(((Double) PlayerData.get.hud.setting.get(player, Setting.bossbar__distance_max)).intValue())).btn(true).color((boolean) PlayerData.get.hud.setting.get(player,type)?'a':'c')
                         .cEvent(2,"/hud settings "+ Setting.bossbar__distance_max+" ")
                         .hEvent(lang("settings."+type+"_max.hover").append("\n").append(lang("settings."+type+"_max.hover_2").italic(true).color('7'))));
-            }
-            if (type.equals(Setting.module__time_24hr)) {
-                boolean state = (boolean) PlayerData.get.hud.setting.get(player,type);
-                button.append(lang("settings."+type+"."+(state?"on":"off")).btn(true).color(CUtl.s())
-                        .hEvent(lang("settings."+type+".hover",lang("settings."+type+"."+(state?"off":"on")).color(CUtl.s())))
-                        .cEvent(1,"/hud settings "+type+" "+(state?"off":"on")+end));
-            }
-            if (type.equals(Setting.module__tracking_target)) {
-                Setting.HUDTrackingTarget nextType = Setting.HUDTrackingTarget.valueOf((String) PlayerData.get.hud.setting.get(player,type)).next();
-                button.append(lang("settings."+type+"."+PlayerData.get.hud.setting.get(player,type)).btn(true).color(CUtl.s())
-                        .cEvent(1,"/hud settings "+type+" "+nextType+end)
-                        .hEvent(lang("settings."+type+".hover",lang("settings."+type+"."+nextType).color(CUtl.s()))));
             }
             return button;
         }
@@ -874,19 +860,11 @@ public class HUD {
                     .append("\n");
             //MODULE
             msg.append(" ").append(lang("settings.module").color(CUtl.p())).append(":\n  ");
-            msg     //TIME
-                    .append(resetB(player, Setting.module__time_24hr)).append(" ")
-                    .append(lang("settings."+ Setting.module__time_24hr).hEvent(lang("settings."+ Setting.module__time_24hr+".info"))).append(": ")
-                    .append(getButtons(player, Setting.module__time_24hr))
-                    .append("\n  ");
-            msg     //TRACKING
-                    .append(resetB(player, Setting.module__tracking_target)).append(" ")
-                    .append(lang("settings."+ Setting.module__tracking_target).hEvent(lang("settings."+ Setting.module__tracking_target+".info"))).append(": ")
-                    .append(getButtons(player, Setting.module__tracking_target))
-                    .append("\n  ");
+            msg.append(CUtl.CButton.hud.modules()).append("\n");
             CTxT reset = CUtl.TBtn("reset").btn(true).color('7');
             boolean resetOn = false;
-            for (Setting t: Setting.base()) {
+            // see if a setting can be reset, then flip the switch
+            for (Setting t: Setting.main()) {
                 if (resetOn) break;
                 resetOn = canBeReset(player,t);
             }
