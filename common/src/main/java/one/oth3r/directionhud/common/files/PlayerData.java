@@ -19,7 +19,7 @@ import java.util.*;
 
 public class PlayerData {
     public static Map<Player,Map<String,Object>> playerMap = new HashMap<>();
-    public static Map<Player,Map<String,String>> oneTimeMap = new HashMap<>();
+    public static Map<Player,Map<String,Object>> dataMap = new HashMap<>();
     public static File getFile(Player player) {
         if (config.online) return new File(DirectionHUD.DATA_DIR+"playerdata/" +player.getUUID()+".json");
         else return new File(DirectionHUD.DATA_DIR+"playerdata/"+player.getName()+".json");
@@ -282,15 +282,13 @@ public class PlayerData {
     public static void removePlayer(Player player) {
         mapToFile(player, fileToMap(player));
         playerMap.remove(player);
-        oneTimeMap.remove(player);
+        dataMap.remove(player);
     }
-    public static String getOneTime(Player player, String key) {
-        return oneTimeMap.get(player).get(key);
+    public static String getMsgData(Player player, String key) {
+        return String.valueOf(dataMap.get(player).get("msg."+key));
     }
-    public static void setOneTime(Player player, String key, String value) {
-        Map<String,String> map = oneTimeMap.get(player);
-        map.put(key,value);
-        oneTimeMap.put(player,map);
+    public static void setMsgData(Player player, String key, String value) {
+        dataMap.get(player).put("msg."+key,value);
     }
     public static class defaults {
         public static Map<String,Object> get(Player player) {

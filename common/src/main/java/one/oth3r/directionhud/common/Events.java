@@ -2,7 +2,6 @@ package one.oth3r.directionhud.common;
 
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.files.GlobalDest;
-import one.oth3r.directionhud.common.files.LangReader;
 import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.utils.CUtl;
@@ -30,7 +29,7 @@ public class Events {
         // clear everything as serverEnd on client can just be exiting single-player
         GlobalDest.dests.clear();
         PlayerData.playerMap.clear();
-        PlayerData.oneTimeMap.clear();
+        PlayerData.dataMap.clear();
         DirectionHUD.clientPlayers.clear();
         DirectionHUD.LOGGER.info("Safely shutdown!");
     }
