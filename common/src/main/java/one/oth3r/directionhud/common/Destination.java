@@ -516,7 +516,7 @@ public class Destination {
             }
             // add <name> (<x> (dim) (color))
             if (pos == 1) {
-                suggester.addAll(Helper.xyzSuggester(player,"x"));
+                suggester.addAll(Helper.command.xyz(player,"x"));
                 if (args.length == 2 && !Utl.isInt(args[1]) && !args[1].equals("")) {
                     suggester.add("ffffff");
                     suggester.addAll(Utl.dim.getList());
@@ -525,11 +525,11 @@ public class Destination {
             }
             // add <name> <x> ((y))
             if (pos == 2) {
-                if (Utl.isInt(args[1])) return Helper.xyzSuggester(player,"y");
+                if (Utl.isInt(args[1])) return Helper.command.xyz(player,"y");
             }
             // add <name> <x> (y) (<z> (dim) (color))
             if (pos == 3) {
-                if (Utl.isInt(args[1])) suggester.addAll(Helper.xyzSuggester(player,"z"));
+                if (Utl.isInt(args[1])) suggester.addAll(Helper.command.xyz(player,"z"));
                 if (args.length == 4 && !Utl.isInt(args[3])) {
                     suggester.add("ffffff");
                     suggester.addAll(CUtl.color.presetsSuggester(player));
@@ -643,12 +643,12 @@ public class Destination {
             // saved edit type name (<arg>)
             if (args[0].equalsIgnoreCase("location")) {
                 if (pos == 2) {
-                    suggester.addAll(Helper.xyzSuggester(player, "x"));
+                    suggester.addAll(Helper.command.xyz(player, "x"));
                     suggester.addAll(Utl.dim.getList());
                 }
-                if (pos == 3) suggester.addAll(Helper.xyzSuggester(player,"y"));
+                if (pos == 3) suggester.addAll(Helper.command.xyz(player,"y"));
                 if (pos == 4) {
-                    suggester.addAll(Helper.xyzSuggester(player,"z"));
+                    suggester.addAll(Helper.command.xyz(player,"z"));
                     suggester.addAll(Utl.dim.getList());
                 }
                 if (pos == 5 && Utl.isInt(args[4])) {
@@ -677,7 +677,7 @@ public class Destination {
             if (pos == 0) {
                 if (Utl.checkEnabled.saving(player)) suggester.add("saved");
                 if (config.globalDESTs) suggester.add("global");
-                suggester.addAll(Helper.xyzSuggester(player,"x"));
+                suggester.addAll(Helper.command.xyz(player,"x"));
                 return suggester;
             }
             // set <saved, x> ((name) (y))
@@ -690,7 +690,7 @@ public class Destination {
                     suggester.addAll(saved.getNames(GlobalDest.dests));
                     return suggester;
                 }
-                return Helper.xyzSuggester(player,"y");
+                return Helper.command.xyz(player,"y");
             }
             // set <saved> <name> ((convert))
             // set <x> (y) (<z> (dim))
@@ -700,7 +700,7 @@ public class Destination {
                     return suggester;
                 }
                 suggester.addAll(Utl.dim.getList());
-                suggester.addAll(Helper.xyzSuggester(player,"z"));
+                suggester.addAll(Helper.command.xyz(player,"z"));
                 return suggester;
             }
             // set <x> (y) <z> (dim)
@@ -731,7 +731,7 @@ public class Destination {
             // send <player> (<saved>, (name), <x>)
             if (pos == 1) {
                 if (Utl.checkEnabled.saving(player)) suggester.add("saved");
-                suggester.addAll(Helper.xyzSuggester(player,"x"));
+                suggester.addAll(Helper.command.xyz(player,"x"));
                 suggester.add("name");
                 return suggester;
             }
@@ -744,20 +744,20 @@ public class Destination {
                     return suggester;
                 }
                 if (!Utl.isInt(args[1])) {
-                    return Helper.xyzSuggester(player,"x");
+                    return Helper.command.xyz(player,"x");
                 }
-                return Helper.xyzSuggester(player,"y");
+                return Helper.command.xyz(player,"y");
             }
             // send <player> (name) <x> ((y))
             // send <player> <x> (y) (<z> (dimension))
             if (pos == 3) {
                 if (!Utl.isInt(args[1])) {
-                    return Helper.xyzSuggester(player,"y");
+                    return Helper.command.xyz(player,"y");
                 }
                 suggester.addAll(Utl.dim.getList());
                 suggester.add("ffffff");
                 suggester.addAll(CUtl.color.presetsSuggester(player));
-                suggester.addAll(Helper.xyzSuggester(player,"z"));
+                suggester.addAll(Helper.command.xyz(player,"z"));
                 return suggester;
             }
             if (pos == 4) {
@@ -766,7 +766,7 @@ public class Destination {
                     suggester.addAll(Utl.dim.getList());
                     suggester.add("ffffff");
                     suggester.addAll(CUtl.color.presetsSuggester(player));
-                    suggester.addAll(Helper.xyzSuggester(player,"z"));
+                    suggester.addAll(Helper.command.xyz(player,"z"));
                     return suggester;
                 }
                 // send <player> <x> (y) <z> ((dimension), (color))
