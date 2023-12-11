@@ -51,7 +51,7 @@ public class HUDCommand {
         String[] args = context.getInput().split(" ");
         if (pos > args.length) return builder.buildFuture();
         args = Helper.trimStart(args,1);
-        for (String s : HUD.commandSuggester.logic(player,pos,args)) builder.suggest(s);
+        for (String s : HUD.commandSuggester.logic(player,pos,Helper.command.quoteHandler(args))) builder.suggest(s);
         return builder.buildFuture();
     }
     private static int command(ServerCommandSource source, String arg) {
@@ -68,7 +68,7 @@ public class HUDCommand {
         if (args[0].equalsIgnoreCase("hud"))
             args = arg.replaceFirst("hud ", "").split(" ");
         if (args[0].equalsIgnoreCase("hud")) args = new String[0];
-        HUD.commandExecutor.logic(player,args);
+        HUD.commandExecutor.logic(player,Helper.command.quoteHandler(args));
         return 1;
     }
 }

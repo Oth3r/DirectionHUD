@@ -32,19 +32,43 @@ public class Helper {
             }
         }
     }
-    public static ArrayList<String> xyzSuggester(Player player, String type) {
-        ArrayList<String> arr = new ArrayList<>();
-        if (type.equalsIgnoreCase("x")) {
-            arr.add(String.valueOf(player.getBlockX()));
-            arr.add(player.getBlockX()+" "+player.getBlockZ());
-            arr.add(player.getBlockX()+" "+player.getBlockY()+" "+player.getBlockZ());
+    public static class command {
+        public static ArrayList<String> xyz(Player player, String type) {
+            ArrayList<String> arr = new ArrayList<>();
+            if (type.equalsIgnoreCase("x")) {
+                arr.add(String.valueOf(player.getBlockX()));
+                arr.add(player.getBlockX()+" "+player.getBlockZ());
+                arr.add(player.getBlockX()+" "+player.getBlockY()+" "+player.getBlockZ());
+            }
+            if (type.equalsIgnoreCase("y")) {
+                arr.add(String.valueOf(player.getBlockY()));
+                arr.add(player.getBlockY()+" "+player.getBlockZ());
+            }
+            if (type.equalsIgnoreCase("z")) arr.add(String.valueOf(player.getBlockZ()));
+            return arr;
         }
-        if (type.equalsIgnoreCase("y")) {
-            arr.add(String.valueOf(player.getBlockY()));
-            arr.add(player.getBlockY()+" "+player.getBlockZ());
+        public static String[] quoteHandler(String[] args) {
+            // put quoted items all in one arg
+            boolean quote = false;
+            ArrayList<String> output = new ArrayList<>();
+            for (String s : args) {
+                int lastIndex = output.size()-1;
+                if (s.contains("\"")) {
+                    // count how many quotes there are
+                    int count = s.length() - s.replaceAll("\"","").length();
+                    // remove the quote
+                    s = s.replace("\"","");
+                    if (quote) {
+                        quote = false;
+                        output.add(s); // start of the quote, so just add as normal
+                    } else if (count == 1) quote = true; // only flip the quote if there's one quotation mark
+                }
+                if (quote) output.set(lastIndex,output.get(lastIndex)+" "+s); // add a space between entries while in a quote
+                else output.add(s);
+            }
+            String[] arr = new String[output.size()];
+            return output.toArray(arr);
         }
-        if (type.equalsIgnoreCase("z")) arr.add(String.valueOf(player.getBlockZ()));
-        return arr;
     }
     public static boolean inBetween(double i, double min, double max) {
         // if min is greater than max, flip
@@ -73,7 +97,6 @@ public class Helper {
     public static String capitalizeFirst(String string) {
         return string.toUpperCase().charAt(0)+string.substring(1);
     }
-
     public static class Pair<A, B> {
         private final A first;
         private final B second;
