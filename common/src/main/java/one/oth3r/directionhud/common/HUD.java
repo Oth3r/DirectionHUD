@@ -490,10 +490,57 @@ public class HUD {
             list.addAll(allModules);
             return list;
         }
+        public static int getPageFromSetting(Player player, Setting setting) {
+            CUtl.PageHelper<Module> pageHelper = new CUtl.PageHelper<>(PlayerData.get.hud.order(player),PER_PAGE);
+            Module module = Module.unknown;
+            switch (setting) {
+                case module__speed_3d, module__speed_pattern -> module = Module.speed;
+                case module__time_24hr -> module = Module.time;
+                case module__tracking_target -> module = Module.tracking;
+            }
+            return pageHelper.getPageOf(module);
+        }
         public static ArrayList<Module> getEnabled(Player player) {
             ArrayList<Module> enabled = new ArrayList<>();
             for (Module module: PlayerData.get.hud.order(player)) if (PlayerData.get.hud.getModule(player,module)) enabled.add(module);
             return enabled;
+        }
+        public static CTxT getButtons(Player player, Module module) {
+            CTxT button = CTxT.of("");
+            if (module.equals(Module.time)) {
+                Setting type = Setting.module__time_24hr;
+                boolean state = (boolean) PlayerData.get.hud.setting.get(player,type);
+                button.append(lang("settings."+type+"."+(state?"on":"off")).btn(true).color(CUtl.s())
+                        .hEvent(lang("settings."+type+".hover",lang("settings."+type+"."+(state?"off":"on")).color(CUtl.s())))
+                        .cEvent(1,"/hud settings "+type+"-m "+(state?"off":"on")));
+            }
+            if (module.equals(Module.tracking)) {
+                Setting type = Setting.module__tracking_target;
+                Setting.HUDTrackingTarget nextType = Setting.HUDTrackingTarget.valueOf((String) PlayerData.get.hud.setting.get(player,type)).next();
+                button.append(lang("settings."+type+"."+PlayerData.get.hud.setting.get(player,type)).btn(true).color(CUtl.s())
+                        .hEvent(lang("settings."+type+".hover",lang("settings."+type+"."+nextType).color(CUtl.s())))
+                        .cEvent(1,"/hud settings "+type+"-m "+nextType+" module"));
+            }
+            if (module.equals(Module.speed)) {
+                Setting type = Setting.module__speed_3d;
+                boolean state = (boolean) PlayerData.get.hud.setting.get(player,type);
+                button.append(lang("settings."+type+"."+(state?"on":"off")).btn(true).color(CUtl.s())
+                                .hEvent(CTxT.of("")
+                                        .append(lang("settings."+type+"."+(state?"on":"off")).color(CUtl.s())).append("\n")
+                                        .append(lang("settings."+type+"."+(state?"on":"off")+".info").color('7')).append("\n\n")
+                                        .append(lang("settings."+type+".hover",lang("settings."+type+"."+(state?"off":"on")).color(CUtl.s()))))
+                                .cEvent(1,"/hud settings "+type+"-m "+(state?"off":"on")+" module"))
+                        .append(" ");
+                type = Setting.module__speed_pattern;
+                button.append(CTxT.of((String)PlayerData.get.hud.setting.get(player, type)).btn(true).color(CUtl.s())
+                        .cEvent(2,"/hud settings "+type+"-m ")
+                        .hEvent(CTxT.of("")
+                                .append(CTxT.of((String)PlayerData.get.hud.setting.get(player, type)).color(CUtl.s())).append("\n")
+                                .append(lang("settings."+type+".info").color('7')).append("\n")
+                                .append(lang("settings."+type+".info_2").color('7').italic(true)).append("\n\n")
+                                .append(lang("settings."+type+".hover"))));
+            }
+            return button;
         }
         public static CTxT moduleInfo(Player player, Module module) {
             // get the hover info for each module
@@ -560,10 +607,7 @@ public class HUD {
                         .append(lang("module."+module).color(stateColor(player,module))
                                 .hEvent(moduleInfo(player,module))).append(" ");
                 //EXTRA BUTTONS
-                if (module.equals(Module.time))
-                    msg.append(settings.getButtons(player, Setting.module__time_24hr,true));
-                if (module.equals(Module.tracking))
-                    msg.append(settings.getButtons(player, Setting.module__tracking_target,true));
+                msg.append(getButtons(player,module));
             }
             //BOTTOM ROW
             msg.append("\n\n ").append(CUtl.TBtn("reset").btn(true).color('c').cEvent(1,"/hud modules reset-r")
