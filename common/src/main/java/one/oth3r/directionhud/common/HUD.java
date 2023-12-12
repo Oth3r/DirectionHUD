@@ -129,15 +129,39 @@ public class HUD {
         }
         public static void settingsCMD(Player player, String[] args) {
             //UI
-            if (args.length == 0) settings.UI(player, null);
-            if (args.length == 2) {
-                if (args[0].equalsIgnoreCase("reset")) settings.reset(player, Setting.get(args[1]),true);
-                else settings.change(player, Setting.get(args[0]),args[1],true);
+            if (args.length == 0) {
+                settings.UI(player, null);
+                return;
             }
-            if (args.length == 3) {
-                if (args[2].equalsIgnoreCase("module")) {
-                    modules.UI(player, settings.change(player, Setting.get(args[0]),args[1],false),1);
-                } else settings.change(player, Setting.get(args[0]),args[1],false);
+            boolean Return = false;
+            boolean module = false;
+            // if the module has -r, remove it and enable returning
+            if (args[0].contains("-r")) {
+                args[0] = args[0].replace("-r","");
+                Return = true;
+            }
+            if (args[0].contains("-m")) {
+                args[0] = args[0].replace("-m","");
+                module = true;
+            }
+            // /hud settings reset
+            if (args.length == 1 && args[0].equalsIgnoreCase("reset"))
+                player.sendMessage(settings.reset(player,Setting.none,false));
+            if (args.length == 2) {
+                // /hud settings reset (module)
+                if (args[0].equalsIgnoreCase("reset")) {
+                    if (Return) settings.reset(player, Setting.get(args[1]),true);
+                    else player.sendMessage(settings.reset(player, Setting.get(args[1]),false));
+                }
+                if (args[0].equalsIgnoreCase("set")) player.sendMessage(CUtl.error("setting"));
+            }
+            if (args.length == 3 && args[0].equalsIgnoreCase("set")) {
+                // return to module UI if -m
+                if (module) modules.UI(player, settings.change(player, Setting.get(args[1]),args[2],false),modules.getPageFromSetting(player,Setting.get(args[0])));
+                // if returning don't send the change message
+                else if (Return) settings.change(player, Setting.get(args[1]),args[2],true);
+                // not returning just send the player the change message
+                else player.sendMessage(settings.change(player, Setting.get(args[1]),args[2],false));
             }
         }
         public static void modulesCMD(Player player, String[] args) {
@@ -145,7 +169,7 @@ public class HUD {
             if (args.length == 0) modules.UI(player, null, 1);
             if (args.length < 1) return;
             boolean Return = false;
-            // if the type has -r, remove it and enable returning
+            // if the module has -r, remove it and enable returning
             if (args[0].contains("-r")) {
                 args[0] = args[0].replace("-r","");
                 Return = true;
@@ -211,7 +235,8 @@ public class HUD {
                 String[] trimmedArgs = Helper.trimStart(args, 1);
                 int fixedPos = pos - 2;
                 switch (command) {
-                    case "modules" -> suggester.addAll(moduleCMD(player,fixedPos,trimmedArgs));
+                    case "modules" -> suggester.addAll(modulesCMD(player,fixedPos,trimmedArgs));
+                    case "settings" -> suggester.addAll(settingsCMD(fixedPos,trimmedArgs));
                 }
             }
             if (pos == 5 && args[1].equals("set")) {
@@ -227,7 +252,7 @@ public class HUD {
             }
             return suggester;
         }
-        public static ArrayList<String> moduleCMD(Player player, int pos, String[] args) {
+        public static ArrayList<String> modulesCMD(Player player, int pos, String[] args) {
             ArrayList<String> suggester = new ArrayList<>();
             // modules
             if (pos == 0) {
@@ -237,14 +262,60 @@ public class HUD {
                 return suggester;
             }
             // if -r is attached, remove it and continue with the suggester
-            if (args[0].contains("-r")) args[0] = args[0].replace("-r","");
+            args[0] = args[0].replaceAll("-r", "");
             if (pos == 1) {
                 if (args[0].equalsIgnoreCase("order") || args[0].equalsIgnoreCase("toggle")) {
-                    suggester.addAll(Module.toStringList(modules.getDefault()));
+                    suggester.addAll(Enums.toStringList(modules.getDefault()));
                 }
             }
             if (pos == 2 && args[0].equalsIgnoreCase("order"))
                 suggester.add(String.valueOf(PlayerData.get.hud.order(player).indexOf(Module.get(args[1]))+1));
+            return suggester;
+        }
+        public static ArrayList<String> settingsCMD(int pos, String[] args) {
+            ArrayList<String> suggester = new ArrayList<>();
+            // settings
+            if (pos == 0) {
+                suggester.add("set");
+                suggester.add("reset");
+                return suggester;
+            }
+            // if -r or -m is attached, remove it and continue with the suggester
+            args[0] = args[0].replaceAll("-[rm]", "");
+            // settings (set, reset)
+            if (pos == 1) {
+                // add all settings
+                for (Setting s:Setting.baseSettings())
+                    suggester.add(s.toString());
+                for (Setting s:Setting.moduleSettings())
+                    suggester.add(s.toString());
+                // cant reset distance max, remove
+                if (args[0].equalsIgnoreCase(Setting.bossbar__distance_max.toString()))
+                    suggester.remove(Setting.bossbar__distance_max.toString());
+            }
+            // settings set (type)
+            if (pos == 2 && args[0].equalsIgnoreCase("set")) {
+                // boolean settings
+                if (Enums.toStringList(Setting.boolSettings()).contains(args[1])) {
+                    suggester.add("on");
+                    suggester.add("off");
+                }
+                // type
+                if (args[1].equalsIgnoreCase(Setting.type.toString()))
+                    suggester.addAll(Enums.toStringList(Enums.toArrayList(Setting.DisplayType.values())));
+                // bossbar.color
+                if (args[1].equalsIgnoreCase(Setting.bossbar__color.toString()))
+                    suggester.addAll(Enums.toStringList(Enums.toArrayList(Setting.BarColor.values())));
+                // bossbar.distance_max
+                if (args[1].equalsIgnoreCase(Setting.bossbar__distance_max.toString()))
+                    suggester.add("0");
+                // module.tracking_target
+                if (args[1].equalsIgnoreCase(Setting.module__tracking_target.toString()))
+                    suggester.addAll(Enums.toStringList(Enums.toArrayList(Setting.HUDTrackingTarget.values())));
+                // module.speed_pattern
+                if (args[1].equalsIgnoreCase(Setting.module__speed_pattern.toString()))
+                    suggester.add("\"0.0#\"");
+            }
             return suggester;
         }
     }
