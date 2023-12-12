@@ -106,16 +106,6 @@ public class HUD {
                 return unknown;
             }
         }
-        public static ArrayList<String> toStringList(ArrayList<Module> moduleList) {
-            ArrayList<String> stringList = new ArrayList<>();
-            for (Module module:moduleList) stringList.add(module.toString());
-            return stringList;
-        }
-        public static ArrayList<Module> toModuleList(ArrayList<String> stringList) {
-            ArrayList<HUD.Module> moduleList = new ArrayList<>();
-            for (String module:stringList) moduleList.add(get(module));
-            return moduleList;
-        }
     }
     public static int minute;
     public static int hour;

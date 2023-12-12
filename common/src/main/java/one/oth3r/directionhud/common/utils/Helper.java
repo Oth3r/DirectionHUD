@@ -4,9 +4,32 @@ import one.oth3r.directionhud.utils.Player;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
 
 public class Helper {
+    public static class Enums {
+        public static <T extends Enum<T>> ArrayList<T> toArrayList(T[] array) {
+            return new ArrayList<>(Arrays.asList(array));
+        }
+        public static <T extends Enum<T>> ArrayList<String> toStringList(ArrayList<T> enumList) {
+            ArrayList<String> stringList = new ArrayList<>();
+            for (T entry:enumList) stringList.add(entry.toString());
+            return stringList;
+        }
+        public static <T extends Enum<T>> ArrayList<T> toEnumList(ArrayList<String> stringList, Class<T> enumType, boolean... setting) {
+            boolean settingMode = setting != null;
+            ArrayList<T> moduleList = new ArrayList<>();
+            for (String module:stringList) {
+                try {
+                    T enumValue = Enum.valueOf(enumType, module);
+                    if (settingMode) enumValue = Enum.valueOf(enumType, module.replace(".","__"));
+                    moduleList.add(enumValue);
+                } catch (IllegalArgumentException ignored) {}
+            }
+            return moduleList;
+        }
+    }
     public static boolean isNum(String s) {
         // checks if int or a double
         try {
