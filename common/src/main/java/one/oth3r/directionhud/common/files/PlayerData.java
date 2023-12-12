@@ -7,6 +7,7 @@ import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.utils.CUtl;
+import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
@@ -227,7 +228,7 @@ public class PlayerData {
             hudSetting.put("time24h",null);
             hudSettingModule.put("tracking_target", config.hud.TrackingTarget);
             hudSetting.put("module",hudSettingModule);
-            hud.put("order", HUD.modules.fixOrder(HUD.Module.toModuleList(new ArrayList<>(List.of(((String) hud.get("order")).split(" "))))));
+            hud.put("order", HUD.modules.fixOrder(Helper.Enums.toEnumList(new ArrayList<>(List.of(((String) hud.get("order")).split(" "))),HUD.Module.class)));
             hud.put("setting",hudSetting);
             map.put("destination",dest);
             map.put("hud",hud);
@@ -244,6 +245,21 @@ public class PlayerData {
             hudSetting.put("state",hud.get("enabled"));
             hud.put("setting",hudSetting);
             hud.put("enabled",null);
+            map.put("hud",hud);
+        }
+        if (map.get("version").equals(1.6)) {
+            map.put("version",1.70);
+            Map<String,Object> hud = (Map<String, Object>) map.get("hud");
+            // hud module settings
+            Map<String,Object> hudSetting = (Map<String, Object>) hud.get("setting");
+            Map<String,Object> hudModuleSetting = (Map<String, Object>) hudSetting.get("module");
+            hudModuleSetting.put("speed_pattern", config.hud.SpeedPattern);
+            hudModuleSetting.put("speed_3d", config.hud.Speed3D);
+            hudSetting.put("module",hudModuleSetting);
+            hud.put("setting",hudSetting);
+            // hud modules
+            Map<String,Object> hudModule = (Map<String, Object>) hud.get("module");
+            hudModule.put("speed",config.hud.Speed);
             map.put("hud",hud);
         }
         return map;
@@ -277,7 +293,10 @@ public class PlayerData {
         Map<String, Object> map = updater(player, fileToMap(player));
         mapToFile(player, map);
         updatePlayerMap(player);
-        oneTimeMap.put(player,new HashMap<>());
+        HashMap<String, Object> hashMap = new HashMap<>();
+        hashMap.put("speed_data", player.getVec());
+        hashMap.put("speed", 0.0);
+        dataMap.put(player, hashMap);
     }
     public static void removePlayer(Player player) {
         mapToFile(player, fileToMap(player));
@@ -335,6 +354,8 @@ public class PlayerData {
             Map<String,Object> module = new HashMap<>();
             module.put("time_24hr", config.hud.Time24HR);
             module.put("tracking_target", config.hud.TrackingTarget);
+            module.put("speed_pattern", config.hud.SpeedPattern);
+            module.put("speed_3d", config.hud.Speed3D);
             return module;
         }
         public static Map<String,Object> hudModule() {
@@ -346,6 +367,7 @@ public class PlayerData {
             hudModule.put("tracking", config.hud.Tracking);
             hudModule.put("time", config.hud.Time);
             hudModule.put("weather", config.hud.Weather);
+            hudModule.put("speed", config.hud.Speed);
             return hudModule;
         }
         public static Map<String,Object> destSetting() {

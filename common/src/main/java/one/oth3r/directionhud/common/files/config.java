@@ -35,8 +35,11 @@ public class config {
             public static final boolean Destination = true;
             public static final boolean Direction = true;
             public static final boolean Time = true;
-            public static final boolean Weather = true;
             public static final boolean Time24HR = false;
+            public static final boolean Weather = true;
+            public static final boolean Speed = false;
+            public static final boolean Speed3D = true;
+            public static final String SpeedPattern = "0.00";
             public static final String TrackingTarget = HUD.Setting.HUDTrackingTarget.player.toString();
             public static class primary {
                 public static final String Color = DirectionHUD.PRIMARY;
@@ -60,12 +63,15 @@ public class config {
         public static boolean Coordinates = defaults.Coordinates;
         public static boolean Distance = defaults.Distance;
         public static boolean Tracking = defaults.Tracking;
+        public static String TrackingTarget = defaults.TrackingTarget;
         public static boolean Destination = defaults.Destination;
         public static boolean Direction = defaults.Direction;
         public static boolean Time = defaults.Time;
-        public static boolean Weather = defaults.Weather;
         public static boolean Time24HR = defaults.Time24HR;
-        public static String TrackingTarget = defaults.TrackingTarget;
+        public static boolean Weather = defaults.Weather;
+        public static boolean Speed = defaults.Speed;
+        public static boolean Speed3D = defaults.Speed3D;
+        public static String SpeedPattern = defaults.SpeedPattern;
         public static class primary {
             public static String Color = defaults.primary.Color;
             public static boolean Bold = defaults.primary.Bold;
@@ -131,7 +137,6 @@ public class config {
         public static final int socialCooldown = 10;
         public static final int HUDLoop = 1;
         public static final int ParticleLoop = 20;
-
         public static final boolean globalDESTs = false;
         public static final List<String> colorPresets = List.of("#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff");
         public static final List<String> dimensions = Utl.dim.DEFAULT_DIMENSIONS;
@@ -180,11 +185,9 @@ public class config {
     public static void loadVersion(Properties properties, float version) {
         try {
             Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-            //json maps
-            Type arrayListMap = new TypeToken<ArrayList<String>>() {
-            }.getType();
-            Type moduleListMap = new TypeToken<ArrayList<HUD.Module>>() {
-            }.getType();
+            // json maps
+            Type arrayListMap = new TypeToken<ArrayList<String>>() {}.getType();
+            Type moduleListMap = new TypeToken<ArrayList<HUD.Module>>() {}.getType();
             // CONFIG
             MAXxz = Integer.parseInt((String) properties.computeIfAbsent("max-xz", a -> String.valueOf(defaults.MAXxz)));
             MAXy = Integer.parseInt((String) properties.computeIfAbsent("max-y", a -> String.valueOf(defaults.MAXy)));
@@ -209,7 +212,7 @@ public class config {
             colorPresets = new Gson().fromJson((String) properties.computeIfAbsent("color-presets", a -> gson.toJson(defaults.colorPresets)), arrayListMap);
             // HUD
             hud.Order = HUD.modules.fixOrder(new Gson().fromJson((String) properties.computeIfAbsent("hud.order", a -> gson.toJson(hud.defaults.Order)), moduleListMap));
-            // HUD MODULES
+            // HUD MODULE STATES
             hud.Coordinates = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.coordinates", a -> String.valueOf(hud.defaults.Coordinates)));
             hud.Distance = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.distance", a -> String.valueOf(hud.defaults.Distance)));
             hud.Tracking = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.tracking", a -> String.valueOf(hud.defaults.Tracking)));
@@ -217,6 +220,12 @@ public class config {
             hud.Direction = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.direction", a -> String.valueOf(hud.defaults.Direction)));
             hud.Time = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.time", a -> String.valueOf(hud.defaults.Time)));
             hud.Weather = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.weather", a -> String.valueOf(hud.defaults.Weather)));
+            hud.Speed = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.speed", a -> String.valueOf(hud.defaults.Speed)));
+            // HUD MODULE SETTINGS
+            hud.TrackingTarget = HUD.Setting.HUDTrackingTarget.get((String) properties.computeIfAbsent("hud.settings.module.tracking_target", a -> hud.defaults.TrackingTarget)).toString();
+            hud.Time24HR = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.settings.module.time_24hr", a -> String.valueOf(hud.defaults.Time24HR)));
+            hud.Speed3D = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.settings.module.speed_3d", a -> String.valueOf(hud.defaults.Speed3D)));
+            hud.SpeedPattern = (String) properties.computeIfAbsent("hud.settings.module.speed_pattern", a -> hud.defaults.SpeedPattern);
             // HUD COLOR
             hud.primary.Color = CUtl.color.format((String) properties.computeIfAbsent("hud.color.primary", a -> hud.defaults.primary.Color), hud.defaults.primary.Color);
             hud.primary.Bold = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.color.primary-bold", a -> String.valueOf(hud.defaults.primary.Bold)));
@@ -232,8 +241,6 @@ public class config {
             hud.BarColor = HUD.Setting.BarColor.get((String) properties.computeIfAbsent("hud.settings.bossbar.color", a -> hud.defaults.BarColor)).toString();
             hud.BarShowDistance = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.settings.bossbar.distance", a -> String.valueOf(hud.defaults.BarShowDistance)));
             hud.ShowDistanceMAX = Integer.parseInt((String) properties.computeIfAbsent("hud.settings.bossbar.distance_max", a -> String.valueOf(hud.defaults.ShowDistanceMAX)));
-            hud.Time24HR = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.settings.module.time_24hr", a -> String.valueOf(hud.defaults.Time24HR)));
-            hud.TrackingTarget = HUD.Setting.HUDTrackingTarget.get((String) properties.computeIfAbsent("hud.settings.module.tracking_target", a -> hud.defaults.TrackingTarget)).toString();
             // DEST SETTINGS
             dest.AutoClear = Boolean.parseBoolean((String) properties.computeIfAbsent("dest.settings.autoclear", a -> String.valueOf(dest.defaults.AutoClear)));
             dest.AutoClearRad = Math.min(15, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("dest.settings.autoclear_rad", a -> String.valueOf(dest.defaults.AutoClearRad)))));
@@ -374,6 +381,7 @@ public class config {
             file.write("\nhud.module.direction=" + hud.Direction);
             file.write("\nhud.module.time=" + hud.Time);
             file.write("\nhud.module.weather=" + hud.Weather);
+            file.write("\nhud.module.speed=" + hud.Speed);
             file.write("\n\n# "+CUtl.lang("config.settings").toString());
             file.write("\nhud.settings.state=" + hud.State);
             file.write("\nhud.settings.type=" + hud.DisplayType);
@@ -384,6 +392,9 @@ public class config {
             file.write("\nhud.settings.bossbar.distance_max=" + hud.ShowDistanceMAX);
             file.write("\nhud.settings.module.time_24hr=" + hud.Time24HR);
             file.write("\nhud.settings.module.tracking_target=" + hud.TrackingTarget);
+            file.write("\nhud.settings.module.speed_3d=" + hud.Speed3D);
+            // todo pattern info
+            file.write("\nhud.settings.module.speed_pattern=" + hud.SpeedPattern);
             file.write("\n# "+CUtl.lang("config.hud.settings.module.tracking_target.options").toString());
             file.write("\n\n# "+CUtl.lang("config.hud.color").toString());
             file.write("\n# "+CUtl.lang("config.color.options").toString());
