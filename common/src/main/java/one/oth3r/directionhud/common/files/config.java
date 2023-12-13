@@ -12,7 +12,6 @@ import one.oth3r.directionhud.utils.Utl;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -40,7 +39,7 @@ public class config {
             public static final boolean Speed = false;
             public static final boolean Speed3D = true;
             public static final String SpeedPattern = "0.00";
-            public static final String TrackingTarget = HUD.Setting.HUDTrackingTarget.player.toString();
+            public static final String TrackingTarget = HUD.Setting.ModuleTrackingTarget.player.toString();
             public static class primary {
                 public static final String Color = DirectionHUD.PRIMARY;
                 public static final boolean Bold = false;
@@ -222,7 +221,7 @@ public class config {
             hud.Weather = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.weather", a -> String.valueOf(hud.defaults.Weather)));
             hud.Speed = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.speed", a -> String.valueOf(hud.defaults.Speed)));
             // HUD MODULE SETTINGS
-            hud.TrackingTarget = HUD.Setting.HUDTrackingTarget.get((String) properties.computeIfAbsent("hud.settings.module.tracking_target", a -> hud.defaults.TrackingTarget)).toString();
+            hud.TrackingTarget = HUD.Setting.ModuleTrackingTarget.get((String) properties.computeIfAbsent("hud.settings.module.tracking_target", a -> hud.defaults.TrackingTarget)).toString();
             hud.Time24HR = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.settings.module.time_24hr", a -> String.valueOf(hud.defaults.Time24HR)));
             hud.Speed3D = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.settings.module.speed_3d", a -> String.valueOf(hud.defaults.Speed3D)));
             hud.SpeedPattern = (String) properties.computeIfAbsent("hud.settings.module.speed_pattern", a -> hud.defaults.SpeedPattern);

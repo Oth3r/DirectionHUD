@@ -93,19 +93,19 @@ public class HUD {
                 }
             }
         }
-        public enum HUDTrackingTarget {
+        public enum ModuleTrackingTarget {
             player,
             dest;
-            public static final HUDTrackingTarget[] values = values();
-            public HUDTrackingTarget next() {
+            public static final ModuleTrackingTarget[] values = values();
+            public ModuleTrackingTarget next() {
                 return values[(ordinal() + 1) % values.length];
             }
-            public static HUDTrackingTarget get(String s) {
+            public static ModuleTrackingTarget get(String s) {
                 try {
-                    return HUDTrackingTarget.valueOf(s);
+                    return ModuleTrackingTarget.valueOf(s);
 
                 } catch (IllegalArgumentException e) {
-                    return HUDTrackingTarget.valueOf(config.hud.defaults.TrackingTarget);
+                    return ModuleTrackingTarget.valueOf(config.hud.defaults.TrackingTarget);
                 }
             }
         }
@@ -336,7 +336,7 @@ public class HUD {
                     suggester.add("0");
                 // module.tracking_target
                 if (args[1].equalsIgnoreCase(Setting.module__tracking_target.toString()))
-                    suggester.addAll(Enums.toStringList(Enums.toArrayList(Setting.HUDTrackingTarget.values())));
+                    suggester.addAll(Enums.toStringList(Enums.toArrayList(Setting.ModuleTrackingTarget.values())));
                 // module.speed_pattern
                 if (args[1].equalsIgnoreCase(Setting.module__speed_pattern.toString()))
                     suggester.add("\"0.0#\"");
@@ -414,7 +414,7 @@ public class HUD {
             if (module.equals(Module.tracking)) {
                 // if tracking type is dest and dest is off, remove.
                 // else player tracking type and no player tracked, remove
-                if (PlayerData.get.hud.setting.get(player, Setting.module__tracking_target).equals(Setting.HUDTrackingTarget.dest.toString())) {
+                if (PlayerData.get.hud.setting.get(player, Setting.module__tracking_target).equals(Setting.ModuleTrackingTarget.dest.toString())) {
                     if (!Destination.get(player).hasXYZ()) continue;
                 } else if (Destination.social.track.getTarget(player) == null) continue;
             }
@@ -484,7 +484,7 @@ public class HUD {
         // pointer target
         Loc pointLoc;
         // player tracking mode
-        if (PlayerData.get.hud.setting.get(player, Setting.module__tracking_target).equals(Setting.HUDTrackingTarget.player.name())) {
+        if (PlayerData.get.hud.setting.get(player, Setting.module__tracking_target).equals(Setting.ModuleTrackingTarget.player.name())) {
             // no target
             if (PlayerData.get.dest.getTracking(player) == null) return "???";
             Player target = Destination.social.track.getTarget(player);
@@ -618,7 +618,7 @@ public class HUD {
             }
             if (module.equals(Module.tracking)) {
                 Setting type = Setting.module__tracking_target;
-                Setting.HUDTrackingTarget nextType = Setting.HUDTrackingTarget.valueOf((String) PlayerData.get.hud.setting.get(player,type)).next();
+                Setting.ModuleTrackingTarget nextType = Setting.ModuleTrackingTarget.valueOf((String) PlayerData.get.hud.setting.get(player,type)).next();
                 button.append(lang("settings."+type+"."+PlayerData.get.hud.setting.get(player,type)).btn(true).color(CUtl.s())
                         .hEvent(lang("settings."+type+".hover",lang("settings."+type+"."+nextType).color(CUtl.s())))
                         .cEvent(1,"/hud settings set-m "+type+" "+nextType+" module"));
@@ -678,10 +678,10 @@ public class HUD {
             boolean yellow = false;
             if (!Destination.get(player).hasXYZ()) {
                 if (module.equals(Module.destination) || module.equals(Module.distance) || (module.equals(Module.tracking) &&
-                        Setting.HUDTrackingTarget.get((String)PlayerData.get.hud.setting.get(player, Setting.module__tracking_target)).equals(Setting.HUDTrackingTarget.dest)))
+                        Setting.ModuleTrackingTarget.get((String)PlayerData.get.hud.setting.get(player, Setting.module__tracking_target)).equals(Setting.ModuleTrackingTarget.dest)))
                     yellow = true;
             }
-            if (module.equals(Module.tracking) && Destination.social.track.getTarget(player)==null && Setting.HUDTrackingTarget.get((String)PlayerData.get.hud.setting.get(player, Setting.module__tracking_target)).equals(Setting.HUDTrackingTarget.player))
+            if (module.equals(Module.tracking) && Destination.social.track.getTarget(player)==null && Setting.ModuleTrackingTarget.get((String)PlayerData.get.hud.setting.get(player, Setting.module__tracking_target)).equals(Setting.ModuleTrackingTarget.player))
                 yellow = true;
             if (yellow) return "#fff419";
             return "#19ff21";
@@ -934,8 +934,8 @@ public class HUD {
                 setTxT.append(lang("settings."+type+"."+(state?"on":"off")).color(CUtl.s()));
             }
             if (type.equals(Setting.module__tracking_target)) {
-                PlayerData.set.hud.setting.set(player, type, Setting.HUDTrackingTarget.valueOf(setting));
-                setTxT.append(lang("settings."+type+"." + Setting.HUDTrackingTarget.valueOf(setting)).color(CUtl.s()));
+                PlayerData.set.hud.setting.set(player, type, Setting.ModuleTrackingTarget.valueOf(setting));
+                setTxT.append(lang("settings."+type+"." + Setting.ModuleTrackingTarget.valueOf(setting)).color(CUtl.s()));
             }
             if (type.equals(Setting.module__speed_pattern)) {
                 try {
