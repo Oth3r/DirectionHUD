@@ -178,7 +178,7 @@ public class HUD {
             }
             if (args.length == 3 && args[0].equalsIgnoreCase("set")) {
                 // return to module UI if -m
-                if (module) modules.UI(player, settings.change(player, Setting.get(args[1]),args[2],false),modules.getPageFromSetting(player,Setting.get(args[0])));
+                if (module) modules.UI(player, settings.change(player, Setting.get(args[1]),args[2],false),modules.getPageFromSetting(player,Setting.get(args[1])));
                 // if returning don't send the change message
                 else if (Return) settings.change(player, Setting.get(args[1]),args[2],true);
                 // not returning just send the player the change message
@@ -263,17 +263,6 @@ public class HUD {
                     case "modules" -> suggester.addAll(modulesCMD(player,fixedPos,trimmedArgs));
                     case "settings" -> suggester.addAll(settingsCMD(fixedPos,trimmedArgs));
                 }
-            }
-            if (pos == 5 && args[1].equals("set")) {
-                suggester.add("ffffff");
-            }
-            if (pos == 3 && args[0].equals("settings")) {
-                if (args[1].equals(Setting.bossbar__color.toString())) {
-                    for (Setting.BarColor color : Setting.BarColor.values())
-                        suggester.add(color.toString());
-                }
-                if (args[1].equals(Setting.bossbar__distance_max.toString()))
-                    suggester.add("0");
             }
             return suggester;
         }
@@ -621,7 +610,7 @@ public class HUD {
                 Setting.ModuleTrackingTarget nextType = Setting.ModuleTrackingTarget.valueOf((String) PlayerData.get.hud.setting.get(player,type)).next();
                 button.append(lang("settings."+type+"."+PlayerData.get.hud.setting.get(player,type)).btn(true).color(CUtl.s())
                         .hEvent(lang("settings."+type+".hover",lang("settings."+type+"."+nextType).color(CUtl.s())))
-                        .cEvent(1,"/hud settings set-m "+type+" "+nextType+" module"));
+                        .cEvent(1,"/hud settings set-m "+type+" "+nextType));
             }
             if (module.equals(Module.speed)) {
                 Setting type = Setting.module__speed_3d;
@@ -631,7 +620,7 @@ public class HUD {
                                         .append(lang("settings."+type+"."+(state?"on":"off")).color(CUtl.s())).append("\n")
                                         .append(lang("settings."+type+"."+(state?"on":"off")+".info").color('7')).append("\n\n")
                                         .append(lang("settings."+type+".hover",lang("settings."+type+"."+(state?"off":"on")).color(CUtl.s()))))
-                                .cEvent(1,"/hud settings set "+type+"-m "+(state?"off":"on")+" module"))
+                                .cEvent(1,"/hud settings set-m "+type+" "+(state?"off":"on")))
                         .append(" ");
                 type = Setting.module__speed_pattern;
                 button.append(CTxT.of((String)PlayerData.get.hud.setting.get(player, type)).btn(true).color(CUtl.s())
