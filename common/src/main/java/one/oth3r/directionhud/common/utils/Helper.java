@@ -30,6 +30,17 @@ public class Helper {
             }
             return moduleList;
         }
+        @SafeVarargs
+        public static <T extends Enum<T>> T next(T current, Class<T> enumType, T... exclude) {
+            T[] values = enumType.getEnumConstants();
+            T next = values[(current.ordinal()+1)%values.length];
+            if (exclude != null) {
+                for (T item:exclude)
+                    if (item.equals(next))
+                        return next(next,enumType,exclude);
+            }
+            return next;
+        }
     }
     public static boolean isNum(String s) {
         // checks if int or a double
