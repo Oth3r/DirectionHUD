@@ -224,7 +224,14 @@ public class config {
             hud.TrackingTarget = HUD.Setting.ModuleTrackingTarget.get((String) properties.computeIfAbsent("hud.settings.module.tracking_target", a -> hud.defaults.TrackingTarget)).toString();
             hud.Time24HR = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.settings.module.time_24hr", a -> String.valueOf(hud.defaults.Time24HR)));
             hud.Speed3D = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.settings.module.speed_3d", a -> String.valueOf(hud.defaults.Speed3D)));
-            hud.SpeedPattern = (String) properties.computeIfAbsent("hud.settings.module.speed_pattern", a -> hud.defaults.SpeedPattern);
+            String pattern = (String) properties.computeIfAbsent("hud.settings.module.speed_pattern", a -> hud.defaults.SpeedPattern);
+            try {
+                new DecimalFormat(pattern);
+                hud.SpeedPattern = pattern;
+            } catch (IllegalArgumentException ignored) {
+                hud.SpeedPattern = hud.defaults.SpeedPattern;
+            }
+
             // HUD COLOR
             hud.primary.Color = CUtl.color.format((String) properties.computeIfAbsent("hud.color.primary", a -> hud.defaults.primary.Color), hud.defaults.primary.Color);
             hud.primary.Bold = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.color.primary-bold", a -> String.valueOf(hud.defaults.primary.Bold)));
