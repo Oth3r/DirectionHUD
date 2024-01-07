@@ -5,6 +5,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Objects;
 
 public class Helper {
@@ -89,6 +90,8 @@ public class Helper {
                 if (quote) output.set(lastIndex,output.get(lastIndex)+" "+s); // add a space between entries while in a quote
                 else output.add(s);
             }
+            // remove all blank entries
+            output.removeAll(Collections.singleton(""));
             String[] arr = new String[output.size()];
             return output.toArray(arr);
         }
