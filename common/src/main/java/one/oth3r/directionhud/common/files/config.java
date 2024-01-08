@@ -15,6 +15,7 @@ import java.io.FileInputStream;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -39,7 +40,9 @@ public class config {
             public static final boolean Speed = false;
             public static final boolean Speed3D = true;
             public static final String SpeedPattern = "0.00";
+            public static final boolean TrackingHybrid = true;
             public static final String TrackingTarget = HUD.Setting.ModuleTrackingTarget.player.toString();
+            public static final String TrackingType = HUD.Setting.ModuleTrackingType.simple.toString();
             public static class primary {
                 public static final String Color = DirectionHUD.PRIMARY;
                 public static final boolean Bold = false;
@@ -62,7 +65,9 @@ public class config {
         public static boolean Coordinates = defaults.Coordinates;
         public static boolean Distance = defaults.Distance;
         public static boolean Tracking = defaults.Tracking;
+        public static boolean TrackingHybrid = defaults.TrackingHybrid;
         public static String TrackingTarget = defaults.TrackingTarget;
+        public static String TrackingType = defaults.TrackingType;
         public static boolean Destination = defaults.Destination;
         public static boolean Direction = defaults.Direction;
         public static boolean Time = defaults.Time;
@@ -221,7 +226,9 @@ public class config {
             hud.Weather = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.weather", a -> String.valueOf(hud.defaults.Weather)));
             hud.Speed = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.speed", a -> String.valueOf(hud.defaults.Speed)));
             // HUD MODULE SETTINGS
+            hud.TrackingHybrid = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.settings.module.tracking_hybrid", a -> String.valueOf(hud.defaults.TrackingHybrid)));
             hud.TrackingTarget = HUD.Setting.ModuleTrackingTarget.get((String) properties.computeIfAbsent("hud.settings.module.tracking_target", a -> hud.defaults.TrackingTarget)).toString();
+            hud.TrackingType = HUD.Setting.ModuleTrackingType.get((String) properties.computeIfAbsent("hud.settings.module.tracking_type", a -> hud.defaults.TrackingType)).toString();
             hud.Time24HR = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.settings.module.time_24hr", a -> String.valueOf(hud.defaults.Time24HR)));
             hud.Speed3D = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.settings.module.speed_3d", a -> String.valueOf(hud.defaults.Speed3D)));
             String pattern = (String) properties.computeIfAbsent("hud.settings.module.speed_pattern", a -> hud.defaults.SpeedPattern);
@@ -397,11 +404,22 @@ public class config {
             file.write("\nhud.settings.bossbar.distance=" + hud.BarShowDistance);
             file.write("\nhud.settings.bossbar.distance_max=" + hud.ShowDistanceMAX);
             file.write("\nhud.settings.module.time_24hr=" + hud.Time24HR);
+
+            file.write("\n\nhud.settings.module.tracking_hybrid=" + hud.TrackingHybrid);
+            file.write("\n# "+CUtl.lang("hud.settings.module.tracking_hybrid.info").toString());
             file.write("\nhud.settings.module.tracking_target=" + hud.TrackingTarget);
-            file.write("\nhud.settings.module.speed_3d=" + hud.Speed3D);
-            // todo pattern info
+            file.write("\n# "+CUtl.lang("hud.settings.module.tracking_target.options").toString());
+            file.write("\n# "+CUtl.lang("hud.settings.module.tracking_target.info").toString());
+            file.write("\nhud.settings.module.tracking_type=" + hud.TrackingType);
+            file.write("\n# "+CUtl.lang("hud.settings.module.tracking_type.options").toString());
+            file.write("\n# "+CUtl.lang("hud.settings.module.tracking_type.simple.info").toString());
+            file.write("\n# "+CUtl.lang("hud.settings.module.tracking_type.compact.info").toString());
+
+            file.write("\n\nhud.settings.module.speed_3d=" + hud.Speed3D);
             file.write("\nhud.settings.module.speed_pattern=" + hud.SpeedPattern);
-            file.write("\n# "+CUtl.lang("config.hud.settings.module.tracking_target.options").toString());
+            file.write("\n# "+CUtl.lang("hud.settings.module.speed_pattern.info").toString());
+            file.write("\n# "+CUtl.lang("hud.settings.module.speed_pattern.info_2").toString());
+
             file.write("\n\n# "+CUtl.lang("config.hud.color").toString());
             file.write("\n# "+CUtl.lang("config.color.options").toString());
             file.write("\nhud.color.primary=" + hud.primary.Color);

@@ -6,6 +6,7 @@ import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Helper.Enums;
 import one.oth3r.directionhud.common.utils.Loc;
+import one.oth3r.directionhud.common.Assets.symbols.arrows;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
@@ -22,6 +23,8 @@ public class HUD {
         bossbar__distance_max,
         module__time_24hr,
         module__tracking_target,
+        module__tracking_type,
+        module__tracking_hybrid,
         module__speed_pattern,
         module__speed_3d,
         none;
@@ -47,10 +50,12 @@ public class HUD {
         }
         public static ArrayList<Setting> moduleSettings() {
             ArrayList<Setting> list = new ArrayList<>();
+            list.add(module__time_24hr);
+            list.add(module__tracking_hybrid);
+            list.add(module__tracking_target);
+            list.add(module__tracking_type);
             list.add(module__speed_3d);
             list.add(module__speed_pattern);
-            list.add(module__tracking_target);
-            list.add(module__time_24hr);
             return list;
         }
         public static ArrayList<Setting> boolSettings() {
@@ -96,16 +101,24 @@ public class HUD {
         public enum ModuleTrackingTarget {
             player,
             dest;
-            public static final ModuleTrackingTarget[] values = values();
-            public ModuleTrackingTarget next() {
-                return values[(ordinal() + 1) % values.length];
-            }
             public static ModuleTrackingTarget get(String s) {
                 try {
                     return ModuleTrackingTarget.valueOf(s);
 
                 } catch (IllegalArgumentException e) {
                     return ModuleTrackingTarget.valueOf(config.hud.defaults.TrackingTarget);
+                }
+            }
+        }
+        public enum ModuleTrackingType {
+            simple,
+            compact;
+            public static ModuleTrackingType get(String s) {
+                try {
+                    return ModuleTrackingType.valueOf(s);
+
+                } catch (IllegalArgumentException e) {
+                    return ModuleTrackingType.valueOf(config.hud.defaults.TrackingType);
                 }
             }
         }
@@ -343,19 +356,13 @@ public class HUD {
         coordinates.add("s"+player.getBlockX()+" "+player.getBlockY()+" "+player.getBlockZ());
         ArrayList<String> destination = new ArrayList<>();
         ArrayList<String> distance = new ArrayList<>();
-        ArrayList<String> tracking = new ArrayList<>();
+        ArrayList<String> tracking = getTrackingModule(player);
         if (Destination.get(player).hasXYZ()) {
             destination.add("pDEST: ");
             destination.add("s"+ Destination.get(player).getXYZ());
             distance.add("p[");
             distance.add("s"+ Destination.getDist(player));
             distance.add("p]");
-        }
-        //TRACKING
-        if (PlayerData.get.hud.getModule(player, Module.tracking)) {
-            tracking.add("/p[");
-            tracking.add("s"+getTracking(player));
-            tracking.add("/p]");
         }
         ArrayList<String> direction = new ArrayList<>();
         direction.add("p"+getPlayerDirection(player));
@@ -369,9 +376,7 @@ public class HUD {
         }
         ArrayList<String> weather = new ArrayList<>();
         weather.add("p"+weatherIcon);
-        ArrayList<String> speed = new ArrayList<>();
-        speed.add("s"+getSpeed(player));
-        speed.add("p"+" B/S");
+        ArrayList<String> speed = getSpeedModule(player);
         //todo
         // angle module
         // yaw / pitch / both
@@ -469,29 +474,46 @@ public class HUD {
         if (t12hr) hr = (hr % 12 == 0)? 12:hr % 12;
         return hr+":"+min;
     }
-    public static String getTracking(Player player) {
+    public static ArrayList<String> getTrackingModule(Player player) {
+        ArrayList<String> tracking = new ArrayList<>();
+        if (!PlayerData.get.hud.getModule(player, Module.tracking)) return tracking;
         // pointer target
-        Loc pointLoc;
+        Loc pointLoc = null;
         // player tracking mode
-        if (PlayerData.get.hud.setting.get(player, Setting.module__tracking_target).equals(Setting.ModuleTrackingTarget.player.name())) {
-            // no target
-            if (PlayerData.get.dest.getTracking(player) == null) return "???";
-            Player target = Destination.social.track.getTarget(player);
-            if (target == null) return "???";
-            Loc plLoc = new Loc(target);
-            // not in the same dimension
-            if (!player.getDimension().equals(target.getDimension())) {
-                // can convert and autoconvert is on
-                if (Utl.dim.canConvert(player.getDimension(),target.getDimension()) && (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.autoconvert)) {
-                    plLoc.convertTo(player.getDimension());
-                } else return "-?-";
+        Setting.ModuleTrackingTarget trackingTarget = Setting.ModuleTrackingTarget.get(
+                String.valueOf(PlayerData.get.hud.setting.get(player, Setting.module__tracking_target)));
+        boolean hybrid = (boolean) PlayerData.get.hud.setting.get(player,Setting.module__tracking_hybrid);
+        // PLAYER or HYBRID
+        if (trackingTarget.equals(Setting.ModuleTrackingTarget.player) || hybrid) {
+            // make sure there's a target
+            if (!(PlayerData.get.dest.getTracking(player) == null)) {
+                Player target = Destination.social.track.getTarget(player);
+                // make sure the player is real
+                if (!(target == null)) {
+                    Loc plLoc = new Loc(target);
+                    // not in the same dimension
+                    if (!player.getDimension().equals(target.getDimension())) {
+                        // can convert and autoconvert is on
+                        if (Utl.dim.canConvert(player.getDimension(),target.getDimension()) && (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.autoconvert)) {
+                            plLoc.convertTo(player.getDimension());
+                        } else plLoc = null;
+                    }
+                    // set the loc
+                    pointLoc = plLoc;
+                }
             }
-            pointLoc = plLoc;
-        } else {
-            // dest mode
-            if (!Destination.get(player).hasXYZ()) return "???";
-            pointLoc = Destination.get(player);
         }
+        // DEST or (HYBRID & NULL TRACKER)
+        if (trackingTarget.equals(Setting.ModuleTrackingTarget.dest) || (hybrid && pointLoc == null)) {
+            // make sure theres a dest
+            if (Destination.get(player).hasXYZ())
+                pointLoc = Destination.get(player);
+        }
+        // check if there's a point set, otherwise return nothing
+        if (pointLoc == null) return tracking;
+        Setting.ModuleTrackingType trackingType = Setting.ModuleTrackingType.get(String.valueOf(PlayerData.get.hud.setting.get(player,Setting.module__tracking_type)));
+        boolean simple = trackingType.equals(Setting.ModuleTrackingType.simple);
+        tracking.add("/p["); // add the first bracket
         // pointer logic
         int x = pointLoc.getX()-player.getBlockX();
         int z = (pointLoc.getZ()-player.getBlockZ())*-1;
@@ -500,19 +522,46 @@ public class HUD {
         // make sure 0 - 360
         if (rotation < 0) rotation += 360;
         if (target < 0) target += 360;
-        if (Helper.inBetween(rotation, Helper.wSubtract(target,15,360), Helper.wAdd(target,15,360))) return "-"+Assets.symbols.up+"-";
-        if (Helper.inBetween(rotation, target, Helper.wAdd(target,65,360))) return Assets.symbols.left+Assets.symbols.up+"-";
-        if (Helper.inBetween(rotation, target, Helper.wAdd(target,115,360))) return Assets.symbols.left+"--";
-        if (Helper.inBetween(rotation, target, Helper.wAdd(target,165,360))) return Assets.symbols.left+Assets.symbols.down+"-";
-        if (Helper.inBetween(rotation, Helper.wSubtract(target, 65, 360), target)) return "-"+Assets.symbols.up+Assets.symbols.right;
-        if (Helper.inBetween(rotation, Helper.wSubtract(target, 115, 360), target)) return "--"+Assets.symbols.right;
-        if (Helper.inBetween(rotation, Helper.wSubtract(target, 165, 360), target)) return "-"+Assets.symbols.down+Assets.symbols.right;
-        return "-"+Assets.symbols.down+"-";
+        if (Helper.inBetween(rotation, Helper.wSubtract(target,15,360), Helper.wAdd(target,15,360)))
+            tracking.add("s"+(simple?"-"+ arrows.up+"-" : arrows.north));
+        // NORTH
+        else if (Helper.inBetween(rotation, target, Helper.wAdd(target,65,360)))
+            tracking.add("s"+(simple? arrows.left+ arrows.up+"-" : arrows.north_west));
+        // NORTH WEST
+        else if (Helper.inBetween(rotation, target, Helper.wAdd(target,115,360)))
+            tracking.add("s"+(simple? arrows.left+"--" : arrows.west));
+        // WEST
+        else if (Helper.inBetween(rotation, target, Helper.wAdd(target,165,360)))
+            tracking.add("s"+(simple? arrows.left+ arrows.down+"-" : arrows.south_west));
+        // SOUTH WEST
+        else if (Helper.inBetween(rotation, Helper.wSubtract(target, 65, 360), target))
+            tracking.add("s"+(simple?"-"+ arrows.up+ arrows.right : arrows.north_east));
+        // NORTH EAST
+        else if (Helper.inBetween(rotation, Helper.wSubtract(target, 115, 360), target))
+            tracking.add("s"+(simple?"--"+ arrows.right : arrows.east));
+        // EAST
+        else if (Helper.inBetween(rotation, Helper.wSubtract(target, 165, 360), target))
+            tracking.add("s"+(simple?"-"+ arrows.down+ arrows.right : arrows.south_east));
+        // SOUTH EAST
+        else tracking.add("s"+(simple?"-"+ arrows.down+"-" : arrows.south));
+        // SOUTH
+        // if compact and the ylevel is different & there's a y level on the loc
+        if (!simple && !(boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.ylevel) && pointLoc.yExists()) {
+            tracking.add("/p|");
+            if (player.getLoc().getY() > pointLoc.getY())
+                tracking.add("s"+arrows.north);
+            else tracking.add("s"+arrows.south);
+        }
+        tracking.add("/p]");
+        return tracking;
     }
-    public static String getSpeed(Player player) {
-        if (!PlayerData.get.hud.getModule(player,Module.speed)) return "0";
+    public static ArrayList<String> getSpeedModule(Player player) {
+        ArrayList<String> speed = new ArrayList<>();
+        if (!PlayerData.get.hud.getModule(player,Module.speed)) return speed;
         DecimalFormat f = new DecimalFormat((String)PlayerData.get.hud.setting.get(player,Setting.module__speed_pattern));
-        return f.format(PlayerData.dataMap.get(player).get("speed"));
+        speed.add("s"+f.format(PlayerData.dataMap.get(player).get("speed")));
+        speed.add("p"+" B/S");
+        return speed;
     }
     public static class modules {
         private static final int PER_PAGE = 5;
@@ -606,36 +655,57 @@ public class HUD {
                         .cEvent(1,"/hud settings set-m "+type+" "+(state?"off":"on")));
             }
             if (module.equals(Module.tracking)) {
-                Setting type = Setting.module__tracking_target;
-                Setting.ModuleTrackingTarget nextType = Setting.ModuleTrackingTarget.valueOf((String) PlayerData.get.hud.setting.get(player,type)).next();
-                button.append(lang("settings."+type+"."+PlayerData.get.hud.setting.get(player,type)).btn(true).color(CUtl.s())
-                        .hEvent(lang("settings."+type+".hover",lang("settings."+type+"."+nextType).color(CUtl.s())))
-                        .cEvent(1,"/hud settings set-m "+type+" "+nextType));
+                Setting type = Setting.module__tracking_hybrid;
+                boolean state = (boolean) PlayerData.get.hud.setting.get(player,type);
+                button.append(lang("settings."+type+".icon").btn(true).color(state?'a':'c')
+                        .hEvent(CTxT.of("")
+                                .append(lang("settings."+type).color('e')).append("\n")
+                                .append(lang("settings."+type+".info").color('7')).append("\n\n")
+                                .append(lang("settings."+type+".hover",CUtl.toggleTxT(state))))
+                        .cEvent(1,"/hud settings set-m "+type+" "+(state?"off":"on")));
+                type = Setting.module__tracking_target;
+                Setting.ModuleTrackingTarget currentTarget = Setting.ModuleTrackingTarget.get((String)PlayerData.get.hud.setting.get(player,type));
+                Setting.ModuleTrackingTarget nextTarget = Enums.next(currentTarget,Setting.ModuleTrackingTarget.class);
+                button.append(lang("settings."+type+"."+currentTarget).btn(true).color(CUtl.s()).hEvent(CTxT.of("")
+                                .append(lang("settings."+type).color('e')).append("\n")
+                                .append(lang("settings."+type+".info").color('7')).append("\n\n")
+                                .append(lang("settings."+type+".hover",lang("settings."+type+"."+nextTarget).color(CUtl.s()))))
+                        .cEvent(1,"/hud settings set-m "+type+" "+nextTarget));
+                type = Setting.module__tracking_type;
+                Setting.ModuleTrackingType currentType = Setting.ModuleTrackingType.get((String)PlayerData.get.hud.setting.get(player, type));
+                Setting.ModuleTrackingType nextType = Enums.next(currentType,Setting.ModuleTrackingType.class);
+                button.append(CTxT.of(currentType.equals(Setting.ModuleTrackingType.simple)?arrows.up:arrows.north).btn(true).color(CUtl.s())
+                        .cEvent(1,"/hud settings set-m "+type+" "+nextType)
+                        .hEvent(CTxT.of("")
+                                .append(lang("settings."+type).color('e')).append(" - ")
+                                .append(moduleInfo(player,Module.tracking,true).color(CUtl.s())).append("\n")
+                                .append(lang("settings."+type+"."+currentType+".info").color('7')).append("\n\n")
+                                .append(lang("settings."+type+".hover",lang("settings."+type+"."+nextType).color(CUtl.s())))));
             }
             if (module.equals(Module.speed)) {
                 Setting type = Setting.module__speed_3d;
                 boolean state = (boolean) PlayerData.get.hud.setting.get(player,type);
                 button.append(lang("settings."+type+"."+(state?"on":"off")).btn(true).color(CUtl.s())
                                 .hEvent(CTxT.of("")
-                                        .append(lang("settings."+type+"."+(state?"on":"off")).color(CUtl.s())).append("\n")
+                                        .append(lang("settings."+type).color(CUtl.s())).append("\n")
                                         .append(lang("settings."+type+"."+(state?"on":"off")+".info").color('7')).append("\n\n")
                                         .append(lang("settings."+type+".hover",lang("settings."+type+"."+(state?"off":"on")).color(CUtl.s()))))
-                                .cEvent(1,"/hud settings set-m "+type+" "+(state?"off":"on")))
-                        .append(" ");
+                                .cEvent(1,"/hud settings set-m "+type+" "+(state?"off":"on")));
                 type = Setting.module__speed_pattern;
                 button.append(CTxT.of((String)PlayerData.get.hud.setting.get(player, type)).btn(true).color(CUtl.s())
                         .cEvent(2,"/hud settings set-m "+type+" ")
                         .hEvent(CTxT.of("")
-                                .append(CTxT.of((String)PlayerData.get.hud.setting.get(player, type)).color(CUtl.s())).append("\n")
+                                .append(lang("settings."+type).color(CUtl.s())).append(" - ")
+                                .append(moduleInfo(player,Module.speed,true).color(CUtl.s())).append("\n")
                                 .append(lang("settings."+type+".info").color('7')).append("\n")
                                 .append(lang("settings."+type+".info_2").color('7').italic(true)).append("\n\n")
                                 .append(lang("settings."+type+".hover"))));
             }
             return button;
         }
-        public static CTxT moduleInfo(Player player, Module module) {
+        public static CTxT moduleInfo(Player player, Module module, boolean... onlyExample) {
             // get the hover info for each module
-            CTxT info = CTxT.of("").append(lang("module."+module+".info")).append("\n");
+            CTxT info = CTxT.of("");
             if (module.equals(Module.coordinates))
                 info.append(color.addColor(player,"XYZ: ",1,15,20))
                         .append(color.addColor(player,"0 0 0",2,95,20));
@@ -648,10 +718,18 @@ public class HUD {
                         .append(color.addColor(player,"0 0 0",2,115,20));
             if (module.equals(Module.direction))
                 info.append(color.addColor(player,"N",1,15,20));
-            if (module.equals(Module.tracking))
-                info.append(color.addColor(player,"[",1,15,20).strikethrough(true))
-                        .append(color.addColor(player,"-"+Assets.symbols.up+Assets.symbols.right,2,35,20))
-                        .append(color.addColor(player,"]",1,55,20).strikethrough(true));
+            if (module.equals(Module.tracking)) {
+                if (Setting.ModuleTrackingType.get((String)PlayerData.get.hud.setting.get(player,Setting.module__tracking_type))
+                        .equals(Setting.ModuleTrackingType.simple))
+                    info.append(color.addColor(player,"[",1,15,20).strikethrough(true))
+                            .append(color.addColor(player,"-"+ arrows.up+ arrows.right,2,35,20))
+                            .append(color.addColor(player,"]",1,55,20).strikethrough(true));
+                else info.append(color.addColor(player,"[",1,15,20).strikethrough(true))
+                        .append(color.addColor(player,arrows.north,2,35,20))
+                        .append(color.addColor(player,"|",1,55,20).strikethrough(true))
+                        .append(color.addColor(player,arrows.south,2,75,20))
+                        .append(color.addColor(player,"]",1,95,20).strikethrough(true));
+            }
             if (module.equals(Module.time)) {
                 if ((boolean)PlayerData.get.hud.setting.get(player, Setting.module__time_24hr))
                     info.append(color.addColor(player,"22:22",1,15,20));
@@ -660,6 +738,12 @@ public class HUD {
             }
             if (module.equals(Module.weather))
                 info.append(color.addColor(player,Assets.symbols.sun,1,15,20));
+            DecimalFormat f = new DecimalFormat((String)PlayerData.get.hud.setting.get(player,Setting.module__speed_pattern));
+            String speed = f.format(12.3456789);
+            if (module.equals(Module.speed))
+                info.append(color.addColor(player,speed,2,15,20))
+                        .append(color.addColor(player," B/S",1,(speed.length()*20)+15,20));
+            if (onlyExample.length == 0) info.append("\n").append(lang("module."+module+".info").color('7'));
             return info;
         }
         public static String stateColor(Player player, Module module) {
@@ -897,8 +981,8 @@ public class HUD {
             CTxT stateTxT = CUtl.TBtn(state?"on":"off").color(state?'a':'c');
             setting = setting.toLowerCase();
             CTxT setTxT = CTxT.of("");
-            // simple on off toggle
-            if (type.equals(Setting.bossbar__distance) || type.equals(Setting.state)) {
+            // ON/OFF simple on off toggle
+            if (type.equals(Setting.bossbar__distance) || type.equals(Setting.state) || type.equals(Setting.module__tracking_hybrid)) {
                 PlayerData.set.hud.setting.set(player,type,state);
                 // if changing the state update the hud
                 if (type.equals(Setting.state)) player.updateHUD();
@@ -918,6 +1002,7 @@ public class HUD {
                 PlayerData.set.hud.setting.set(player,type,i);
                 setTxT.append(CTxT.of(String.valueOf(i)).color((boolean) PlayerData.get.hud.setting.get(player, Setting.bossbar__distance)?'a':'c'));
             }
+            // ON/OFF with custom name for the states
             if (type.equals(Setting.module__time_24hr) || type.equals(Setting.module__speed_3d)) {
                 PlayerData.set.hud.setting.set(player,type,state);
                 setTxT.append(lang("settings."+type+"."+(state?"on":"off")).color(CUtl.s()));
@@ -925,6 +1010,10 @@ public class HUD {
             if (type.equals(Setting.module__tracking_target)) {
                 PlayerData.set.hud.setting.set(player, type, Setting.ModuleTrackingTarget.valueOf(setting));
                 setTxT.append(lang("settings."+type+"." + Setting.ModuleTrackingTarget.valueOf(setting)).color(CUtl.s()));
+            }
+            if (type.equals(Setting.module__tracking_type)) {
+                PlayerData.set.hud.setting.set(player, type, Setting.ModuleTrackingType.valueOf(setting));
+                setTxT.append(lang("settings."+type+"." + Setting.ModuleTrackingType.valueOf(setting)).color(CUtl.s()));
             }
             if (type.equals(Setting.module__speed_pattern)) {
                 try {

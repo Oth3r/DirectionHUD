@@ -10,8 +10,9 @@ import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.utils.CUtl;
+import one.oth3r.directionhud.common.utils.Helper;
+import one.oth3r.directionhud.common.utils.Helper.Enums;
 import one.oth3r.directionhud.utils.CTxT;
-import one.oth3r.directionhud.utils.Utl;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -20,6 +21,9 @@ import java.util.List;
 public class ModMenu implements ModMenuApi {
     private static CTxT lang(String key, Object... args) {
         return CUtl.lang("config."+key, args);
+    }
+    private static OptionDescription desc(CTxT txt) {
+        return OptionDescription.of(txt.b());
     }
     private static ArrayList<Color> toColorList(List<String> list) {
         ArrayList<Color> colors = new ArrayList<>();
@@ -168,10 +172,10 @@ public class ModMenu implements ModMenuApi {
                         .group(ListOption.<String>createBuilder()
                                 .name(lang("hud.order").b())
                                 .description(OptionDescription.of(lang("hud.order.info").b()))
-                                .binding(HUD.Module.toStringList(config.hud.defaults.Order), () -> HUD.Module.toStringList(config.hud.Order), n -> config.hud.Order = HUD.Module.toModuleList(new ArrayList<>(n)))
+                                .binding(Enums.toStringList(config.hud.defaults.Order), () -> Enums.toStringList(config.hud.Order), n -> config.hud.Order = Enums.toEnumList(new ArrayList<>(n),HUD.Module.class))
                                 .controller(StringControllerBuilder::create)
                                 // CHANGE THIS WHEN MORE MODULES ARE OUT
-                                .maximumNumberOfEntries(7)
+                                .maximumNumberOfEntries(8)
                                 .initial("")
                                 .build())
                         .group(OptionGroup.createBuilder()
@@ -240,19 +244,54 @@ public class ModMenu implements ModMenuApi {
                                         .controller(IntegerFieldControllerBuilder::create)
                                         .build())
                                 .option(Option.<Boolean>createBuilder()
-                                        .name(lang("hud.settings.module.time_24hr").b())
+                                        .name(CUtl.lang("hud.settings.module.time_24hr").b())
                                         .binding(config.hud.defaults.Time24HR, () -> config.hud.Time24HR, n -> config.hud.Time24HR = n)
-                                        .controller(opt -> BooleanControllerBuilder.create(opt).trueFalseFormatter())
+                                        .controller(opt -> BooleanControllerBuilder.create(opt)
+                                                .formatValue(state -> CUtl.lang("hud.settings.module.time_24hr."+(state?"on":"off")).b()))
                                         .build())
-                                .option(Option.<HUD.Setting.HUDTrackingTarget>createBuilder()
-                                        .name(lang("hud.settings.module.tracking_target").b())
-                                        .binding(HUD.Setting.HUDTrackingTarget.get(config.hud.defaults.TrackingTarget), () -> HUD.Setting.HUDTrackingTarget.get(config.hud.TrackingTarget), n -> config.hud.TrackingTarget = n.toString())
-                                        .controller(opt -> EnumControllerBuilder.create(opt).enumClass(HUD.Setting.HUDTrackingTarget.class)
+                                .option(Option.<Boolean>createBuilder()
+                                        .name(CUtl.lang("hud.settings.module.tracking_hybrid").b())
+                                        .description(desc(CUtl.lang("hud.settings.module.tracking_hybrid.info")))
+                                        .binding(config.hud.defaults.TrackingHybrid, () -> config.hud.TrackingHybrid, n -> config.hud.TrackingHybrid = n)
+                                        .controller(TickBoxControllerBuilder::create)
+                                        .build())
+                                .option(Option.<HUD.Setting.ModuleTrackingTarget>createBuilder()
+                                        .name(CUtl.lang("hud.settings.module.tracking_target").b())
+                                        .description(desc(CUtl.lang("hud.settings.module.tracking_target.info")))
+                                        .binding(HUD.Setting.ModuleTrackingTarget.get(config.hud.defaults.TrackingTarget), () -> HUD.Setting.ModuleTrackingTarget.get(config.hud.TrackingTarget), n -> config.hud.TrackingTarget = n.toString())
+                                        .controller(opt -> EnumControllerBuilder.create(opt).enumClass(HUD.Setting.ModuleTrackingTarget.class)
                                                 .formatValue(v -> CUtl.lang("hud.settings.module.tracking_target."+v.name().toLowerCase()).b()))
+                                        .build())
+                                .option(Option.<HUD.Setting.ModuleTrackingType>createBuilder()
+                                        .name(CUtl.lang("hud.settings.module.tracking_type").b())
+                                        .description(desc(CTxT.of("").append(CUtl.lang("hud.settings.module.tracking_type.simple").color(CUtl.s())).append("\n")
+                                                .append(CUtl.lang("hud.settings.module.tracking_type.simple.info")).append("\n\n")
+                                                .append(CUtl.lang("hud.settings.module.tracking_type.compact").color(CUtl.s())).append("\n")
+                                                .append(CUtl.lang("hud.settings.module.tracking_type.compact.info"))))
+                                        .binding(HUD.Setting.ModuleTrackingType.get(config.hud.defaults.TrackingTarget), () -> HUD.Setting.ModuleTrackingType.get(config.hud.TrackingTarget), n -> config.hud.TrackingTarget = n.toString())
+                                        .controller(opt -> EnumControllerBuilder.create(opt).enumClass(HUD.Setting.ModuleTrackingType.class)
+                                                .formatValue(v -> CUtl.lang("hud.settings.module.tracking_type."+v.name().toLowerCase()).b()))
+                                        .build())
+                                .option(Option.<Boolean>createBuilder()
+                                        .name(CUtl.lang("hud.settings.module.speed_3d").b())
+                                        .description(desc(CTxT.of("").append(CUtl.lang("hud.settings.module.speed_3d.on").color(CUtl.s())).append("\n")
+                                                .append(CUtl.lang("hud.settings.module.speed_3d.on.info")).append("\n\n")
+                                                .append(CUtl.lang("hud.settings.module.speed_3d.off").color(CUtl.s())).append("\n")
+                                                .append(CUtl.lang("hud.settings.module.speed_3d.off.info"))))
+                                        .binding(config.hud.defaults.Speed3D, () -> config.hud.Speed3D, n -> config.hud.Speed3D = n)
+                                        .controller(opt -> BooleanControllerBuilder.create(opt)
+                                                .formatValue(state -> CUtl.lang("hud.settings.module.speed_3d."+(state?"on":"off")).b()))
+                                        .build())
+                                .option(Option.<String>createBuilder()
+                                        .name(CUtl.lang("hud.settings.module.speed_pattern").b())
+                                        .description(desc(CUtl.lang("hud.settings.module.speed_pattern.info").append("\n")
+                                                .append(CUtl.lang("hud.settings.module.speed_pattern.info_2"))))
+                                        .binding(config.hud.defaults.SpeedPattern, () -> config.hud.SpeedPattern, n -> config.hud.SpeedPattern = n)
+                                        .controller(StringControllerBuilder::create)
                                         .build())
                                 .build())
                         .group(OptionGroup.createBuilder()
-                                .name(lang("hud.color.category",Utl.capitalizeFirst(CUtl.lang("hud.color.primary").toString())).b())
+                                .name(lang("hud.color.category", Helper.capitalizeFirst(CUtl.lang("hud.color.primary").toString())).b())
                                 .description(OptionDescription.of(lang("hud.color.category.info",CUtl.lang("hud.color.primary")).b()))
                                 .option(Option.<Color>createBuilder()
                                         .name(lang("hud.color").b())
@@ -277,7 +316,7 @@ public class ModMenu implements ModMenuApi {
                                         .build())
                                 .build())
                         .group(OptionGroup.createBuilder()
-                                .name(lang("hud.color.category",Utl.capitalizeFirst(CUtl.lang("hud.color.secondary").toString())).b())
+                                .name(lang("hud.color.category",Helper.capitalizeFirst(CUtl.lang("hud.color.secondary").toString())).b())
                                 .description(OptionDescription.of(lang("hud.color.category.info",CUtl.lang("hud.color.secondary")).b()))
                                 .option(Option.<Color>createBuilder()
                                         .name(lang("hud.color").b())

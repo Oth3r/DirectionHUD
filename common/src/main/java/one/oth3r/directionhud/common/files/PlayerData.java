@@ -253,6 +253,8 @@ public class PlayerData {
             // hud module settings
             Map<String,Object> hudSetting = (Map<String, Object>) hud.get("setting");
             Map<String,Object> hudModuleSetting = (Map<String, Object>) hudSetting.get("module");
+            hudModuleSetting.put("tracking_hybrid",config.hud.TrackingHybrid);
+            hudModuleSetting.put("tracking_type",config.hud.TrackingType);
             hudModuleSetting.put("speed_pattern", config.hud.SpeedPattern);
             hudModuleSetting.put("speed_3d", config.hud.Speed3D);
             hudSetting.put("module",hudModuleSetting);
@@ -353,7 +355,9 @@ public class PlayerData {
         public static Map<String,Object> hudSettingModule() {
             Map<String,Object> module = new HashMap<>();
             module.put("time_24hr", config.hud.Time24HR);
+            module.put("tracking_hybrid", config.hud.TrackingHybrid);
             module.put("tracking_target", config.hud.TrackingTarget);
+            module.put("tracking_type", config.hud.TrackingType);
             module.put("speed_pattern", config.hud.SpeedPattern);
             module.put("speed_3d", config.hud.Speed3D);
             return module;
