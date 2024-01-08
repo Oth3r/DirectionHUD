@@ -23,8 +23,10 @@ import one.oth3r.directionhud.utils.BossBarManager;
 import one.oth3r.directionhud.utils.Player;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.geysermc.floodgate.api.player.FloodgatePlayer;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class DirectionHUD implements ModInitializer {
 	public static final String PRIMARY = "#2993ff";
