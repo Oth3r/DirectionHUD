@@ -25,9 +25,6 @@ public class Events {
         }
         GlobalDest.fileToMap();
         config.load();
-        LangReader.loadLanguageFile();
-        //load the config twice, first to load the lang and second to make all the comments the right language
-        config.load();
         DirectionHUD.LOGGER.info("Started server!");
     }
     public static void serverEnd() {

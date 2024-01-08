@@ -577,12 +577,12 @@ public class HUD {
         public static void reset(Player player,String setting, String type, boolean Return) {
             if (type == null) {
                 PlayerData.set.hud.color(player,1, defaultFormat(1));
-                PlayerData.set.hud.color(player,1, defaultFormat(2));
+                PlayerData.set.hud.color(player,2, defaultFormat(2));
                 type = "all";
             } else if (type.equals("primary")) {
                 PlayerData.set.hud.color(player,1, defaultFormat(1));
             } else if (type.equals("secondary")) {
-                PlayerData.set.hud.color(player,1, defaultFormat(2));
+                PlayerData.set.hud.color(player,2, defaultFormat(2));
             } else return;
             CTxT msg = CUtl.tag().append(lang("color.reset",CUtl.TBtn("reset").color('c'),lang("color."+type)));
             if (Return && type.equals("all")) UI(player,msg);

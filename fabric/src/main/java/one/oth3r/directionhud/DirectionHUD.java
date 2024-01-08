@@ -1,5 +1,6 @@
 package one.oth3r.directionhud;
 
+import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -11,8 +12,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.util.WorldSavePath;
-import one.oth3r.directionhud.commands.DestinationCommand;
 import one.oth3r.directionhud.commands.DHUDCommand;
+import one.oth3r.directionhud.commands.DestinationCommand;
 import one.oth3r.directionhud.commands.HUDCommand;
 import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.Events;
@@ -22,12 +23,10 @@ import one.oth3r.directionhud.utils.BossBarManager;
 import one.oth3r.directionhud.utils.Player;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.geysermc.floodgate.api.player.FloodgatePlayer;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
-public class DirectionHUD {
+public class DirectionHUD implements ModInitializer {
 	public static final String PRIMARY = "#2993ff";
 	public static final String SECONDARY = "#ffee35";
 	public static BossBarManager bossBarManager = new BossBarManager();
@@ -38,12 +37,13 @@ public class DirectionHUD {
 	public static HashMap<Player, FloodgatePlayer> floodgatePlayers = new HashMap<>();
 	public static final String MOD_ID = "directionhud";
 	public static final Version VERSION = FabricLoader.getInstance().getModContainer(MOD_ID).orElseThrow().getMetadata().getVersion();
-	public static boolean isClient;
+	public static boolean isClient = false;
 	public static final boolean isMod = true;
 	public static PlayerManager playerManager;
 	public static MinecraftServer server;
 	public static CommandManager commandManager;
-	public static void initializeCommon() {
+	@Override
+	public void onInitialize() {
 		config.load();
 		//START
 		ServerLifecycleEvents.SERVER_STARTED.register(s -> {
