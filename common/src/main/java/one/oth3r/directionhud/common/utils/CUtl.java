@@ -203,12 +203,12 @@ public class CUtl {
                         CTxT.of(Assets.cmdUsage.dest).color(Assets.mainColors.dest).append("\n").append(TBtn("dest.hover")));
             }
             public static CTxT inbox() {
-                return TBtn("inbox").btn(true).color(Assets.mainColors.inbox).cEvent(1,"/dhud inbox").hEvent(
-                        CTxT.of(Assets.cmdUsage.inbox).color(Assets.mainColors.inbox).append("\n").append(TBtn("inbox.hover")));
+                return TBtn("dhud.inbox").btn(true).color(Assets.mainColors.inbox).cEvent(1,"/dhud inbox").hEvent(
+                        CTxT.of(Assets.cmdUsage.inbox).color(Assets.mainColors.inbox).append("\n").append(TBtn("dhud.inbox.hover")));
             }
             public static CTxT reload() {
-                return TBtn("dirhud.reload").btn(true).color(Assets.mainColors.reload).cEvent(1,"/dhud reload").hEvent(
-                        CTxT.of(Assets.cmdUsage.reload).color(Assets.mainColors.reload).append("\n").append(TBtn("dirhud.reload.hover")));
+                return TBtn("dhud.reload").btn(true).color(Assets.mainColors.reload).cEvent(1,"/dhud reload").hEvent(
+                        CTxT.of(Assets.cmdUsage.reload).color(Assets.mainColors.reload).append("\n").append(TBtn("dhud.reload.hover")));
             }
         }
     }
