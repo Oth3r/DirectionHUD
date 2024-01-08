@@ -46,9 +46,14 @@ public class CUtl {
             return LangReader.of("key.directionhud."+key, args).getTxT();
         }
     }
+    // OFF/ON (COLOR)
+    public static CTxT toggleTxT(boolean button) {
+        return CUtl.TBtn(button?"off":"on").color(button?'c':'a');
+    }
+    // [OFF/ON] (COLOR & FUNCTIONALITY)
     public static CTxT toggleBtn(boolean button, String cmd) {
         return CUtl.TBtn(button?"on":"off").btn(true).color(button?'a':'c').hEvent(CUtl.TBtn("state.hover",
-                CUtl.TBtn(button?"off":"on").color(button?'c':'a'))).cEvent(1,cmd+(button?"off":"on"));
+                toggleTxT(button))).cEvent(1,cmd+(button?"off":"on"));
     }
     public static String formatCMD(String cmd) {
         return cmd.substring(1).replace(" ", "-");
