@@ -40,7 +40,6 @@ public class Assets {
     }
     public static class cmdUsage {
         public static final String hud = "/hud";
-        public static final String hudToggle = "/hud toggle";
         public static final String hudColor = "/hud color";
         public static final String hudModules = "/hud modules (order, toggle, reset)";
         public static final String hudSettings = "/hud settings";
