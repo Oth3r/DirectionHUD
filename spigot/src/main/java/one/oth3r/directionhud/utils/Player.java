@@ -129,6 +129,9 @@ public class Player {
     public float getYaw() {
         return player.getLocation().getYaw();
     }
+    public float getPitch() {
+        return player.getLocation().getPitch();
+    }
     public ArrayList<Double> getVec() {
         ArrayList<Double> vec = new ArrayList<>();
         vec.add(player.getLocation().toVector().getX());
