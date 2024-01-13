@@ -51,14 +51,14 @@ public class Events {
             // don't clear if the dest's dim is the same as the new dim
             if (toDIM.equals(Destination.get(player).getDIM())) return;
             if (Utl.dim.canConvert(toDIM, Destination.get(player).getDIM()) &&
-                    (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.autoconvert)) {
+                    (boolean) PlayerData.get.dest.setting(player, Destination.Setting.autoconvert)) {
                 //DEST AutoConvert logic
                 Loc cLoc = Destination.get(player);
                 cLoc.convertTo(toDIM);
                 Destination.silentSet(player,cLoc);
                 player.sendMessage(CUtl.tag().append(CUtl.lang("dest.autoconvert.dest"))
                         .append("\n ").append(CUtl.lang("dest.autoconvert.dest.info",loc.getBadge(),cLoc.getBadge()).italic(true).color('7')));
-            } else if ((boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.autoclear)) {
+            } else if ((boolean) PlayerData.get.dest.setting(player, Destination.Setting.autoclear)) {
                 //DEST AutoClear logic
                 CTxT msg = CTxT.of("").append(CUtl.lang("dest.changed.cleared.dim").color('7').italic(true))
                         .append(" ").append(CUtl.CButton.dest.set("/dest set "+loc.getXYZ()+" "+fromDIM));
@@ -69,7 +69,7 @@ public class Events {
         }
     }
     public static void playerDeath(Player player, Loc death) {
-        if (!config.LastDeathSaving || !(boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.features__lastdeath)) return;
+        if (!config.LastDeathSaving || !(boolean) PlayerData.get.dest.setting(player, Destination.Setting.features__lastdeath)) return;
         Destination.lastdeath.add(player, death);
         CTxT msg = CUtl.tag().append(CUtl.lang("dest.lastdeath.save"))
                 .append(" ").append(death.getBadge())

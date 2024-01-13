@@ -67,13 +67,13 @@ public class Player {
     // Call after toggling/updating the hud.
     public void updateHUD() {
         // if toggled off
-        if (!(boolean)PlayerData.get.hud.setting.get(this, HUD.Setting.state)) {
+        if (!(boolean)PlayerData.get.hud.setting(this, HUD.Setting.state)) {
             //if actionbar send empty to clear else remove bossbar
-            if (PlayerData.get.hud.setting.get(this, HUD.Setting.type).equals(HUD.Setting.DisplayType.actionbar.toString()))
+            if (PlayerData.get.hud.setting(this, HUD.Setting.type).equals(HUD.Setting.DisplayType.actionbar.toString()))
                 this.sendActionBar(CTxT.of(""));
             else DirectionHUD.bossBarManager.removePlayer(this);
         }
-        if (PlayerData.get.hud.setting.get(this, HUD.Setting.type).equals(HUD.Setting.DisplayType.actionbar.toString()))
+        if (PlayerData.get.hud.setting(this, HUD.Setting.type).equals(HUD.Setting.DisplayType.actionbar.toString()))
             DirectionHUD.bossBarManager.removePlayer(this);
         else this.sendActionBar(CTxT.of(""));
     }
@@ -94,7 +94,7 @@ public class Player {
             //if the HUD is enabled but there is no output
             if (PlayerData.getMsgData(this,"hud.enabled_but_off") == null) {
                 PlayerData.setMsgData(this,"hud.enabled_but_off","true");
-                if ((HUD.Setting.DisplayType.get((String) PlayerData.get.hud.setting.get(this, HUD.Setting.type)).equals(HUD.Setting.DisplayType.actionbar))) {
+                if ((HUD.Setting.DisplayType.get((String) PlayerData.get.hud.setting(this, HUD.Setting.type)).equals(HUD.Setting.DisplayType.actionbar))) {
                     player.spigot().sendMessage(ChatMessageType.ACTION_BAR, CTxT.of("").b());
                 } else {
                     DirectionHUD.bossBarManager.removePlayer(this);
@@ -105,7 +105,7 @@ public class Player {
             // if hud was in previous state and now isn't, remove the temp tag
             PlayerData.setMsgData(this,"hud.enabled_but_off",null);
         }
-        if ((HUD.Setting.DisplayType.get((String) PlayerData.get.hud.setting.get(this, HUD.Setting.type)).equals(HUD.Setting.DisplayType.actionbar))) {
+        if ((HUD.Setting.DisplayType.get((String) PlayerData.get.hud.setting(this, HUD.Setting.type)).equals(HUD.Setting.DisplayType.actionbar))) {
             player.spigot().sendMessage(ChatMessageType.ACTION_BAR, message.b());
         } else {
             DirectionHUD.bossBarManager.display(this,message);

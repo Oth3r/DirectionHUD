@@ -116,7 +116,7 @@ public class Destination {
         public static void colorCMD(Player player, String[] args) {
             if (args.length >= 3 && args[0].equals("preset")) {
                 if (args[1].equals("add") && args.length == 4) {
-                    CUtl.color.customAddUI(player, (String) PlayerData.get.dest.setting.get(player, Setting.get(args[3])),"/dest settings "+args[3]+" "+args[2]);
+                    CUtl.color.customAddUI(player, (String) PlayerData.get.dest.setting(player, Setting.get(args[3])),"/dest settings "+args[3]+" "+args[2]);
                 } else CUtl.color.presetUI(player,"default","/dest color set "+args[1]+" "+args[2]+" ","/dest settings "+args[2]+" "+args[1]);
             }
             if (args.length >= 3 && args[0].equals("preset_s")) {
@@ -495,7 +495,7 @@ public class Destination {
         }
         public static ArrayList<String> base(Player player) {
             ArrayList<String> suggester = new ArrayList<>();
-            if (config.LastDeathSaving && (boolean)PlayerData.get.dest.setting.get(player, Setting.features__lastdeath)) suggester.add("lastdeath");
+            if (config.LastDeathSaving && (boolean) PlayerData.get.dest.setting(player, Setting.features__lastdeath)) suggester.add("lastdeath");
             if (Utl.checkEnabled.saving(player)) {
                 suggester.add("add");
                 suggester.add("saved");
@@ -814,7 +814,7 @@ public class Destination {
             ArrayList<String> suggester = new ArrayList<>();
             // track (clear*|set|cancel*|accept*|deny*)
             if (pos == 0) {
-                if (PlayerData.get.dest.getTracking(player)!=null) suggester.add("clear");
+                if (PlayerData.get.dest.tracking(player)!=null) suggester.add("clear");
                 suggester.add("set");
                 if (DHUD.inbox.getAllMatches(player, DHUD.inbox.Type.track_pending)!=null) suggester.add("cancel");
                 if (DHUD.inbox.getAllMatches(player, DHUD.inbox.Type.track_request)!=null) {
@@ -843,22 +843,22 @@ public class Destination {
         return CUtl.lang("dest."+key, args);
     }
     public static Loc get(Player player) {
-        Loc loc = PlayerData.get.dest.getDest(player);
+        Loc loc = PlayerData.get.dest.loc(player);
         if (!loc.hasXYZ()) return new Loc();
-        if ((boolean)PlayerData.get.dest.setting.get(player, Setting.ylevel) && loc.yExists())
+        if ((boolean) PlayerData.get.dest.setting(player, Setting.ylevel) && loc.yExists())
             loc.setY(player.getBlockY());
         return loc;
     }
     public static boolean checkDist(Player player, Loc loc) {
-        if ((boolean)PlayerData.get.dest.setting.get(player, Setting.autoclear))
-            return Utl.vec.distance(new Loc(player).getVec(player),loc.getVec(player)) <= (double)PlayerData.get.dest.setting.get(player, Setting.autoclear_rad);
+        if ((boolean) PlayerData.get.dest.setting(player, Setting.autoclear))
+            return Utl.vec.distance(new Loc(player).getVec(player),loc.getVec(player)) <= (double) PlayerData.get.dest.setting(player, Setting.autoclear_rad);
         else return false;
     }
     public static int getDist(Player player) {
         return (int) Utl.vec.distance(new Loc(player).getVec(player),get(player).getVec(player));
     }
     public static void clear(Player player) {
-        PlayerData.set.dest.setDest(player, new Loc());
+        PlayerData.set.dest.loc(player, new Loc());
     }
     public static void clear(Player player, CTxT reason) {
         CTxT msg = CUtl.tag().append(lang("changed", lang("changed.cleared").color('a')));
@@ -874,14 +874,14 @@ public class Destination {
         player.sendMessage(msg.append("\n ").append(reason));
     }
     public static CTxT setMSG(Player player) {
-        boolean ac = (boolean)PlayerData.get.dest.setting.get(player, Setting.autoclear);
+        boolean ac = (boolean) PlayerData.get.dest.setting(player, Setting.autoclear);
         CTxT btn = CUtl.TBtn(ac?"off":"on").btn(true).color(ac?'c':'a').cEvent(1,"/dest settings autoclear "+!ac+" n").hEvent(
                 CTxT.of(Assets.cmdUsage.destSettings).color(ac?'c':'a').append("\n").append(CUtl.TBtn("state.hover",
                         CUtl.TBtn(ac?"off":"on").color(ac?'c':'a'))));
         return CTxT.of(" ").append(lang("set.autoclear",CUtl.lang(ac?"on":"off").italic(true),btn).color('7').italic(true));
     }
     public static void silentSet(Player player, Loc loc) {
-        if (!checkDist(player, loc)) PlayerData.set.dest.setDest(player, loc);
+        if (!checkDist(player, loc)) PlayerData.set.dest.loc(player, loc);
     }
     //convert converts loc dim to player dim
     public static void set(Player player, Loc loc, boolean convert) {
@@ -962,7 +962,7 @@ public class Destination {
                     GlobalDest.mapToFile();
                     // make the default entry move back to the bottom & set it to the internal list
                     list = GlobalDest.fileToMap();
-                } else PlayerData.set.dest.setSaved(player,list);
+                } else PlayerData.set.dest.saved(player,list);
             }
             public List<String> getDest() {
                 return dest;
@@ -1019,7 +1019,7 @@ public class Destination {
         }
         public static List<List<String>> getList(Player player) {
             // get the local destination list
-            return PlayerData.get.dest.getSaved(player);
+            return PlayerData.get.dest.saved(player);
         }
         public static List<String> getNames(List<List<String>> list) {
             // get all name from a destination list
@@ -1300,17 +1300,17 @@ public class Destination {
     public static class lastdeath {
         private static final int PER_PAGE = 4;
         public static void add(Player player, Loc loc) {
-            ArrayList<String> deaths = PlayerData.get.dest.getLastdeaths(player);
+            ArrayList<String> deaths = PlayerData.get.dest.lastdeaths(player);
             if (Utl.dim.checkValid(loc.getDIM())) {
                 //add to the top of the list
                 deaths.add(0,loc.toArray());
                 // WHILE more than max, remove the last entry (to deal with the size changing to be smaller in the future)
                 while (deaths.size() > config.LastDeathMAX) deaths.remove(deaths.size()-1);
             }
-            PlayerData.set.dest.setLastdeaths(player,deaths);
+            PlayerData.set.dest.lastdeaths(player,deaths);
         }
         public static void UI(Player player,int pg,CTxT abovemsg) {
-            CUtl.PageHelper<String> pageHelper = new CUtl.PageHelper<>(PlayerData.get.dest.getLastdeaths(player),PER_PAGE);
+            CUtl.PageHelper<String> pageHelper = new CUtl.PageHelper<>(PlayerData.get.dest.lastdeaths(player),PER_PAGE);
             // rewrite
             CTxT msg = CTxT.of("");
             if (abovemsg != null) msg.append(abovemsg).append("\n");
@@ -1352,7 +1352,7 @@ public class Destination {
                 return;
             }
             // they don't have sending enabled
-            if (!(boolean)PlayerData.get.dest.setting.get(target, Setting.features__send)) {
+            if (!(boolean) PlayerData.get.dest.setting(target, Setting.features__send)) {
                 player.sendMessage(CUtl.error("dest.send.disabled_player",CTxT.of(target.getName()).color(CUtl.s())));
                 return;
             }
@@ -1417,13 +1417,13 @@ public class Destination {
                 cancel;
             }
             public static Player getTarget(Player player) {
-                String track = PlayerData.get.dest.getTracking(player);
+                String track = PlayerData.get.dest.tracking(player);
                 if (track == null) return null;
                 return Player.of(track);
             }
             public static void clear(Player player, CTxT reason) {
                 CTxT msg = CUtl.tag().append(lang("track.clear"));
-                if (PlayerData.get.dest.getTracking(player) == null) {
+                if (PlayerData.get.dest.tracking(player) == null) {
                     player.sendMessage(CUtl.error("dest.track.cleared"));
                     return;
                 }
@@ -1439,11 +1439,11 @@ public class Destination {
                 for (String s: PlayerData.dataMap.get(player).keySet())
                     if (s.contains("tracking")) PlayerData.setMsgData(player,s,null);
                 //clear the player
-                PlayerData.set.dest.setTracking(player,null);
+                PlayerData.set.dest.tracking(player,null);
             }
             public static void set(Player player, Player target, boolean send) {
-                if (config.online) PlayerData.set.dest.setTracking(player,target.getUUID());
-                else PlayerData.set.dest.setTracking(player,target.getName());
+                if (config.online) PlayerData.set.dest.tracking(player,target.getUUID());
+                else PlayerData.set.dest.tracking(player,target.getName());
                 if (!send) return;
                 player.sendMessage(CUtl.tag().append(lang("track.set",CTxT.of(target.getName()).color(CUtl.s()))));
                 target.sendMessage(CUtl.tag()
@@ -1465,7 +1465,7 @@ public class Destination {
                     player.sendMessage(CUtl.error("dest.track.alone"));
                     return;
                 }
-                if (!(boolean)PlayerData.get.dest.setting.get(target, Setting.features__track)) {
+                if (!(boolean) PlayerData.get.dest.setting(target, Setting.features__track)) {
                     player.sendMessage(CUtl.error("dest.track.disabled",CTxT.of(target.getName()).color(CUtl.s())));
                     return;
                 }
@@ -1482,7 +1482,7 @@ public class Destination {
                 // add the cooldown
                 PlayerData.set.socialCooldown(player,config.socialCooldown.doubleValue());
                 // instant mode
-                if (Setting.TrackingRequestMode.valueOf((String) PlayerData.get.dest.setting.get(target, Setting.features__track_request_mode)).equals(Setting.TrackingRequestMode.instant)) {
+                if (Setting.TrackingRequestMode.valueOf((String) PlayerData.get.dest.setting(target, Setting.features__track_request_mode)).equals(Setting.TrackingRequestMode.instant)) {
                     set(player,target,true);
                     return;
                 }
@@ -1525,7 +1525,7 @@ public class Destination {
                     return;
                 }
                 // if the target has tracking turned off - SYNC ERROR
-                if (!(boolean)PlayerData.get.dest.setting.get(target, Setting.features__track)) {
+                if (!(boolean) PlayerData.get.dest.setting(target, Setting.features__track)) {
                     DHUD.inbox.removeEntry(player,entry);
                     player.sendMessage(CUtl.tag().append("SYNC ERROR - REPORT IT! (TARGET-TRACK-OFF)"));
                     return;
@@ -1571,16 +1571,16 @@ public class Destination {
         public static void reset(Player player, Setting type, boolean Return) {
             if (type.equals(Setting.none)) {
                 for (Setting s: Setting.values())
-                    PlayerData.set.dest.setting.set(player,s,getConfig(s));
+                    PlayerData.set.dest.setting(player,s,getConfig(s));
             } else {
-                PlayerData.set.dest.setting.set(player,type,getConfig(type));
+                PlayerData.set.dest.setting(player,type,getConfig(type));
             }
             if (type.equals(Setting.autoclear))
-                PlayerData.set.dest.setting.set(player, Setting.autoclear_rad,getConfig(Setting.autoclear_rad));
+                PlayerData.set.dest.setting(player, Setting.autoclear_rad,getConfig(Setting.autoclear_rad));
             if (Setting.colors().contains(Setting.get(type+"_color")))
-                PlayerData.set.dest.setting.set(player, Setting.get(type+"_color"),getConfig(Setting.get(type+"_color")));
+                PlayerData.set.dest.setting(player, Setting.get(type+"_color"),getConfig(Setting.get(type+"_color")));
             if (type.equals(Setting.features__track))
-                PlayerData.set.dest.setting.set(player, Setting.features__track_request_mode,getConfig(Setting.features__track_request_mode));
+                PlayerData.set.dest.setting(player, Setting.features__track_request_mode,getConfig(Setting.features__track_request_mode));
             CTxT typ = CTxT.of(lang("settings."+type).toString().toUpperCase()).color('c');
             if (type.equals(Setting.none)) typ = CTxT.of(CUtl.TBtn("all").toString().toUpperCase()).color('c');
             CTxT msg = CUtl.tag().append(lang("settings.reset",typ));
@@ -1597,11 +1597,11 @@ public class Destination {
                     return;
                 }
                 int i = Math.max(Math.min(Integer.parseInt(setting),15),1);
-                PlayerData.set.dest.setting.set(player, Setting.autoclear_rad,i);
-                setTxT.append(CTxT.of(String.valueOf(i)).color((boolean) PlayerData.get.dest.setting.get(player, Setting.autoclear)?'a':'c'));
+                PlayerData.set.dest.setting(player, Setting.autoclear_rad,i);
+                setTxT.append(CTxT.of(String.valueOf(i)).color((boolean) PlayerData.get.dest.setting(player, Setting.autoclear)?'a':'c'));
             }
             if (type.equals(Setting.features__track_request_mode)) {
-                PlayerData.set.dest.setting.set(player, type, Setting.TrackingRequestMode.valueOf(setting));
+                PlayerData.set.dest.setting(player, type, Setting.TrackingRequestMode.valueOf(setting));
                 setTxT.append(lang("settings."+type+"." + Setting.TrackingRequestMode.valueOf(setting)).color(CUtl.s()));
             }
             if (Setting.colors().contains(type)) {
@@ -1609,7 +1609,7 @@ public class Destination {
                 return;
             }
             if (Setting.base().contains(type)) {
-                PlayerData.set.dest.setting.set(player,type,state);
+                PlayerData.set.dest.setting(player,type,state);
                 setTxT.append(stateTxT);
             }
             CTxT msg = CUtl.tag().append(lang("settings."+type+".set",setTxT));
@@ -1619,13 +1619,13 @@ public class Destination {
         public static boolean canBeReset(Player player, Setting type) {
             boolean output = false;
             if (type.equals(Setting.none)) return false;
-            if (PlayerData.get.dest.setting.get(player,type) != getConfig(type)) output = true;
+            if (PlayerData.get.dest.setting(player,type) != getConfig(type)) output = true;
             if (type.equals(Setting.autoclear))
-                if (((Double)PlayerData.get.dest.setting.get(player, Setting.autoclear_rad)).intValue() != (int)getConfig(Setting.autoclear_rad)) output = true;
+                if (((Double) PlayerData.get.dest.setting(player, Setting.autoclear_rad)).intValue() != (int)getConfig(Setting.autoclear_rad)) output = true;
             if (type.equals(Setting.features__track))
-                if (!PlayerData.get.dest.setting.get(player, Setting.features__track_request_mode).equals(getConfig(Setting.features__track_request_mode))) output = true;
+                if (!PlayerData.get.dest.setting(player, Setting.features__track_request_mode).equals(getConfig(Setting.features__track_request_mode))) output = true;
             if (Setting.colors().contains(Setting.get(type+"_color")))
-                if (!PlayerData.get.dest.setting.get(player, Setting.get(type+"_color")).equals(getConfig(Setting.get(type+"_color")))) output = true;
+                if (!PlayerData.get.dest.setting(player, Setting.get(type+"_color")).equals(getConfig(Setting.get(type+"_color")))) output = true;
             return output;
         }
         public static CTxT resetB(Player player, Setting type) {
@@ -1637,19 +1637,19 @@ public class Destination {
             return msg;
         }
         public static CTxT getButtons(Player player, Setting type) {
-            boolean state = (boolean) PlayerData.get.dest.setting.get(player,type);
+            boolean state = (boolean) PlayerData.get.dest.setting(player,type);
             CTxT button = CTxT.of("");
             if (type.equals(Setting.none)) return button;
             button.append(CUtl.toggleBtn(state,"/dest settings "+type+" ")).append(" ");
             if (type.equals(Setting.autoclear)) {
                 //ok so the numbers are all doubles so cast to a double and get the int value to format correctly
-                button.append(CTxT.of(String.valueOf(((Double) PlayerData.get.dest.setting.get(player, Setting.get(type+"_rad"))).intValue())).btn(true)
+                button.append(CTxT.of(String.valueOf(((Double) PlayerData.get.dest.setting(player, Setting.get(type+"_rad"))).intValue())).btn(true)
                         .color(state?'a':'c').cEvent(2,"/dest settings "+type+"_rad ")
                         .hEvent(lang("settings."+type+"_rad.hover").append("\n").append(lang("settings."+type+"_rad.hover_2").color('7'))));
             }
             if (type.equals(Setting.features__track)) {
                 Setting modeType = Setting.features__track_request_mode;
-                Setting.TrackingRequestMode mode = Setting.TrackingRequestMode.valueOf((String) PlayerData.get.dest.setting.get(player,modeType));
+                Setting.TrackingRequestMode mode = Setting.TrackingRequestMode.valueOf((String) PlayerData.get.dest.setting(player,modeType));
                 Setting.TrackingRequestMode nextMode = mode.next();
                 button.append(CTxT.of(getSymbol(mode.toString())).btn(true).color(CUtl.s())
                         .cEvent(1,"/dest settings "+modeType+" "+nextMode)
@@ -1658,7 +1658,7 @@ public class Destination {
                                 .append(lang("settings."+modeType+".hover",lang("settings."+modeType+"."+nextMode).color(CUtl.s())))));
             }
             if (Setting.colors().contains(Setting.get(type+"_color"))) {
-                String color = (String) PlayerData.get.dest.setting.get(player, Setting.get( type+"_color"));
+                String color = (String) PlayerData.get.dest.setting(player, Setting.get( type+"_color"));
                 button.append(CTxT.of(Assets.symbols.pencil).btn(true).color(color)
                         .cEvent(1,"/dest settings "+type+"_color normal")
                         .hEvent(lang("settings.particles.color.hover",lang("settings.particles.color.hover_2").color(color))));
@@ -1676,7 +1676,7 @@ public class Destination {
         }
         public static void colorUI(Player player, String setting, Setting type, CTxT aboveMSG) {
             if (!Setting.colors().contains(type)) return;
-            String currentColor = (String) PlayerData.get.dest.setting.get(player,type);
+            String currentColor = (String) PlayerData.get.dest.setting(player,type);
             CTxT uiType = lang("settings."+type.toString().substring(0,type.toString().length()-6));
             CTxT msg = CTxT.of("");
             if (aboveMSG != null) msg.append(aboveMSG).append("\n");
@@ -1701,8 +1701,8 @@ public class Destination {
         }
         public static void setColor(Player player, String setting, Setting type, String color, boolean Return) {
             CTxT uiType = lang("settings."+type.toString().substring(0,type.toString().length()-6));
-            if (CUtl.color.checkValid(color,(String)PlayerData.get.dest.setting.get(player,type))) {
-                PlayerData.set.dest.setting.set(player,type,CUtl.color.format(color));
+            if (CUtl.color.checkValid(color,(String) PlayerData.get.dest.setting(player,type))) {
+                PlayerData.set.dest.setting(player,type,CUtl.color.format(color));
             } else {
                 player.sendMessage(CUtl.error("color"));
                 return;
@@ -1790,8 +1790,8 @@ public class Destination {
         msg.append(lang("ui").color(Assets.mainColors.dest)).append(CTxT.of("\n                                  ").strikethrough(true)).append("\n ");
         // lmao this is a mess but is it the best way to do it? dunno
         boolean line1Free = false;
-        boolean line2Free = !((boolean) PlayerData.get.dest.setting.get(player, Setting.features__lastdeath) && config.LastDeathSaving);
-        boolean trackBig = PlayerData.get.dest.getTracking(player) != null;
+        boolean line2Free = !((boolean) PlayerData.get.dest.setting(player, Setting.features__lastdeath) && config.LastDeathSaving);
+        boolean trackBig = PlayerData.get.dest.tracking(player) != null;
         boolean sendThird = Utl.checkEnabled.send(player);
         //SAVED + ADD
         if (Utl.checkEnabled.saving(player)) {

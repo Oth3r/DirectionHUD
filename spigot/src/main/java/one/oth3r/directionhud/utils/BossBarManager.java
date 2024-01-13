@@ -26,12 +26,12 @@ public class BossBarManager {
         if (!bossBars.containsKey(player)) addPlayer(player);
         BossBar bossBar = bossBars.get(player);
         bossBar.setTitle(hud.b().toLegacyText());
-        bossBar.setColor(BarColor.valueOf(((String) PlayerData.get.hud.setting.get(player, HUD.Setting.bossbar__color)).toUpperCase()));
-        if (Destination.get(player).hasXYZ() && (boolean) PlayerData.get.hud.setting.get(player, HUD.Setting.bossbar__distance)) {
+        bossBar.setColor(BarColor.valueOf(((String) PlayerData.get.hud.setting(player, HUD.Setting.bossbar__color)).toUpperCase()));
+        if (Destination.get(player).hasXYZ() && (boolean) PlayerData.get.hud.setting(player, HUD.Setting.bossbar__distance)) {
             int dist = Destination.getDist(player);
-            double progress = getProgress(dist,(double) PlayerData.get.hud.setting.get(player, HUD.Setting.bossbar__distance_max));
+            double progress = getProgress(dist,(double) PlayerData.get.hud.setting(player, HUD.Setting.bossbar__distance_max));
             bossBar.setStyle(BarStyle.SEGMENTED_10);
-            if ((double) PlayerData.get.hud.setting.get(player, HUD.Setting.bossbar__distance_max) == 0) {
+            if ((double) PlayerData.get.hud.setting(player, HUD.Setting.bossbar__distance_max) == 0) {
                 progress = getProgress(dist,1000);
                 StringBuilder s = new StringBuilder();
                 for (int i = 1;i<5;i++) {

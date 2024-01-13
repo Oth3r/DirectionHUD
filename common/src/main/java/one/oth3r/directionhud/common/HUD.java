@@ -157,7 +157,7 @@ public class HUD {
                 case "modules" -> modulesCMD(player, trimmedArgs);
                 case "settings" -> settingsCMD(player,trimmedArgs);
                 case "color" -> colorCMD(player, trimmedArgs);
-                case "toggle" -> player.sendMessage(settings.change(player,Setting.state,(boolean)PlayerData.get.hud.setting.get(player,Setting.state)?"off":"on",false));
+                case "toggle" -> player.sendMessage(settings.change(player,Setting.state,(boolean) PlayerData.get.hud.setting(player,Setting.state)?"off":"on",false));
                 default -> player.sendMessage(CUtl.error("command"));
             }
         }
@@ -367,7 +367,7 @@ public class HUD {
         ArrayList<String> direction = new ArrayList<>();
         direction.add("p"+getPlayerDirection(player));
         ArrayList<String> time = new ArrayList<>();
-        if ((boolean) PlayerData.get.hud.setting.get(player, Setting.module__time_24hr)) {
+        if ((boolean) PlayerData.get.hud.setting(player, Setting.module__time_24hr)) {
             time.add("s"+getGameTime(false));
         } else {
             // 12 hr clock
@@ -408,7 +408,7 @@ public class HUD {
             if (module.equals(Module.tracking)) {
                 // if tracking type is dest and dest is off, remove.
                 // else player tracking type and no player tracked, remove
-                if (PlayerData.get.hud.setting.get(player, Setting.module__tracking_target).equals(Setting.ModuleTrackingTarget.dest.toString())) {
+                if (PlayerData.get.hud.setting(player, Setting.module__tracking_target).equals(Setting.ModuleTrackingTarget.dest.toString())) {
                     if (!Destination.get(player).hasXYZ()) continue;
                 } else if (Destination.social.track.getTarget(player) == null) continue;
             }
@@ -476,17 +476,17 @@ public class HUD {
     }
     public static ArrayList<String> getTrackingModule(Player player) {
         ArrayList<String> tracking = new ArrayList<>();
-        if (!PlayerData.get.hud.getModule(player, Module.tracking)) return tracking;
+        if (!PlayerData.get.hud.module(player, Module.tracking)) return tracking;
         // pointer target
         Loc pointLoc = null;
         // player tracking mode
         Setting.ModuleTrackingTarget trackingTarget = Setting.ModuleTrackingTarget.get(
-                String.valueOf(PlayerData.get.hud.setting.get(player, Setting.module__tracking_target)));
-        boolean hybrid = (boolean) PlayerData.get.hud.setting.get(player,Setting.module__tracking_hybrid);
+                String.valueOf(PlayerData.get.hud.setting(player, Setting.module__tracking_target)));
+        boolean hybrid = (boolean) PlayerData.get.hud.setting(player,Setting.module__tracking_hybrid);
         // PLAYER or HYBRID
         if (trackingTarget.equals(Setting.ModuleTrackingTarget.player) || hybrid) {
             // make sure there's a target
-            if (!(PlayerData.get.dest.getTracking(player) == null)) {
+            if (!(PlayerData.get.dest.tracking(player) == null)) {
                 Player target = Destination.social.track.getTarget(player);
                 // make sure the player is real
                 if (!(target == null)) {
@@ -494,7 +494,7 @@ public class HUD {
                     // not in the same dimension
                     if (!player.getDimension().equals(target.getDimension())) {
                         // can convert and autoconvert is on
-                        if (Utl.dim.canConvert(player.getDimension(),target.getDimension()) && (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.autoconvert)) {
+                        if (Utl.dim.canConvert(player.getDimension(),target.getDimension()) && (boolean) PlayerData.get.dest.setting(player, Destination.Setting.autoconvert)) {
                             plLoc.convertTo(player.getDimension());
                         } else plLoc = null;
                     }
@@ -511,7 +511,7 @@ public class HUD {
         }
         // check if there's a point set, otherwise return nothing
         if (pointLoc == null) return tracking;
-        Setting.ModuleTrackingType trackingType = Setting.ModuleTrackingType.get(String.valueOf(PlayerData.get.hud.setting.get(player,Setting.module__tracking_type)));
+        Setting.ModuleTrackingType trackingType = Setting.ModuleTrackingType.get(String.valueOf(PlayerData.get.hud.setting(player,Setting.module__tracking_type)));
         boolean simple = trackingType.equals(Setting.ModuleTrackingType.simple);
         tracking.add("/p["); // add the first bracket
         // pointer logic
@@ -546,7 +546,7 @@ public class HUD {
         else tracking.add("s"+(simple?"-"+ arrows.down+"-" : arrows.south));
         // SOUTH
         // if compact and the ylevel is different & there's a y level on the loc
-        if (!simple && !(boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.ylevel) && pointLoc.yExists()) {
+        if (!simple && !(boolean) PlayerData.get.dest.setting(player, Destination.Setting.ylevel) && pointLoc.yExists()) {
             tracking.add("/p|");
             if (player.getLoc().getY() > pointLoc.getY())
                 tracking.add("s"+arrows.north);
@@ -557,8 +557,8 @@ public class HUD {
     }
     public static ArrayList<String> getSpeedModule(Player player) {
         ArrayList<String> speed = new ArrayList<>();
-        if (!PlayerData.get.hud.getModule(player,Module.speed)) return speed;
-        DecimalFormat f = new DecimalFormat((String)PlayerData.get.hud.setting.get(player,Setting.module__speed_pattern));
+        if (!PlayerData.get.hud.module(player,Module.speed)) return speed;
+        DecimalFormat f = new DecimalFormat((String) PlayerData.get.hud.setting(player,Setting.module__speed_pattern));
         speed.add("s"+f.format(PlayerData.dataMap.get(player).get("speed")));
         speed.add("p"+" B/S");
         return speed;
@@ -582,9 +582,9 @@ public class HUD {
             PlayerData.set.hud.order(player, config.hud.Order);
             // reset module settings
             for (Setting s : Setting.moduleSettings())
-                PlayerData.set.hud.setting.set(player, s, settings.getConfig(s));
+                PlayerData.set.hud.setting(player, s, settings.getConfig(s));
             // reset module states
-            PlayerData.set.hud.setModuleMap(player, PlayerData.defaults.hudModule());
+            PlayerData.set.hud.moduleMap(player, PlayerData.defaults.hudModule());
             CTxT msg = CUtl.tag().append(lang("module.reset",CUtl.TBtn("reset").color('c')));
             if (Return) UI(player, msg, 1);
             return msg;
@@ -612,9 +612,9 @@ public class HUD {
                 return;
             }
             CUtl.PageHelper<Module> pageHelper = new CUtl.PageHelper<>(PlayerData.get.hud.order(player),PER_PAGE);
-            if (toggle == null) toggle = !PlayerData.get.hud.getModule(player,module);
+            if (toggle == null) toggle = !PlayerData.get.hud.module(player,module);
             CTxT msg = CUtl.tag().append(lang("module.toggle",CUtl.TBtn(toggle?"on":"off").color(toggle?'a':'c'),lang("module."+module).color(CUtl.s())));
-            PlayerData.set.hud.setModule(player,module,toggle);
+            PlayerData.set.hud.module(player,module,toggle);
             if (Return) UI(player, msg, pageHelper.getPageOf(module));
             else player.sendMessage(msg);
         }
@@ -642,21 +642,21 @@ public class HUD {
         }
         public static ArrayList<Module> getEnabled(Player player) {
             ArrayList<Module> enabled = new ArrayList<>();
-            for (Module module: PlayerData.get.hud.order(player)) if (PlayerData.get.hud.getModule(player,module)) enabled.add(module);
+            for (Module module: PlayerData.get.hud.order(player)) if (PlayerData.get.hud.module(player,module)) enabled.add(module);
             return enabled;
         }
         public static CTxT getButtons(Player player, Module module) {
             CTxT button = CTxT.of("");
             if (module.equals(Module.time)) {
                 Setting type = Setting.module__time_24hr;
-                boolean state = (boolean) PlayerData.get.hud.setting.get(player,type);
+                boolean state = (boolean) PlayerData.get.hud.setting(player,type);
                 button.append(lang("settings."+type+"."+(state?"on":"off")).btn(true).color(CUtl.s())
                         .hEvent(lang("settings."+type+".hover",lang("settings."+type+"."+(state?"off":"on")).color(CUtl.s())))
                         .cEvent(1,"/hud settings set-m "+type+" "+(state?"off":"on")));
             }
             if (module.equals(Module.tracking)) {
                 Setting type = Setting.module__tracking_hybrid;
-                boolean state = (boolean) PlayerData.get.hud.setting.get(player,type);
+                boolean state = (boolean) PlayerData.get.hud.setting(player,type);
                 button.append(lang("settings."+type+".icon").btn(true).color(state?'a':'c')
                         .hEvent(CTxT.of("")
                                 .append(lang("settings."+type).color('e')).append("\n")
@@ -664,7 +664,7 @@ public class HUD {
                                 .append(lang("settings."+type+".hover",CUtl.toggleTxT(state))))
                         .cEvent(1,"/hud settings set-m "+type+" "+(state?"off":"on")));
                 type = Setting.module__tracking_target;
-                Setting.ModuleTrackingTarget currentTarget = Setting.ModuleTrackingTarget.get((String)PlayerData.get.hud.setting.get(player,type));
+                Setting.ModuleTrackingTarget currentTarget = Setting.ModuleTrackingTarget.get((String) PlayerData.get.hud.setting(player,type));
                 Setting.ModuleTrackingTarget nextTarget = Enums.next(currentTarget,Setting.ModuleTrackingTarget.class);
                 button.append(lang("settings."+type+"."+currentTarget).btn(true).color(CUtl.s()).hEvent(CTxT.of("")
                                 .append(lang("settings."+type).color('e')).append("\n")
@@ -672,7 +672,7 @@ public class HUD {
                                 .append(lang("settings."+type+".hover",lang("settings."+type+"."+nextTarget).color(CUtl.s()))))
                         .cEvent(1,"/hud settings set-m "+type+" "+nextTarget));
                 type = Setting.module__tracking_type;
-                Setting.ModuleTrackingType currentType = Setting.ModuleTrackingType.get((String)PlayerData.get.hud.setting.get(player, type));
+                Setting.ModuleTrackingType currentType = Setting.ModuleTrackingType.get((String) PlayerData.get.hud.setting(player, type));
                 Setting.ModuleTrackingType nextType = Enums.next(currentType,Setting.ModuleTrackingType.class);
                 button.append(CTxT.of(currentType.equals(Setting.ModuleTrackingType.simple)?arrows.up:arrows.north).btn(true).color(CUtl.s())
                         .cEvent(1,"/hud settings set-m "+type+" "+nextType)
@@ -684,7 +684,7 @@ public class HUD {
             }
             if (module.equals(Module.speed)) {
                 Setting type = Setting.module__speed_3d;
-                boolean state = (boolean) PlayerData.get.hud.setting.get(player,type);
+                boolean state = (boolean) PlayerData.get.hud.setting(player,type);
                 button.append(lang("settings."+type+"."+(state?"on":"off")).btn(true).color(CUtl.s())
                                 .hEvent(CTxT.of("")
                                         .append(lang("settings."+type).color(CUtl.s())).append("\n")
@@ -692,7 +692,7 @@ public class HUD {
                                         .append(lang("settings."+type+".hover",lang("settings."+type+"."+(state?"off":"on")).color(CUtl.s()))))
                                 .cEvent(1,"/hud settings set-m "+type+" "+(state?"off":"on")));
                 type = Setting.module__speed_pattern;
-                button.append(CTxT.of((String)PlayerData.get.hud.setting.get(player, type)).btn(true).color(CUtl.s())
+                button.append(CTxT.of((String) PlayerData.get.hud.setting(player, type)).btn(true).color(CUtl.s())
                         .cEvent(2,"/hud settings set-m "+type+" ")
                         .hEvent(CTxT.of("")
                                 .append(lang("settings."+type).color(CUtl.s())).append(" - ")
@@ -719,7 +719,7 @@ public class HUD {
             if (module.equals(Module.direction))
                 info.append(color.addColor(player,"N",1,15,20));
             if (module.equals(Module.tracking)) {
-                if (Setting.ModuleTrackingType.get((String)PlayerData.get.hud.setting.get(player,Setting.module__tracking_type))
+                if (Setting.ModuleTrackingType.get((String) PlayerData.get.hud.setting(player,Setting.module__tracking_type))
                         .equals(Setting.ModuleTrackingType.simple))
                     info.append(color.addColor(player,"[",1,15,20).strikethrough(true))
                             .append(color.addColor(player,"-"+ arrows.up+ arrows.right,2,35,20))
@@ -731,14 +731,14 @@ public class HUD {
                         .append(color.addColor(player,"]",1,95,20).strikethrough(true));
             }
             if (module.equals(Module.time)) {
-                if ((boolean)PlayerData.get.hud.setting.get(player, Setting.module__time_24hr))
+                if ((boolean) PlayerData.get.hud.setting(player, Setting.module__time_24hr))
                     info.append(color.addColor(player,"22:22",1,15,20));
                 else info.append(color.addColor(player,"11:11 ",2,15,20))
                             .append(color.addColor(player,"AM",1,115,20));
             }
             if (module.equals(Module.weather))
                 info.append(color.addColor(player,Assets.symbols.sun,1,15,20));
-            DecimalFormat f = new DecimalFormat((String)PlayerData.get.hud.setting.get(player,Setting.module__speed_pattern));
+            DecimalFormat f = new DecimalFormat((String) PlayerData.get.hud.setting(player,Setting.module__speed_pattern));
             String speed = f.format(12.3456789);
             if (module.equals(Module.speed))
                 info.append(color.addColor(player,speed,2,15,20))
@@ -747,14 +747,14 @@ public class HUD {
             return info;
         }
         public static String stateColor(Player player, Module module) {
-            if (!PlayerData.get.hud.getModule(player, module)) return Assets.mainColors.gray;
+            if (!PlayerData.get.hud.module(player, module)) return Assets.mainColors.gray;
             boolean yellow = false;
             if (!Destination.get(player).hasXYZ()) {
                 if (module.equals(Module.destination) || module.equals(Module.distance) || (module.equals(Module.tracking) &&
-                        Setting.ModuleTrackingTarget.get((String)PlayerData.get.hud.setting.get(player, Setting.module__tracking_target)).equals(Setting.ModuleTrackingTarget.dest)))
+                        Setting.ModuleTrackingTarget.get((String) PlayerData.get.hud.setting(player, Setting.module__tracking_target)).equals(Setting.ModuleTrackingTarget.dest)))
                     yellow = true;
             }
-            if (module.equals(Module.tracking) && Destination.social.track.getTarget(player)==null && Setting.ModuleTrackingTarget.get((String)PlayerData.get.hud.setting.get(player, Setting.module__tracking_target)).equals(Setting.ModuleTrackingTarget.player))
+            if (module.equals(Module.tracking) && Destination.social.track.getTarget(player)==null && Setting.ModuleTrackingTarget.get((String) PlayerData.get.hud.setting(player, Setting.module__tracking_target)).equals(Setting.ModuleTrackingTarget.player))
                 yellow = true;
             if (yellow) return "#fff419";
             return "#19ff21";
@@ -766,7 +766,7 @@ public class HUD {
             msg.append(" ").append(lang("ui.modules").color(Assets.mainColors.edit)).append(CTxT.of("\n                                     ").strikethrough(true));
             //MAKE THE TEXT
             for (Module module:pageHelper.getPage(pg)) {
-                boolean state = PlayerData.get.hud.getModule(player,module);
+                boolean state = PlayerData.get.hud.module(player,module);
                 msg.append("\n ")
                         //ORDER
                         .append(CTxT.of(String.valueOf(pageHelper.getIndexOf(module)+1)).btn(true).color(CUtl.p())
@@ -960,13 +960,13 @@ public class HUD {
             if (type.equals(Setting.none)) {
                 // for all main settings, ex module settings
                 for (Setting s : Setting.baseSettings())
-                    PlayerData.set.hud.setting.set(player, s, getConfig(s));
+                    PlayerData.set.hud.setting(player, s, getConfig(s));
             } else {
-                PlayerData.set.hud.setting.set(player,type,getConfig(type));
+                PlayerData.set.hud.setting(player,type,getConfig(type));
             }
             // if bossbar distance, reset max alongside
             if (type.equals(Setting.bossbar__distance))
-                PlayerData.set.hud.setting.set(player, Setting.get(type+"_max"),getConfig(Setting.get(type+"_max")));
+                PlayerData.set.hud.setting(player, Setting.get(type+"_max"),getConfig(Setting.get(type+"_max")));
             // update the HUD
             player.updateHUD();
             // get the message for the reset type
@@ -983,44 +983,44 @@ public class HUD {
             CTxT setTxT = CTxT.of("");
             // ON/OFF simple on off toggle
             if (type.equals(Setting.bossbar__distance) || type.equals(Setting.state) || type.equals(Setting.module__tracking_hybrid)) {
-                PlayerData.set.hud.setting.set(player,type,state);
+                PlayerData.set.hud.setting(player,type,state);
                 // if changing the state update the hud
                 if (type.equals(Setting.state)) player.updateHUD();
                 setTxT.append(stateTxT);
             }
             if (type.equals(Setting.type)) {
-                PlayerData.set.hud.setting.set(player,type, Setting.DisplayType.valueOf(setting));
+                PlayerData.set.hud.setting(player,type, Setting.DisplayType.valueOf(setting));
                 setTxT.append(lang("settings."+type+"."+ Setting.DisplayType.valueOf(setting)).color(CUtl.s()));
                 player.updateHUD();
             }
             if (type.equals(Setting.bossbar__color)) {
-                PlayerData.set.hud.setting.set(player,type, Setting.BarColor.valueOf(setting));
+                PlayerData.set.hud.setting(player,type, Setting.BarColor.valueOf(setting));
                 setTxT.append(lang("settings."+type+"."+ Setting.BarColor.valueOf(setting)).color(Assets.barColor(Setting.BarColor.valueOf(setting))));
             }
             if (type.equals(Setting.bossbar__distance_max)) {
                 int i = Math.max(Integer.parseInt(setting),0);
-                PlayerData.set.hud.setting.set(player,type,i);
-                setTxT.append(CTxT.of(String.valueOf(i)).color((boolean) PlayerData.get.hud.setting.get(player, Setting.bossbar__distance)?'a':'c'));
+                PlayerData.set.hud.setting(player,type,i);
+                setTxT.append(CTxT.of(String.valueOf(i)).color((boolean) PlayerData.get.hud.setting(player, Setting.bossbar__distance)?'a':'c'));
             }
             // ON/OFF with custom name for the states
             if (type.equals(Setting.module__time_24hr) || type.equals(Setting.module__speed_3d)) {
-                PlayerData.set.hud.setting.set(player,type,state);
+                PlayerData.set.hud.setting(player,type,state);
                 setTxT.append(lang("settings."+type+"."+(state?"on":"off")).color(CUtl.s()));
             }
             if (type.equals(Setting.module__tracking_target)) {
-                PlayerData.set.hud.setting.set(player, type, Setting.ModuleTrackingTarget.valueOf(setting));
+                PlayerData.set.hud.setting(player, type, Setting.ModuleTrackingTarget.valueOf(setting));
                 setTxT.append(lang("settings."+type+"." + Setting.ModuleTrackingTarget.valueOf(setting)).color(CUtl.s()));
             }
             if (type.equals(Setting.module__tracking_type)) {
-                PlayerData.set.hud.setting.set(player, type, Setting.ModuleTrackingType.valueOf(setting));
+                PlayerData.set.hud.setting(player, type, Setting.ModuleTrackingType.valueOf(setting));
                 setTxT.append(lang("settings."+type+"." + Setting.ModuleTrackingType.valueOf(setting)).color(CUtl.s()));
             }
             if (type.equals(Setting.module__speed_pattern)) {
                 try {
                     new DecimalFormat(setting);
-                    PlayerData.set.hud.setting.set(player,type,setting);
+                    PlayerData.set.hud.setting(player,type,setting);
                 } catch (IllegalArgumentException ignored) {}
-                setTxT.append(CTxT.of(String.valueOf(PlayerData.get.hud.setting.get(player,type))).color(CUtl.s()));
+                setTxT.append(CTxT.of(String.valueOf(PlayerData.get.hud.setting(player,type))).color(CUtl.s()));
             }
             CTxT msg = CUtl.tag().append(lang("settings."+type+".set",setTxT));
             if (Return) UI(player, msg);
@@ -1030,9 +1030,9 @@ public class HUD {
             boolean output = false;
             // bossbar max isn't a base, so skip
             if (type.equals(Setting.none) || type.equals(Setting.bossbar__distance_max)) return false;
-            if (!PlayerData.get.hud.setting.get(player,type).equals(getConfig(type))) output = true;
+            if (!PlayerData.get.hud.setting(player,type).equals(getConfig(type))) output = true;
             if (type.equals(Setting.bossbar__distance))
-                if (((Double) PlayerData.get.hud.setting.get(player, Setting.bossbar__distance_max)).intValue() != (int)getConfig(Setting.bossbar__distance_max)) output = true;
+                if (((Double) PlayerData.get.hud.setting(player, Setting.bossbar__distance_max)).intValue() != (int)getConfig(Setting.bossbar__distance_max)) output = true;
             return output;
         }
         public static CTxT resetB(Player player, Setting type) {
@@ -1047,23 +1047,23 @@ public class HUD {
             // if there's something in module the command 'end's in module, to return to the module command instead of the settings command
             CTxT button = CTxT.of("");
             if (type.equals(Setting.state)) {
-                button.append(CUtl.toggleBtn((boolean)PlayerData.get.hud.setting.get(player,type),"/hud settings set "+type+"-r ")).append(" ");
+                button.append(CUtl.toggleBtn((boolean) PlayerData.get.hud.setting(player,type),"/hud settings set "+type+"-r ")).append(" ");
             }
             if (type.equals(Setting.type)) {
-                Setting.DisplayType nextType = Setting.DisplayType.valueOf((String) PlayerData.get.hud.setting.get(player,type)).next();
-                button.append(lang("settings."+type+"."+PlayerData.get.hud.setting.get(player,type)).btn(true).color(CUtl.s())
+                Setting.DisplayType nextType = Setting.DisplayType.valueOf((String) PlayerData.get.hud.setting(player,type)).next();
+                button.append(lang("settings."+type+"."+ PlayerData.get.hud.setting(player,type)).btn(true).color(CUtl.s())
                         .cEvent(1,"/hud settings set-r "+type+" "+nextType)
                         .hEvent(lang("settings."+type+".hover",lang("settings."+type+"."+nextType).color(CUtl.s()))));
             }
             if (type.equals(Setting.bossbar__color)) {
-                button.append(CUtl.lang("color.presets."+PlayerData.get.hud.setting.get(player,type)).btn(true)
-                        .color(Assets.barColor((Setting.BarColor.valueOf((String) PlayerData.get.hud.setting.get(player,type)))))
+                button.append(CUtl.lang("color.presets."+ PlayerData.get.hud.setting(player,type)).btn(true)
+                        .color(Assets.barColor((Setting.BarColor.valueOf((String) PlayerData.get.hud.setting(player,type)))))
                         .cEvent(2,"/hud settings set-r "+type+" ").hEvent(lang("settings."+type+".hover")));
             }
             if (type.equals(Setting.bossbar__distance)) {
-                boolean state = (boolean) PlayerData.get.hud.setting.get(player,type);
+                boolean state = (boolean) PlayerData.get.hud.setting(player,type);
                 button.append(CUtl.toggleBtn(state,"/hud settings set-r "+type+" ")).append(" ");
-                button.append(CTxT.of(String.valueOf(((Double) PlayerData.get.hud.setting.get(player, Setting.bossbar__distance_max)).intValue())).btn(true).color((boolean) PlayerData.get.hud.setting.get(player,type)?'a':'c')
+                button.append(CTxT.of(String.valueOf(((Double) PlayerData.get.hud.setting(player, Setting.bossbar__distance_max)).intValue())).btn(true).color((boolean) PlayerData.get.hud.setting(player,type)?'a':'c')
                         .cEvent(2,"/hud settings set-r "+ Setting.bossbar__distance_max+" ")
                         .hEvent(lang("settings."+type+"_max.hover").append("\n").append(lang("settings."+type+"_max.hover_2").italic(true).color('7'))));
             }

@@ -81,13 +81,13 @@ public class Utl {
             return config.DestSaving;
         }
         public static boolean lastdeath(Player player) {
-            return (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.features__lastdeath) && config.LastDeathSaving;
+            return (boolean) PlayerData.get.dest.setting(player, Destination.Setting.features__lastdeath) && config.LastDeathSaving;
         }
         public static boolean send(Player player) {
-            return (boolean)PlayerData.get.dest.setting.get(player, Destination.Setting.features__send) && config.social && DirectionHUD.server.isRemote();
+            return (boolean) PlayerData.get.dest.setting(player, Destination.Setting.features__send) && config.social && DirectionHUD.server.isRemote();
         }
         public static boolean track(Player player) {
-            return (boolean) PlayerData.get.dest.setting.get(player, Destination.Setting.features__track) && config.social && DirectionHUD.server.isRemote();
+            return (boolean) PlayerData.get.dest.setting(player, Destination.Setting.features__track) && config.social && DirectionHUD.server.isRemote();
         }
     }
     public static class particle {
@@ -111,11 +111,11 @@ public class Utl {
             }
         }
         public static DustParticleEffect getParticle(String particleType, Player player) {
-            String hex = (String) PlayerData.get.dest.setting.get(player, Destination.Setting.particles__dest_color);
+            String hex = (String) PlayerData.get.dest.setting(player, Destination.Setting.particles__dest_color);
             if (particleType.equals(DEST)) return new DustParticleEffect(new Vector3f(Vec3d.unpackRgb(Color.decode(CUtl.color.format(hex)).getRGB()).toVector3f()),3);
-            hex = (String) PlayerData.get.dest.setting.get(player, Destination.Setting.particles__line_color);
+            hex = (String) PlayerData.get.dest.setting(player, Destination.Setting.particles__line_color);
             if (particleType.equals(LINE)) return new DustParticleEffect(new Vector3f(Vec3d.unpackRgb(Color.decode(CUtl.color.format(hex)).getRGB()).toVector3f()),1);
-            hex = (String) PlayerData.get.dest.setting.get(player, Destination.Setting.particles__tracking_color);
+            hex = (String) PlayerData.get.dest.setting(player, Destination.Setting.particles__tracking_color);
             if (particleType.equals(TRACKING)) return new DustParticleEffect(new Vector3f(Vec3d.unpackRgb(Color.decode(CUtl.color.format(hex)).getRGB()).toVector3f()),0.5f);
             hex = "#000000";
             return new DustParticleEffect(new Vector3f(Vec3d.unpackRgb(Color.decode(CUtl.color.format(hex)).getRGB()).toVector3f()),5f);

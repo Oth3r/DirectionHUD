@@ -408,72 +408,65 @@ public class PlayerData {
             if (playerMap.get(player) == null) addPlayer(player);
             return playerMap.get(player);
         }
-        public static ArrayList<String> colorPresets(Player player) {
-            return (ArrayList<String>) fileToMap(player).get("color_presets");
-        }
         public static class hud {
-            private static Map<String,Object> get(Player player) {
+            private static Map<String,Object> map(Player player) {
                 return (Map<String, Object>) fromMap(player).get("hud");
             }
-            public static boolean getModule(Player player, HUD.Module module) {
-                Map<String,Object> map = (Map<String,Object>) get(player).get("module");
+            public static boolean module(Player player, HUD.Module module) {
+                Map<String,Object> map = (Map<String,Object>) map(player).get("module");
                 return (boolean) map.get(module.toString());
             }
             public static ArrayList<HUD.Module> order(Player player) {
-                ArrayList<String> modules = (ArrayList<String>) get(player).get("order");
+                ArrayList<String> modules = (ArrayList<String>) map(player).get("order");
                 ArrayList<HUD.Module> types = new ArrayList<>();
                 for (String m:modules) types.add(HUD.Module.get(m));
                 return types;
             }
             public static String color(Player player, int typ) {
-                return (String) get(player).get(typ==1?"primary":"secondary");
+                return (String) map(player).get(typ==1?"primary":"secondary");
             }
-            public static class setting {
-                public static Map<String,Object> map(Player player) {
-                    return (Map<String,Object>) hud.get(player).get("setting");
+            public static Object setting(Player player, HUD.Setting type) {
+                Map<String,Object> settings = (Map<String,Object>) hud.map(player).get("setting");
+                String string = type.toString();
+                if (string.contains(".")) {
+                    String base = string.substring(0,string.indexOf('.'));
+                    Map<String,Object> bar = (Map<String,Object>) settings.get(base);
+                    return bar.get(string.substring(string.indexOf('.')+1));
                 }
-                public static Object get(Player player, HUD.Setting type) {
-                    String string = type.toString();
-                    if (string.contains(".")) {
-                        String base = string.substring(0,string.indexOf('.'));
-                        Map<String,Object> bar = (Map<String,Object>) map(player).get(base);
-                        return bar.get(string.substring(string.indexOf('.')+1));
-                    }
-                    return map(player).get(string);
-                }
+                return settings.get(string);
             }
         }
         public static class dest {
-            private static Map<String,Object> get(Player player, boolean map) {
+            private static Map<String,Object> map(Player player, boolean map) {
                 if (map) return (Map<String,Object>) fromMap(player).get("destination");
                 return (Map<String, Object>) fileToMap(player).get("destination");
             }
-            public static ArrayList<String> getLastdeaths(Player player) {
-                return (ArrayList<String>) get(player,false).get("lastdeath");
+            public static ArrayList<String> lastdeaths(Player player) {
+                return (ArrayList<String>) map(player,false).get("lastdeath");
             }
-            public static Loc getDest(Player player) {
-                return new Loc((String) get(player,true).get("dest"));
+            public static Loc loc(Player player) {
+                return new Loc((String) map(player,true).get("dest"));
             }
-            public static String getTracking(Player player) {
-                return (String) get(player,true).get("tracking");
+            public static String tracking(Player player) {
+                return (String) map(player,true).get("tracking");
             }
-            public static List<List<String>> getSaved(Player player) {
-                return (List<List<String>>) get(player,false).get("saved");
+            public static List<List<String>> saved(Player player) {
+                return (List<List<String>>) map(player,false).get("saved");
             }
-            public static class setting {
-                private static Map<String,Object> map(Player player) {
-                    return (Map<String,Object>) dest.get(player,true).get("setting");
+            public static Object setting(Player player, Destination.Setting setting) {
+                Map<String,Object> settings = (Map<String,Object>) dest.map(player,true).get("setting");
+                String string = setting.toString();
+                // if nested
+                if (string.contains(".")) {
+                    String base = string.substring(0,string.indexOf('.'));
+                    Map<String,Object> bar = (Map<String,Object>) settings.get(base);
+                    return bar.get(string.substring(string.indexOf('.')+1));
                 }
-                public static Object get(Player player, Destination.Setting settings) {
-                    String string = settings.toString();
-                    if (string.contains(".")) {
-                        String base = string.substring(0,string.indexOf('.'));
-                        Map<String,Object> bar = (Map<String,Object>) map(player).get(base);
-                        return bar.get(string.substring(string.indexOf('.')+1));
-                    }
-                    return map(player).get(string);
-                }
+                return settings.get(string);
             }
+        }
+        public static ArrayList<String> colorPresets(Player player) {
+            return (ArrayList<String>) fileToMap(player).get("color_presets");
         }
         public static Double socialCooldown(Player player) {
             return (Double) fromMap(player).get("social_cooldown");
@@ -486,11 +479,6 @@ public class PlayerData {
     }
     @SuppressWarnings("unchecked")
     public static class set {
-        public static void colorPresets(Player player, ArrayList<String> preset) {
-            Map<String,Object> map = fileToMap(player);
-            map.put("color_presets", preset);
-            mapToFile(player,map);
-        }
         public static class hud {
             public static void map(Player player, Map<String,Object> hud) {
                 Map<String,Object> map = fileToMap(player);
@@ -499,95 +487,88 @@ public class PlayerData {
                 updatePlayerMap(player);
             }
             public static void order(Player player, ArrayList<HUD.Module> order) {
-                Map<String,Object> data = get.hud.get(player);
+                Map<String,Object> data = get.hud.map(player);
                 data.put("order", order);
                 map(player, data);
             }
             public static void color(Player player, int typ, String color) {
-                Map<String,Object> data = get.hud.get(player);
+                Map<String,Object> data = get.hud.map(player);
                 data.put(typ==1?"primary":"secondary", color);
                 map(player, data);
             }
-            public static class setting {
-                private static void map(Player player, Map<String,Object> setting) {
-                    Map<String,Object> data = get.hud.get(player);
-                    data.put("setting", setting);
-                    hud.map(player, data);
-                }
-                public static void set(Player player, HUD.Setting type, Object setting) {
-                    String string = type.toString();
-                    Map<String,Object> data = get.hud.setting.map(player);
-                    if (string.contains(".")) {
-                        String base = string.substring(0,string.indexOf('.'));
-                        Map<String,Object> bar = (Map<String,Object>) get.hud.setting.map(player).get(base);
-                        bar.put(string.substring(string.indexOf('.')+1),setting);
-                        data.put(base,bar);
-                    } else {
-                        data.put(string.substring(string.indexOf('.')+1),setting);
-                    }
-                    map(player,data);
-                }
+            public static void setting(Player player, HUD.Setting type, Object setting) {
+                String string = type.toString();
+                Map<String,Object> settings = (Map<String,Object>) get.hud.map(player).get("setting");
+                if (string.contains(".")) { // if there's a dot, go deeper in the tree
+                    String base = string.substring(0,string.indexOf('.'));
+                    Map<String,Object> bar = (Map<String,Object>) settings.get(base);
+                    bar.put(string.substring(string.indexOf('.')+1),setting);
+                    settings.put(base,bar);
+                } else // else put directly
+                    settings.put(string,setting);
+                // save the data
+                Map<String,Object> data = get.hud.map(player);
+                data.put("setting", settings);
+                hud.map(player, data);
             }
-            public static void setModule(Player player, HUD.Module module, boolean b) {
-                Map<String,Object> data = get.hud.get(player);
-                Map<String,Object> modules = (Map<String, Object>) data.get("module");
+            public static void module(Player player, HUD.Module module, boolean b) {
+                Map<String,Object> modules = (Map<String, Object>) get.hud.map(player).get("module");
                 modules.put(module.toString(),b);
-                data.put("module",modules);
-                hud.map(player,data);
+                moduleMap(player,modules);
             }
-            public static void setModuleMap(Player player, Map<String,Object> module) {
-                Map<String,Object> data = get.hud.get(player);
+            public static void moduleMap(Player player, Map<String,Object> module) {
+                // set the modules all at once using a map
+                Map<String,Object> data = get.hud.map(player);
                 data.put("module", module);
                 hud.map(player, data);
             }
         }
         public static class dest {
-            public static void set(Player player, Map<String,Object> dest) {
+            public static void map(Player player, Map<String,Object> dest) {
                 Map<String,Object> map = fileToMap(player);
                 map.put("destination",dest);
                 mapToFile(player,map);
                 updatePlayerMap(player);
             }
-            public static void setDest(Player player, Loc loc) {
-                Map<String,Object> data = get.dest.get(player,false);
+            public static void loc(Player player, Loc loc) {
+                Map<String,Object> data = get.dest.map(player,false);
                 data.put("dest", loc.toArray());
-                set(player, data);
+                map(player, data);
             }
-            public static void setTracking(Player player, String s) {
-                Map<String,Object> data = get.dest.get(player,false);
+            public static void tracking(Player player, String s) {
+                Map<String,Object> data = get.dest.map(player,false);
                 data.put("tracking", s);
-                set(player, data);
+                map(player, data);
             }
-            public static void setLastdeaths(Player player, ArrayList<String> lastdeath) {
-                Map<String,Object> data = get.dest.get(player,false);
+            public static void lastdeaths(Player player, ArrayList<String> lastdeath) {
+                Map<String,Object> data = get.dest.map(player,false);
                 data.put("lastdeath", lastdeath);
-                set(player, data);
+                map(player, data);
             }
-            public static void setSaved(Player player, List<List<String>> saved) {
-                Map<String,Object> data = get.dest.get(player,false);
+            public static void saved(Player player, List<List<String>> saved) {
+                Map<String,Object> data = get.dest.map(player,false);
                 data.put("saved", saved);
-                set(player, data);
+                map(player, data);
             }
-            public static class setting {
-                private static void map(Player player, Map<String,Object> setting) {
-                    Map<String,Object> data = get.dest.get(player,false);
-                    data.put("setting", setting);
-                    dest.set(player, data);
-                }
-                public static void set(Player player, Destination.Setting settings, Object setting) {
-                    String string = settings.toString();
-                    Map<String,Object> data = get.dest.setting.map(player);
-                    if (string.contains(".")) {
-                        String base = string.substring(0,string.indexOf('.'));
-                        Map<String,Object> bar = (Map<String,Object>) get.dest.setting.map(player).get(base);
-                        bar.put(string.substring(string.indexOf('.')+1),setting);
-                        data.put(base,bar);
-                    } else {
-                        data.put(string.substring(string.indexOf('.')+1),setting);
-                    }
-                    map(player,data);
-                }
+            public static void setting(Player player, Destination.Setting type, Object setting) {
+                Map<String,Object> settings = (Map<String,Object>) get.dest.map(player,true).get("setting");
+                String string = type.toString();
+                if (string.contains(".")) {
+                    String base = string.substring(0,string.indexOf('.'));
+                    Map<String,Object> bar = (Map<String,Object>) settings.get(base);
+                    bar.put(string.substring(string.indexOf('.')+1),setting);
+                    settings.put(base,bar);
+                } else settings.put(string,setting);
+                // save the data
+                Map<String,Object> data = get.dest.map(player,false);
+                data.put("setting", settings);
+                dest.map(player, data);
             }
+        }
+        public static void colorPresets(Player player, ArrayList<String> preset) {
+            Map<String,Object> map = fileToMap(player);
+            map.put("color_presets", preset);
+            mapToFile(player,map);
         }
         public static void socialCooldown(Player player, Double d) {
             Map<String,Object> map = get.fromMap(player);
