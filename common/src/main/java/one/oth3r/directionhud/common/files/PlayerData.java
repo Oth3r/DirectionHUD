@@ -249,18 +249,21 @@ public class PlayerData {
         if (map.get("version").equals(1.6)) {
             map.put("version",1.70);
             Map<String,Object> hud = (Map<String, Object>) map.get("hud");
-            // hud module settings
+            // new hud module settings
             Map<String,Object> hudSetting = (Map<String, Object>) hud.get("setting");
             Map<String,Object> hudModuleSetting = (Map<String, Object>) hudSetting.get("module");
             hudModuleSetting.put("tracking_hybrid",config.hud.TrackingHybrid);
             hudModuleSetting.put("tracking_type",config.hud.TrackingType);
             hudModuleSetting.put("speed_pattern", config.hud.SpeedPattern);
             hudModuleSetting.put("speed_3d", config.hud.Speed3D);
+            hudModuleSetting.put("angle_display", config.hud.AngleDisplay);
             hudSetting.put("module",hudModuleSetting);
             hud.put("setting",hudSetting);
-            // hud modules
+            // new hud modules
             Map<String,Object> hudModule = (Map<String, Object>) hud.get("module");
             hudModule.put("speed",config.hud.Speed);
+            hudModule.put("angle",config.hud.Angle);
+            map.put("module",hudModule);
             map.put("hud",hud);
         }
         return map;
@@ -359,6 +362,7 @@ public class PlayerData {
             module.put("tracking_type", config.hud.TrackingType);
             module.put("speed_pattern", config.hud.SpeedPattern);
             module.put("speed_3d", config.hud.Speed3D);
+            module.put("angle_display", config.hud.AngleDisplay);
             return module;
         }
         public static Map<String,Object> hudModule() {
@@ -371,6 +375,7 @@ public class PlayerData {
             hudModule.put("time", config.hud.Time);
             hudModule.put("weather", config.hud.Weather);
             hudModule.put("speed", config.hud.Speed);
+            hudModule.put("angle", config.hud.Angle);
             return hudModule;
         }
         public static Map<String,Object> destSetting() {

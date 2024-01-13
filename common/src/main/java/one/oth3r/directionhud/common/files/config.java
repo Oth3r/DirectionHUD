@@ -32,6 +32,9 @@ public class config {
             public static final boolean Coordinates = true;
             public static final boolean Distance = true;
             public static final boolean Tracking = false;
+            public static final boolean TrackingHybrid = true;
+            public static final String TrackingTarget = HUD.Setting.ModuleTrackingTarget.player.toString();
+            public static final String TrackingType = HUD.Setting.ModuleTrackingType.simple.toString();
             public static final boolean Destination = true;
             public static final boolean Direction = true;
             public static final boolean Time = true;
@@ -40,9 +43,8 @@ public class config {
             public static final boolean Speed = false;
             public static final boolean Speed3D = true;
             public static final String SpeedPattern = "0.00";
-            public static final boolean TrackingHybrid = true;
-            public static final String TrackingTarget = HUD.Setting.ModuleTrackingTarget.player.toString();
-            public static final String TrackingType = HUD.Setting.ModuleTrackingType.simple.toString();
+            public static final boolean Angle = false;
+            public static final String AngleDisplay = HUD.Setting.ModuleAngleDisplay.both.toString();
             public static class primary {
                 public static final String Color = DirectionHUD.PRIMARY;
                 public static final boolean Bold = false;
@@ -76,6 +78,8 @@ public class config {
         public static boolean Speed = defaults.Speed;
         public static boolean Speed3D = defaults.Speed3D;
         public static String SpeedPattern = defaults.SpeedPattern;
+        public static boolean Angle = defaults.Angle;
+        public static String AngleDisplay = defaults.AngleDisplay;
         public static class primary {
             public static String Color = defaults.primary.Color;
             public static boolean Bold = defaults.primary.Bold;
@@ -225,6 +229,7 @@ public class config {
             hud.Time = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.time", a -> String.valueOf(hud.defaults.Time)));
             hud.Weather = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.weather", a -> String.valueOf(hud.defaults.Weather)));
             hud.Speed = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.speed", a -> String.valueOf(hud.defaults.Speed)));
+            hud.Angle = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.angle", a -> String.valueOf(hud.defaults.Angle)));
             // HUD MODULE SETTINGS
             hud.TrackingHybrid = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.settings.module.tracking_hybrid", a -> String.valueOf(hud.defaults.TrackingHybrid)));
             hud.TrackingTarget = HUD.Setting.ModuleTrackingTarget.get((String) properties.computeIfAbsent("hud.settings.module.tracking_target", a -> hud.defaults.TrackingTarget)).toString();
@@ -238,6 +243,7 @@ public class config {
             } catch (IllegalArgumentException ignored) {
                 hud.SpeedPattern = hud.defaults.SpeedPattern;
             }
+            hud.AngleDisplay = HUD.Setting.ModuleAngleDisplay.get((String) properties.computeIfAbsent("hud.settings.module.angle_display", a -> hud.defaults.AngleDisplay)).toString();
 
             // HUD COLOR
             hud.primary.Color = CUtl.color.format((String) properties.computeIfAbsent("hud.color.primary", a -> hud.defaults.primary.Color), hud.defaults.primary.Color);
@@ -385,7 +391,8 @@ public class config {
 
             file.write("\n\n# "+CUtl.lang("config.hud").toString());
             file.write("\nhud.order=" + hud.Order);
-            file.write("\n# "+CUtl.lang("config.hud.order.options").toString());
+            file.write("\n# "+CUtl.lang("hud.module.order.options").toString());
+
             file.write("\n\n# "+CUtl.lang("config.hud.module").toString());
             file.write("\nhud.module.coordinates=" + hud.Coordinates);
             file.write("\nhud.module.distance=" + hud.Distance);
@@ -395,15 +402,20 @@ public class config {
             file.write("\nhud.module.time=" + hud.Time);
             file.write("\nhud.module.weather=" + hud.Weather);
             file.write("\nhud.module.speed=" + hud.Speed);
+            file.write("\nhud.module.angle=" + hud.Angle);
+
             file.write("\n\n# "+CUtl.lang("config.settings").toString());
             file.write("\nhud.settings.state=" + hud.State);
-            file.write("\nhud.settings.type=" + hud.DisplayType);
+
+            file.write("\n\nhud.settings.type=" + hud.DisplayType);
             file.write("\n# "+CUtl.lang("config.hud.settings.type.options").toString());
-            file.write("\nhud.settings.bossbar.color=" + hud.BarColor);
+
+            file.write("\n\nhud.settings.bossbar.color=" + hud.BarColor);
             file.write("\n# "+CUtl.lang("config.hud.settings.bossbar.color.options").toString());
             file.write("\nhud.settings.bossbar.distance=" + hud.BarShowDistance);
             file.write("\nhud.settings.bossbar.distance_max=" + hud.ShowDistanceMAX);
-            file.write("\nhud.settings.module.time_24hr=" + hud.Time24HR);
+
+            file.write("\n\nhud.settings.module.time_24hr=" + hud.Time24HR);
 
             file.write("\n\nhud.settings.module.tracking_hybrid=" + hud.TrackingHybrid);
             file.write("\n# "+CUtl.lang("hud.settings.module.tracking_hybrid.info").toString());
@@ -420,7 +432,10 @@ public class config {
             file.write("\n# "+CUtl.lang("hud.settings.module.speed_pattern.info").toString());
             file.write("\n# "+CUtl.lang("hud.settings.module.speed_pattern.info_2").toString());
 
-            file.write("\n\n# "+CUtl.lang("config.hud.color").toString());
+            file.write("\n\nhud.settings.module.angle_display=" + hud.AngleDisplay);
+            file.write("\n# "+CUtl.lang("hud.settings.module.angle_display.options").toString());
+
+            file.write("\n\n\n# "+CUtl.lang("config.hud.color").toString());
             file.write("\n# "+CUtl.lang("config.color.options").toString());
             file.write("\nhud.color.primary=" + hud.primary.Color);
             file.write("\nhud.color.primary-bold=" + hud.primary.Bold);

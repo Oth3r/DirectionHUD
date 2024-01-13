@@ -70,6 +70,8 @@ public class Assets {
             public static final String down = "\u25bc";
             public static final String left = "\u25c0";
             public static final String right = "\u25b6";
+            public static final String leftRight = "\u2b0c";
+            public static final String upDown = "\u2b0d";
         }
         public static final String square = "\u2588";
         public static final String x = "\u2715";

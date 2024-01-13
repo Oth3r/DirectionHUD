@@ -10,6 +10,7 @@ import one.oth3r.directionhud.common.Assets.symbols.arrows;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
+import one.oth3r.directionhud.common.HUD.Setting.ModuleAngleDisplay;
 
 import java.text.DecimalFormat;
 import java.util.*;
@@ -27,6 +28,7 @@ public class HUD {
         module__tracking_hybrid,
         module__speed_pattern,
         module__speed_3d,
+        module__angle_display,
         none;
         @Override
         public String toString() {
@@ -122,6 +124,19 @@ public class HUD {
                 }
             }
         }
+        public enum ModuleAngleDisplay {
+            yaw,
+            pitch,
+            both;
+            public static ModuleAngleDisplay get(String s) {
+                try {
+                    return ModuleAngleDisplay.valueOf(s);
+
+                } catch (IllegalArgumentException e) {
+                    return ModuleAngleDisplay.valueOf(config.hud.defaults.AngleDisplay);
+                }
+            }
+        }
     }
     public enum Module {
         coordinates,
@@ -132,6 +147,7 @@ public class HUD {
         time,
         weather,
         speed,
+        angle,
         unknown;
         public static Module get(String s) {
             try {
@@ -376,10 +392,6 @@ public class HUD {
         }
         ArrayList<String> weather = new ArrayList<>();
         weather.add("p"+weatherIcon);
-        ArrayList<String> speed = getSpeedModule(player);
-        //todo
-        // angle module
-        // yaw / pitch / both
         HashMap<Module, ArrayList<String>> filledModules = new HashMap<>();
         filledModules.put(Module.coordinates, coordinates);
         filledModules.put(Module.distance, distance);
@@ -388,7 +400,8 @@ public class HUD {
         filledModules.put(Module.time, time);
         filledModules.put(Module.weather, weather);
         filledModules.put(Module.tracking, tracking);
-        filledModules.put(Module.speed, speed);
+        filledModules.put(Module.speed, getSpeedModule(player));
+        filledModules.put(Module.angle, getAngleModule(player));
         return filledModules;
     }
     public static CTxT build(Player player, HashMap<Module, ArrayList<String>> filledModules) {
@@ -563,6 +576,19 @@ public class HUD {
         speed.add("p"+" B/S");
         return speed;
     }
+    public static ArrayList<String> getAngleModule(Player player) {
+        ArrayList<String> angle = new ArrayList<>();
+        DecimalFormat f = new DecimalFormat("0.0");
+        Setting.ModuleAngleDisplay playerType = ModuleAngleDisplay.get((String)PlayerData.get.hud.setting(player,Setting.module__angle_display));
+        if (playerType.equals(ModuleAngleDisplay.yaw) || playerType.equals(ModuleAngleDisplay.both)) {
+            angle.add("s"+f.format(player.getYaw()));
+        }
+        if (playerType.equals(ModuleAngleDisplay.pitch) || playerType.equals(ModuleAngleDisplay.both)) {
+            if (playerType.equals(ModuleAngleDisplay.both)) angle.add("p"+"/");
+            angle.add("s"+f.format(player.getPitch()));
+        }
+        return angle;
+    }
     public static class modules {
         private static final int PER_PAGE = 5;
         public static ArrayList<Module> getDefault() {
@@ -575,6 +601,7 @@ public class HUD {
             list.add(Module.time);
             list.add(Module.weather);
             list.add(Module.speed);
+            list.add(Module.angle);
             return list;
         }
         public static CTxT reset(Player player, boolean Return) {
@@ -634,9 +661,10 @@ public class HUD {
             CUtl.PageHelper<Module> pageHelper = new CUtl.PageHelper<>(PlayerData.get.hud.order(player),PER_PAGE);
             Module module = Module.unknown;
             switch (setting) {
-                case module__speed_3d, module__speed_pattern -> module = Module.speed;
                 case module__time_24hr -> module = Module.time;
-                case module__tracking_target -> module = Module.tracking;
+                case module__tracking_hybrid, module__tracking_target, module__tracking_type -> module = Module.tracking;
+                case module__speed_3d, module__speed_pattern -> module = Module.speed;
+                case module__angle_display -> module = Module.angle;
             }
             return pageHelper.getPageOf(module);
         }
@@ -701,6 +729,19 @@ public class HUD {
                                 .append(lang("settings."+type+".info_2").color('7').italic(true)).append("\n\n")
                                 .append(lang("settings."+type+".hover"))));
             }
+            if (module.equals(Module.angle)) {
+                Setting type = Setting.module__angle_display;
+                ModuleAngleDisplay currentType = ModuleAngleDisplay.get((String) PlayerData.get.hud.setting(player,type));
+                ModuleAngleDisplay nextType = Enums.next(currentType, ModuleAngleDisplay.class);
+                String buttonIcon = arrows.leftRight;
+                if (currentType.equals(ModuleAngleDisplay.both)) buttonIcon += arrows.upDown;
+                else if (currentType.equals(ModuleAngleDisplay.pitch)) buttonIcon = arrows.upDown;
+                button.append(CTxT.of(buttonIcon).btn(true).color(CUtl.s()).hEvent(CTxT.of("")
+                                .append(lang("settings."+type).color('e')).append("\n")
+                                .append(lang("settings."+type+"."+currentType+".info").color('7')).append("\n\n")
+                                .append(lang("settings."+type+".hover",lang("settings."+type+"."+nextType).color(CUtl.s()))))
+                        .cEvent(1,"/hud settings set-m "+type+" "+nextType));
+            }
             return button;
         }
         public static CTxT moduleInfo(Player player, Module module, boolean... onlyExample) {
@@ -743,6 +784,11 @@ public class HUD {
             if (module.equals(Module.speed))
                 info.append(color.addColor(player,speed,2,15,20))
                         .append(color.addColor(player," B/S",1,(speed.length()*20)+15,20));
+            if (module.equals(Module.angle)) {
+                info.append(color.addColor(player,"-15.1",2,15,20));
+                if (ModuleAngleDisplay.get((String) PlayerData.get.hud.setting(player, Setting.module__angle_display)).equals(ModuleAngleDisplay.both))
+                    info.append(color.addColor(player,"/",1,135,20)).append(color.addColor(player,"55.1",2,155,20));
+            }
             if (onlyExample.length == 0) info.append("\n").append(lang("module."+module+".info").color('7'));
             return info;
         }
@@ -1021,6 +1067,10 @@ public class HUD {
                     PlayerData.set.hud.setting(player,type,setting);
                 } catch (IllegalArgumentException ignored) {}
                 setTxT.append(CTxT.of(String.valueOf(PlayerData.get.hud.setting(player,type))).color(CUtl.s()));
+            }
+            if (type.equals(Setting.module__angle_display)) {
+                PlayerData.set.hud.setting(player, type, Setting.ModuleAngleDisplay.valueOf(setting));
+                setTxT.append(lang("settings."+type+"."+ ModuleAngleDisplay.valueOf(setting)).color(CUtl.s()));
             }
             CTxT msg = CUtl.tag().append(lang("settings."+type+".set",setTxT));
             if (Return) UI(player, msg);
