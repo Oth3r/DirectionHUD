@@ -1,12 +1,9 @@
 package one.oth3r.directionhud.common.utils;
 
 import one.oth3r.directionhud.utils.Player;
-import org.apache.commons.lang3.RandomStringUtils;
+import one.oth3r.directionhud.utils.Utl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Objects;
+import java.util.*;
 
 public class Helper {
     public static class Enums {
@@ -42,46 +39,85 @@ public class Helper {
             return next;
         }
     }
-    public static boolean isNum(String s) {
-        // checks if int or a double
-        try {
-            Integer.parseInt(s);
-            return true;
-        } catch (NumberFormatException e1) {
+    public static class Num {
+        public static boolean isInt(String string) {
             try {
-                Double.parseDouble(s);
-                return true;
-            } catch (NumberFormatException e2) {
+                Integer.parseInt(string);
+            } catch (NumberFormatException nfe) {
                 return false;
             }
+            return true;
         }
-    }
-    public static Integer forceInt(String s) {
-        try {
-            return Integer.parseInt(s);
-        } catch (NumberFormatException e) {
+        public static Integer toInt(String s) {
+            // return an int no matter what
             try {
-                return (int) Double.parseDouble(s);
-            } catch (NumberFormatException e2) {
-                return 0;
+                return Integer.parseInt(s);
+            } catch (NumberFormatException e) {
+                try {
+                    return (int) Double.parseDouble(s);
+                } catch (NumberFormatException e2) {
+                    return 0;
+                }
             }
+        }
+        public static boolean isNum(String s) {
+            // checks if int or a double
+            try {
+                Integer.parseInt(s);
+                return true;
+            } catch (NumberFormatException e1) {
+                try {
+                    Double.parseDouble(s);
+                    return true;
+                } catch (NumberFormatException e2) {
+                    return false;
+                }
+            }
+        }
+
+        public static boolean inBetween(double num, double min, double max) {
+            // if min is greater than max, flip
+            if (min > max) return num >= min || num <= max;
+            return num >= min && num <= max;
+        }
+
+        public static double wSubtract(double num, double sub, double max) {
+            // wrapped subtract
+            double output = num - sub;
+            if (output < 0) output = max - (output*-1);
+            return output;
+        }
+
+        public static double wAdd(double num, double add, double max) {
+            // wrapped add
+            return (num+add)%max;
         }
     }
-    public static class command {
-        public static ArrayList<String> xyz(Player player, String type) {
-            ArrayList<String> arr = new ArrayList<>();
-            if (type.equalsIgnoreCase("x")) {
-                arr.add(String.valueOf(player.getBlockX()));
-                arr.add(player.getBlockX()+" "+player.getBlockZ());
-                arr.add(player.getBlockX()+" "+player.getBlockY()+" "+player.getBlockZ());
+    public static class Command {
+        public static class Suggester {
+            public static ArrayList<String> xyz(Player player, String type) {
+                ArrayList<String> arr = new ArrayList<>();
+                if (type.equalsIgnoreCase("x")) {
+                    arr.add(String.valueOf(player.getBlockX()));
+                    arr.add(player.getBlockX()+" "+player.getBlockZ());
+                    arr.add(player.getBlockX()+" "+player.getBlockY()+" "+player.getBlockZ());
+                }
+                if (type.equalsIgnoreCase("y")) {
+                    arr.add(String.valueOf(player.getBlockY()));
+                    arr.add(player.getBlockY()+" "+player.getBlockZ());
+                }
+                if (type.equalsIgnoreCase("z")) arr.add(String.valueOf(player.getBlockZ()));
+                return arr;
             }
-            if (type.equalsIgnoreCase("y")) {
-                arr.add(String.valueOf(player.getBlockY()));
-                arr.add(player.getBlockY()+" "+player.getBlockZ());
+            public static List<String> players(Player player) {
+                //get player strings excluding the inputted player
+                ArrayList<String> list = new ArrayList<>();
+                for (Player entry: Utl.getPlayers())
+                    if (!entry.equals(player)) list.add(entry.getName());
+                return list;
             }
-            if (type.equalsIgnoreCase("z")) arr.add(String.valueOf(player.getBlockZ()));
-            return arr;
         }
+
         public static String[] quoteHandler(String[] args) {
             // put quoted items all in one arg
             boolean quote = false;
@@ -107,23 +143,17 @@ public class Helper {
             return output.toArray(arr);
         }
     }
-    public static boolean inBetween(double i, double min, double max) {
-        // if min is greater than max, flip
-        if (min > max) return i >= min || i <= max;
-        return i >= min && i <= max;
-    }
-    public static double wSubtract(double num, double sub, double max) {
-        // wrapped subtract
-        double output = num - sub;
-        if (output < 0) output = max - (output*-1);
-        return output;
-    }
-    public static double wAdd(double num, double add, double max) {
-        // wrapped add
-        return (num+add)%max;
-    }
     public static String createID() {
-        return RandomStringUtils.random(8, true, true);
+        //spigot not having apache smh smh
+        String CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        Random random = new Random();
+        StringBuilder sb = new StringBuilder(8);
+        for (int i = 0; i < 8; i++) {
+            int randomIndex = random.nextInt(CHARS.length());
+            char randomChar = CHARS.charAt(randomIndex);
+            sb.append(randomChar);
+        }
+        return sb.toString();
     }
     public static String[] trimStart(String[] arr, int numToRemove) {
         if (numToRemove > arr.length) return new String[0];

@@ -13,90 +13,14 @@ import org.bukkit.Color;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.util.Vector;
+import one.oth3r.directionhud.common.utils.Helper.Pair;
+import one.oth3r.directionhud.common.utils.Helper.Num;
 
 import java.util.*;
 
 public class Utl {
-    public static class Pair<A, B> {
-        private final A first;
-        private final B second;
-        public Pair(A first, B second) {
-            this.first = first;
-            this.second = second;
-        }
-        public String toString() {
-            return "("+this.first+", "+this.second+")";
-        }
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (obj == null || getClass() != obj.getClass()) {
-                return false;
-            }
-            Pair<?, ?> otherPair = (Pair<?, ?>) obj;
-            return Objects.equals(first, otherPair.first) && Objects.equals(second, otherPair.second);
-        }
-        @Override
-        public int hashCode() {
-            return Objects.hash(first, second);
-        }
-    }
     public static CTxT getTranslation(String key,Object... args) {
         return LangReader.of("key.directionhud."+key, args).getTxT();
-    }
-    public static boolean isInt(String string) {
-        try {
-            Integer.parseInt(string);
-        } catch (NumberFormatException nfe) {
-            return false;
-        }
-        return true;
-    }
-    public static Integer tryInt(String s) {
-        try {
-            return Integer.parseInt(s);
-        } catch (NumberFormatException e) {
-            return null;
-        }
-    }
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public static boolean inBetween(int i, int min, int max) {
-        return i >= min && i <= max;
-    }
-    public static boolean inBetweenD(double i, double min, double max) {
-        if (min > max) {
-            return i >= min || i <= max;
-        }
-        return i >= min && i <= max;
-    }
-    public static double sub(double i, double sub, double max) {
-        double s = i - sub;
-        if (s < 0) s = max - (s*-1);
-        return s;
-    }
-    public static String createID() {
-        String CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-        Random random = new Random();
-        StringBuilder sb = new StringBuilder(8);
-        for (int i = 0; i < 8; i++) {
-            int randomIndex = random.nextInt(CHARS.length());
-            char randomChar = CHARS.charAt(randomIndex);
-            sb.append(randomChar);
-        }
-        return sb.toString();
-    }
-    public static String[] trimStart(String[] arr, int numToRemove) {
-        if (numToRemove > arr.length) {
-            return new String[0];
-        }
-        String[] result = new String[arr.length - numToRemove];
-        System.arraycopy(arr, numToRemove, result, 0, result.length);
-        return result;
-    }
-    public static String capitalizeFirst(String string) {
-        return string.toUpperCase().charAt(0)+string.substring(1);
     }
     public static CTxT getTxTFromObj(Object obj) {
         CTxT txt = CTxT.of("");
@@ -113,25 +37,18 @@ public class Utl {
         if (world.hasStorm()) {
             //https://minecraft.fandom.com/wiki/Daylight_cycle
             String str;
-            if (Utl.inBetween((int) timeTicks, 12010,23992)) str = Assets.symbols.moon;
+            if (Num.inBetween((int) timeTicks, 12010,23992)) str = Assets.symbols.moon;
             else str = Assets.symbols.sun;
             // if thundering always can sleep
             if (world.isThundering()) HUD.weatherIcon = Assets.symbols.moon + Assets.symbols.thunder;
             else HUD.weatherIcon = str + Assets.symbols.rain;
-        } else if (Utl.inBetween((int) timeTicks, 12542,23460)) HUD.weatherIcon = Assets.symbols.moon;
+        } else if (Num.inBetween((int) timeTicks, 12542,23460)) HUD.weatherIcon = Assets.symbols.moon;
         else HUD.weatherIcon = Assets.symbols.sun;
     }
     public static List<Player> getPlayers() {
         ArrayList<Player> array = new ArrayList<>();
         for (org.bukkit.entity.Player p : Bukkit.getOnlinePlayers())
             array.add(Player.of(p));
-        return array;
-    }
-    public static List<String> getPlayersEx(Player player) {
-        //get player strings excluding the inputted player
-        ArrayList<String> array = new ArrayList<>();
-        for (org.bukkit.entity.Player p : Bukkit.getOnlinePlayers())
-            if (p!=player.getPlayer()) array.add(Player.of(p).getName());
         return array;
     }
     public static class vec {

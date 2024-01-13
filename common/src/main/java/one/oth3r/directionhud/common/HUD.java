@@ -208,7 +208,7 @@ public class HUD {
                 args[0] = args[0].replace("-r","");
                 Return = true;
             }
-            if (Utl.isInt(args[0])) modules.UI(player,null,Integer.parseInt(args[0]));
+            if (Helper.Num.isInt(args[0])) modules.UI(player,null,Integer.parseInt(args[0]));
             //RESET
             if (args[0].equals("reset")) {
                 //todo reset per module basis via commands?
@@ -221,7 +221,7 @@ public class HUD {
             }
             if (args[0].equals("order")) {
                 if (args.length < 2) player.sendMessage(CUtl.error("hud.module"));
-                else if (args.length == 3 && Utl.isInt(args[2]))
+                else if (args.length == 3 && Helper.Num.isInt(args[2]))
                     modules.move(player, Module.get(args[1]), Integer.parseInt(args[2]), Return);
                 else player.sendMessage(CUtl.error("number"));
             }
@@ -522,25 +522,25 @@ public class HUD {
         // make sure 0 - 360
         if (rotation < 0) rotation += 360;
         if (target < 0) target += 360;
-        if (Helper.inBetween(rotation, Helper.wSubtract(target,15,360), Helper.wAdd(target,15,360)))
+        if (Helper.Num.inBetween(rotation, Helper.Num.wSubtract(target,15,360), Helper.Num.wAdd(target,15,360)))
             tracking.add("s"+(simple?"-"+ arrows.up+"-" : arrows.north));
         // NORTH
-        else if (Helper.inBetween(rotation, target, Helper.wAdd(target,65,360)))
+        else if (Helper.Num.inBetween(rotation, target, Helper.Num.wAdd(target,65,360)))
             tracking.add("s"+(simple? arrows.left+ arrows.up+"-" : arrows.north_west));
         // NORTH WEST
-        else if (Helper.inBetween(rotation, target, Helper.wAdd(target,115,360)))
+        else if (Helper.Num.inBetween(rotation, target, Helper.Num.wAdd(target,115,360)))
             tracking.add("s"+(simple? arrows.left+"--" : arrows.west));
         // WEST
-        else if (Helper.inBetween(rotation, target, Helper.wAdd(target,165,360)))
+        else if (Helper.Num.inBetween(rotation, target, Helper.Num.wAdd(target,165,360)))
             tracking.add("s"+(simple? arrows.left+ arrows.down+"-" : arrows.south_west));
         // SOUTH WEST
-        else if (Helper.inBetween(rotation, Helper.wSubtract(target, 65, 360), target))
+        else if (Helper.Num.inBetween(rotation, Helper.Num.wSubtract(target, 65, 360), target))
             tracking.add("s"+(simple?"-"+ arrows.up+ arrows.right : arrows.north_east));
         // NORTH EAST
-        else if (Helper.inBetween(rotation, Helper.wSubtract(target, 115, 360), target))
+        else if (Helper.Num.inBetween(rotation, Helper.Num.wSubtract(target, 115, 360), target))
             tracking.add("s"+(simple?"--"+ arrows.right : arrows.east));
         // EAST
-        else if (Helper.inBetween(rotation, Helper.wSubtract(target, 165, 360), target))
+        else if (Helper.Num.inBetween(rotation, Helper.Num.wSubtract(target, 165, 360), target))
             tracking.add("s"+(simple?"-"+ arrows.down+ arrows.right : arrows.south_east));
         // SOUTH EAST
         else tracking.add("s"+(simple?"-"+ arrows.down+"-" : arrows.south));

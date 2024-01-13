@@ -92,8 +92,8 @@ public class Player {
     public void displayHUD(CTxT message) {
         if (message.toString().equals("")) {
             //if the HUD is enabled but there is no output
-            if (PlayerData.getOneTime(this,"hud.enabled_but_off") == null) {
-                PlayerData.setOneTime(this,"hud.enabled_but_off","true");
+            if (PlayerData.getMsgData(this,"hud.enabled_but_off") == null) {
+                PlayerData.setMsgData(this,"hud.enabled_but_off","true");
                 if ((HUD.Setting.DisplayType.get((String) PlayerData.get.hud.setting.get(this, HUD.Setting.type)).equals(HUD.Setting.DisplayType.actionbar))) {
                     player.spigot().sendMessage(ChatMessageType.ACTION_BAR, CTxT.of("").b());
                 } else {
@@ -101,9 +101,9 @@ public class Player {
                 }
             }
             return;
-        } else if (PlayerData.getOneTime(this,"hud.enabled_but_off") != null) {
+        } else if (PlayerData.getMsgData(this,"hud.enabled_but_off") != null) {
             // if hud was in previous state and now isn't, remove the temp tag
-            PlayerData.setOneTime(this,"hud.enabled_but_off",null);
+            PlayerData.setMsgData(this,"hud.enabled_but_off",null);
         }
         if ((HUD.Setting.DisplayType.get((String) PlayerData.get.hud.setting.get(this, HUD.Setting.type)).equals(HUD.Setting.DisplayType.actionbar))) {
             player.spigot().sendMessage(ChatMessageType.ACTION_BAR, message.b());

@@ -10,7 +10,6 @@ import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.utils.Player;
-import one.oth3r.directionhud.utils.Utl;
 
 import java.io.File;
 import java.io.FileReader;
@@ -153,7 +152,7 @@ public class PlayerData {
             for (String s: saved) {
                 String[] split = s.split(" ");
                 String[] coordS = split[1].split("_");
-                Loc loc = new Loc(Utl.tryInt(coordS[0]),Utl.tryInt(coordS[1]),Utl.tryInt(coordS[2]),split[2]);
+                Loc loc = new Loc(Helper.Num.toInt(coordS[0]), Helper.Num.toInt(coordS[1]), Helper.Num.toInt(coordS[2]),split[2]);
                 savedN.add(saved.indexOf(s), Arrays.asList(split[0],loc.toArray(),split[3]));
             }
             dest.put("saved",savedN);

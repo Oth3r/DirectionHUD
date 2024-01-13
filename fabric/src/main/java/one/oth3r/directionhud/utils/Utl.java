@@ -26,21 +26,6 @@ public class Utl {
     public static CTxT getTranslation(String key, Object... args) {
         return CTxT.of(Text.translatable(key, args));
     }
-    public static boolean isInt(String string) {
-        try {
-            Integer.parseInt(string);
-        } catch (NumberFormatException nfe) {
-            return false;
-        }
-        return true;
-    }
-    public static Integer tryInt(String s) {
-        try {
-            return Integer.parseInt(s);
-        } catch (NumberFormatException e) {
-            return null;
-        }
-    }
     public static CTxT getTxTFromObj(Object obj) {
         CTxT txt = CTxT.of("");
         if (obj instanceof CTxT) txt.append(((CTxT) obj).b());
@@ -67,13 +52,6 @@ public class Utl {
         ArrayList<Player> array = new ArrayList<>();
         for (ServerPlayerEntity p : DirectionHUD.server.getPlayerManager().getPlayerList())
             array.add(Player.of(p));
-        return array;
-    }
-    public static List<String> getPlayersEx(Player player) {
-        //get player strings excluding the inputted player
-        ArrayList<String> array = new ArrayList<>();
-        for (ServerPlayerEntity p : DirectionHUD.server.getPlayerManager().getPlayerList())
-            if (p!=player.getPlayer()) array.add(Player.of(p).getName());
         return array;
     }
     public static class vec {

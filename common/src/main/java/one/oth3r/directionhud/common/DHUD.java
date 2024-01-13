@@ -44,8 +44,8 @@ public class DHUD {
                 inbox.UI(player,1);
                 return;
             }
-            if (args.length == 1 && Utl.isInt(args[0])) {
-                inbox.UI(player,Helper.forceInt(args[0]));
+            if (args.length == 1 && Helper.Num.isInt(args[0])) {
+                inbox.UI(player, Helper.Num.toInt(args[0]));
                 return;
             }
             if (args[0].equalsIgnoreCase("clear")) {

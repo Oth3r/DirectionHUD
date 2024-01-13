@@ -56,9 +56,9 @@ public class Loc {
         if (xyz.charAt(0)=='[' && xyz.charAt(xyz.length()-1)==']') {
             String[] list = xyz.substring(1, xyz.length() - 1).split(", ");
             if (list.length >= 3)  {
-                this.x = Helper.forceInt(list[0]);
-                if (list[1] != null && !list[1].equals("null")) this.y = Helper.forceInt(list[1]);
-                this.z = Helper.forceInt(list[2]);
+                this.x = Helper.Num.toInt(list[0]);
+                if (list[1] != null && !list[1].equals("null")) this.y = Helper.Num.toInt(list[1]);
+                this.z = Helper.Num.toInt(list[2]);
             }
             if (list.length == 4) this.dimension = list[3];
             return;
@@ -70,16 +70,16 @@ public class Loc {
             this.z = 0;
             return;
         }
-        if (!Utl.isInt(sp.get(0))) sp.set(0, "0");
-        if (!Utl.isInt(sp.get(1))) sp.set(1, "0");
-        if (sp.size() == 3 && !Helper.isNum(sp.get(2))) sp.set(2,"0");
-        this.x = xzBounds(Helper.forceInt(sp.get(0)));
+        if (!Helper.Num.isInt(sp.get(0))) sp.set(0, "0");
+        if (!Helper.Num.isInt(sp.get(1))) sp.set(1, "0");
+        if (sp.size() == 3 && !Helper.Num.isNum(sp.get(2))) sp.set(2,"0");
+        this.x = xzBounds(Helper.Num.toInt(sp.get(0)));
         if (sp.size() == 2) {
-            this.z = xzBounds(Helper.forceInt(sp.get(1)));
+            this.z = xzBounds(Helper.Num.toInt(sp.get(1)));
             return;
         }
-        this.y = yBounds(Helper.forceInt(sp.get(1)));
-        this.z = xzBounds(Helper.forceInt(sp.get(2)));
+        this.y = yBounds(Helper.Num.toInt(sp.get(1)));
+        this.z = xzBounds(Helper.Num.toInt(sp.get(2)));
     }
     public Loc(Player player) {
         this.x = xzBounds(player.getBlockX());
