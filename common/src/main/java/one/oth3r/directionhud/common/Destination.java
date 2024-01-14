@@ -1058,10 +1058,8 @@ public class Destination {
                 player.sendMessage(CUtl.error("coordinates"));
                 return;
             }
-            //if color is preset, get the preset color
-            if (!(color == null) && color.contains("preset"))
-                color = PlayerData.get.colorPresets(player).get(Integer.parseInt(color.substring(7))-1);
-            color = CUtl.color.format(color,"#ffffff");
+            // format the color
+            color = Helper.Command.Suggester.colorHandler(player,color);
             Dest dest = new Dest(player,list,Arrays.asList(name,loc.toArray(),color));
             dest.add();
             if (send) {
@@ -1150,8 +1148,8 @@ public class Destination {
                 player.sendMessage(CUtl.error("dest.invalid"));
                 return;
             }
-            //if color is preset, get the preset color
-            if (color.contains("preset")) color = PlayerData.get.colorPresets(player).get(Integer.parseInt(color.substring(7))-1);
+            // color fixer
+            color = Helper.Command.Suggester.colorHandler(player,color);
             if (!CUtl.color.checkValid(color,dest.getColor())) {
                 player.sendMessage(CUtl.error("color"));
                 return;
@@ -1381,9 +1379,8 @@ public class Destination {
             }
             // add the cooldown
             PlayerData.set.socialCooldown(player,config.socialCooldown.doubleValue());
-            if (color == null) color = "#ffffff";
-            //if color is preset, get the preset color
-            if (color.contains("preset")) color = PlayerData.get.colorPresets(player).get(Integer.parseInt(color.substring(7))-1);
+            // color formatter
+            color = Helper.Command.Suggester.colorHandler(player,color);
             // get rid of the hashtag for error fixing
             color = CUtl.color.format(color).substring(1);
             player.sendMessage(CUtl.tag().append(lang("send",CTxT.of(target.getName()).color(CUtl.s()),
@@ -1414,7 +1411,7 @@ public class Destination {
             public enum ProcessType {
                 accept,
                 deny,
-                cancel;
+                cancel
             }
             public static Player getTarget(Player player) {
                 String track = PlayerData.get.dest.tracking(player);

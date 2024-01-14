@@ -1,5 +1,6 @@
 package one.oth3r.directionhud.common.utils;
 
+import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
 
@@ -116,8 +117,17 @@ public class Helper {
                     if (!entry.equals(player)) list.add(entry.getName());
                 return list;
             }
+            public static String colorHandler(Player player, String color) {
+                return colorHandler(player, color, "#ffffff");
+            }
+            public static String colorHandler(Player player, String color, String defaultColor) {
+                //if color is preset, get the preset color
+                if (color != null && color.contains("preset"))
+                    color = PlayerData.get.colorPresets(player).get(Integer.parseInt(color.substring(7))-1);
+                color = CUtl.color.format(color,defaultColor);
+                return color;
+            }
         }
-
         public static String[] quoteHandler(String[] args) {
             // put quoted items all in one arg
             boolean quote = false;
