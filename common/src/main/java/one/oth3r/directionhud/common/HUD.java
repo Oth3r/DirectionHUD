@@ -4,6 +4,7 @@ import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Helper;
+import one.oth3r.directionhud.common.utils.Helper.Num;
 import one.oth3r.directionhud.common.utils.Helper.Enums;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.common.Assets.symbols.arrows;
@@ -58,6 +59,7 @@ public class HUD {
             list.add(module__tracking_type);
             list.add(module__speed_3d);
             list.add(module__speed_pattern);
+            list.add(module__angle_display);
             return list;
         }
         public static ArrayList<Setting> boolSettings() {
@@ -94,7 +96,6 @@ public class HUD {
             public static BarColor get(String s) {
                 try {
                     return BarColor.valueOf(s);
-
                 } catch (IllegalArgumentException e) {
                     return BarColor.valueOf(config.hud.defaults.BarColor);
                 }
@@ -224,12 +225,13 @@ public class HUD {
                 args[0] = args[0].replace("-r","");
                 Return = true;
             }
-            if (Helper.Num.isInt(args[0])) modules.UI(player,null,Integer.parseInt(args[0]));
+            if (Num.isInt(args[0])) modules.UI(player,null,Integer.parseInt(args[0]));
             //RESET
             if (args[0].equals("reset")) {
-                //todo reset per module basis via commands?
-                if (Return) modules.reset(player,true);
-                else player.sendMessage(modules.reset(player,false));
+                if (args.length == 1) // reset all
+                    modules.reset(player,Module.unknown,Return);
+                else // reset per module
+                    modules.reset(player,Module.get(args[1]),Return);
             }
             if (args[0].equals("toggle")) {
                 if (args.length < 2) player.sendMessage(CUtl.error("hud.module"));
@@ -237,7 +239,7 @@ public class HUD {
             }
             if (args[0].equals("order")) {
                 if (args.length < 2) player.sendMessage(CUtl.error("hud.module"));
-                else if (args.length == 3 && Helper.Num.isInt(args[2]))
+                else if (args.length == 3 && Num.isInt(args[2]))
                     modules.move(player, Module.get(args[1]), Integer.parseInt(args[2]), Return);
                 else player.sendMessage(CUtl.error("number"));
             }
@@ -307,9 +309,7 @@ public class HUD {
             // if -r is attached, remove it and continue with the suggester
             args[0] = args[0].replaceAll("-r", "");
             if (pos == 1) {
-                if (args[0].equalsIgnoreCase("order") || args[0].equalsIgnoreCase("toggle")) {
-                    suggester.addAll(Enums.toStringList(modules.getDefault()));
-                }
+                suggester.addAll(Enums.toStringList(modules.getDefaultOrder()));
             }
             if (pos == 2 && args[0].equalsIgnoreCase("order"))
                 suggester.add(String.valueOf(PlayerData.get.hud.order(player).indexOf(Module.get(args[1]))+1));
@@ -535,25 +535,25 @@ public class HUD {
         // make sure 0 - 360
         if (rotation < 0) rotation += 360;
         if (target < 0) target += 360;
-        if (Helper.Num.inBetween(rotation, Helper.Num.wSubtract(target,15,360), Helper.Num.wAdd(target,15,360)))
+        if (Num.inBetween(rotation, Num.wSubtract(target,15,360), Num.wAdd(target,15,360)))
             tracking.add("s"+(simple?"-"+ arrows.up+"-" : arrows.north));
         // NORTH
-        else if (Helper.Num.inBetween(rotation, target, Helper.Num.wAdd(target,65,360)))
+        else if (Num.inBetween(rotation, target, Num.wAdd(target,65,360)))
             tracking.add("s"+(simple? arrows.left+ arrows.up+"-" : arrows.north_west));
         // NORTH WEST
-        else if (Helper.Num.inBetween(rotation, target, Helper.Num.wAdd(target,115,360)))
+        else if (Num.inBetween(rotation, target, Num.wAdd(target,115,360)))
             tracking.add("s"+(simple? arrows.left+"--" : arrows.west));
         // WEST
-        else if (Helper.Num.inBetween(rotation, target, Helper.Num.wAdd(target,165,360)))
+        else if (Num.inBetween(rotation, target, Num.wAdd(target,165,360)))
             tracking.add("s"+(simple? arrows.left+ arrows.down+"-" : arrows.south_west));
         // SOUTH WEST
-        else if (Helper.Num.inBetween(rotation, Helper.Num.wSubtract(target, 65, 360), target))
+        else if (Num.inBetween(rotation, Num.wSubtract(target, 65, 360), target))
             tracking.add("s"+(simple?"-"+ arrows.up+ arrows.right : arrows.north_east));
         // NORTH EAST
-        else if (Helper.Num.inBetween(rotation, Helper.Num.wSubtract(target, 115, 360), target))
+        else if (Num.inBetween(rotation, Num.wSubtract(target, 115, 360), target))
             tracking.add("s"+(simple?"--"+ arrows.right : arrows.east));
         // EAST
-        else if (Helper.Num.inBetween(rotation, Helper.Num.wSubtract(target, 165, 360), target))
+        else if (Num.inBetween(rotation, Num.wSubtract(target, 165, 360), target))
             tracking.add("s"+(simple?"-"+ arrows.down+ arrows.right : arrows.south_east));
         // SOUTH EAST
         else tracking.add("s"+(simple?"-"+ arrows.down+"-" : arrows.south));
@@ -591,7 +591,7 @@ public class HUD {
     }
     public static class modules {
         private static final int PER_PAGE = 5;
-        public static ArrayList<Module> getDefault() {
+        public static ArrayList<Module> getDefaultOrder() {
             ArrayList<Module> list = new ArrayList<>();
             list.add(Module.coordinates);
             list.add(Module.distance);
@@ -604,17 +604,50 @@ public class HUD {
             list.add(Module.angle);
             return list;
         }
-        public static CTxT reset(Player player, boolean Return) {
-            // reset order
-            PlayerData.set.hud.order(player, config.hud.Order);
-            // reset module settings
-            for (Setting s : Setting.moduleSettings())
-                PlayerData.set.hud.setting(player, s, settings.getConfig(s));
-            // reset module states
-            PlayerData.set.hud.moduleMap(player, PlayerData.defaults.hudModule());
-            CTxT msg = CUtl.tag().append(lang("module.reset",CUtl.TBtn("reset").color('c')));
+        public static boolean getDefaultState(Module module) {
+            boolean output = false;
+            switch (module) {
+                case coordinates -> output = config.hud.Coordinates;
+                case distance -> output = config.hud.Distance;
+                case tracking -> output = config.hud.Tracking;
+                case destination -> output = config.hud.Destination;
+                case direction -> output = config.hud.Direction;
+                case time -> output = config.hud.Time;
+                case weather -> output = config.hud.Weather;
+                case speed -> output = config.hud.Speed;
+                case angle -> output = config.hud.Angle;
+            }
+            return output;
+        }
+        public static void reset(Player player, Module module, boolean Return) {
+            CTxT msg = CUtl.tag();
+            if (module.equals(Module.unknown)) {
+                // reset order
+                PlayerData.set.hud.order(player, config.hud.Order);
+                // reset module settings
+                for (Setting s : Setting.moduleSettings())
+                    PlayerData.set.hud.setting(player, s, settings.getConfig(s));
+                // reset module states
+                PlayerData.set.hud.moduleMap(player, PlayerData.defaults.hudModule());
+                msg.append(lang("module.reset_all", CUtl.TBtn("reset").color('c')));
+            } else {
+                // reset order
+                ArrayList<HUD.Module> order = PlayerData.get.hud.order(player); 
+                order.remove(module);
+                order.add(getDefaultOrder().indexOf(module),module);
+                PlayerData.set.hud.order(player,order);
+                // reset settings
+                for (Setting s : Setting.moduleSettings()) {
+                    if (s.toString().contains("module."+module))
+                        PlayerData.set.hud.setting(player, s, settings.getConfig(s));
+                }
+                // reset state
+                PlayerData.set.hud.module(player,module,getDefaultState(module));
+                // reset message
+                msg.append(lang("module.reset",CUtl.TBtn("reset").color('c'),lang("module."+ module)));
+            }
             if (Return) UI(player, msg, 1);
-            return msg;
+            else player.sendMessage(msg);
         }
         public static void move(Player player, Module module, int pos, boolean Return) {
             if (module.equals(Module.unknown)) {
@@ -646,7 +679,7 @@ public class HUD {
             else player.sendMessage(msg);
         }
         public static ArrayList<Module> fixOrder(ArrayList<Module> list) {
-            ArrayList<Module> allModules = getDefault();
+            ArrayList<Module> allModules = getDefaultOrder();
             // if the module isn't valid, remove
             list.removeIf(s -> s.equals(Module.unknown));
             // if there is more than one of the same module, remove it
@@ -994,9 +1027,12 @@ public class HUD {
                 case bossbar__distance -> output = config.hud.BarShowDistance;
                 case bossbar__distance_max -> output = config.hud.ShowDistanceMAX;
                 case module__time_24hr -> output = config.hud.Time24HR;
+                case module__tracking_hybrid -> output = config.hud.TrackingHybrid;
                 case module__tracking_target -> output = config.hud.TrackingTarget;
+                case module__tracking_type -> output = config.hud.TrackingType;
                 case module__speed_3d -> output = config.hud.Speed3D;
                 case module__speed_pattern -> output = config.hud.SpeedPattern;
+                case module__angle_display -> output = config.hud.AngleDisplay;
             }
             return output;
         }
