@@ -53,13 +53,8 @@ public class HUD {
         }
         public static ArrayList<Setting> moduleSettings() {
             ArrayList<Setting> list = new ArrayList<>();
-            list.add(module__time_24hr);
-            list.add(module__tracking_hybrid);
-            list.add(module__tracking_target);
-            list.add(module__tracking_type);
-            list.add(module__speed_3d);
-            list.add(module__speed_pattern);
-            list.add(module__angle_display);
+            for (Setting setting : values())
+                if (setting.toString().startsWith("module.")) list.add(setting);
             return list;
         }
         public static ArrayList<Setting> boolSettings() {
