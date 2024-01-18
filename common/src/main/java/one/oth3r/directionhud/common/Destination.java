@@ -4,6 +4,7 @@ import one.oth3r.directionhud.common.files.GlobalDest;
 import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.utils.Helper;
+import one.oth3r.directionhud.common.utils.Helper.Command.Suggester;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.common.utils.CUtl;
@@ -396,8 +397,8 @@ public class Destination {
                 //DIM
                 if (Utl.dim.getList().contains(args[3]))
                     social.send(player,args[0],new Loc(Helper.Num.toInt(args[1]), Helper.Num.toInt(args[2]),args[3]),null,null);
-                else if (!Helper.Num.isInt(args[3]) || !CUtl.color.format(args[3]).equals("#ffffff")) {
-                    //COLOR - if not int or if it doesn't get reset it's a color (I hope)
+                else if (!Helper.Num.isInt(args[3]) || !CUtl.color.checkValid(args[3],"#ffccff")) {
+                    //COLOR - check if a valid color on a random non default
                     social.send(player,args[0],new Loc(Helper.Num.toInt(args[1]), Helper.Num.toInt(args[2]),pDIM),null,args[3]);
                 } else social.send(player,args[0],new Loc(Helper.Num.toInt(args[1]), Helper.Num.toInt(args[2]), Helper.Num.toInt(args[3]),pDIM),null,null);
             }
@@ -406,9 +407,9 @@ public class Destination {
                 //dest send IGN NAME x z DIM
                 if (Utl.dim.getList().contains(args[4]))
                     social.send(player,args[0],new Loc(Helper.Num.toInt(args[2]), Helper.Num.toInt(args[3]),args[4]),args[1],null);
-                else if (!Helper.Num.isInt(args[4]) || !CUtl.color.format(args[4]).equals("#ffffff")) {
+                else if (!Helper.Num.isInt(args[4]) || !CUtl.color.checkValid(args[4],"#ffccff")) {
                     //dest send IGN NAME x z color
-                    //if not int or if it doesn't get reset it's a color (I hope)
+                    //COLOR - check if a valid color on a random non default
                     social.send(player,args[0],new Loc(Helper.Num.toInt(args[2]), Helper.Num.toInt(args[3]),pDIM),args[1],args[4]);
                 } else social.send(player,args[0],new Loc(Helper.Num.toInt(args[2]), Helper.Num.toInt(args[3]), Helper.Num.toInt(args[4]),pDIM),args[1],null);
                 return;
@@ -484,7 +485,7 @@ public class Destination {
                         if (fixedPos == 0) suggester.add("reset");
                     }
                     case "color" -> {
-                        if (fixedPos == 3 && trimmedArgs[0].equals("set")) suggester.add("ffffff");
+                        if (fixedPos == 3 && trimmedArgs[0].equals("set")) suggester.addAll(Suggester.colors(player,Suggester.getCurrent(trimmedArgs,fixedPos)));
                     }
                     case "set" -> suggester.addAll(setCMD(player,fixedPos,trimmedArgs));
                     case "send" -> suggester.addAll(sendCMD(player,fixedPos,trimmedArgs));
@@ -508,6 +509,7 @@ public class Destination {
             return suggester;
         }
         public static ArrayList<String> addCMD(Player player, int pos, String[] args) {
+            String current = Suggester.getCurrent(args,pos);
             ArrayList<String> suggester = new ArrayList<>();
             // add <name> <x> (y) <z> (dim) (color)
             if (pos == 0) {
@@ -516,48 +518,33 @@ public class Destination {
             }
             // add <name> (<x> (dim) (color))
             if (pos == 1) {
-                suggester.addAll(Helper.Command.Suggester.xyz(player,"x"));
-                if (args.length == 2 && !Helper.Num.isInt(args[1]) && !args[1].equals("")) {
-                    suggester.add("ffffff");
-                    suggester.addAll(Utl.dim.getList());
-                    return suggester;
-                }
+                suggester.addAll(Suggester.xyz(player,current,3));
+                suggester.addAll(Suggester.colors(player,current,false));
+                suggester.addAll(Suggester.dims(current,false));
             }
             // add <name> <x> ((y))
             if (pos == 2) {
-                if (Helper.Num.isInt(args[1])) return Helper.Command.Suggester.xyz(player,"y");
+                if (Helper.Num.isInt(args[1])) return Suggester.xyz(player,current,2);
             }
             // add <name> <x> (y) (<z> (dim) (color))
             if (pos == 3) {
-                if (Helper.Num.isInt(args[1])) suggester.addAll(Helper.Command.Suggester.xyz(player,"z"));
-                if (args.length == 4 && !Helper.Num.isInt(args[3])) {
-                    suggester.add("ffffff");
-                    suggester.addAll(CUtl.color.presetsSuggester(player));
-                    suggester.addAll(Utl.dim.getList());
-                }
-                return suggester;
+                if (Helper.Num.isInt(args[1])) suggester.addAll(Suggester.xyz(player,current,1));
+                suggester.addAll(Suggester.colors(player,current,false));
+                suggester.addAll(Suggester.dims(current,false));
             }
             // add <name> <x> (y) <z> ((dim) (color))
             if (pos == 4) {
                 if (Helper.Num.isInt(args[3])) {
-                    suggester.addAll(Utl.dim.getList());
-                    suggester.add("ffffff");
-                    suggester.addAll(CUtl.color.presetsSuggester(player));
-                    return suggester;
+                    suggester.addAll(Suggester.dims(current));
+                    suggester.addAll(Suggester.colors(player,current));
                 }
-                if (Utl.dim.checkValid(args[3])) {
-                    suggester.add("ffffff");
-                    suggester.addAll(CUtl.color.presetsSuggester(player));
-                }
-                return suggester;
+                if (Utl.dim.checkValid(args[3]))
+                    suggester.addAll(Suggester.colors(player,current));
             }
             // add <name> <x> (y) <z> (dim) ((color))
             if (pos == 5) {
-                if (Helper.Num.isInt(args[3]) && Utl.dim.checkValid(args[4])) {
-                    suggester.add("ffffff");
-                    suggester.addAll(CUtl.color.presetsSuggester(player));
-                    return suggester;
-                }
+                if (Helper.Num.isInt(args[3]) && Utl.dim.checkValid(args[4]))
+                    suggester.addAll(Suggester.colors(player,current));
             }
             return suggester;
         }
@@ -629,6 +616,7 @@ public class Destination {
             return suggester;
         }
         public static ArrayList<String> savedEdit(Player player,List<List<String>> list, int pos, String[] args) {
+            String current = Suggester.getCurrent(args,pos);
             ArrayList<String> suggester = new ArrayList<>();
             // saved edit (type)
             if (pos == 0) {
@@ -643,81 +631,74 @@ public class Destination {
             // saved edit type name (<arg>)
             if (args[0].equalsIgnoreCase("location")) {
                 if (pos == 2) {
-                    suggester.addAll(Helper.Command.Suggester.xyz(player, "x"));
-                    suggester.addAll(Utl.dim.getList());
+                    suggester.addAll(Suggester.xyz(player,current,3));
+                    suggester.addAll(Suggester.dims(current));
                 }
-                if (pos == 3) suggester.addAll(Helper.Command.Suggester.xyz(player,"y"));
+                if (pos == 3) suggester.addAll(Suggester.xyz(player,current,2));
                 if (pos == 4) {
-                    suggester.addAll(Helper.Command.Suggester.xyz(player,"z"));
-                    suggester.addAll(Utl.dim.getList());
+                    suggester.addAll(Suggester.xyz(player,current,1));
+                    suggester.addAll(Suggester.dims(current,false));
                 }
                 if (pos == 5 && Helper.Num.isInt(args[4])) {
-                    suggester.addAll(Utl.dim.getList());
+                    suggester.addAll(Suggester.dims(current));
                 }
                 return suggester;
             }
             if (pos == 2) {
                 if (args[0].equalsIgnoreCase("name")) {
                     suggester.add("name");
-                    suggester.add(new saved.Dest(player,list,args[1]).getName());
+                    suggester.add(new saved.Dest(player,list,args[1]).getName()); // current name to edit
                 }
-                if (args[0].equalsIgnoreCase("color")) {
-                    suggester.addAll(CUtl.color.presetsSuggester(player));
-                    suggester.add("ffffff");
-                }
-                if (args[0].equalsIgnoreCase("order")) suggester.add(String.valueOf(new saved.Dest(player,list,args[1]).getOrder()));
-                return suggester;
+                if (args[0].equalsIgnoreCase("color"))
+                    suggester.addAll(Suggester.colors(player,current));
+                if (args[0].equalsIgnoreCase("order"))
+                    suggester.add(String.valueOf(new saved.Dest(player,list,args[1]).getOrder())); //current order to edit
             }
             return suggester;
         }
         public static ArrayList<String> setCMD(Player player, int pos, String[] args) {
+            String current = Suggester.getCurrent(args, pos);
             ArrayList<String> suggester = new ArrayList<>();
             // set <saved> <name> (convert)
             // set <x> (y) <z> (dim) (convert)
             if (pos == 0) {
                 if (Utl.checkEnabled.saving(player)) suggester.add("saved");
                 if (config.globalDESTs) suggester.add("global");
-                suggester.addAll(Helper.Command.Suggester.xyz(player,"x"));
+                suggester.addAll(Suggester.xyz(player,current,3));
                 return suggester;
             }
-            // set <saved, x> ((name) (y))
+            // set <saved, global, x> ((name) (y))
             if (pos == 1) {
-                if (args[0].equalsIgnoreCase("saved") && Utl.checkEnabled.saving(player)) {
+                if (args[0].equalsIgnoreCase("saved") && Utl.checkEnabled.saving(player))
                     suggester.addAll(saved.getNames(saved.getList(player)));
-                    return suggester;
-                }
-                if (args[0].equalsIgnoreCase("global") && config.globalDESTs) {
+                else if (args[0].equalsIgnoreCase("global") && config.globalDESTs)
                     suggester.addAll(saved.getNames(GlobalDest.dests));
-                    return suggester;
-                }
-                return Helper.Command.Suggester.xyz(player,"y");
+                else suggester.addAll(Suggester.xyz(player,current,2));
             }
             // set <saved> <name> ((convert))
             // set <x> (y) (<z> (dim))
             if (pos == 2) {
                 if (!Helper.Num.isInt(args[1])) {
                     suggester.add("convert");
-                    return suggester;
+                } else {
+                    suggester.addAll(Suggester.dims(current));
+                    suggester.addAll(Suggester.xyz(player,current,1));
                 }
-                suggester.addAll(Utl.dim.getList());
-                suggester.addAll(Helper.Command.Suggester.xyz(player,"z"));
-                return suggester;
             }
             // set <x> (y) <z> (dim)
-            // set x z dim (convert
+            // set x z dim (convert)
             if (pos == 3) {
-                if (Helper.Num.isInt(args[2])) suggester.addAll(Utl.dim.getList());
+                if (Helper.Num.isInt(args[2])) suggester.addAll(Suggester.dims(current));
                 else suggester.add("convert");
-                return suggester;
             }
             // set x y z dim convert
             if (pos == 4) {
                 if (Helper.Num.isInt(args[2])) suggester.add("convert");
-                return suggester;
             }
             return suggester;
         }
         public static ArrayList<String> sendCMD(Player player, int pos, String[] args) {
+            String current = Suggester.getCurrent(args,pos);
             ArrayList<String> suggester = new ArrayList<>();
             // send <player> <saved> <name>
             // send <player> (name) <x> (y) <z> (dimension) (color)
@@ -731,7 +712,7 @@ public class Destination {
             // send <player> (<saved>, (name), <x>)
             if (pos == 1) {
                 if (Utl.checkEnabled.saving(player)) suggester.add("saved");
-                suggester.addAll(Helper.Command.Suggester.xyz(player,"x"));
+                suggester.addAll(Suggester.xyz(player,current,3));
                 suggester.add("name");
                 return suggester;
             }
@@ -743,41 +724,33 @@ public class Destination {
                     suggester.addAll(saved.getNames(saved.getList(player)));
                     return suggester;
                 }
-                if (!Helper.Num.isInt(args[1])) {
-                    return Helper.Command.Suggester.xyz(player,"x");
-                }
-                return Helper.Command.Suggester.xyz(player,"y");
+                if (!Helper.Num.isInt(args[1])) return Suggester.xyz(player,current,3);
+                return Suggester.xyz(player,current,2);
             }
             // send <player> (name) <x> ((y))
-            // send <player> <x> (y) (<z> (dimension))
+            // send <player> <x> (y) (<z> (dimension) (color))
             if (pos == 3) {
-                if (!Helper.Num.isInt(args[1])) {
-                    return Helper.Command.Suggester.xyz(player,"y");
-                }
-                suggester.addAll(Utl.dim.getList());
-                suggester.add("ffffff");
-                suggester.addAll(CUtl.color.presetsSuggester(player));
-                suggester.addAll(Helper.Command.Suggester.xyz(player,"z"));
+                if (!Helper.Num.isInt(args[1])) return Suggester.xyz(player,current,1);
+                suggester.addAll(Suggester.xyz(player,current,1));
+                suggester.addAll(Suggester.dims(current,false));
+                suggester.addAll(Suggester.colors(player,current,false));
                 return suggester;
             }
             if (pos == 4) {
                 // send <player> (name) <x> (y) (<z>, (dimension), (color))
                 if (!Helper.Num.isInt(args[1])) {
-                    suggester.addAll(Utl.dim.getList());
-                    suggester.add("ffffff");
-                    suggester.addAll(CUtl.color.presetsSuggester(player));
-                    suggester.addAll(Helper.Command.Suggester.xyz(player,"z"));
+                    suggester.addAll(Suggester.xyz(player,current,1));
+                    suggester.addAll(Suggester.dims(current,false));
+                    suggester.addAll(Suggester.colors(player,current,false));
                     return suggester;
                 }
                 // send <player> <x> (y) <z> ((dimension), (color))
                 if (Helper.Num.isInt(args[3])) {
-                    suggester.addAll(Utl.dim.getList());
-                    suggester.add("ffffff");
-                    suggester.addAll(CUtl.color.presetsSuggester(player));
+                    suggester.addAll(Suggester.dims(current));
+                    suggester.addAll(Suggester.colors(player,current));
                 } else if (Utl.dim.getList().contains(args[3])) {
                     // send <player> <x> (y) (dimension) ((color))
-                    suggester.add("ffffff");
-                    suggester.addAll(CUtl.color.presetsSuggester(player));
+                    suggester.addAll(Suggester.colors(player,current));
                 }
                 return suggester;
             }
@@ -785,26 +758,22 @@ public class Destination {
                 // send <player> (name) <x> (y) <z> ((dimension), (color))
                 if (!Helper.Num.isInt(args[1])) {
                     if (Helper.Num.isInt(args[4])) {
-                        suggester.addAll(Utl.dim.getList());
-                        suggester.add("ffffff");
-                        suggester.addAll(CUtl.color.presetsSuggester(player));
+                        suggester.addAll(Suggester.dims(current));
+                        suggester.addAll(Suggester.colors(player,current));
                     } else if (Utl.dim.getList().contains(args[4])) {
-                        suggester.add("ffffff");
-                        suggester.addAll(CUtl.color.presetsSuggester(player));
+                        suggester.addAll(Suggester.colors(player,current));
                     }
                 }
                 // send <player> <x> (y) <z> (dimension) ((color))
                 if (Helper.Num.isInt(args[1]) && Helper.Num.isInt(args[3]) && Utl.dim.getList().contains(args[4])){
-                    suggester.add("ffffff");
-                    suggester.addAll(CUtl.color.presetsSuggester(player));
+                    suggester.addAll(Suggester.colors(player,current));
                 }
                 return suggester;
             }
             // send <player> (name) <x> (y) <z> (dimension) ((color))
             if (pos == 6) {
                 if (!Helper.Num.isInt(args[1]) && Helper.Num.isInt(args[4]) && Utl.dim.getList().contains(args[5])) {
-                    suggester.addAll(Utl.dim.getList());
-                    suggester.add("ffffff");
+                    suggester.addAll(Suggester.colors(player,current));
                     return suggester;
                 }
             }
@@ -824,7 +793,7 @@ public class Destination {
             }
             if (pos == 1) {
                 if (args[0].equalsIgnoreCase("set"))
-                    suggester.addAll(Helper.Command.Suggester.players(player));
+                    suggester.addAll(Suggester.players(player));
                 if (args[0].equalsIgnoreCase("accept") || args[0].equalsIgnoreCase("deny")) {
                     ArrayList<HashMap<String,Object>> matches = DHUD.inbox.getAllMatches(player, DHUD.inbox.Type.track_request);
                     if (matches==null) return suggester;
@@ -990,7 +959,7 @@ public class Destination {
                 return dest.get(2);
             }
             public void setColor(String color) {
-                dest.set(2,CUtl.color.format(color,dest.get(2)));
+                dest.set(2,CUtl.color.colorHandler(player,color,dest.get(2)));
                 list.set(index,dest);
                 save();
             }
@@ -1059,7 +1028,7 @@ public class Destination {
                 return;
             }
             // format the color
-            color = Helper.Command.Suggester.colorHandler(player,color);
+            color = CUtl.color.colorHandler(player,color);
             Dest dest = new Dest(player,list,Arrays.asList(name,loc.toArray(),color));
             dest.add();
             if (send) {
@@ -1149,12 +1118,8 @@ public class Destination {
                 return;
             }
             // color fixer
-            color = Helper.Command.Suggester.colorHandler(player,color);
-            if (!CUtl.color.checkValid(color,dest.getColor())) {
-                player.sendMessage(CUtl.error("color"));
-                return;
-            }
-            dest.setColor(CUtl.color.format(color));
+            color = CUtl.color.colorHandler(player,color);
+            dest.setColor(color);
             CTxT msg = CUtl.tag().append(lang("saved.set",CTxT.of(name).color(CUtl.s()),lang("saved.color"),CUtl.color.getBadge(color)));
             if (Return) colorUI(player,stepSize,name,msg);
             else player.sendMessage(msg);
@@ -1380,9 +1345,9 @@ public class Destination {
             // add the cooldown
             PlayerData.set.socialCooldown(player,config.socialCooldown.doubleValue());
             // color formatter
-            color = Helper.Command.Suggester.colorHandler(player,color);
+            color = CUtl.color.colorHandler(player,color);
             // get rid of the hashtag for error fixing
-            color = CUtl.color.format(color).substring(1);
+            color = color.substring(1);
             player.sendMessage(CUtl.tag().append(lang("send",CTxT.of(target.getName()).color(CUtl.s()),
                     CTxT.of("\n ").append(getSendBadge(name,loc,color)))));
             target.sendMessage(CUtl.tag().append(lang("send_player",CTxT.of(player.getName()).color(CUtl.s()),getSendTxt(target,name,loc,color))));
@@ -1697,13 +1662,10 @@ public class Destination {
             player.sendMessage(msg);
         }
         public static void setColor(Player player, String setting, Setting type, String color, boolean Return) {
+            // format color
+            color = CUtl.color.colorHandler(player,color,(String)PlayerData.get.dest.setting(player,type));
             CTxT uiType = lang("settings."+type.toString().substring(0,type.toString().length()-6));
-            if (CUtl.color.checkValid(color,(String) PlayerData.get.dest.setting(player,type))) {
-                PlayerData.set.dest.setting(player,type,CUtl.color.format(color));
-            } else {
-                player.sendMessage(CUtl.error("color"));
-                return;
-            }
+            PlayerData.set.dest.setting(player,type,color);
             CTxT msg = CUtl.tag().append(lang("settings.particles.color.set",uiType.toString().toUpperCase(),CUtl.color.getBadge(color)));
             if (Return) colorUI(player,setting,type,msg);
             else player.sendMessage(msg);

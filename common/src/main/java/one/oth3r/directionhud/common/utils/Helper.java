@@ -96,36 +96,77 @@ public class Helper {
     }
     public static class Command {
         public static class Suggester {
-            public static ArrayList<String> xyz(Player player, String type) {
-                ArrayList<String> arr = new ArrayList<>();
-                if (type.equalsIgnoreCase("x")) {
-                    arr.add(String.valueOf(player.getBlockX()));
-                    arr.add(player.getBlockX()+" "+player.getBlockZ());
-                    arr.add(player.getBlockX()+" "+player.getBlockY()+" "+player.getBlockZ());
-                }
-                if (type.equalsIgnoreCase("y")) {
-                    arr.add(String.valueOf(player.getBlockY()));
-                    arr.add(player.getBlockY()+" "+player.getBlockZ());
-                }
-                if (type.equalsIgnoreCase("z")) arr.add(String.valueOf(player.getBlockZ()));
-                return arr;
+            public static String getCurrent(String[] args, int pos) {
+                // if the length is the same as the pos, there's nothing currently being typed at that pos
+                // get the current typed message
+                if (args.length == pos+1) return args[pos];
+                return "";
             }
-            public static List<String> players(Player player) {
+            public static ArrayList<String> xyz(Player player, String current, int type) {
+                // type = 3: all 3, ect
+                ArrayList<String> list = new ArrayList<>();
+                if (type == 3) {
+                    list.add(String.valueOf(player.getBlockX()));
+                    list.add(player.getBlockX()+" "+player.getBlockZ());
+                    list.add(player.getBlockX()+" "+player.getBlockY()+" "+player.getBlockZ());
+                } else if (type == 2) {
+                    list.add(String.valueOf(player.getBlockY()));
+                    list.add(player.getBlockY()+" "+player.getBlockZ());
+                } else if (type == 1) list.add(String.valueOf(player.getBlockZ()));
+                // don't suggest if typing letters or different coordinates
+                if (current.equals("") || (!current.isEmpty() && list.get(0).startsWith(current))) return list;
+                return new ArrayList<>();
+            }
+            public static ArrayList<String> players(Player player) {
                 //get player strings excluding the inputted player
                 ArrayList<String> list = new ArrayList<>();
                 for (Player entry: Utl.getPlayers())
                     if (!entry.equals(player)) list.add(entry.getName());
                 return list;
             }
-            public static String colorHandler(Player player, String color) {
-                return colorHandler(player, color, "#ffffff");
+            public static ArrayList<String> dims(String current) {
+                return dims(current,true);
             }
-            public static String colorHandler(Player player, String color, String defaultColor) {
-                //if color is preset, get the preset color
-                if (color != null && color.contains("preset"))
-                    color = PlayerData.get.colorPresets(player).get(Integer.parseInt(color.substring(7))-1);
-                color = CUtl.color.format(color,defaultColor);
-                return color;
+            public static ArrayList<String> dims(String current, boolean displayEmpty) {
+                ArrayList<String> list = new ArrayList<>();
+                if (!current.equals("") || displayEmpty) {
+                    if (current.equals("")) return (ArrayList<String>) Utl.dim.getList();
+                    for (String dim : Utl.dim.getList()) {
+                        if (dim.contains(current)) list.add(dim);
+                    }
+                }
+                return list;
+            }
+            public static ArrayList<String> colors(Player player, String current) {
+                return colors(player,current,true);
+            }
+            public static ArrayList<String> colors(Player player, String current, boolean displayEmpty) {
+                ArrayList<String> list = new ArrayList<>();
+                ArrayList<String> presets = new ArrayList<>();
+                int i = 1;
+                for (String s : PlayerData.get.colorPresets(player)) {
+                    if (!s.equals("#ffffff")) presets.add("preset-"+(i));
+                    i++;
+                }
+                // displaying logic, if not empty and not display empty or empty and display empty
+                if (!current.equals("") || displayEmpty) {
+                    list.add("ffffff");
+                    if (!presets.isEmpty()) {
+                        list.add("preset");
+                        if (current.contains("preset")) {
+                            list.addAll(presets);
+                            return list;
+                        }
+                    }
+                    list.add("red");
+                    list.add("orange");
+                    list.add("yellow");
+                    list.add("green");
+                    list.add("blue");
+                    list.add("purple");
+                    list.add("gray");
+                }
+                return list;
             }
         }
         public static String[] quoteHandler(String[] args) {
@@ -154,7 +195,7 @@ public class Helper {
         }
     }
     public static String createID() {
-        //spigot not having apache smh smh
+        //spigot not having apache smh my head
         String CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
         Random random = new Random();
         StringBuilder sb = new StringBuilder(8);

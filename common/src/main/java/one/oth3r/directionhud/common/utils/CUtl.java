@@ -213,6 +213,14 @@ public class CUtl {
         }
     }
     public static class color {
+        public static final List<String> DEFAULT_COLORS = List.of(
+                "#ff5757","#d40000","#900000",
+                "#ffa562","#ff9834","#e77400",
+                "#ffff86","#ffff5b","#f9c517",
+                "#9aff9a","#5dc836","#396a30",
+                "#8ddfff","#0099ff","#004995",
+                "#a38cff","#8c04dd","#5c00a7",
+                "#d9d9d9","#808080","#404040");
         public static String updateOld(String string,String defaultColor) {
             if (string.equals("red")) return "#FF5555";
             if (string.equals("dark_red")) return "#AA0000";
@@ -243,17 +251,6 @@ public class CUtl {
                 return !color.equals(current);
             }
             return true;
-        }
-        public static ArrayList<String> presetsSuggester(Player player) {
-            //for every preset that isn't white, add it to the suggester
-            // format: preset-#
-            ArrayList<String> list = new ArrayList<>();
-            int i = 0;
-            for (String s : PlayerData.get.colorPresets(player)) {
-                if (!s.equals("#ffffff")) list.add("preset-"+(i+1));
-                i++;
-            }
-            return list;
         }
         public static String format(String hex, String defaultColor) {
             if (hex == null) return format(defaultColor);
@@ -309,13 +306,7 @@ public class CUtl {
             if (type.equals("default")) {
                 defaultBtn.color(Assets.mainColors.gray).cEvent(1,null).hEvent(null);
                 colorStrings = List.of("red","orange","yellow","green","blue","purple","gray");
-                colors = List.of("#ff5757","#d40000","#900000",
-                        "#ffa562","#ff9834","#e77400",
-                        "#ffff86","#ffff5b","#f9c517",
-                        "#9aff9a","#5dc836","#396a30",
-                        "#8ddfff","#0099ff","#004995",
-                        "#a38cff","#8c04dd","#5c00a7",
-                        "#d9d9d9","#808080","#404040");
+                colors = DEFAULT_COLORS;
                 rowAmt = 3;
             } else {
                 minecraftBtn.color(Assets.mainColors.gray).cEvent(1,null).hEvent(null);
@@ -451,6 +442,26 @@ public class CUtl {
                     .append(hsbList.get(2)).append(" ").append(defaultSquare).append(" ").append(hsbList.get(3)).append(" ").append(lang("color.saturation")).append("\n  ")
                     .append(hsbList.get(4)).append(" ").append(defaultSquare).append(" ").append(hsbList.get(5)).append(" ").append(lang("color.brightness")).append("\n\n ")
                     .append(smallButton).append(" ").append(normalButton).append(" ").append(bigButton);
+        }
+        public static String colorHandler(Player player, String color) {
+            return colorHandler(player, color, "#ffffff");
+        }
+        public static String colorHandler(Player player, String color, String defaultColor) {
+            //if color is preset, get the preset color
+            if (color != null && color.contains("preset"))
+                color = PlayerData.get.colorPresets(player).get(Integer.parseInt(color.substring(7))-1);
+            if (color != null)
+                switch (color.toLowerCase()) {
+                    case "red" -> color = DEFAULT_COLORS.get(1);
+                    case "orange" -> color = DEFAULT_COLORS.get(4);
+                    case "yellow" -> color = DEFAULT_COLORS.get(7);
+                    case "green" -> color = DEFAULT_COLORS.get(10);
+                    case "blue" -> color = DEFAULT_COLORS.get(13);
+                    case "purple" -> color = DEFAULT_COLORS.get(16);
+                    case "gray" -> color = DEFAULT_COLORS.get(19);
+                }
+            color = format(color,defaultColor);
+            return color;
         }
     }
 }
