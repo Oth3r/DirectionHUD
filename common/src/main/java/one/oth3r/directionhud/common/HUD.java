@@ -369,8 +369,9 @@ public class HUD {
         ArrayList<String> distance = new ArrayList<>();
         ArrayList<String> tracking = getTrackingModule(player);
         if (Destination.get(player).hasXYZ()) {
-            destination.add("pDEST: ");
+            destination.add("p[");
             destination.add("s"+ Destination.get(player).getXYZ());
+            destination.add("p]");
             distance.add("p[");
             distance.add("s"+ Destination.getDist(player));
             distance.add("p]");
@@ -783,8 +784,9 @@ public class HUD {
                         .append(color.addColor(player,"0",2,35,20))
                         .append(color.addColor(player,"]",1,55,20));
             if (module.equals(Module.destination))
-                info.append(color.addColor(player,"DEST: ",1,15,20))
-                        .append(color.addColor(player,"0 0 0",2,115,20));
+                info.append(color.addColor(player,"[",1,15,20))
+                        .append(color.addColor(player,"0 0 0",2,35,20))
+                        .append(color.addColor(player,"]",1,95,20));
             if (module.equals(Module.direction))
                 info.append(color.addColor(player,"N",1,15,20));
             if (module.equals(Module.tracking)) {
