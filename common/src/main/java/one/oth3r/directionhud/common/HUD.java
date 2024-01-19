@@ -1130,7 +1130,7 @@ public class HUD {
             // if there's something in module the command 'end's in module, to return to the module command instead of the settings command
             CTxT button = CTxT.of("");
             if (type.equals(Setting.state)) {
-                button.append(CUtl.toggleBtn((boolean) PlayerData.get.hud.setting(player,type),"/hud settings set "+type+"-r ")).append(" ");
+                button.append(CUtl.toggleBtn((boolean) PlayerData.get.hud.setting(player,type),"/hud settings set-r "+type+" ")).append(" ");
             }
             if (type.equals(Setting.type)) {
                 Setting.DisplayType nextType = Setting.DisplayType.valueOf((String) PlayerData.get.hud.setting(player,type)).next();
