@@ -362,7 +362,7 @@
   "key.directionhud.hud.settings.bossbar.distance_max.hover_2": "(The countdown will begin from the number entered | 0 = auto)",
   "key.directionhud.hud.settings.module": "Module",
   "key.directionhud.hud.settings.module.time_24hr": "Clock Type",
-  "key.directionhud.hud.settings.module.time_24hr.info": "Changes the clock type.",
+  "key.directionhud.hud.settings.module.time_24hr.info": "Changes the clock display type.",
   "key.directionhud.hud.settings.module.time_24hr.set": "Set the clock type to %s!",
   "key.directionhud.hud.settings.module.time_24hr.hover": "Click to change the clock type to %s.",
   "key.directionhud.hud.settings.module.time_24hr.on": "24HR",

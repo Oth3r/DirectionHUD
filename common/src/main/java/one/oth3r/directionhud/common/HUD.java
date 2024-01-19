@@ -708,7 +708,10 @@ public class HUD {
                 Setting type = Setting.module__time_24hr;
                 boolean state = (boolean) PlayerData.get.hud.setting(player,type);
                 button.append(lang("settings."+type+"."+(state?"on":"off")).btn(true).color(CUtl.s())
-                        .hEvent(lang("settings."+type+".hover",lang("settings."+type+"."+(state?"off":"on")).color(CUtl.s())))
+                        .hEvent(CTxT.of("")
+                                .append(lang("settings."+type).color('e')).append("\n")
+                                .append(lang("settings."+type+".info").color('7')).append("\n\n")
+                                .append(lang("settings."+type+".hover",lang("settings."+type+"."+(state?"off":"on")).color(CUtl.s()))))
                         .cEvent(1,"/hud settings set-m "+type+" "+(state?"off":"on")));
             }
             if (module.equals(Module.tracking)) {
