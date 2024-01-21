@@ -174,6 +174,7 @@ public class Helper {
             boolean quote = false;
             ArrayList<String> output = new ArrayList<>();
             for (String s : args) {
+                s = s.replaceAll("\\\\",""); // remove all "\" with empty
                 int lastIndex = output.size()-1;
                 if (s.contains("\"")) {
                     // count how many quotes there are
