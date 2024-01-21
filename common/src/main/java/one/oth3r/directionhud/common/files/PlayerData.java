@@ -247,7 +247,7 @@ public class PlayerData {
             map.put("hud",hud);
         }
         if (map.get("version").equals(1.6)) {
-            map.put("version",1.70); // todo this
+            map.put("version",1.7);
             Map<String,Object> hud = (Map<String, Object>) map.get("hud");
             // new hud module settings
             Map<String,Object> hudSetting = (Map<String, Object>) hud.get("setting");
