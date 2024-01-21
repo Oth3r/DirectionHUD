@@ -288,6 +288,10 @@ public class HUD {
                 switch (command) {
                     case "modules" -> suggester.addAll(modulesCMD(player,fixedPos,trimmedArgs));
                     case "settings" -> suggester.addAll(settingsCMD(fixedPos,trimmedArgs));
+                    case "color" -> {
+                        if (fixedPos == 3 && trimmedArgs[0].equalsIgnoreCase("set"))
+                            suggester.addAll(Helper.Command.Suggester.colors(player, Helper.Command.Suggester.getCurrent(trimmedArgs,fixedPos),true));
+                    }
                 }
             }
             return suggester;
@@ -892,12 +896,8 @@ public class HUD {
         }
         public static void setColor(Player player, String setting, String type, String color, boolean Return) {
             int typ = type.equals("primary")?1:2;
-            if (CUtl.color.checkValid(color,getHUDColor(player,typ))) {
-                PlayerData.set.hud.color(player,typ,CUtl.color.format(color)+"-"+getHUDBold(player,typ)+"-"+getHUDItalics(player,typ)+"-"+getHUDRGB(player,typ));
-            } else {
-                player.sendMessage(CUtl.error("error.color"));
-                return;
-            }
+            color = CUtl.color.colorHandler(player,color,config.hud.primary.Color);
+            PlayerData.set.hud.color(player,typ,CUtl.color.format(color)+"-"+getHUDBold(player,typ)+"-"+getHUDItalics(player,typ)+"-"+getHUDRGB(player,typ));
             CTxT msg = CUtl.tag().append(lang("color.set",lang("color."+type),CUtl.color.getBadge(color)));
             if (Return) changeUI(player,setting, type,msg);
             else player.sendMessage(msg);
