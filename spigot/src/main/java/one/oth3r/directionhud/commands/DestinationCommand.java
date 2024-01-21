@@ -19,7 +19,7 @@ public class DestinationCommand implements CommandExecutor, TabCompleter {
         }
         Player player = Player.of(plr);
         assert player != null;
-        Destination.commandExecutor.logic(player,args);
+        Destination.commandExecutor.logic(player,Helper.Command.quoteHandler(args));
         return true;
     }
     @Override
@@ -29,6 +29,6 @@ public class DestinationCommand implements CommandExecutor, TabCompleter {
             return new ArrayList<>();
         }
         Player player = Player.of(plr);
-        return Destination.commandSuggester.logic(player,pos,args);
+        return Destination.commandSuggester.logic(player,pos,Helper.Command.quoteHandler(args));
     }
 }

@@ -17,7 +17,7 @@ public class HUDCommand implements CommandExecutor, TabCompleter {
             return true;
         }
         Player player = Player.of(plr);
-        HUD.commandExecutor.logic(player,args);
+        HUD.commandExecutor.logic(player,Helper.Command.quoteHandler(args));
         return true;
     }
     @Override
@@ -27,6 +27,6 @@ public class HUDCommand implements CommandExecutor, TabCompleter {
             return new ArrayList<>();
         }
         Player player = Player.of(plr);
-        return HUD.commandSuggester.logic(player,pos,args);
+        return HUD.commandSuggester.logic(player,pos,Helper.Command.quoteHandler(args));
     }
 }

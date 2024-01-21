@@ -56,7 +56,7 @@ public class DestinationCommand {
         String[] args = context.getInput().split(" ");
         if (pos > args.length) return builder.buildFuture();
         args = Helper.trimStart(args,1);
-        for (String s : Destination.commandSuggester.logic(player,pos, args)) builder.suggest(s);
+        for (String s : Destination.commandSuggester.logic(player,pos,Helper.Command.quoteHandler(args))) builder.suggest(s);
         return builder.buildFuture();
     }
     private static int command(ServerCommandSource source, String arg) {
@@ -81,7 +81,7 @@ public class DestinationCommand {
         if (args[0].equalsIgnoreCase("dest") || args[0].equalsIgnoreCase("destination")) {
             args = new String[0];
         }
-        Destination.commandExecutor.logic(player,args);
+        Destination.commandExecutor.logic(player,Helper.Command.quoteHandler(args));
         return 1;
     }
 }

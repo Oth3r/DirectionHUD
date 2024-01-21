@@ -56,7 +56,7 @@ public class DHUDCommand {
         String[] args = context.getInput().split(" ");
         if (pos > args.length) return builder.buildFuture();
         args = Helper.trimStart(args,1);
-        for (String s : DHUD.commandSuggester.logic(player,pos, args)) builder.suggest(s);
+        for (String s : DHUD.commandSuggester.logic(player,pos,Helper.Command.quoteHandler(args))) builder.suggest(s);
         return builder.buildFuture();
     }
     private static int command(ServerCommandSource source, String arg) {
@@ -83,7 +83,7 @@ public class DHUDCommand {
         Player player = Player.of(spe);
         if (args[0].equalsIgnoreCase("dhud") || args[0].equalsIgnoreCase("directionhud"))
             args = new String[0];
-        DHUD.commandExecutor.logic(player,args);
+        DHUD.commandExecutor.logic(player,Helper.Command.quoteHandler(args));
         return 1;
     }
 }

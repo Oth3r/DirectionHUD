@@ -20,7 +20,7 @@ public class DHUDCommand implements CommandExecutor, TabCompleter {
             return true;
         }
         Player player = Player.of(plr);
-        DHUD.commandExecutor.logic(player,args);
+        DHUD.commandExecutor.logic(player,Helper.Command.quoteHandler(args));
         return true;
     }
     @Override
@@ -30,6 +30,6 @@ public class DHUDCommand implements CommandExecutor, TabCompleter {
             return new ArrayList<>();
         }
         Player player = Player.of(plr);
-        return DHUD.commandSuggester.logic(player,pos,args);
+        return DHUD.commandSuggester.logic(player,pos,Helper.Command.quoteHandler(args));
     }
 }
