@@ -114,6 +114,7 @@ public class Destination {
                 default -> player.sendMessage(CUtl.error("command"));
             }
         }
+        //todo dest color recode
         public static void colorCMD(Player player, String[] args) {
             if (args.length >= 3 && args[0].equals("preset")) {
                 if (args[1].equals("add") && args.length == 4) {
@@ -122,14 +123,14 @@ public class Destination {
             }
             if (args.length >= 3 && args[0].equals("preset_s")) {
                 if (args[1].equals("add") && args.length == 4) {
-                    CUtl.color.customAddUI(player, new saved.Dest(player,saved.getList(player),args[3]).getColor(),"/dest saved edit colorui "+args[3]+" "+args[2]);
-                } else CUtl.color.presetUI(player,"default","/dest color set_s "+args[1]+" "+args[2]+" ","/dest saved edit colorui "+args[2]+" "+args[1]);
+                    CUtl.color.customAddUI(player, new saved.Dest(player,saved.getList(player),args[3]).getColor(),"/dest saved edit colorui \""+args[3]+"\" "+args[2]);
+                } else CUtl.color.presetUI(player,"default","/dest color set_s "+args[1]+" \""+args[2]+"\" ","/dest saved edit colorui \""+args[2]+"\" "+args[1]);
             }
             if (args.length == 4 && args[0].equals("set")) {
                 settings.setColor(player,args[1], Setting.get(args[2]),args[3],true);
             }
             if (args.length == 4 && args[0].equals("set_s")) {
-                saved.setColor(player,saved.getList(player),args[1],args[2],args[3],true);
+                saved.setColor(player,saved.getList(player),args[1],"\""+args[2]+"\"",args[3],true);
             }
         }
         public static void setCMD(Player player, String[] args) {
@@ -513,7 +514,7 @@ public class Destination {
             ArrayList<String> suggester = new ArrayList<>();
             // add <name> <x> (y) <z> (dim) (color)
             if (pos == 0) {
-                suggester.add("name");
+                suggester.add("\"name\"");
                 return suggester;
             }
             // add <name> (<x> (dim) (color))
@@ -559,7 +560,7 @@ public class Destination {
             }
             // global delete
             if (args[0].equalsIgnoreCase("delete")) {
-                if (pos == 1) suggester.addAll(saved.getNames(GlobalDest.dests));
+                if (pos == 1) suggester.addAll(saved.getCMDNames(GlobalDest.dests));
             }
             // saved add
             if (args[0].equalsIgnoreCase("add")) {
@@ -591,12 +592,12 @@ public class Destination {
             if (args[0].contains("-r")) args[0] = args[0].replace("-r","");
             // saved delete
             if (args[0].equalsIgnoreCase("delete")) {
-                if (pos == 1) suggester.addAll(saved.getNames(saved.getList(player)));
+                if (pos == 1) suggester.addAll(saved.getCMDNames(saved.getList(player)));
             }
             // saved send
             if (args[0].equalsIgnoreCase("send")) {
                 // saved send (name)
-                if (pos == 1) suggester.addAll(saved.getNames(saved.getList(player)));
+                if (pos == 1) suggester.addAll(saved.getCMDNames(saved.getList(player)));
                 if (pos != 2) return suggester;
                 // saved send name (player)
                 for (Player s : Utl.getPlayers()) {
@@ -627,7 +628,7 @@ public class Destination {
                 return suggester;
             }
             // saved edit type (name)
-            if (pos == 1) suggester.addAll(saved.getNames(list));
+            if (pos == 1) suggester.addAll(saved.getCMDNames(list));
             // saved edit type name (<arg>)
             if (args[0].equalsIgnoreCase("location")) {
                 if (pos == 2) {
@@ -646,8 +647,8 @@ public class Destination {
             }
             if (pos == 2) {
                 if (args[0].equalsIgnoreCase("name")) {
-                    suggester.add("name");
-                    suggester.add(new saved.Dest(player,list,args[1]).getName()); // current name to edit
+                    suggester.add("\"name\"");
+                    suggester.add("\""+new saved.Dest(player,list,args[1]).getName()+"\""); // current name to edit
                 }
                 if (args[0].equalsIgnoreCase("color"))
                     suggester.addAll(Suggester.colors(player,current));
@@ -670,9 +671,9 @@ public class Destination {
             // set <saved, global, x> ((name) (y))
             if (pos == 1) {
                 if (args[0].equalsIgnoreCase("saved") && Utl.checkEnabled.saving(player))
-                    suggester.addAll(saved.getNames(saved.getList(player)));
+                    suggester.addAll(saved.getCMDNames(saved.getList(player)));
                 else if (args[0].equalsIgnoreCase("global") && config.globalDESTs)
-                    suggester.addAll(saved.getNames(GlobalDest.dests));
+                    suggester.addAll(saved.getCMDNames(GlobalDest.dests));
                 else suggester.addAll(Suggester.xyz(player,current,2));
             }
             // set <saved> <name> ((convert))
@@ -713,7 +714,7 @@ public class Destination {
             if (pos == 1) {
                 if (Utl.checkEnabled.saving(player)) suggester.add("saved");
                 suggester.addAll(Suggester.xyz(player,current,3));
-                suggester.add("name");
+                suggester.add("\"name\"");
                 return suggester;
             }
             // send <player> <saved> (<name>)
@@ -721,7 +722,7 @@ public class Destination {
             // send <player> <x> ((y))
             if (pos == 2) {
                 if (args[1].equalsIgnoreCase("saved") && Utl.checkEnabled.saving(player)) {
-                    suggester.addAll(saved.getNames(saved.getList(player)));
+                    suggester.addAll(saved.getCMDNames(saved.getList(player)));
                     return suggester;
                 }
                 if (!Helper.Num.isInt(args[1])) return Suggester.xyz(player,current,3);
@@ -939,6 +940,9 @@ public class Destination {
             public String getName() {
                 return dest==null?"":dest.get(0);
             }
+            public String getCMDName() {
+                return dest==null?"":"\""+dest.get(0)+"\"";
+            }
             public void setName(String name) {
                 name = name.replace(" ","");
                 if (name.length() > MAX_NAME) name = name.substring(0,MAX_NAME);
@@ -990,6 +994,12 @@ public class Destination {
             // get the local destination list
             return PlayerData.get.dest.saved(player);
         }
+        public static List<String> getCMDNames(List<List<String>> list) {
+            List<String> names = getNames(list);
+            List<String> formatted = new ArrayList<>();
+            for (String name:names) formatted.add("\""+name+"\"");
+            return formatted;
+        }
         public static List<String> getNames(List<List<String>> list) {
             // get all name from a destination list
             List<String> all = new ArrayList<>();
@@ -1032,12 +1042,13 @@ public class Destination {
             Dest dest = new Dest(player,list,Arrays.asList(name,loc.toArray(),color));
             dest.add();
             if (send) {
+                String cmdName = dest.getCMDName();
                 CTxT buttons = CTxT.of(" ");
                 // there's no editing UI for global dests
-                if (!dest.global) buttons.append(CUtl.CButton.dest.edit(1,"/dest saved edit " + name)).append(" ");
-                buttons.append(CUtl.CButton.dest.set("/dest set saved "+name));
+                if (!dest.global) buttons.append(CUtl.CButton.dest.edit(1,"/dest saved edit "+cmdName)).append(" ");
+                buttons.append(CUtl.CButton.dest.set("/dest set saved "+cmdName));
                 if (Utl.dim.canConvert(player.getDimension(),loc.getDIM()))
-                    buttons.append(" ").append(CUtl.CButton.dest.convert("/dest set saved "+name+" convert"));
+                    buttons.append(" ").append(CUtl.CButton.dest.convert("/dest set saved "+cmdName+" convert"));
                 player.sendMessage(CUtl.tag().append(lang("saved.add",loc.getBadge(name,color).append(buttons))));
             }
         }
@@ -1073,7 +1084,7 @@ public class Destination {
             }
             dest.setName(newName);
             player.sendMessage(CUtl.tag().append(lang("saved.set",CTxT.of(name).color(CUtl.s()),lang("saved.name"),CTxT.of(newName).color(CUtl.s()))));
-            if (Return) player.performCommand("dest saved edit "+newName);
+            if (Return) player.performCommand("dest saved edit "+dest.getCMDName());
         }
         public static void editOrder(boolean Return, Player player,List<List<String>> list, String name, String orderNumber) {
             Dest dest = new Dest(player,list,name);
@@ -1131,34 +1142,35 @@ public class Destination {
                 if (send) player.sendMessage(CUtl.error("dest.invalid"));
                 return;
             }
+            String cmdName = dest.getCMDName();
             CTxT msg = CTxT.of(" ");
             msg.append(lang("ui.saved.edit").color(Assets.mainColors.saved)).append(CUtl.LARGE).append("\n");
             msg
                     .append(" ").append(CTxT.of("#"+dest.getOrder()).btn(true).color(CUtl.p())
                             .hEvent(CUtl.TBtn("order.hover").color(CUtl.p()))
-                            .cEvent(2,"/dest saved edit-r order "+name+" "))
+                            .cEvent(2,"/dest saved edit-r order "+cmdName+" "))
                     .append(" ").append(CTxT.of(name).btn(true).color(CUtl.s())
                             .hEvent(CUtl.TBtn("dest.saved.name.hover").color(CUtl.s()))
-                            .cEvent(2,"/dest saved edit-r name "+name+" "))
+                            .cEvent(2,"/dest saved edit-r name "+cmdName+" "))
                     .append(" ").append(CTxT.of(Assets.symbols.square).btn(true).color(dest.getColor())
                             .hEvent(CUtl.TBtn("dest.saved.color.hover").color(dest.getColor()))
-                            .cEvent(1, "/dest saved edit colorui "+name))
-                    .append("\n\n ").append(CUtl.CButton.dest.edit(2,"/dest saved edit location " +name+ " ")).append(" ").append(CTxT.of(dest.getLoc().getBadge()))
+                            .cEvent(1, "/dest saved edit colorui "+cmdName))
+                    .append("\n\n ").append(CUtl.CButton.dest.edit(2,"/dest saved edit location "+cmdName+ " ")).append(" ").append(CTxT.of(dest.getLoc().getBadge()))
                     .append("\n   ");
             //SEND BUTTON
             if (Utl.checkEnabled.send(player)) {
-                msg.append(CUtl.TBtn("dest.send").btn(true).color(Assets.mainColors.send).cEvent(2,"/dest saved send "+name+" ")
-                        .hEvent(CTxT.of("/dest saved send "+name+" <player>").color(Assets.mainColors.send)
+                msg.append(CUtl.TBtn("dest.send").btn(true).color(Assets.mainColors.send).cEvent(2,"/dest saved send "+cmdName+" ")
+                        .hEvent(CTxT.of("/dest saved send "+cmdName+" <player>").color(Assets.mainColors.send)
                                 .append("\n").append(CUtl.TBtn("dest.send.hover_saved")))).append(" ");
             }
             //SET BUTTON
-            msg.append(CUtl.CButton.dest.set("/dest set saved " +name)).append(" ");
+            msg.append(CUtl.CButton.dest.set("/dest set saved "+cmdName)).append(" ");
             //CONVERT
             if (Utl.dim.canConvert(player.getDimension(),dest.getLoc().getDIM()))
-                msg.append(CUtl.CButton.dest.convert("/dest set saved " +name+ " convert"));
+                msg.append(CUtl.CButton.dest.convert("/dest set saved " +cmdName+ " convert"));
             msg.append("\n\n ")
                     //DELETE
-                    .append(CUtl.TBtn("delete").btn(true).color('c').cEvent(2,"/dest saved delete-r "+name)
+                    .append(CUtl.TBtn("delete").btn(true).color('c').cEvent(2,"/dest saved delete-r "+cmdName)
                             .hEvent(CUtl.TBtn("delete.hover_dest").color('c'))).append(" ")
                     //BACK
                     .append(CUtl.CButton.back("/dest saved "+pageHelper.getPageOf(dest.getDest())))
@@ -1173,19 +1185,20 @@ public class Destination {
             CTxT msg = CTxT.of("");
             if (aboveMSG != null) msg.append(aboveMSG).append("\n");
             msg.append(" ").append(uiType).append(CTxT.of("\n                               \n").strikethrough(true));
-            CTxT back = CUtl.CButton.back("/dest saved edit "+name);
+            String cmdName = dest.getCMDName();
+            CTxT back = CUtl.CButton.back("/dest saved edit "+cmdName);
             CTxT presetsButton = CTxT.of("")
-                    .append(CTxT.of("+").btn(true).color('a').cEvent(1,"/dest color preset_s add "+stepSize+" "+name)
+                    .append(CTxT.of("+").btn(true).color('a').cEvent(1,"/dest color preset_s add "+stepSize+" "+cmdName)
                             .hEvent(CUtl.TBtn("color.presets.add.hover",CUtl.TBtn("color.presets.add.hover_2").color(currentColor))))
                     .append(CUtl.TBtn("color.presets").color(Assets.mainColors.presets)
-                            .cEvent(1,"/dest color preset_s "+stepSize+" "+name).btn(true)
+                            .cEvent(1,"/dest color preset_s "+stepSize+" "+cmdName).btn(true)
                             .hEvent(CUtl.TBtn("color.presets.hover",CUtl.TBtn("color.presets.hover_2").color(Assets.mainColors.presets))));
             CTxT customButton = CUtl.TBtn("color.custom").btn(true).color(Assets.mainColors.custom)
-                    .cEvent(2,"/dest saved edit-r color "+name+" ")
+                    .cEvent(2,"/dest saved edit-r color "+cmdName+" ")
                     .hEvent(CUtl.TBtn("color.custom.hover",CUtl.TBtn("color.custom.hover_2").color(Assets.mainColors.custom)));
             msg.append(" ")
                     .append(presetsButton).append(" ").append(customButton).append("\n\n")
-                    .append(CUtl.color.colorEditor(currentColor,stepSize,"/dest color set_s "+stepSize+" "+name+" ","/dest saved edit colorui "+name+" big"))
+                    .append(CUtl.color.colorEditor(currentColor,stepSize,"/dest color set_s "+stepSize+" "+cmdName+" ","/dest saved edit colorui "+cmdName+" big"))
                     .append("\n\n           ").append(back)
                     .append(CTxT.of("\n                               ").strikethrough(true));
             player.sendMessage(msg);
@@ -1204,12 +1217,12 @@ public class Destination {
                 msg.append(" ")//BADGE
                         .append(dest.getLoc().getBadge(dest.getName(),dest.getColor())).append(" ")
                         //EDIT
-                        .append(CUtl.CButton.dest.edit(1,"/dest saved edit " + dest.getName())).append(" ")
+                        .append(CUtl.CButton.dest.edit(1,"/dest saved edit " + dest.getCMDName())).append(" ")
                         //SET
-                        .append(CUtl.CButton.dest.set("/dest set saved " + dest.getName()));
+                        .append(CUtl.CButton.dest.set("/dest set saved " + dest.getCMDName()));
                 //CONVERT
                 if (Utl.dim.canConvert(player.getDimension(), dest.getLoc().getDIM()))
-                    msg.append(" ").append(CUtl.CButton.dest.convert("/dest set saved " + dest.getName() + " convert"));
+                    msg.append(" ").append(CUtl.CButton.dest.convert("/dest set saved " + dest.getCMDName() + " convert"));
                 msg.append("\n");
             }
             // no saved
