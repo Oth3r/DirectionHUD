@@ -185,9 +185,9 @@ public class config {
             LangReader.loadLanguageFile();
             Utl.dim.loadConfig();
             save();
-        } catch (Exception f) {
-            //read fail
-            f.printStackTrace();
+        } catch (Exception e) {
+            DirectionHUD.LOGGER.info("ERROR READING CONFIG - PLEASE REPORT WITH THE ERROR LOG");
+            DirectionHUD.LOGGER.error(e.getStackTrace());
         }
     }
     public static void loadVersion(Properties properties, float version) {
@@ -333,7 +333,7 @@ public class config {
                 hud.Tracking = Boolean.parseBoolean((String) properties.computeIfAbsent("compass", a -> String.valueOf(hud.defaults.Tracking)));
         } catch (Exception e) {
             DirectionHUD.LOGGER.info("ERROR LOADING CONFIG - PLEASE REPORT WITH THE ERROR LOG");
-            e.printStackTrace();
+            DirectionHUD.LOGGER.error(e.getStackTrace());
         }
     }
     public static void save() {
@@ -467,8 +467,8 @@ public class config {
             file.write("\n# "+CUtl.lang("config.dest.settings.features.track_request_mode.options").toString());
             file.write("\ndest.settings.features.lastdeath=" + dest.Lastdeath);
         } catch (Exception e) {
-            DirectionHUD.LOGGER.info("ERROR WRITING CONFIG!");
-            e.printStackTrace();
+            DirectionHUD.LOGGER.info("ERROR WRITING CONFIG - PLEASE REPORT WITH THE ERROR LOG");
+            DirectionHUD.LOGGER.error(e.getStackTrace());
         }
     }
 }
