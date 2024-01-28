@@ -64,63 +64,6 @@ public class CUtl {
     public static CTxT TBtn(String key, Object... args) {
         return lang("button."+key,args);
     }
-    public static class PageHelper<T> {
-        //helper for things that have pages??
-        private ArrayList<T> list;
-        private int perPage;
-        public PageHelper(ArrayList<T> list, int perPage) {
-            this.list = list;
-            this.perPage = perPage;
-        }
-        public int getTotalPages() {
-            // get max pages, min = 1
-            return Math.max(1,(int) Math.ceil((double) list.size() / perPage));
-        }
-        public ArrayList<T> getList() {
-            return list;
-        }
-        public int getPageOf(T item) {
-            // get the quotient of the index and the amount of items per page rounded to the next integer to get page of the current item
-            if (list.contains(item)) return (int) Math.ceil((double) (list.indexOf(item) + 1) / perPage);
-            else return 1;
-        }
-        public int getIndexOf(T item) {
-            return list.indexOf(item);
-        }
-        public ArrayList<T> getPage(int page) {
-            //return a list with the entries in the page given
-            int max = getTotalPages();
-            if (max < page) page = max;
-            if (page <= 0) page = 1;
-            ArrayList<T> pageList = new ArrayList<>();
-            // loop for amount per page
-            for (int i = 0;i < perPage;i++) {
-                // get the current index, (page-1) * amt per page + current page index
-                int index = (page-1)*perPage+i;
-                if (list.size() > index) pageList.add(list.get(index));
-            }
-            return pageList;
-        }
-        public CTxT getNavButtons(int page, String command) {
-            // return the buttons to change page
-            int max = getTotalPages();
-            if (page > max) page = max;
-            if (page < 2) page = 1;
-            CTxT left = CTxT.of("");
-            CTxT right = CTxT.of("");
-            // if at the start left is gray else not
-            if (page==1) left.append(CTxT.of("<<").btn(true).color('7'));
-            else left.append(CTxT.of("<<").btn(true).color(s()).cEvent(1,command+(page-1)));
-            // if at the end right is gray else not
-            if (page==max) right.append(CTxT.of(">>").btn(true).color('7'));
-            else right.append(CTxT.of(">>").btn(true).color(s()).cEvent(1,command+(page+1)));
-            // build and return
-            return CTxT.of("")
-                    .append(left).append(" ")
-                    .append(CTxT.of(String.valueOf(page)).btn(true).color(p()).cEvent(2,command).hEvent(TBtn("page.set").color(p())))
-                    .append(" ").append(right);
-        }
-    }
     public static class CButton {
         public static CTxT back(String cmd) {
             return TBtn("back").btn(true).color(Assets.mainColors.back).cEvent(1,cmd).hEvent(CTxT.of(cmd).color(Assets.mainColors.back).append("\n").append(TBtn("back.hover")));
