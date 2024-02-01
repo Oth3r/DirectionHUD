@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import one.oth3r.directionhud.DirectionHUD;
+import one.oth3r.directionhud.common.DHUD;
 import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.utils.CUtl;
@@ -265,6 +266,8 @@ public class PlayerData {
             hudModule.put("angle",config.hud.Angle);
             map.put("module",hudModule);
             map.put("hud",hud);
+            // new preset system
+            map.put("color_presets", DHUD.preset.custom.update((ArrayList<String>) map.get("color_presets")));
         }
         return map;
     }
@@ -331,7 +334,7 @@ public class PlayerData {
             destination.put("lastdeath", new ArrayList<String>());
             destination.put("tracking", null);
             //base
-            map.put("version", 1.6);
+            map.put("version", 1.7);
             map.put("name", player.getName());
             map.put("hud", hud);
             map.put("destination", destination);

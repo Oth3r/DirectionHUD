@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.Assets;
+import one.oth3r.directionhud.common.DHUD;
 import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.utils.CUtl;
@@ -131,7 +132,7 @@ public class config {
         public static String TrackingRequestMode = defaults.TrackingRequestMode;
     }
     public static class defaults {
-        public static final float version = 1.4f;
+        public static final float version = 1.5f;
         public static final String lang = "en_us";
         public static final int MAXy = 512;
         public static final int MAXxz = 30000000;
@@ -146,7 +147,8 @@ public class config {
         public static final int HUDLoop = 1;
         public static final int ParticleLoop = 20;
         public static final boolean globalDESTs = false;
-        public static final List<String> colorPresets = List.of("#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff");
+        public static final int MAXColorPresets = 14; // todo saving and loading
+        public static final List<String> colorPresets = new ArrayList<>();
         public static final List<String> dimensions = Utl.dim.DEFAULT_DIMENSIONS;
         public static final List<String> dimensionRatios = Utl.dim.DEFAULT_RATIOS;
     }
@@ -164,6 +166,7 @@ public class config {
     public static int HUDLoop = defaults.HUDLoop;
     public static int ParticleLoop = defaults.ParticleLoop;
     public static boolean globalDESTs = defaults.globalDESTs;
+    public static int MAXColorPresets = defaults.MAXColorPresets;
     public static List<String> colorPresets = defaults.colorPresets;
     public static List<String> dimensions = defaults.dimensions;
     public static List<String> dimensionRatios = defaults.dimensionRatios;
@@ -278,6 +281,10 @@ public class config {
             dest.TrackingRequestMode = Destination.Setting.TrackingRequestMode.get((String) properties.computeIfAbsent("dest.settings.features.track_request_mode", a -> dest.defaults.TrackingRequestMode)).toString();
             dest.Lastdeath = Boolean.parseBoolean((String) properties.computeIfAbsent("dest.settings.features.lastdeath", a -> String.valueOf(dest.defaults.Lastdeath)));
             // CONFIG UPDATER, if the version is lower than the current, load from the old config
+            if (version <= 1.4f) {
+                colorPresets = DHUD.preset.custom.update(
+                        new Gson().fromJson((String)properties.computeIfAbsent("color-presets",a->gson.toJson(new ArrayList<>())),arrayListMap));
+            }
             // everything before & 1.3
             if (version <= 1.3f) {
                 DestMAX = Integer.parseInt((String) properties.computeIfAbsent("destination-max-saved", a -> String.valueOf(defaults.DestMAX)));

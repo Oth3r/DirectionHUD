@@ -2,16 +2,15 @@ package one.oth3r.directionhud.common.utils;
 
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.Assets;
+import one.oth3r.directionhud.common.DHUD;
 import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.files.LangReader;
 import one.oth3r.directionhud.common.files.PlayerData;
-import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
 
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -238,161 +237,21 @@ public class CUtl {
             hsb[type] = Math.max(Math.min(hsb[type]+change,1),0);
             return HSBtoHEX(hsb);
         }
-        public static void presetUI(Player player, String type, String setCMD, String backCMD) {
-            String formattedReturnCMDArgs = formatCMD(setCMD)+" "+formatCMD(backCMD);
-            CTxT defaultBtn = TBtn("color.presets.default").color(CUtl.s()).cEvent(1,"/dhud presets default "+formattedReturnCMDArgs).btn(true);
-            CTxT minecraftBtn = TBtn("color.presets.minecraft").color(CUtl.s()).cEvent(1,"/dhud presets minecraft "+formattedReturnCMDArgs).btn(true);
-            CTxT customBtn = TBtn("color.custom").color(CUtl.s()).cEvent(1,"/dhud presets custom "+formattedReturnCMDArgs).btn(true);
-            List<String> colorStrings;
-            List<String> colors;
-            int rowAmt;
-            if (type.equals("default")) {
-                defaultBtn.color(Assets.mainColors.gray).cEvent(1,null).hEvent(null);
-                colorStrings = List.of("red","orange","yellow","green","blue","purple","gray");
-                colors = DEFAULT_COLORS;
-                rowAmt = 3;
-            } else {
-                minecraftBtn.color(Assets.mainColors.gray).cEvent(1,null).hEvent(null);
-                colorStrings = List.of("red","yellow","green","aqua","blue","purple","gray");
-                colors = List.of("#FF5555","#AA0000",
-                        "#FFFF55","#FFAA00",
-                        "#55FF55","#00AA00",
-                        "#55FFFF","#00AAAA",
-                        "#5555FF","#0000AA",
-                        "#FF55FF","#AA00AA",
-                        "#AAAAAA","#555555");
-                rowAmt = 2;
-            }
-            CTxT list = CTxT.of("");
-            int colorIndex = 0;
-            for (String s:colorStrings) {
-                list.append("\n ");
-                for (int i = 0; i < rowAmt;i++) {
-                    String color = colors.get(colorIndex);
-                    list.append(CTxT.of(Assets.symbols.square).btn(true).color(color).cEvent(1,setCMD+color.substring(1))
-                            .hEvent(TBtn("color.hover",getBadge(color))));
-                    colorIndex++;
-                }
-                list.append(" ").append(lang("color.presets."+s));
-            }
-            CTxT msg = CTxT.of(" ").append(lang("color.presets.ui").color(Assets.mainColors.presets))
-                    .append(CTxT.of("\n                               \n").strikethrough(true))
-                    .append(" ").append(defaultBtn).append(" ").append(minecraftBtn).append("\n").append(list)
-                    .append("\n\n    ").append(customBtn).append("  ").append(CButton.back(backCMD))
-                    .append(CTxT.of("\n                               ").strikethrough(true));
-            player.sendMessage(msg);
-        }
-        public static void customUI(Player player, String setCMD, String backCMD) {
-            String formattedReturnCMDArgs = formatCMD(setCMD)+" "+formatCMD(backCMD);
-            CTxT defaultBtn = TBtn("color.presets.default").color(CUtl.s()).cEvent(1, "/dhud presets default " + formattedReturnCMDArgs).btn(true);
-            CTxT minecraftBtn = TBtn("color.presets.minecraft").color(CUtl.s()).cEvent(1, "/dhud presets minecraft " + formattedReturnCMDArgs).btn(true);
-            CTxT customBtn = TBtn("color.custom").btn(true).color('7');
-            CTxT list = CTxT.of("\n   ");
-            int i = 0;
-            for (String s : PlayerData.get.colorPresets(player)) {
-                boolean x = !s.equals("#ffffff");
-                CTxT xBtn = CTxT.of(Assets.symbols.x).btn(true).color(x ? 'c' : '7').cEvent(x ? 1 : 0, "/dhud presets custom reset " + i + " " + formattedReturnCMDArgs);
-                CTxT squareBtn = CTxT.of(Assets.symbols.square).color(s).btn(true).cEvent(1, setCMD + s.substring(1))
-                        .hEvent(TBtn("color.hover", getBadge(s)));
-                if (i % 2 == 0) list.append(xBtn).append(" ").append(squareBtn).append(" -=- ");
-                else list.append(squareBtn).append(" ").append(xBtn).append("\n   ");
-                i++;
-            }
-            CTxT msg = CTxT.of(" ").append(lang("color.presets.ui").color(Assets.mainColors.presets))
-                    .append(CTxT.of("\n                               \n").strikethrough(true))
-                    .append(" ").append(defaultBtn).append(" ").append(minecraftBtn).append("\n").append(list)
-                    .append("\n    ").append(customBtn).append("  ").append(CButton.back(backCMD))
-                    .append(CTxT.of("\n                               ").strikethrough(true));
-            player.sendMessage(msg);
-        }
-        public static void customReset(Player player, int preset, String setCMD, String backCMD) {
-            ArrayList<String> presets = PlayerData.get.colorPresets(player);
-            presets.set(preset, config.colorPresets.get(preset));
-            PlayerData.set.colorPresets(player,presets);
-            player.sendMessage(tag().append(lang("color.presets.reset",CTxT.of("#"+(preset+1) ).color(s()))));
-            customUI(player,setCMD,backCMD);
-        }
-        public static void customSet(Player player, int preset, String color, String returnCMD) {
-            ArrayList<String> presets = PlayerData.get.colorPresets(player);
-            presets.set(preset,CUtl.color.format(color));
-            PlayerData.set.colorPresets(player,presets);
-            player.sendMessage(tag().append(lang("color.presets.set",CTxT.of("#"+(preset+1)).color(s()),getBadge(color))));
-            player.performCommand(returnCMD.substring(1));
-        }
-        public static void customAddUI(Player player, String color, String returnCMD) {
-            String formattedReturnCMD = formatCMD(returnCMD);
-            CTxT list = CTxT.of("   ");
-            int i = 0;
-            for (String s: PlayerData.get.colorPresets(player)) {
-                CTxT square = CTxT.of(Assets.symbols.square).color(s).btn(true).hEvent(getBadge(s));
-                CTxT plusBtn = CTxT.of("+").btn(true).color('a').cEvent(1,"/dhud presets custom add "+i+" "+color.substring(1)+" "+formattedReturnCMD)
-                        .hEvent(TBtn("color.presets.plus.hover",CTxT.of("#"+(i+1)).color(s()),getBadge(color)));
-                if (i%2==0) list.append(plusBtn).append(" ").append(square).append(" -=- ");
-                else list.append(square).append(" ").append(plusBtn).append("\n   ");
-                i++;
-            }
-            CTxT msg = CTxT.of(" ").append(lang("color.presets.ui").color(Assets.mainColors.presets))
-                    .append(CTxT.of("\n                               \n").strikethrough(true)).append("  ")
-                    .append(lang("color.presets.add",CTxT.of("+").color('a'))).append("\n\n")
-                    .append(list).append("\n ").append(CButton.back(returnCMD))
-                    .append(CTxT.of("\n                               ").strikethrough(true));
-            player.sendMessage(msg);
-        }
-        public static CTxT colorEditor(String color,String step,String setCMD,String stepBigCMD) {
-            CTxT defaultSquare = CTxT.of(Assets.symbols.square).color(color).hEvent(getBadge(color));
-            CTxT smallButton = CUtl.TBtn("color.size.small").color(CUtl.s()).cEvent(1,stepBigCMD.replace("big","small"))
-                    .hEvent(CUtl.TBtn("color.size.hover",CUtl.TBtn("color.size.small").color(CUtl.s()))).btn(true);
-            CTxT normalButton = CUtl.TBtn("color.size.normal").color(CUtl.s()).cEvent(1,stepBigCMD.replace("big","normal"))
-                    .hEvent(CUtl.TBtn("color.size.hover",CUtl.TBtn("color.size.normal").color(CUtl.s()))).btn(true);
-            CTxT bigButton = CUtl.TBtn("color.size.big").color(CUtl.s()).cEvent(1,stepBigCMD)
-                    .hEvent(CUtl.TBtn("color.size.hover",CUtl.TBtn("color.size.big").color(CUtl.s()))).btn(true);
-            float[] changeAmounts = new float[3];
-            if (step == null || step.equals("normal")) {
-                normalButton.color(Assets.mainColors.gray).cEvent(1,null).hEvent(null);
-                changeAmounts[0] = 0.02f;
-                changeAmounts[1] = 0.05f;
-                changeAmounts[2] = 0.1f;
-            } else if (step.equals("small")) {
-                smallButton.color(Assets.mainColors.gray).cEvent(1,null).hEvent(null);
-                changeAmounts[0] = 0.005f;
-                changeAmounts[1] = 0.0125f;
-                changeAmounts[2] = 0.025f;
-            } else if (step.equals("big")) {
-                bigButton.color(Assets.mainColors.gray).cEvent(1,null).hEvent(null);
-                changeAmounts[0] = 0.04f;
-                changeAmounts[1] = 0.1f;
-                changeAmounts[2] = 0.2f;
-            }
-            ArrayList<CTxT> hsbList = new ArrayList<>();
-            for (int i = 0; i < 3; i++) {
-                hsbList.add(CTxT.of("-").btn(true));
-                hsbList.add(CTxT.of("+").btn(true));
-            }
-            int i = 0;
-            for (int changeAmt = 0; changeAmt < 3;changeAmt++) {
-                for (int plus = i;plus < i+2;plus++) {
-                    String editedColor = CUtl.color.editHSB(changeAmt,color,(plus%2==0)?changeAmounts[changeAmt]*-1:(changeAmounts[changeAmt]));
-                    hsbList.get(plus).color(editedColor.equals(color)?Assets.mainColors.gray:editedColor);
-                    if (!editedColor.equals(color)) {
-                        hsbList.get(plus).hEvent(CUtl.TBtn("color.hover",getBadge(editedColor)));
-                        hsbList.get(plus).cEvent(1,setCMD+editedColor.substring(1));
-                    }
-                }
-                i = i+2;
-            }
-            return CTxT.of("  ")
-                    .append(hsbList.get(0)).append(" ").append(defaultSquare).append(" ").append(hsbList.get(1)).append(" ").append(lang("color.hue")).append("\n  ")
-                    .append(hsbList.get(2)).append(" ").append(defaultSquare).append(" ").append(hsbList.get(3)).append(" ").append(lang("color.saturation")).append("\n  ")
-                    .append(hsbList.get(4)).append(" ").append(defaultSquare).append(" ").append(hsbList.get(5)).append(" ").append(lang("color.brightness")).append("\n\n ")
-                    .append(smallButton).append(" ").append(normalButton).append(" ").append(bigButton);
-        }
         public static String colorHandler(Player player, String color) {
             return colorHandler(player, color, "#ffffff");
         }
         public static String colorHandler(Player player, String color, String defaultColor) {
             //if color is preset, get the preset color
-            if (color != null && color.contains("preset"))
-                color = PlayerData.get.colorPresets(player).get(Integer.parseInt(color.substring(7))-1);
+            if (color != null && color.contains("preset-")) {
+                String name = color.split("-")[1];
+                // find the right preset and get the color
+                for (String preset : PlayerData.get.colorPresets(player)) {
+                    if (DHUD.preset.custom.getName(preset).equals(name)) {
+                        color = DHUD.preset.custom.getColor(preset);
+                        break;
+                    }
+                }
+            }
             if (color != null)
                 switch (color.toLowerCase()) {
                     case "red" -> color = DEFAULT_COLORS.get(1);

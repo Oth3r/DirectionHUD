@@ -1,6 +1,8 @@
 package one.oth3r.directionhud.common.utils;
 
+import one.oth3r.directionhud.common.DHUD;
 import one.oth3r.directionhud.common.files.PlayerData;
+import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
 
@@ -76,20 +78,17 @@ public class Helper {
                 }
             }
         }
-
         public static boolean inBetween(double num, double min, double max) {
             // if min is greater than max, flip
             if (min > max) return num >= min || num <= max;
             return num >= min && num <= max;
         }
-
         public static double wSubtract(double num, double sub, double max) {
             // wrapped subtract
             double output = num - sub;
             if (output < 0) output = max - (output*-1);
             return output;
         }
-
         public static double wAdd(double num, double add, double max) {
             // wrapped add
             return (num+add)%max;
@@ -144,13 +143,11 @@ public class Helper {
             public static ArrayList<String> colors(Player player, String current, boolean displayEmpty) {
                 ArrayList<String> list = new ArrayList<>();
                 ArrayList<String> presets = new ArrayList<>();
-                int i = 1;
-                for (String s : PlayerData.get.colorPresets(player)) {
-                    if (!s.equals("#ffffff")) presets.add("preset-"+(i));
-                    i++;
-                }
+                // add all presets to a list
+                for (String preset : PlayerData.get.colorPresets(player))
+                    presets.add(String.format("\"preset-%s\"",DHUD.preset.custom.getName(preset)));
                 // displaying logic, if not empty and not display empty or empty and display empty
-                if (!current.equals("") || displayEmpty) {
+                if (!current.isEmpty() || displayEmpty) {
                     list.add("ffffff");
                     if (!presets.isEmpty()) {
                         list.add("preset");

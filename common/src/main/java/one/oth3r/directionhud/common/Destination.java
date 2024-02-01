@@ -108,29 +108,9 @@ public class Destination {
                 case "add" -> addCMD(player,saved.getList(player), trimmedArgs);
                 case "lastdeath" -> lastdeathCMD(player, trimmedArgs);
                 case "settings" -> settingsCMD(player, trimmedArgs);
-                case "color" -> colorCMD(player,trimmedArgs);
                 case "send" -> sendCMD(player, trimmedArgs);
                 case "track" -> trackCMD(player, trimmedArgs);
                 default -> player.sendMessage(CUtl.error("command"));
-            }
-        }
-        //todo dest color recode
-        public static void colorCMD(Player player, String[] args) {
-            if (args.length >= 3 && args[0].equals("preset")) {
-                if (args[1].equals("add") && args.length == 4) {
-                    CUtl.color.customAddUI(player, (String) PlayerData.get.dest.setting(player, Setting.get(args[3])),"/dest settings "+args[3]+" "+args[2]);
-                } else CUtl.color.presetUI(player,"default","/dest color set "+args[1]+" "+args[2]+" ","/dest settings "+args[2]+" "+args[1]);
-            }
-            if (args.length >= 3 && args[0].equals("preset_s")) {
-                if (args[1].equals("add") && args.length == 4) {
-                    CUtl.color.customAddUI(player, new saved.Dest(player,saved.getList(player),args[3]).getColor(),"/dest saved edit colorui \""+args[3]+"\" "+args[2]);
-                } else CUtl.color.presetUI(player,"default","/dest color set_s "+args[1]+" \""+args[2]+"\" ","/dest saved edit colorui \""+args[2]+"\" "+args[1]);
-            }
-            if (args.length == 4 && args[0].equals("set")) {
-                settings.setColor(player,args[1], Setting.get(args[2]),args[3],true);
-            }
-            if (args.length == 4 && args[0].equals("set_s")) {
-                saved.setColor(player,saved.getList(player),args[1],"\""+args[2]+"\"",args[3],true);
             }
         }
         public static void setCMD(Player player, String[] args) {
@@ -1052,7 +1032,7 @@ public class Destination {
             }
         }
         public static void delete(boolean Return, Player player,List<List<String>> list, String name) {
-            CUtl.PageHelper<List<String>> pageHelper = new CUtl.PageHelper<>(new ArrayList<>(list),PER_PAGE);
+            Helper.ListPage<List<String>> listPage = new Helper.ListPage<>(new ArrayList<>(list),PER_PAGE);
             Dest dest = new Dest(player,list,name);
             if (dest.getDest() == null) {
                 player.sendMessage(CUtl.error("dest.invalid"));
@@ -1060,7 +1040,7 @@ public class Destination {
             }
             dest.remove();
             player.sendMessage(CUtl.tag().append(lang("saved.delete",dest.getLoc().getBadge(name,dest.getColor()))));
-            if (Return) player.performCommand("dest saved "+pageHelper.getPageOf(dest.getDest()));
+            if (Return) player.performCommand("dest saved "+ listPage.getPageOf(dest.getDest()));
         }
         public static void editName(boolean Return, Player player,List<List<String>> list, String name, String newName) {
             Dest dest = new Dest(player,list,name);
@@ -1136,7 +1116,7 @@ public class Destination {
         }
         public static void viewDestinationUI(boolean send, Player player, String name) {
             Dest dest = new Dest(player,getList(player),name);
-            CUtl.PageHelper<List<String>> pageHelper = new CUtl.PageHelper<>(new ArrayList<>(getList(player)),PER_PAGE);
+            Helper.ListPage<List<String>> listPage = new Helper.ListPage<>(new ArrayList<>(getList(player)),PER_PAGE);
             if (dest.getDest() == null) {
                 if (send) player.sendMessage(CUtl.error("dest.invalid"));
                 return;
@@ -1172,11 +1152,11 @@ public class Destination {
                     .append(CUtl.TBtn("delete").btn(true).color('c').cEvent(2,"/dest saved delete-r "+cmdName)
                             .hEvent(CUtl.TBtn("delete.hover_dest").color('c'))).append(" ")
                     //BACK
-                    .append(CUtl.CButton.back("/dest saved "+pageHelper.getPageOf(dest.getDest())))
+                    .append(CUtl.CButton.back("/dest saved "+ listPage.getPageOf(dest.getDest())))
                     .append(CUtl.LARGE);
             player.sendMessage(msg);
         }
-        public static void colorUI(Player player, String stepSize, String name, CTxT aboveMSG) {
+        public static void colorUI(Player player, String settings, String name, CTxT aboveMSG) {
             if (!getNames(getList(player)).contains(name)) return;
             Dest dest = new Dest(player,getList(player),name);
             String currentColor = dest.getColor();
@@ -1185,20 +1165,8 @@ public class Destination {
             if (aboveMSG != null) msg.append(aboveMSG).append("\n");
             msg.append(" ").append(uiType).append(CTxT.of("\n                               \n").strikethrough(true));
             String cmdName = dest.getCMDName();
-            CTxT back = CUtl.CButton.back("/dest saved edit "+cmdName);
-            CTxT presetsButton = CTxT.of("")
-                    .append(CTxT.of("+").btn(true).color('a').cEvent(1,"/dest color preset_s add "+stepSize+" "+cmdName)
-                            .hEvent(CUtl.TBtn("color.presets.add.hover",CUtl.TBtn("color.presets.add.hover_2").color(currentColor))))
-                    .append(CUtl.TBtn("color.presets").color(Assets.mainColors.presets)
-                            .cEvent(1,"/dest color preset_s "+stepSize+" "+cmdName).btn(true)
-                            .hEvent(CUtl.TBtn("color.presets.hover",CUtl.TBtn("color.presets.hover_2").color(Assets.mainColors.presets))));
-            CTxT customButton = CUtl.TBtn("color.custom").btn(true).color(Assets.mainColors.custom)
-                    .cEvent(2,"/dest saved edit-r color "+cmdName+" ")
-                    .hEvent(CUtl.TBtn("color.custom.hover",CUtl.TBtn("color.custom.hover_2").color(Assets.mainColors.custom)));
-            msg.append(" ")
-                    .append(presetsButton).append(" ").append(customButton).append("\n\n")
-                    .append(CUtl.color.colorEditor(currentColor,stepSize,"/dest color set_s "+stepSize+" "+cmdName+" ","/dest saved edit colorui "+cmdName+" big"))
-                    .append("\n\n           ").append(back)
+            msg.append(DHUD.preset.colorEditor(currentColor,settings, DHUD.preset.Type.saved,name,"/dest saved edit colorui "+cmdName+" %s"))
+                    .append("\n\n           ").append(CUtl.CButton.back("/dest saved edit "+cmdName))
                     .append(CTxT.of("\n                               ").strikethrough(true));
             player.sendMessage(msg);
         }
@@ -1208,9 +1176,9 @@ public class Destination {
                             CUtl.TBtn("dest.add.hover_2").color(Assets.mainColors.add))));
             CTxT msg = CTxT.of(" ");
             msg.append(lang("ui.saved").color(Assets.mainColors.saved)).append(CUtl.LARGE).append("\n");
-            CUtl.PageHelper<List<String>> pageHelper = new CUtl.PageHelper<>(new ArrayList<>(getList(player)),PER_PAGE);
+            Helper.ListPage<List<String>> listPage = new Helper.ListPage<>(new ArrayList<>(getList(player)),PER_PAGE);
             int count = 0;
-            for (List<String> entry: pageHelper.getPage(pg)) {
+            for (List<String> entry: listPage.getPage(pg)) {
                 count++;
                 Dest dest = new Dest(player,getList(player),entry);
                 msg.append(" ")//BADGE
@@ -1235,7 +1203,7 @@ public class Destination {
                     .cEvent(1,"/dest saved global"));
             else msg.append(addB);
             msg
-                    .append(" ").append(pageHelper.getNavButtons(pg,"/dest saved "))
+                    .append(" ").append(listPage.getNavButtons(pg,"/dest saved "))
                     .append(" ").append(CUtl.CButton.back("/dest"))
                     .append(CUtl.LARGE);
             player.sendMessage(msg);
@@ -1243,12 +1211,12 @@ public class Destination {
         public static void globalUI(Player player, int pg) {
             CTxT msg = CTxT.of(" ");
             msg.append(lang("ui.saved.global").color(Assets.mainColors.global)).append(CUtl.LARGE).append("\n");
-            CUtl.PageHelper<List<String>> pageHelper = new CUtl.PageHelper<>(new ArrayList<>(GlobalDest.dests), PER_PAGE);
+            Helper.ListPage<List<String>> listPage = new Helper.ListPage<>(new ArrayList<>(GlobalDest.dests), PER_PAGE);
             int count = 0;
-            for (List<String> entry : pageHelper.getPage(pg)) {
+            for (List<String> entry : listPage.getPage(pg)) {
                 count++;
                 // skip the last one because dummy entry
-                if (count==pageHelper.getList().size()) continue;
+                if (count== listPage.getList().size()) continue;
                 Dest dest = new Dest(player, GlobalDest.dests, entry);
                 msg.append(" ")//BADGE
                         .append(dest.getLoc().getBadge(dest.getName(), dest.getColor())).append(" ")
@@ -1266,7 +1234,7 @@ public class Destination {
             msg.append("\n ").append(CTxT.of(Assets.symbols.local).btn(true).color(Assets.mainColors.saved)
                             .hEvent(CUtl.TBtn("dest.saved.local.hover").color(Assets.mainColors.saved))
                             .cEvent(1, "/dest saved"))
-                    .append(" ").append(pageHelper.getNavButtons(pg, "/dest saved global "))
+                    .append(" ").append(listPage.getNavButtons(pg, "/dest saved global "))
                     .append(" ").append(CUtl.CButton.back("/dest"))
                     .append(CUtl.LARGE);
             player.sendMessage(msg);
@@ -1285,12 +1253,12 @@ public class Destination {
             PlayerData.set.dest.lastdeaths(player,deaths);
         }
         public static void UI(Player player,int pg,CTxT abovemsg) {
-            CUtl.PageHelper<String> pageHelper = new CUtl.PageHelper<>(PlayerData.get.dest.lastdeaths(player),PER_PAGE);
+            Helper.ListPage<String> listPage = new Helper.ListPage<>(PlayerData.get.dest.lastdeaths(player),PER_PAGE);
             // rewrite
             CTxT msg = CTxT.of("");
             if (abovemsg != null) msg.append(abovemsg).append("\n");
             msg.append(" ").append(lang("ui.lastdeath").color(Assets.mainColors.lastdeath)).append(CUtl.LINE_35).append("\n ");
-            for (String s:pageHelper.getPage(pg)) {
+            for (String s: listPage.getPage(pg)) {
                 Loc loc = new Loc(s);
                 String dim = loc.getDIM();
                 msg.append(loc.getBadge()).append("\n  ")
@@ -1299,12 +1267,12 @@ public class Destination {
                 if (Utl.dim.canConvert(player.getDimension(),dim)) msg.append(" ").append(CUtl.CButton.dest.convert("/dest set "+loc.getXYZ()+" "+dim+" convert"));
                 msg.append("\n ");
             }
-            if (pageHelper.getList().size()==0)
+            if (listPage.getList().size()==0)
                 msg.append(lang("lastdeath.no_deaths").color('c')).append("\n");
             msg.append("\n ");
             //button nav if there are more lastdeaths than what can fit on one page
-            if (pageHelper.getList().size() > PER_PAGE)
-                    msg.append(pageHelper.getNavButtons(pg,"/dest lastdeath ")).append(" ");
+            if (listPage.getList().size() > PER_PAGE)
+                    msg.append(listPage.getNavButtons(pg,"/dest lastdeath ")).append(" ");
             msg.append(CUtl.CButton.back("/dest")).append(CUtl.LINE_35);
             player.sendMessage(msg);
         }
@@ -1332,8 +1300,8 @@ public class Destination {
                 return;
             }
             // custom name too long
-            if (name != null && name.length() > saved.MAX_NAME) {
-                player.sendMessage(CUtl.error("dest.saved.length", saved.MAX_NAME));
+            if (name != null && name.length() > Helper.MAX_NAME) {
+                player.sendMessage(CUtl.error("dest.saved.length", Helper.MAX_NAME));
                 return;
             }
             // if LOC is null it's a saved destination
@@ -1649,27 +1617,15 @@ public class Destination {
             return Assets.symbols.x;
         }
         public static void colorUI(Player player, String setting, Setting type, CTxT aboveMSG) {
-            if (!Setting.colors().contains(type)) return;
-            String currentColor = (String) PlayerData.get.dest.setting(player,type);
-            CTxT uiType = lang("settings."+type.toString().substring(0,type.toString().length()-6));
-            CTxT msg = CTxT.of("");
+            if (!Setting.colors().contains(type)) return; // if not a color setting
+            String currentColor = (String) PlayerData.get.dest.setting(player,type); // get the current color
+            CTxT uiType = lang("settings."+type.toString().substring(0,type.toString().length()-6)),
+                    msg = CTxT.of("");
             if (aboveMSG != null) msg.append(aboveMSG).append("\n");
             msg.append(" ").append(uiType.color(currentColor))
-                    .append(CTxT.of("\n                               \n").strikethrough(true));
-            CTxT back = CUtl.CButton.back("/dest settings");
-            CTxT presetsButton = CTxT.of("")
-                    .append(CTxT.of("+").btn(true).color('a').cEvent(1,"/dest color preset add "+setting+" "+type)
-                            .hEvent(CUtl.TBtn("color.presets.add.hover",CUtl.TBtn("color.presets.add.hover_2").color(currentColor))))
-                    .append(CUtl.TBtn("color.presets").color(Assets.mainColors.presets)
-                            .cEvent(1,"/dest color preset "+setting+" "+type).btn(true)
-                            .hEvent(CUtl.TBtn("color.presets.hover",CUtl.TBtn("color.presets.hover_2").color(Assets.mainColors.presets))));
-            CTxT customButton = CUtl.TBtn("color.custom").btn(true).color(Assets.mainColors.custom)
-                    .cEvent(2,"/dest color set "+setting+" "+type+" ")
-                    .hEvent(CUtl.TBtn("color.custom.hover",CUtl.TBtn("color.custom.hover_2").color(Assets.mainColors.custom)));
-            msg.append(" ")
-                    .append(presetsButton).append(" ").append(customButton).append("\n\n")
-                    .append(CUtl.color.colorEditor(currentColor,setting,"/dest color set "+setting+" "+type+" ","/dest settings "+type+" big"))
-                    .append("\n\n           ").append(back)
+                    .append(CTxT.of("\n                               \n").strikethrough(true))
+                    .append(DHUD.preset.colorEditor(currentColor,setting, DHUD.preset.Type.dest,type.toString(),"/dest settings "+type+" %s"))
+                    .append("\n\n           ").append(CUtl.CButton.back("/dest settings"))
                     .append(CTxT.of("\n                               ").strikethrough(true));
             player.sendMessage(msg);
         }

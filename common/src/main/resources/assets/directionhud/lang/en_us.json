@@ -14,6 +14,7 @@
   "key.directionhud.error.player": "%s is offline or does not exist!",
   "key.directionhud.error.alone": "You can't select yourself!",
   "key.directionhud.error.color": "Enter a valid HEX color!",
+  "key.directionhud.error.length": "Name is too long! Max length is %d characters.",
   "key.directionhud.error.dest.at": "You are already at your destination!",
   "key.directionhud.error.dest.already_clear": "You don't have a destination to clear!",
   "key.directionhud.error.dest.invalid": "This destination doesn't exist!",
@@ -23,7 +24,6 @@
   "key.directionhud.error.dest.saved.set": "Enter a new %s!",
   "key.directionhud.error.dest.saved.max": "You've reached the max number of saved destinations!",
   "key.directionhud.error.dest.saved.delete": "Enter a destination!",
-  "key.directionhud.error.dest.saved.length": "Destination name is too long! Max length is %d characters.",
   "key.directionhud.error.dest.send.disabled_player": "%s isn't accepting coordinates at this time!",
   "key.directionhud.error.dest.send.alone": "You cant send coordinates to yourself!",
   "key.directionhud.error.dest.send.player": "Enter a player!",
@@ -35,6 +35,10 @@
   "key.directionhud.error.dest.track.cleared": "You aren't tracking anyone!",
   "key.directionhud.error.dest.social.cooldown": "Please wait before sending another social command!",
   "key.directionhud.error.hud.module": "Invalid module!",
+  "key.directionhud.error.dhud.preset": "Invalid preset!",
+  "key.directionhud.error.dhud.preset.duplicate": "There is already a preset with the same name!",
+  "key.directionhud.error.dhud.preset.max": "You've reached the max number of saved destinations!",
+  "key.directionhud.error.dhud.preset.name": "There isn't a preset with the name %s!",
   "key.directionhud.button.version.hover": "Click to see the changelog!",
   "key.directionhud.button.off": "OFF",
   "key.directionhud.button.on": "ON",
@@ -137,7 +141,6 @@
   "key.directionhud.button.color.presets.hover_2": "PRESET",
   "key.directionhud.button.color.presets.default": "DEFAULT",
   "key.directionhud.button.color.presets.minecraft": "MINECRAFT",
-  "key.directionhud.color.presets.ui": "Presets",
   "key.directionhud.color.presets.add": "Save the color with %s!",
   "key.directionhud.color.presets.set": "Set preset %s to %s!",
   "key.directionhud.color.presets.reset": "Reset preset %s!",
@@ -415,9 +418,13 @@
   "key.directionhud.hud.ui.modules.disabled": "Disabled Modules:",
   "key.directionhud.hud.ui.color": "HUD Color",
   "key.directionhud.hud.ui.settings": "HUD Settings",
+
+
+
   "key.directionhud.dhud.ui.inbox": "Inbox",
   "key.directionhud.dhud.reload": "%s players and config files!",
   "key.directionhud.dhud.reload_2": "Reloaded",
+
   "key.directionhud.dhud.inbox.empty": "Its quiet in here...",
   "key.directionhud.dhud.inbox.from": "From %s",
   "key.directionhud.dhud.inbox.to": "To %s",
@@ -427,6 +434,20 @@
   "key.directionhud.dhud.inbox.time": "%ss",
   "key.directionhud.dhud.inbox.clear.hover": "Click to clear entry.",
   "key.directionhud.dhud.inbox.cleared": "Cleared destination from %s!",
+
+  "key.directionhud.dhud.preset.ui": "Presets",
+  "key.directionhud.dhud.preset.ui.custom": "Custom Presets",
+  "key.directionhud.dhud.preset.ui.color": "Preset Color",
+  "key.directionhud.dhud.preset.hover.x": "Click to delete the preset %s.",
+  "key.directionhud.dhud.preset.hover.color": "Click to edit the preset color %s.",
+  "key.directionhud.dhud.preset.hover.rename": "Click to rename the preset %s.",
+  "key.directionhud.dhud.preset.msg.color": "Set %s's preset color to %s.",
+  "key.directionhud.dhud.preset.msg.save": "Saved the preset %s.",
+  "key.directionhud.dhud.preset.msg.delete": "Deleted the preset %s.",
+  "key.directionhud.dhud.preset.msg.rename": "Renamed the preset %s to %s.",
+
+
+
   "key.directionhud.config.color.options": "Valid Colors: any HEX color (#ffccff)",
   "key.directionhud.config.settings": "Settings",
   "key.directionhud.config.default": "DEFAULTS",

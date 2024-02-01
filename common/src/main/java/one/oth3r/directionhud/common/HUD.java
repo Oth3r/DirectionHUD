@@ -254,17 +254,11 @@ public class HUD {
                 if (args.length == 1) color.reset(player,null,null,true);
                 if (args.length == 3) color.reset(player,args[1],args[2],true);
             }
-            if (args[0].equals("preset") && args.length >= 3) {
-                // /hud color preset add type
-                if (args[1].equals("add") && args.length == 4) {
-                    CUtl.color.customAddUI(player,color.getHUDColor(player,args[3].equals("primary")?1:2),"/hud color edit "+args[2]+" "+args[3]);
-                } else color.presets(player,args[1],args[2]);
-            }
             //CHANGE COLOR
             if (args.length < 4) return;
             String type = args[0].toLowerCase();
             switch (type) {
-                case "set" -> color.setColor(player, args[1], args[2], args[3], true);
+                case "set" -> color.setColor(player, args[1], args[2], args[3], false);
                 case "bold" -> color.setBold(player, args[1], args[2], Boolean.parseBoolean(args[3]), true);
                 case "italics" -> color.setItalics(player, args[1], args[2], Boolean.parseBoolean(args[3]), true);
                 case "rgb" -> color.setRGB(player, args[1], args[2], Boolean.parseBoolean(args[3]), true);
@@ -288,10 +282,6 @@ public class HUD {
                 switch (command) {
                     case "modules" -> suggester.addAll(modulesCMD(player,fixedPos,trimmedArgs));
                     case "settings" -> suggester.addAll(settingsCMD(fixedPos,trimmedArgs));
-                    case "color" -> {
-                        if (fixedPos == 3 && trimmedArgs[0].equalsIgnoreCase("set"))
-                            suggester.addAll(Helper.Command.Suggester.colors(player, Helper.Command.Suggester.getCurrent(trimmedArgs,fixedPos),true));
-                    }
                 }
             }
             return suggester;
@@ -651,9 +641,9 @@ public class HUD {
             pos = Math.max(0,Math.min(pos,order.size()));
             order.add(pos,module);
             PlayerData.set.hud.order(player,order);
-            CUtl.PageHelper<Module> pageHelper = new CUtl.PageHelper<>(PlayerData.get.hud.order(player),PER_PAGE);
+            Helper.ListPage<Module> listPage = new Helper.ListPage<>(PlayerData.get.hud.order(player),PER_PAGE);
             CTxT msg = CUtl.tag().append(lang("module.order",CTxT.of(module.toString()).color(CUtl.s()),CTxT.of(String.valueOf(pos+1)).color(CUtl.s())));
-            if (Return) UI(player, msg, pageHelper.getPageOf(module));
+            if (Return) UI(player, msg, listPage.getPageOf(module));
             else player.sendMessage(msg);
         }
         public static void toggle(Player player, Module module, Boolean toggle, boolean Return) {
@@ -661,11 +651,11 @@ public class HUD {
                 player.sendMessage(CUtl.error("hud.module"));
                 return;
             }
-            CUtl.PageHelper<Module> pageHelper = new CUtl.PageHelper<>(PlayerData.get.hud.order(player),PER_PAGE);
+            Helper.ListPage<Module> listPage = new Helper.ListPage<>(PlayerData.get.hud.order(player),PER_PAGE);
             if (toggle == null) toggle = !PlayerData.get.hud.module(player,module);
             CTxT msg = CUtl.tag().append(lang("module.toggle",CUtl.TBtn(toggle?"on":"off").color(toggle?'a':'c'),lang("module."+module).color(CUtl.s())));
             PlayerData.set.hud.module(player,module,toggle);
-            if (Return) UI(player, msg, pageHelper.getPageOf(module));
+            if (Return) UI(player, msg, listPage.getPageOf(module));
             else player.sendMessage(msg);
         }
         public static ArrayList<Module> fixOrder(ArrayList<Module> list) {
@@ -681,7 +671,7 @@ public class HUD {
             return list;
         }
         public static int getPageFromSetting(Player player, Setting setting) {
-            CUtl.PageHelper<Module> pageHelper = new CUtl.PageHelper<>(PlayerData.get.hud.order(player),PER_PAGE);
+            Helper.ListPage<Module> listPage = new Helper.ListPage<>(PlayerData.get.hud.order(player),PER_PAGE);
             Module module = Module.unknown;
             switch (setting) {
                 case module__time_24hr -> module = Module.time;
@@ -689,7 +679,7 @@ public class HUD {
                 case module__speed_3d, module__speed_pattern -> module = Module.speed;
                 case module__angle_display -> module = Module.angle;
             }
-            return pageHelper.getPageOf(module);
+            return listPage.getPageOf(module);
         }
         public static ArrayList<Module> getEnabled(Player player) {
             ArrayList<Module> enabled = new ArrayList<>();
@@ -833,16 +823,16 @@ public class HUD {
             return "#19ff21";
         }
         public static void UI(Player player, CTxT abovemsg, int pg) {
-            CUtl.PageHelper<Module> pageHelper = new CUtl.PageHelper<>(PlayerData.get.hud.order(player),PER_PAGE);
+            Helper.ListPage<Module> listPage = new Helper.ListPage<>(PlayerData.get.hud.order(player),PER_PAGE);
             CTxT msg = CTxT.of("");
             if (abovemsg != null) msg.append(abovemsg).append("\n");
             msg.append(" ").append(lang("ui.modules").color(Assets.mainColors.edit)).append(CTxT.of("\n                                     ").strikethrough(true));
             //MAKE THE TEXT
-            for (Module module:pageHelper.getPage(pg)) {
+            for (Module module: listPage.getPage(pg)) {
                 boolean state = PlayerData.get.hud.module(player,module);
                 msg.append("\n ")
                         //ORDER
-                        .append(CTxT.of(String.valueOf(pageHelper.getIndexOf(module)+1)).btn(true).color(CUtl.p())
+                        .append(CTxT.of(String.valueOf(listPage.getIndexOf(module)+1)).btn(true).color(CUtl.p())
                                 .cEvent(2,"/hud modules order-r "+module+" ")
                                 .hEvent(CUtl.TBtn("order.hover").color(CUtl.p())))
                         //TOGGLE
@@ -860,7 +850,7 @@ public class HUD {
             //BOTTOM ROW
             msg.append("\n\n ").append(CUtl.TBtn("reset").btn(true).color('c').cEvent(1,"/hud modules reset-r")
                             .hEvent(CUtl.TBtn("reset.hover_edit").color('c')))
-                    .append(" ").append(pageHelper.getNavButtons(pg,"/hud modules ")).append(" ").append(CUtl.CButton.back("/hud"))
+                    .append(" ").append(listPage.getNavButtons(pg,"/hud modules ")).append(" ").append(CUtl.CButton.back("/hud"))
                     .append(CTxT.of("\n                                     ").strikethrough(true));
             player.sendMessage(msg);
         }
@@ -881,16 +871,12 @@ public class HUD {
             else if (Return) changeUI(player,setting,type,msg);
             else player.sendMessage(msg);
         }
-        public static void presets(Player player, String setting, String type) {
-            CUtl.color.presetUI(player,"default","/hud color set "+setting+" "+type+" ","/hud color edit "+setting+" "+type);
-        }
         public static void setColor(Player player, String setting, String type, String color, boolean Return) {
             int typ = type.equals("primary")?1:2;
             color = CUtl.color.colorHandler(player,color,config.hud.primary.Color);
             PlayerData.set.hud.color(player,typ,CUtl.color.format(color)+"-"+getHUDBold(player,typ)+"-"+getHUDItalics(player,typ)+"-"+getHUDRGB(player,typ));
-            CTxT msg = CUtl.tag().append(lang("color.set",lang("color."+type),CUtl.color.getBadge(color)));
-            if (Return) changeUI(player,setting, type,msg);
-            else player.sendMessage(msg);
+            if (Return) changeUI(player,setting,type,null);
+            else player.sendMessage(CUtl.tag().append(lang("color.set",lang("color."+type),CUtl.color.getBadge(color))));
         }
         public static void setBold(Player player, String setting, String type, boolean state, boolean Return) {
             int typ = type.equals("primary")?1:2;
@@ -962,15 +948,6 @@ public class HUD {
                     .append(CTxT.of("\n                               \n").strikethrough(true));
             CTxT reset = CUtl.TBtn("reset").btn(true).color('c').cEvent(1, "/hud color reset "+setting+" "+type)
                     .hEvent(CUtl.lang("button.reset.hover_color_hud",addColor(player,lang("color."+type).toString().toUpperCase(),typ,15,20)));
-            CTxT presetsButton = CTxT.of("")
-                    .append(CTxT.of("+").btn(true).color('a').cEvent(1,"/hud color preset add "+setting+" "+type)
-                            .hEvent(CUtl.TBtn("color.presets.add.hover",CUtl.TBtn("color.presets.add.hover_2").color(getHUDColor(player,typ)))))
-                    .append(CUtl.TBtn("color.presets").color(Assets.mainColors.presets)
-                            .cEvent(1,"/hud color preset "+setting+" "+type).btn(true)
-                            .hEvent(CUtl.TBtn("color.presets.hover",CUtl.TBtn("color.presets.hover_2").color(Assets.mainColors.presets))));
-            CTxT customButton = CUtl.TBtn("color.custom").btn(true).color(Assets.mainColors.custom)
-                    .cEvent(2,"/hud color set "+setting+" "+type+" ")
-                    .hEvent(CUtl.TBtn("color.custom.hover",CUtl.TBtn("color.custom.hover_2").color(Assets.mainColors.custom)));
             CTxT boldButton = CUtl.TBtn("color.bold").btn(true).color(getHUDBold(player, typ)?'a':'c')
                     .cEvent(1,"/hud color bold "+setting+" "+type+" "+(getHUDBold(player,typ)?"false":"true"))
                     .hEvent(CUtl.TBtn("color.bold.hover",CUtl.TBtn(getHUDBold(player,typ)?"off":"on").color(getHUDBold(player, typ)?'a':'c'),lang("color."+type)));
@@ -980,9 +957,7 @@ public class HUD {
             CTxT rgbButton = CUtl.TBtn("color.rgb").btn(true).color(getHUDRGB(player, typ)?'a':'c')
                     .cEvent(1,"/hud color rgb "+setting+" "+type+" "+(getHUDRGB(player,typ)?"false":"true"))
                     .hEvent(CUtl.TBtn("color.rgb.hover",CUtl.TBtn(getHUDRGB(player,typ)?"off":"on").color(getHUDRGB(player, typ)?'a':'c'),lang("color."+type)));
-            msg.append(" ")
-                    .append(presetsButton).append(" ").append(customButton).append("\n\n")
-                    .append(CUtl.color.colorEditor(currentColor,setting,"/hud color set "+setting+" "+type+" ","/hud color edit big "+type)).append("\n\n ")
+            msg.append(DHUD.preset.colorEditor(currentColor,setting, DHUD.preset.Type.hud,type,"/hud color edit %s "+type)).append(" ").append("\n\n ")
                     .append(boldButton).append(" ").append(italicsButton).append(" ").append(rgbButton).append("\n\n     ")
                     .append(reset).append(" ").append(back)
                     .append(CTxT.of("\n                               ").strikethrough(true));
