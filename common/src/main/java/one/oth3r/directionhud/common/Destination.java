@@ -899,7 +899,6 @@ public class Destination {
     }
     public static class saved {
         private static final int PER_PAGE = 7;
-        public static final int MAX_NAME = 16;
         public static class Dest {
             // dest helper
             private List<List<String>> list;
@@ -945,7 +944,7 @@ public class Destination {
             }
             public void setName(String name) {
                 name = name.replace(" ","");
-                if (name.length() > MAX_NAME) name = name.substring(0,MAX_NAME);
+                if (name.length() > Helper.MAX_NAME) name = name.substring(0, Helper.MAX_NAME);
                 dest.set(0,name);
                 list.set(index,dest);
                 save();
@@ -1025,8 +1024,8 @@ public class Destination {
                 if (send) player.sendMessage(CUtl.error("dest.saved.not_allowed"));
                 return;
             }
-            if (name.length() > MAX_NAME) {
-                if (send) player.sendMessage(CUtl.error("dest.saved.length",MAX_NAME));
+            if (name.length() > Helper.MAX_NAME) {
+                if (send) player.sendMessage(CUtl.error("length",Helper.MAX_NAME));
                 return;
             }
             if (!Utl.dim.checkValid(loc.getDIM())) {

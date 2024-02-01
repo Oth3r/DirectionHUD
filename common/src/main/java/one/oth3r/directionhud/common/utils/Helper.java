@@ -7,6 +7,7 @@ import one.oth3r.directionhud.utils.Utl;
 import java.util.*;
 
 public class Helper {
+    public static final int MAX_NAME = 16;
     public static class Enums {
         public static <T extends Enum<T>> ArrayList<T> toArrayList(T[] array) {
             return new ArrayList<>(Arrays.asList(array));
