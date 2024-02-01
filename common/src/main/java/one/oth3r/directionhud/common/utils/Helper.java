@@ -115,7 +115,7 @@ public class Helper {
                     list.add(player.getBlockY()+" "+player.getBlockZ());
                 } else if (type == 1) list.add(String.valueOf(player.getBlockZ()));
                 // don't suggest if typing letters or different coordinates
-                if (current.equals("") || (!current.isEmpty() && list.get(0).startsWith(current))) return list;
+                if (current.isEmpty() || list.get(0).startsWith(current)) return list;
                 return new ArrayList<>();
             }
             public static ArrayList<String> players(Player player) {
@@ -130,8 +130,8 @@ public class Helper {
             }
             public static ArrayList<String> dims(String current, boolean displayEmpty) {
                 ArrayList<String> list = new ArrayList<>();
-                if (!current.equals("") || displayEmpty) {
-                    if (current.equals("")) return (ArrayList<String>) Utl.dim.getList();
+                if (!current.isEmpty() || displayEmpty) {
+                    if (current.isEmpty()) return (ArrayList<String>) Utl.dim.getList();
                     for (String dim : Utl.dim.getList()) {
                         if (dim.contains(current)) list.add(dim);
                     }
