@@ -39,7 +39,6 @@
   "key.directionhud.error.dhud.preset.duplicate": "There is already a preset with the same name!",
   "key.directionhud.error.dhud.preset.max": "You've reached the max number of saved destinations!",
   "key.directionhud.error.dhud.preset.name": "There isn't a preset with the name %s!",
-  "key.directionhud.button.version.hover": "Click to see the changelog!",
   "key.directionhud.button.off": "OFF",
   "key.directionhud.button.on": "ON",
   "key.directionhud.button.all": "ALL",

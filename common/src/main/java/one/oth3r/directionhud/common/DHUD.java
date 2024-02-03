@@ -665,24 +665,24 @@ public class DHUD {
         }
     }
     public static void UI(Player player) {
-        CTxT msg = CTxT.of("")
-                .append(CTxT.of(" DirectionHUD ").color(CUtl.p()))
-                .append(CTxT.of(DirectionHUD.VERSION+Assets.symbols.link).color(CUtl.s()).cEvent(3,"https://modrinth.com/mod/directionhud/changelog")
-                        .hEvent(CUtl.TBtn("version.hover").color(CUtl.s())))
-                .append(CUtl.LINE_35).append("\n ");
-        //hud
+        CTxT line = CTxT.of("\n                             ").strikethrough(true);
+        CTxT msg = CTxT.of(" ")
+                .append(CTxT.of("DirectionHUD").color(CUtl.p())
+                        .hEvent(CTxT.of(DirectionHUD.VERSION+Assets.symbols.link).color(CUtl.s()))
+                        .cEvent(3,"https://modrinth.com/mod/directionhud/changelog"))
+                .append(line).append("\n ");
+        // hud
         if (Utl.checkEnabled.hud(player)) msg.append(CUtl.CButton.DHUD.hud()).append("  ");
-        //dest
+        // dest
         if (Utl.checkEnabled.destination(player)) msg.append(CUtl.CButton.DHUD.dest());
-        //inbox
-        if (config.social) {
-            msg.append("\n\n ").append(CUtl.CButton.DHUD.inbox());
-            // reload button
-            if (Utl.checkEnabled.reload(player)) msg.append(" ").append(CUtl.CButton.DHUD.reload());
-        }
-        // reload button without inbox button
-        else if (Utl.checkEnabled.reload(player)) msg.append("\n\n ").append(CUtl.CButton.DHUD.reload());
-        msg.append(CUtl.LINE_35);
+        msg.append("\n\n ");
+        // presets
+        if (Utl.checkEnabled.customPresets) msg.append(CUtl.CButton.DHUD.presets()).append(" ");
+        // inbox
+        if (config.social) msg.append(CUtl.CButton.DHUD.inbox());
+        // reload (if enabled)
+        if (Utl.checkEnabled.reload(player)) msg.append("\n\n ").append(CUtl.CButton.DHUD.reload());
+        msg.append(line);
         player.sendMessage(msg);
     }
 }
