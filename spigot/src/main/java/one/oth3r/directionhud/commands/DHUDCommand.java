@@ -1,6 +1,7 @@
 package one.oth3r.directionhud.commands;
 
 import one.oth3r.directionhud.common.DHUD;
+import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.utils.Player;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -20,7 +21,7 @@ public class DHUDCommand implements CommandExecutor, TabCompleter {
             return true;
         }
         Player player = Player.of(plr);
-        DHUD.commandExecutor.logic(player,Helper.Command.quoteHandler(args));
+        DHUD.commandExecutor.logic(player, Helper.Command.quoteHandler(args));
         return true;
     }
     @Override
