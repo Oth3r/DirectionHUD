@@ -38,8 +38,6 @@ dependencies {
 		exclude(group: "com.twelvemonkeys.common")
 		exclude(group: "com.twelvemonkeys.imageio")
 	}
-
-	compileOnly ('org.geysermc.floodgate:api:2.2.2-SNAPSHOT')
 }
 
 processResources {
