@@ -96,6 +96,13 @@ public class Helper {
     }
     public static class Command {
         public static class Suggester {
+            public static <T>ArrayList<String> wrapQuotes(List<T> list) {
+                ArrayList<String> output = new ArrayList<>();
+                for (T s:list) {
+                    output.add("\""+s+"\"");
+                }
+                return output;
+            }
             public static String getCurrent(String[] args, int pos) {
                 // if the length is the same as the pos, there's nothing currently being typed at that pos
                 // get the current typed message
