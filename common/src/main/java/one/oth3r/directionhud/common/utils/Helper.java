@@ -171,24 +171,30 @@ public class Helper {
             // put quoted items all in one arg
             boolean quote = false;
             ArrayList<String> output = new ArrayList<>();
+            StringBuilder addBuffer = new StringBuilder();
             for (String s : args) {
                 s = s.replaceAll("\\\\",""); // remove all "\" with empty
-                int lastIndex = output.size()-1;
                 if (s.contains("\"")) {
-                    // count how many quotes there are
-                    int count = s.length() - s.replaceAll("\"","").length();
-                    // remove the quote
-                    s = s.replace("\"","");
-                    if (quote) {
+                    int count = s.length() - s.replaceAll("\"","").length(); // count how many quotes there are
+                    s = s.replace("\"",""); // remove the quote
+                    if (quote) { // end of quote, don't skip the loop to add to the arraylist
                         quote = false;
-                        output.add(s); // start of the quote, so just add as normal
-                    } else if (count == 1) quote = true; // only flip the quote if there's one quotation mark
-                }
-                if (quote) output.set(lastIndex,output.get(lastIndex)+" "+s); // add a space between entries while in a quote
-                else output.add(s);
+                        addBuffer.append(" ").append(s);
+                    } else if (count == 1) { // start of the quote, skip the rest of the loop to fill the buffer
+                        quote = true;
+                        addBuffer.append(s);
+                        continue;
+                    } else addBuffer.append(s); // all in one quote, add to buffer directly
+                } else if (quote) { // middle of the quote, add a space and skip the rest of the loop
+                    addBuffer.append(" ").append(s);
+                    continue;
+                } else addBuffer.append(s); // no loop just add to buffer
+                output.add(addBuffer.toString()); // dump the buffer
+                addBuffer.setLength(0); // clear the builder
             }
-            // remove all blank entries
-            output.removeAll(Collections.singleton(""));
+            // make sure if the buffer still has something then dump it to the output array
+            if (!addBuffer.isEmpty()) output.add(addBuffer.toString());
+            output.removeAll(Collections.singleton("")); // remove all blank entries
             String[] arr = new String[output.size()];
             return output.toArray(arr);
         }
