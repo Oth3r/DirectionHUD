@@ -6,7 +6,7 @@
 DirectionHUD is a fully customizable Minecraft Fabric mod that enhances the vanilla navigation experience.
 With the mod, you can save coordinates, track other players, see death locations, all with full customization with the **/hud** and **/destination** commands.
 ## Help localize DirectionHUD on [Crowdin](https://crowdin.com/project/directionhud/)!
-![overview](https://github.com/Oth3r/DirectionHUD/blob/master/media/directionhud%20overview.gif?raw=true)
+![overview](https://github.com/Oth3r/DirectionHUD/blob/master/media/showcase/overview.gif?raw=true)
 
 ***Where does the mod work?*** - DirectionHUD both works on client and server, but for now the client side only supports single player & DirectionHUD servers. As with anything, that can change with time.
 \
@@ -21,7 +21,7 @@ Press **H** to toggle the hud.
 ### HUD Customization
 Toggle and customize HUD modules to your liking, while sorting them to be perfect for you.
 
-![hud customization](https://github.com/Oth3r/DirectionHUD/blob/master/media/hud_modules.gif?raw=true)
+![hud customization](https://github.com/Oth3r/DirectionHUD/blob/master/media/showcase/hud_modules.gif?raw=true)
 <details>
 <summary>HUD Modules</summary>
 
@@ -44,7 +44,7 @@ Tired of writing down base locations?
 \
 Save, set, convert, and edit coordinates easily using the chat UI.
 
-![dest saving](https://github.com/Oth3r/DirectionHUD/blob/master/media/dest%20saving.gif?raw=true)
+![dest saving](https://github.com/Oth3r/DirectionHUD/blob/master/media/dest_edit.gif?raw=true)
 
 ### Tracking
 Having trouble ~~hunting down~~ keeping up with your friends?
@@ -54,7 +54,7 @@ Send a tracking request and start your adventures!
 ### Death Saving
 *Which cave did I die in...*
 \
-See your past previous deaths (customizable in the config) 
+See your past previous deaths (customizable in the config)
 
 ### Command Settings
 CUSTOMIZATION? MORE
@@ -63,16 +63,16 @@ Toggle destination & HUD settings, like bossbar color or autoclear status.
 
 ![dest customization](https://github.com/Oth3r/DirectionHUD/blob/master/media/dest%20customization.gif?raw=true)
 \
-![hud customization](https://github.com/Oth3r/DirectionHUD/blob/master/media/hud_settings.gif?raw=true)
+![hud customization](https://github.com/Oth3r/DirectionHUD/blob/master/media/showcase/hud_settings.gif?raw=true)
 
 ### Color Perfection
-Need to find the perfect color combination? 
+Need to find the perfect color combination?
 \
 Use the included presets, make a custom preset with the name of your choice, or use the color picker to set your favorite colors!
 
-![color picker](https://github.com/Oth3r/DirectionHUD/blob/master/media/color_picker.gif?raw=true)
+![color picker](https://github.com/Oth3r/DirectionHUD/blob/master/media/showcase/color_picker.gif?raw=true)
 \
-![color presets](https://github.com/Oth3r/DirectionHUD/blob/master/media/color_presets.gif?raw=true)
+![color presets](https://github.com/Oth3r/DirectionHUD/blob/master/media/showcase/color_presets.gif?raw=true)
 
 ### Config Settings
 Change default player configs and DirectionHUD settings using the **config file** when running on server, or use **[ModMenu](https://modrinth.com/mod/modmenu)** & **[YetAnotherConfigLib](https://modrinth.com/mod/yacl)** when running on client.
