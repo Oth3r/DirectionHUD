@@ -65,6 +65,9 @@ public class Utl {
     }
     public static class checkEnabled {
         //todo add a bool for singleplayer for perm checking
+        public static boolean customPresets(Player player) {
+            return config.MAXColorPresets > 0;
+        }
         public static boolean destination(Player player) {
             return true;
         }

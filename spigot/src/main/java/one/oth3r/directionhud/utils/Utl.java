@@ -61,6 +61,9 @@ public class Utl {
         }
     }
     public static class checkEnabled {
+        public static boolean customPresets(Player player) {
+            return config.MAXColorPresets > 0;
+        }
         public static boolean destination(Player player) {
             return player.getPlayer().hasPermission("directionhud.destination");
         }
