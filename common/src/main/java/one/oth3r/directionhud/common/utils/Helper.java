@@ -151,14 +151,14 @@ public class Helper {
                 ArrayList<String> list = new ArrayList<>();
                 ArrayList<String> presets = new ArrayList<>();
                 // add all presets to a list
-                for (String preset : PlayerData.get.colorPresets(player))
-                    presets.add(String.format("\"preset-%s\"",DHUD.preset.custom.getName(preset)));
+                for (String name : DHUD.preset.custom.getNames(PlayerData.get.colorPresets(player)))
+                    presets.add(String.format("\"preset-%s\"",name));
                 // displaying logic, if not empty and not display empty or empty and display empty
                 if (!current.isEmpty() || displayEmpty) {
                     list.add("ffffff");
-                    if (!presets.isEmpty()) {
+                    if (!presets.isEmpty() && Utl.checkEnabled.customPresets(player)) {
                         list.add("preset");
-                        if (current.contains("preset")) {
+                        if (current.startsWith("pre")) {
                             list.addAll(presets);
                             return list;
                         }
