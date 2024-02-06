@@ -7,6 +7,7 @@ import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Helper.Enums;
 import one.oth3r.directionhud.common.utils.Helper.ListPage;
+import one.oth3r.directionhud.common.utils.Helper.Command.Suggester;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.common.utils.CUtl;
@@ -65,6 +66,7 @@ public class DHUD {
             }
         }
         public static void presetCMD(Player player, String[] args) {
+            if (!Utl.checkEnabled.customPresets(player)) return;
             if (args.length <= 1) {
                 // preset ui
                 if (args.length == 0) preset.custom.ui(player,1,null);
@@ -73,7 +75,7 @@ public class DHUD {
                 // via preset name
                 else {
                     ArrayList<String> presets = PlayerData.get.colorPresets(player);
-                    ListPage<String> listPage = new ListPage<>(presets, preset.custom.PER_PAGE);
+                    ListPage<String> listPage = new ListPage<>(presets, preset.PER_PAGE);
                     // check if the preset is valid, then get the page for that preset
                     if (preset.custom.getNames(presets).contains(args[0])) {
                         String preset = args[0] +"|"+ DHUD.preset.custom.getColors(presets).get(DHUD.preset.custom.getNames(presets).indexOf(args[0]));
@@ -104,19 +106,52 @@ public class DHUD {
             if (pos == 1) {
                 if (config.social) suggester.add("inbox");
                 if (Utl.checkEnabled.reload(player)) suggester.add("reload");
-                suggester.add("dest");
-                suggester.add("hud");
+                if (Utl.checkEnabled.destination(player)) suggester.add("dest");
+                if (Utl.checkEnabled.hud(player)) suggester.add("hud");
+                if (Utl.checkEnabled.customPresets(player)) suggester.add("preset");
             }
             if (pos > 1) {
                 String command = args[0].toLowerCase();
                 // trim the start
                 String[] trimmedArgs = Helper.trimStart(args, 1);
                 // fix the pos
-                int fixedPos = pos - 1;
+                int fixedPos = pos - 2;
                 switch (command) {
-                    case "dest","destination" -> suggester.addAll(Destination.commandSuggester.logic(player,fixedPos,trimmedArgs));
-                    case "hud" -> suggester.addAll(HUD.commandSuggester.logic(player,fixedPos,trimmedArgs));
+                    case "dest","destination" -> suggester.addAll(Destination.commandSuggester.logic(player,fixedPos+1,trimmedArgs));
+                    case "hud" -> suggester.addAll(HUD.commandSuggester.logic(player,fixedPos+1,trimmedArgs));
+                    case "preset" -> suggester.addAll(presetCMD(player,fixedPos,trimmedArgs));
+                    case "color" -> {
+                        if (fixedPos == 4) suggester.addAll(Suggester.colors(player,Suggester.getCurrent(trimmedArgs,fixedPos)));
+                    }
                 }
+            }
+            return suggester;
+        }
+        public static ArrayList<String> presetCMD(Player player, int pos, String[] args) {
+            ArrayList<String> suggester = new ArrayList<>();
+            if (!Utl.checkEnabled.customPresets(player)) return suggester;
+            /*
+               preset rename (name) (newName)
+               preset save (color) (name)
+               preset color (name) (color)
+               preset delete (name)
+             */
+            if (pos == 0) {
+                suggester.add("rename");
+                suggester.add("save");
+                suggester.add("color");
+                suggester.add("delete");
+                return suggester;
+            }
+            // if -r is attached, remove it and continue with the suggester
+            if (args[0].contains("-r")) args[0] = args[0].replace("-r", "");
+            if (args[0].equals("save")) {
+                if (pos == 1) return Suggester.colors(player,Suggester.getCurrent(args,pos));
+                if (pos == 2) suggester.add("name");
+            } else {
+                if (pos == 1) suggester.addAll(Suggester.wrapQuotes(preset.custom.getNames(PlayerData.get.colorPresets(player))));
+                else if (args[0].equals("rename")) suggester.add("name");
+                else if (args[0].equals("color")) return Suggester.colors(player,Suggester.getCurrent(args,pos));
             }
             return suggester;
         }
@@ -315,7 +350,7 @@ public class DHUD {
         }
     }
     public static class preset {
-        // todo suggester
+        private static final int PER_PAGE = 7;
         private static CTxT lang(String key, Object... args) {
             return DHUD.lang("preset."+key, args);
         }
@@ -358,20 +393,20 @@ public class DHUD {
             CTxT presetsButton = CTxT.of("")
                     .append(CTxT.of("+").btn(true).color('a')
                             .cEvent(2,String.format("/dhud preset save \"%s\" ",color))
-                            .hEvent(CUtl.TBtn("color.presets.add.hover",CUtl.TBtn("color.presets.add.hover_2").color(color))))
-                    .append(CUtl.TBtn("color.presets").color(Assets.mainColors.presets)
+                            .hEvent(lang("hover.preset.plus",lang("hover.preset.plus_2").color(color))))
+                    .append(lang("button.preset").color(Assets.mainColors.presets)
                             .cEvent(1,String.format("/dhud color %s %s \"%s\" preset default",settings,type,subtype)).btn(true)
-                            .hEvent(CUtl.TBtn("color.presets.hover",CUtl.TBtn("color.presets.hover_2").color(Assets.mainColors.presets))));
-            CTxT customButton = CUtl.TBtn("color.custom").btn(true).color(Assets.mainColors.custom)
+                            .hEvent(lang("hover.preset.editor",lang("hover.preset.editor_2").color(Assets.mainColors.presets))));
+            CTxT customButton = lang("button.custom").btn(true).color(Assets.mainColors.custom)
                     .cEvent(2,String.format("/dhud color %s %s \"%s\" set ",settings,type,subtype))
-                    .hEvent(CUtl.TBtn("color.custom.hover",CUtl.TBtn("color.custom.hover_2").color(Assets.mainColors.custom)));
+                    .hEvent(lang("hover.custom",lang("hover.custom.2").color(Assets.mainColors.custom)));
             CTxT defaultSquare = CTxT.of(Assets.symbols.square).color(color).hEvent(CUtl.color.getBadge(color)),
-                    smallButton = CUtl.TBtn("color.size.small").color(CUtl.s()).cEvent(1,String.format(stepCMD,"small"))
-                            .hEvent(CUtl.TBtn("color.size.hover",CUtl.TBtn("color.size.small").color(CUtl.s()))).btn(true),
-                    normalButton = CUtl.TBtn("color.size.normal").color(CUtl.s()).cEvent(1,String.format(stepCMD,"normal"))
-                            .hEvent(CUtl.TBtn("color.size.hover",CUtl.TBtn("color.size.normal").color(CUtl.s()))).btn(true),
-                    bigButton = CUtl.TBtn("color.size.big").color(CUtl.s()).cEvent(1,String.format(stepCMD,"big"))
-                            .hEvent(CUtl.TBtn("color.size.hover",CUtl.TBtn("color.size.big").color(CUtl.s()))).btn(true);
+                    smallButton = lang("editor.step.button.small").color(CUtl.s()).cEvent(1,String.format(stepCMD,"small"))
+                            .hEvent(lang("editor.step.hover",lang("editor.step.button.small").color(CUtl.s()))).btn(true),
+                    normalButton = lang("editor.step.button.normal").color(CUtl.s()).cEvent(1,String.format(stepCMD,"normal"))
+                            .hEvent(lang("editor.step.hover",lang("editor.step.button.normal").color(CUtl.s()))).btn(true),
+                    bigButton = lang("editor.step.button.big").color(CUtl.s()).cEvent(1,String.format(stepCMD,"big"))
+                            .hEvent(lang("editor.step.hover",lang("editor.step.button.big").color(CUtl.s()))).btn(true);
             // initialize the change amounts for each step size
             float[] changeAmounts = new float[3];
             if (settings == null || settings.equals("normal")) {
@@ -402,7 +437,7 @@ public class DHUD {
                     String editedColor = CUtl.color.editHSB(changeAmt,color,(plus%2==0)?changeAmounts[changeAmt]*-1:(changeAmounts[changeAmt]));
                     hsbList.get(plus).color(editedColor.equals(color)?Assets.mainColors.gray:editedColor);
                     if (!editedColor.equals(color)) {
-                        hsbList.get(plus).hEvent(CUtl.TBtn("color.hover",CUtl.color.getBadge(editedColor)));
+                        hsbList.get(plus).hEvent(lang("color.hover.set",CUtl.color.getBadge(editedColor)));
                         hsbList.get(plus).cEvent(1,String.format("/dhud color %s %s \"%s\" set \"%s\"",settings,type,subtype,editedColor));
                     }
                 }
@@ -411,17 +446,17 @@ public class DHUD {
             return CTxT.of(" ")
                     .append(presetsButton).append(" ").append(customButton).append("\n\n")
                     .append("  ")
-                    .append(hsbList.get(0)).append(" ").append(defaultSquare).append(" ").append(hsbList.get(1)).append(" ").append(CUtl.lang("color.hue")).append("\n  ")
-                    .append(hsbList.get(2)).append(" ").append(defaultSquare).append(" ").append(hsbList.get(3)).append(" ").append(CUtl.lang("color.saturation")).append("\n  ")
-                    .append(hsbList.get(4)).append(" ").append(defaultSquare).append(" ").append(hsbList.get(5)).append(" ").append(CUtl.lang("color.brightness")).append("\n\n ")
+                    .append(hsbList.get(0)).append(" ").append(defaultSquare).append(" ").append(hsbList.get(1)).append(" ").append(lang("editor.hue")).append("\n  ")
+                    .append(hsbList.get(2)).append(" ").append(defaultSquare).append(" ").append(hsbList.get(3)).append(" ").append(lang("editor.saturation")).append("\n  ")
+                    .append(hsbList.get(4)).append(" ").append(defaultSquare).append(" ").append(hsbList.get(5)).append(" ").append(lang("editor.brightness")).append("\n\n ")
                     .append(smallButton).append(" ").append(normalButton).append(" ").append(bigButton);
         }
         public static void ui(Player player, String settings, Type type, String subtype, String page) {
             // top button initialization
             String clickCMD = String.format("/dhud color %s %s \"%s\" ",settings,type,subtype);
-            CTxT defaultBtn = CUtl.TBtn("color.presets.default").color(CUtl.s()).cEvent(1,clickCMD+"preset default").btn(true),
-                    minecraftBtn = CUtl.TBtn("color.presets.minecraft").color(CUtl.s()).cEvent(1,clickCMD+"preset minecraft").btn(true),
-                    customBtn = CUtl.TBtn("color.custom").color(CUtl.s()).cEvent(1,clickCMD+"preset custom").btn(true),
+            CTxT defaultBtn = lang("button.default").color(CUtl.s()).cEvent(1,clickCMD+"preset default").btn(true),
+                    minecraftBtn = lang("button.minecraft").color(CUtl.s()).cEvent(1,clickCMD+"preset minecraft").btn(true),
+                    customBtn = CTxT.of(" ").append(lang("button.custom").color(CUtl.s()).cEvent(1,clickCMD+"preset custom").btn(true)), // space at start for alignment
                     list = CTxT.of(""); // text for inside the UI
             // code for the button selector page, default and mc colors
             if (page.equals("default") || page.equals("minecraft")) {
@@ -454,42 +489,42 @@ public class DHUD {
                         String color = colors.get(colorIndex);
                         list.append(CTxT.of(Assets.symbols.square).btn(true).color(color)
                                 .cEvent(1,String.format(clickCMD+" set \"%s\"",color))
-                                .hEvent(CUtl.TBtn("color.hover", CUtl.color.getBadge(color))));
+                                .hEvent(lang("color.hover.set", CUtl.color.getBadge(color))));
                         colorIndex++;
                     }
-                    list.append(" ").append(CUtl.lang("color.presets."+s));
+                    list.append(" ").append(lang("color."+s));
                 }
             } else {
                 // custom, just numbers for the pages instead of an identifier, easier that way trust me
-                list.append("\n   ");
                 int pg = Helper.Num.toInt(page);
                 ListPage<String> listPage = new ListPage<>(PlayerData.get.colorPresets(player),7);
+                customBtn = listPage.getNavButtons(pg,clickCMD+"preset ");
                 for (String preset : listPage.getPage(pg)) {
                     String color = custom.getColor(preset), name = custom.getName(preset);
-                    list.append(CTxT.of(Assets.symbols.square).color(color).btn(true)
+                    list.append("\n ").append(CTxT.of(Assets.symbols.square).color(color).btn(true)
                                     .cEvent(1,String.format(clickCMD+" set \"%s\"",color))
-                                    .hEvent(CUtl.TBtn("color.hover",CUtl.color.getBadge(color))))
-                            .append(" ").append(CTxT.of(name).color(color)).append("\n   ");
+                                    .hEvent(lang("color.hover.set",CUtl.color.getBadge(color))))
+                            .append(" ").append(CTxT.of(name).color(color));
                 }
                 // fill in the gaps if entries don't fill whole page (consistency)
-                if (listPage.getPage(pg).size() != 7) {
-                    for (int i = 0; i < 6-listPage.getPage(pg).size(); i++) {
+                if (listPage.getPage(pg).size() != PER_PAGE) {
+                    for (int i = listPage.getPage(pg).size(); i < PER_PAGE; i++)
                         list.append("\n   ");
-                    }
                 }
             }
-            String backCMD = "";
-            switch (type) {
-                case hud -> backCMD = "/hud color edit "+settings+" "+subtype;
-                case dest -> backCMD = "/dest settings "+subtype+" "+settings;
-                case saved -> backCMD = "/dest saved edit colorui \""+subtype+"\" "+settings;
-                case preset -> backCMD = "/dhud preset colorui \""+subtype+"\" "+settings;
-            }
+            // get the correct back button
+            String backCMD = switch (type) {
+                case hud -> "/hud color edit "+settings+" "+subtype;
+                case dest -> "/dest settings "+subtype+" "+settings;
+                case saved -> "/dest saved edit colorui \""+subtype+"\" "+settings;
+                case preset -> "/dhud preset colorui \""+subtype+"\" "+settings;
+                default -> "/dhud";
+            };
             // final building of the message
-            CTxT msg = CTxT.of(" ").append(CUtl.lang("color.presets.ui").color(Assets.mainColors.presets))
+            CTxT msg = CTxT.of(" ").append(lang("ui").color(Assets.mainColors.presets))
                     .append(CTxT.of("\n                               \n").strikethrough(true))
                     .append(" ").append(defaultBtn).append(" ").append(minecraftBtn).append("\n").append(list)
-                    .append("\n\n    ").append(customBtn).append("  ").append(CUtl.CButton.back(backCMD))
+                    .append("\n\n   ").append(customBtn).append("  ").append(CUtl.CButton.back(backCMD))
                     .append(CTxT.of("\n                               ").strikethrough(true));
             player.sendMessage(msg);
         }
@@ -499,12 +534,23 @@ public class DHUD {
                 ArrayList<String> list = new ArrayList<>();
                 if (oldList.size() < 14) return list; // broken list return empty
                 for (byte i = 0; i < 14; i++) {
-                    String old = oldList.get(i-1);
-                    if (!old.equals("#ffffff")) list.add(i+"|"+old);
+                    String old = oldList.get(i);
+                    if (!old.equals("#ffffff")) list.add((i+1)+"|"+old);
                 }
                 return list;
             }
-            private static final int PER_PAGE = 7;
+            public static ArrayList<String> validate(ArrayList<String> list) {
+                // validate the config entry, making sure it works without throwing errors
+                ArrayList<String> output = new ArrayList<>();
+                for (String preset: list) {
+                    String name = getName(preset), color = getColor(preset);
+                    if (name.length() > Helper.MAX_NAME) break;
+                    if (!preset.contains("|#")) break;
+                    if (!color.equals("#ffffff") && CUtl.color.format(color).equals("#ffffff")) break;
+                    output.add(preset);
+                }
+                return output;
+            }
             public static CTxT getBadge(String preset) {
                 return getBadge(preset,true);
             }
@@ -530,32 +576,33 @@ public class DHUD {
             public static void ui(Player player, int pg, CTxT aboveMSG) {
                 CTxT msg = aboveMSG==null?CTxT.of(" "):aboveMSG.append("\n "),
                         line = CTxT.of("\n                               ").strikethrough(true);
-                msg.append(lang("ui.custom").color(Assets.mainColors.presets))
-                        .append(line).append("\n ");
-
+                msg.append(lang("ui.custom").color(Assets.mainColors.presets)).append(line);
+                CTxT addBtn = CTxT.of("+").btn(true).color('a').cEvent(2,"/dhud preset save-r ").hEvent(lang("hover.save").color('a'));
+                // disable if max saved colors reached
+                if (PlayerData.get.colorPresets(player).size() >= config.MAXColorPresets) addBtn.color('7').cEvent(1,null).hEvent(null);
                 ListPage<String> listPage = new ListPage<>(PlayerData.get.colorPresets(player),PER_PAGE);
                 for (String preset : listPage.getPage(pg)) {
                     String color = getColor(preset), name = getName(preset);
-                    msg.append(CTxT.of(Assets.symbols.x).color('c').btn(true)
+                    msg.append("\n ").append(CTxT.of(Assets.symbols.x).color('c').btn(true)
                                     .cEvent(1,String.format("/dhud preset delete-r \"%s\"",name))
-                                    .hEvent(lang("hover.x",getBadge(preset)).color('c')))
+                                    .hEvent(lang("hover.delete",getBadge(preset)).color('c')))
                             .append(" ")
                             .append(CTxT.of(Assets.symbols.square).color(color).btn(true)
                                     .cEvent(1,String.format("/dhud preset colorui \"%s\" normal",name))
                                     .hEvent(lang("hover.color",CUtl.color.getBadge(color))))
                             .append(CTxT.of(name).color(color).btn(true)
                                     .cEvent(2,String.format("/dhud preset rename-r \"%s\" ",name))
-                                    .hEvent(lang("hover.rename",getBadge(preset,false)))).append("\n ");
+                                    .hEvent(lang("hover.rename",getBadge(preset,false))));
                 }
                 // fill in the gaps if entries don't fill whole page (consistency)
                 if (listPage.getPage(pg).size() != PER_PAGE) {
-                    for (int i = 0; i < PER_PAGE-listPage.getPage(pg).size()-1; i++) {
-                        msg.append("\n   ");
-                    }
+                    for (int i = listPage.getPage(pg).size(); i < PER_PAGE; i++)
+                        msg.append("\n");
                 }
-                msg.append("\n\n   ")
+                msg.append("\n\n ")
+                        .append(addBtn).append(" ")
                         .append(listPage.getNavButtons(pg,"/dhud preset "))
-                        .append("  ").append(CUtl.CButton.back("/dhud"))
+                        .append(" ").append(CUtl.CButton.back("/dhud"))
                         .append(line);
                 player.sendMessage(msg);
             }
@@ -587,9 +634,8 @@ public class DHUD {
                 String oldPreset = presets.get(index), preset = name+"|"+color;
                 presets.set(index,preset);
                 PlayerData.set.colorPresets(player,presets);
-                CTxT msg = CUtl.tag().append(lang("msg.color",getBadge(oldPreset,false),CUtl.color.getBadge(color)));
-                if (Return) colorUI(player,settings,name,msg);
-                else player.sendMessage(msg);
+                if (Return) colorUI(player,settings,name,null);
+                else player.sendMessage(CUtl.tag().append(lang("msg.color",getBadge(oldPreset,false),CUtl.color.getBadge(color))));
             }
             public static void save(Player player, String name, String color, boolean Return) {
                 ArrayList<String> presets = PlayerData.get.colorPresets(player);
@@ -677,7 +723,7 @@ public class DHUD {
         if (Utl.checkEnabled.destination(player)) msg.append(CUtl.CButton.DHUD.dest());
         msg.append("\n\n ");
         // presets
-        if (Utl.checkEnabled.customPresets) msg.append(CUtl.CButton.DHUD.presets()).append(" ");
+        if (Utl.checkEnabled.customPresets(player)) msg.append(CUtl.CButton.DHUD.presets()).append(" ");
         // inbox
         if (config.social) msg.append(CUtl.CButton.DHUD.inbox());
         // reload (if enabled)
