@@ -18,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -147,7 +148,7 @@ public class config {
         public static final int HUDLoop = 1;
         public static final int ParticleLoop = 20;
         public static final boolean globalDESTs = false;
-        public static final int MAXColorPresets = 14; // todo saving and loading
+        public static final int MAXColorPresets = 14;
         public static final List<String> colorPresets = new ArrayList<>();
         public static final List<String> dimensions = Utl.dim.DEFAULT_DIMENSIONS;
         public static final List<String> dimensionRatios = Utl.dim.DEFAULT_RATIOS;
@@ -218,9 +219,10 @@ public class config {
             // DIM
             dimensions = new Gson().fromJson((String) properties.computeIfAbsent("dimensions", a -> gson.toJson(defaults.dimensions)), arrayListMap);
             dimensionRatios = new Gson().fromJson((String) properties.computeIfAbsent("dimension-ratios", a -> gson.toJson(defaults.dimensionRatios)), arrayListMap);
-
+            // COLOR PRESETS
+            colorPresets = DHUD.preset.custom.validate(new Gson().fromJson((String) properties.computeIfAbsent("color-presets", a -> gson.toJson(defaults.colorPresets)), arrayListMap));
+            MAXColorPresets = Integer.parseInt((String) properties.computeIfAbsent("max-color-presets", a -> String.valueOf(defaults.MAXColorPresets)));
             // PLAYER DEFAULTS
-            colorPresets = new Gson().fromJson((String) properties.computeIfAbsent("color-presets", a -> gson.toJson(defaults.colorPresets)), arrayListMap);
             // HUD
             hud.Order = HUD.modules.fixOrder(new Gson().fromJson((String) properties.computeIfAbsent("hud.order", a -> gson.toJson(hud.defaults.Order)), moduleListMap));
             // HUD MODULE STATES
@@ -391,10 +393,15 @@ public class config {
                     .append(CUtl.lang("config.dimension_ratios.info_2",CUtl.lang("config.dimension_ratios.info_2.1"),
                             CUtl.lang("config.dimension_ratios.info_2.2"))).toString());
 
+            file.write("\n\n# "+CUtl.lang("dhud.preset.config").toString());
+            file.write("\nmax-color-presets=" + MAXColorPresets);
+            file.write("\ncolor-presets=" + gson.toJson(colorPresets));
+            file.write("\n# "+CUtl.lang("dhud.preset.config.info").toString());
+            file.write("\n# "+CUtl.lang("dhud.preset.config.info.2").toString());
+            file.write("\n# "+CUtl.lang("dhud.preset.config.info.3").toString());
+
             file.write("\n\n\n# "+CUtl.lang("config.default").toString());
             file.write("\n# "+CUtl.lang("config.default.info").toString());
-            file.write("\ncolor-presets=" + gson.toJson(colorPresets));
-            file.write("\n# "+CUtl.lang("config.color_presets.info").toString());
 
             file.write("\n\n# "+CUtl.lang("config.hud").toString());
             file.write("\nhud.order=" + hud.Order);
