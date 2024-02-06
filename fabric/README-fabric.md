@@ -68,7 +68,7 @@ Toggle destination & HUD settings, like bossbar color or autoclear status.
 ### Color Perfection
 Need to find the perfect color combination? 
 \
-Use the included presets, or use the color picker to set your favorite colors!
+Use the included presets, make a custom preset with the name of your choice, or use the color picker to set your favorite colors!
 
 ![color picker](https://github.com/Oth3r/DirectionHUD/blob/master/media/color_picker.gif?raw=true)
 \
