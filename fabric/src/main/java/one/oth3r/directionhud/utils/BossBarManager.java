@@ -1,6 +1,5 @@
 package one.oth3r.directionhud.utils;
 
-import net.minecraft.client.gui.hud.BossBarHud;
 import net.minecraft.entity.boss.BossBar;
 import net.minecraft.util.Identifier;
 import one.oth3r.directionhud.DirectionHUD;
@@ -30,12 +29,12 @@ public class BossBarManager {
         BossBar bossBar = DirectionHUD.server.getBossBarManager().get(bossBars.get(player));
         assert bossBar != null;
         bossBar.setName(hud.b());
-        bossBar.setColor(BossBar.Color.byName(HUD.Setting.BarColor.get((String) PlayerData.get.hud.setting.get(player, HUD.Setting.bossbar__color)).toString()));
-        if (Destination.get(player).hasXYZ() && (boolean) PlayerData.get.hud.setting.get(player,HUD.Setting.bossbar__distance)) {
+        bossBar.setColor(BossBar.Color.byName(HUD.Setting.BarColor.get((String) PlayerData.get.hud.setting(player, HUD.Setting.bossbar__color)).toString()));
+        if (Destination.get(player).hasXYZ() && (boolean) PlayerData.get.hud.setting(player,HUD.Setting.bossbar__distance)) {
             int dist = Destination.getDist(player);
-            double progress = getProgress(dist,(double) PlayerData.get.hud.setting.get(player,HUD.Setting.bossbar__distance_max));
+            double progress = getProgress(dist,(double) PlayerData.get.hud.setting(player,HUD.Setting.bossbar__distance_max));
             bossBar.setStyle(BossBar.Style.NOTCHED_10);
-            if ((double) PlayerData.get.hud.setting.get(player,HUD.Setting.bossbar__distance_max) == 0) {
+            if ((double) PlayerData.get.hud.setting(player,HUD.Setting.bossbar__distance_max) == 0) {
                 progress = getProgress(dist,1000);
                 StringBuilder s = new StringBuilder();
                 for (int i = 1;i<5;i++) {

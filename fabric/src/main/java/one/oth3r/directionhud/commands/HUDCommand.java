@@ -9,8 +9,8 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import one.oth3r.directionhud.common.HUD;
+import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.utils.Player;
-import one.oth3r.directionhud.utils.Utl;
 
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -20,28 +20,28 @@ public class HUDCommand {
         dispatcher.register(CommandManager.literal("hud")
                 .requires((commandSource) -> commandSource.hasPermissionLevel(0))
                 .executes((context2) -> command(context2.getSource(), context2.getInput()))
-                .then(CommandManager.argument("args", StringArgumentType.word())
+                .then(CommandManager.argument("args", StringArgumentType.string())
                         .suggests((context, builder) -> getSuggestions(context,builder,1))
                         .executes((context2) -> command(context2.getSource(), context2.getInput()))
-                        .then(CommandManager.argument("args", StringArgumentType.word())
+                        .then(CommandManager.argument("args", StringArgumentType.string())
                                 .suggests((context, builder) -> getSuggestions(context,builder,2))
                                 .executes((context2) -> command(context2.getSource(), context2.getInput()))
-                                .then(CommandManager.argument("args", StringArgumentType.word())
+                                .then(CommandManager.argument("args", StringArgumentType.string())
                                         .suggests((context, builder) -> getSuggestions(context,builder,3))
                                         .executes((context2) -> command(context2.getSource(), context2.getInput()))
-                                        .then(CommandManager.argument("args", StringArgumentType.word())
+                                        .then(CommandManager.argument("args", StringArgumentType.string())
                                                 .suggests((context, builder) -> getSuggestions(context,builder,4))
                                                 .executes((context2) -> command(context2.getSource(), context2.getInput()))
-                                                .then(CommandManager.argument("args", StringArgumentType.word())
+                                                .then(CommandManager.argument("args", StringArgumentType.string())
                                                         .suggests((context, builder) -> getSuggestions(context,builder,5))
                                                         .executes((context2) -> command(context2.getSource(), context2.getInput()))
-                                                        .then(CommandManager.argument("args", StringArgumentType.word())
+                                                        .then(CommandManager.argument("args", StringArgumentType.string())
                                                                 .suggests((context, builder) -> getSuggestions(context,builder,6))
                                                                 .executes((context2) -> command(context2.getSource(), context2.getInput()))
-                                                                .then(CommandManager.argument("args", StringArgumentType.word())
+                                                                .then(CommandManager.argument("args", StringArgumentType.string())
                                                                         .suggests((context, builder) -> getSuggestions(context,builder,7))
                                                                         .executes((context2) -> command(context2.getSource(), context2.getInput()))
-                                                                        .then(CommandManager.argument("args", StringArgumentType.word())
+                                                                        .then(CommandManager.argument("args", StringArgumentType.string())
                                                                                 .suggests((context, builder) -> getSuggestions(context,builder,8))
                                                                                 .executes((context2) -> command(context2.getSource(), context2.getInput()))
                                                                                 .executes((context2) -> command(context2.getSource(), context2.getInput())))))))))));
@@ -50,8 +50,8 @@ public class HUDCommand {
         Player player = Player.of(Objects.requireNonNull(context.getSource().getPlayer()));
         String[] args = context.getInput().split(" ");
         if (pos > args.length) return builder.buildFuture();
-        args = Utl.trimStart(args,1);
-        for (String s : HUD.commandSuggester.logic(player,pos,args)) builder.suggest(s);
+        args = Helper.trimStart(args,1);
+        for (String s : HUD.commandSuggester.logic(player,pos, Helper.Command.quoteHandler(args))) builder.suggest(s);
         return builder.buildFuture();
     }
     private static int command(ServerCommandSource source, String arg) {
@@ -68,7 +68,7 @@ public class HUDCommand {
         if (args[0].equalsIgnoreCase("hud"))
             args = arg.replaceFirst("hud ", "").split(" ");
         if (args[0].equalsIgnoreCase("hud")) args = new String[0];
-        HUD.commandExecutor.logic(player,args);
+        HUD.commandExecutor.logic(player, Helper.Command.quoteHandler(args));
         return 1;
     }
 }

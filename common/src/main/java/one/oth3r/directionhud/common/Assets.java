@@ -40,7 +40,6 @@ public class Assets {
     }
     public static class cmdUsage {
         public static final String hud = "/hud";
-        public static final String hudToggle = "/hud toggle";
         public static final String hudColor = "/hud color";
         public static final String hudModules = "/hud modules (order, toggle, reset)";
         public static final String hudSettings = "/hud settings";
@@ -58,11 +57,23 @@ public class Assets {
         public static final String inbox = "/dhud inbox";
     }
     public static class symbols {
+        public static class arrows {
+            public static final String north = "\u2b06";
+            public static final String north_west = "\u2b09";
+            public static final String west = "\u2b05";
+            public static final String south_west = "\u2b0b";
+            public static final String south = "\u2b07";
+            public static final String south_east = "\u2b0a";
+            public static final String east = "\u2b95";
+            public static final String north_east = "\u2b08";
+            public static final String up = "\u25b2";
+            public static final String down = "\u25bc";
+            public static final String left = "\u25c0";
+            public static final String right = "\u25b6";
+            public static final String leftRight = "\u2b0c";
+            public static final String upDown = "\u2b0d";
+        }
         public static final String square = "\u2588";
-        public static final String up = "\u25b2";
-        public static final String down = "\u25bc";
-        public static final String left = "\u25c0";
-        public static final String right = "\u25b6";
         public static final String x = "\u2715";
         public static final String pencil = "\u270e";
         public static final String sun = "\u2600";
