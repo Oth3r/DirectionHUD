@@ -1106,7 +1106,7 @@ public class HUD {
                         .hEvent(lang("settings."+type+".hover",lang("settings."+type+"."+nextType).color(CUtl.s()))));
             }
             if (type.equals(Setting.bossbar__color)) {
-                button.append(CUtl.lang("color.presets."+ PlayerData.get.hud.setting(player,type)).btn(true)
+                button.append(lang("settings."+type+"."+PlayerData.get.hud.setting(player,type)).btn(true)
                         .color(Assets.barColor((Setting.BarColor.valueOf((String) PlayerData.get.hud.setting(player,type)))))
                         .cEvent(2,"/hud settings set-r "+type+" ").hEvent(lang("settings."+type+".hover")));
             }
