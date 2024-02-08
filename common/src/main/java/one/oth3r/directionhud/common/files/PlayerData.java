@@ -269,11 +269,17 @@ public class PlayerData {
             // new preset system
             map.put("color_presets", DHUD.preset.custom.update((ArrayList<String>) map.get("color_presets")));
         }
+        if (map.get("version").equals(1.71)) {
+            // revert
+            map.put("version",1.7);
+            // new hud modules not working fix!!!!
+            map.put("order",null);
+        }
         if (map.get("version").equals(1.7)) {
-            map.put("version",1.71);
+            map.put("version",1.72);
             Map<String,Object> hud = (Map<String, Object>) map.get("hud");
             // new hud modules not working fix
-            map.put("order",HUD.modules.fixOrder(Helper.Enums.toEnumList((ArrayList<String>) hud.get("order"),HUD.Module.class)));
+            hud.put("order",HUD.modules.fixOrder(Helper.Enums.toEnumList((ArrayList<String>) hud.get("order"),HUD.Module.class)));
             map.put("hud",hud);
         }
         return map;
@@ -341,7 +347,7 @@ public class PlayerData {
             destination.put("lastdeath", new ArrayList<String>());
             destination.put("tracking", null);
             //base
-            map.put("version", 1.71);
+            map.put("version", 1.72);
             map.put("name", player.getName());
             map.put("hud", hud);
             map.put("destination", destination);
