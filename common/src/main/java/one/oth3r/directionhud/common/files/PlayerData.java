@@ -87,7 +87,7 @@ public class PlayerData {
             map.put("version",1.3);
             Map<String,Object> dest = (Map<String, Object>) map.get("destination");
             dest.computeIfAbsent("saved", k -> new ArrayList<String>());
-            if (((ArrayList<String>) dest.get("saved")).size() != 0) {
+            if (!((ArrayList<String>) dest.get("saved")).isEmpty()) {
                 ArrayList<String> saved = (ArrayList<String>) dest.get("saved");
                 for (String s: saved) {
                     String[] split = s.split(" ");
@@ -269,6 +269,13 @@ public class PlayerData {
             // new preset system
             map.put("color_presets", DHUD.preset.custom.update((ArrayList<String>) map.get("color_presets")));
         }
+        if (map.get("version").equals(1.7)) {
+            map.put("version",1.71);
+            Map<String,Object> hud = (Map<String, Object>) map.get("hud");
+            // new hud modules not working fix
+            map.put("order",HUD.modules.fixOrder((ArrayList<HUD.Module>) map.get("order")));
+            map.put("hud",hud);
+        }
         return map;
     }
     @SuppressWarnings("unchecked")
@@ -334,7 +341,7 @@ public class PlayerData {
             destination.put("lastdeath", new ArrayList<String>());
             destination.put("tracking", null);
             //base
-            map.put("version", 1.7);
+            map.put("version", 1.71);
             map.put("name", player.getName());
             map.put("hud", hud);
             map.put("destination", destination);
