@@ -273,7 +273,7 @@ public class PlayerData {
             map.put("version",1.71);
             Map<String,Object> hud = (Map<String, Object>) map.get("hud");
             // new hud modules not working fix
-            map.put("order",HUD.modules.fixOrder((ArrayList<HUD.Module>) map.get("order")));
+            map.put("order",HUD.modules.fixOrder(Helper.Enums.toEnumList((ArrayList<String>) hud.get("order"),HUD.Module.class)));
             map.put("hud",hud);
         }
         return map;
