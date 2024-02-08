@@ -539,10 +539,10 @@ public class HUD {
         // SOUTH
         // if compact and the ylevel is different & there's a y level on the loc
         if (!simple && !(boolean) PlayerData.get.dest.setting(player, Destination.Setting.ylevel) && pointLoc.yExists()) {
-            tracking.add("/p|");
+            tracking.add("p|");
             if (player.getLoc().getY() > pointLoc.getY())
-                tracking.add("s"+arrows.north);
-            else tracking.add("s"+arrows.south);
+                tracking.add("s"+arrows.south);
+            else tracking.add("s"+arrows.north);
         }
         tracking.add("/p]");
         return tracking;
