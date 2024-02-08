@@ -45,20 +45,20 @@ public class PlayerData {
         }
     }
     @SuppressWarnings("unchecked")
-    public static Map<String, Object> updater(Player player, Map<String,Object> map) {
-        map.put("name", player.getName());
-        if (map.get("version").equals(1.0)) {
-            map.put("version",1.1);
-            Map<String,Object> dest = (Map<String, Object>) map.get("destination");
+    public static Map<String, Object> updater(Player player, Map<String,Object> base) {
+        base.put("name", player.getName());
+        if (base.get("version").equals(1.0)) {
+            base.put("version",1.1);
+            Map<String,Object> dest = (Map<String, Object>) base.get("destination");
             Map<String,Object> dSet = (Map<String, Object>) dest.get("setting");
             dSet.put("lastdeath", config.dest.Lastdeath);
             dest.put("setting",dSet);
-            map.put("destination",dest);
+            base.put("destination",dest);
         }
-        if (map.get("version").equals(1.1)) {
-            map.put("version",1.2);
-            Map<String,Object> hud = (Map<String, Object>) map.get("hud");
-            Map<String,Object> dest = (Map<String, Object>) map.get("destination");
+        if (base.get("version").equals(1.1)) {
+            base.put("version",1.2);
+            Map<String,Object> hud = (Map<String, Object>) base.get("hud");
+            Map<String,Object> dest = (Map<String, Object>) base.get("destination");
             String death = (String) dest.get("lastdeath");
             String[] deaths = death.split(" ");
             ArrayList<String> newDeaths = new ArrayList<>();
@@ -80,12 +80,12 @@ public class PlayerData {
             hud.put("primary",pri);
             hud.put("secondary",sec);
             dest.put("lastdeath",newDeaths);
-            map.put("destination",dest);
-            map.put("hud",hud);
+            base.put("destination",dest);
+            base.put("hud",hud);
         }
-        if (map.get("version").equals(1.2)) {
-            map.put("version",1.3);
-            Map<String,Object> dest = (Map<String, Object>) map.get("destination");
+        if (base.get("version").equals(1.2)) {
+            base.put("version",1.3);
+            Map<String,Object> dest = (Map<String, Object>) base.get("destination");
             dest.computeIfAbsent("saved", k -> new ArrayList<String>());
             if (!((ArrayList<String>) dest.get("saved")).isEmpty()) {
                 ArrayList<String> saved = (ArrayList<String>) dest.get("saved");
@@ -111,14 +111,14 @@ public class PlayerData {
                 }
             }
             dest.put("lastdeath",lastdeath);
-            map.put("dest",dest);
+            base.put("dest",dest);
         }
-        if (map.get("version").equals(1.3)) {
+        if (base.get("version").equals(1.3)) {
             // dest logic, add new tracking
-            map.put("version",1.4);
-            map.remove("lastdeath");
-            Map<String,Object> dest = (Map<String, Object>) map.get("destination");
-            Map<String,Object> hud = (Map<String, Object>) map.get("hud");
+            base.put("version",1.4);
+            base.remove("lastdeath");
+            Map<String,Object> dest = (Map<String, Object>) base.get("destination");
+            Map<String,Object> hud = (Map<String, Object>) base.get("hud");
             Map<String,Object> hudModule = (Map<String, Object>) hud.get("module");
             hudModule.put("tracking",hudModule.get("compass"));
             hudModule.put("compass",null);
@@ -126,7 +126,7 @@ public class PlayerData {
             //ORDER FIX
             String order = (String) hud.get("order");
             hud.put("order",order.replace("compass","tracking"));
-            map.put("hud",hud);
+            base.put("hud",hud);
             //NEW TRACKING & XYZ FIX
             dest.put("tracking",null);
             String xyz = (String) dest.get("xyz");
@@ -172,15 +172,15 @@ public class PlayerData {
             setting.put("autoconvert", config.dest.AutoConvert);
             setting.put("particles",particles);
             dest.put("setting",setting);
-            map.put("destination",dest);
+            base.put("destination",dest);
         }
-        if (map.get("version").equals(1.4)) {
-            map.put("version",1.5);
+        if (base.get("version").equals(1.4)) {
+            base.put("version",1.5);
             Map<String,Object> temp = new HashMap<>();
-            Map<String,Object> dest = (Map<String, Object>) map.get("destination");
+            Map<String,Object> dest = (Map<String, Object>) base.get("destination");
             //MOVE COUNTDOWN FROM DEST TO TEMP
             if (dest.get("track") != null) temp.put("track",dest.get("track"));
-            map.put("temp",temp);
+            base.put("temp",temp);
             //UPDATE DEST PARTICLE COLORS TO NEW SYSTEM
             Map<String,Object> destSetting = (Map<String, Object>) dest.get("setting");
             Map<String,Object> particles = (Map<String, Object>) destSetting.get("particles");
@@ -212,7 +212,7 @@ public class PlayerData {
             }
             dest.put("saved",destSaved);
             //UPDATE HUD COLORS TO NEW SYSTEM
-            Map<String,Object> hud = (Map<String, Object>) map.get("hud");
+            Map<String,Object> hud = (Map<String, Object>) base.get("hud");
             String[] primary = ((String) hud.get("primary")).split("-");
             primary[0] = CUtl.color.updateOld(primary[0], config.hud.primary.Color);
             hud.put("primary",String.join("-",primary));
@@ -230,26 +230,26 @@ public class PlayerData {
             hudSetting.put("module",hudSettingModule);
             hud.put("order", HUD.modules.fixOrder(Helper.Enums.toEnumList(new ArrayList<>(List.of(((String) hud.get("order")).split(" "))),HUD.Module.class)));
             hud.put("setting",hudSetting);
-            map.put("destination",dest);
-            map.put("hud",hud);
-            map.put("color_presets",config.colorPresets);
+            base.put("destination",dest);
+            base.put("hud",hud);
+            base.put("color_presets",config.colorPresets);
         }
-        if (map.get("version").equals(1.5)) {
-            map.put("version",1.6);
+        if (base.get("version").equals(1.5)) {
+            base.put("version",1.6);
             // new inbox system
-            map.put("temp",null);
-            map.put("inbox",new ArrayList<>());
+            base.put("temp",null);
+            base.put("inbox",new ArrayList<>());
             // move hud.enabled to hud.setting.state
-            Map<String,Object> hud = (Map<String, Object>) map.get("hud");
+            Map<String,Object> hud = (Map<String, Object>) base.get("hud");
             Map<String,Object> hudSetting = (Map<String, Object>) hud.get("setting");
             hudSetting.put("state",hud.get("enabled"));
             hud.put("setting",hudSetting);
             hud.put("enabled",null);
-            map.put("hud",hud);
+            base.put("hud",hud);
         }
-        if (map.get("version").equals(1.6)) {
-            map.put("version",1.7);
-            Map<String,Object> hud = (Map<String, Object>) map.get("hud");
+        if (base.get("version").equals(1.6)) {
+            base.put("version",1.7);
+            Map<String,Object> hud = (Map<String, Object>) base.get("hud");
             // new hud module settings
             Map<String,Object> hudSetting = (Map<String, Object>) hud.get("setting");
             Map<String,Object> hudModuleSetting = (Map<String, Object>) hudSetting.get("module");
@@ -264,25 +264,27 @@ public class PlayerData {
             Map<String,Object> hudModule = (Map<String, Object>) hud.get("module");
             hudModule.put("speed",config.hud.Speed);
             hudModule.put("angle",config.hud.Angle);
-            map.put("module",hudModule);
-            map.put("hud",hud);
+            hud.put("module",hudModule);
+            base.put("hud",hud);
             // new preset system
-            map.put("color_presets", DHUD.preset.custom.update((ArrayList<String>) map.get("color_presets")));
+            base.put("color_presets", DHUD.preset.custom.update((ArrayList<String>) base.get("color_presets")));
         }
-        if (map.get("version").equals(1.71)) {
+        if (base.get("version").equals(1.71)) {
             // revert
-            map.put("version",1.7);
-            // new hud modules not working fix!!!!
-            map.put("order",null);
+            base.put("version",1.7);
+            base.put("order",null);
         }
-        if (map.get("version").equals(1.7)) {
-            map.put("version",1.72);
-            Map<String,Object> hud = (Map<String, Object>) map.get("hud");
-            // new hud modules not working fix
+        if (base.get("version").equals(1.7)) {
+            // skip to 1.72 as 1.71 was reverted
+            base.put("version",1.72);
+            Map<String,Object> hud = (Map<String, Object>) base.get("hud");
+            // update the HUD order, forgot to do that in 1.7
             hud.put("order",HUD.modules.fixOrder(Helper.Enums.toEnumList((ArrayList<String>) hud.get("order"),HUD.Module.class)));
-            map.put("hud",hud);
+            base.put("hud",hud);
+            // remove the extra module tab found in the base from a broken past update
+            base.put("module",null);
         }
-        return map;
+        return base;
     }
     @SuppressWarnings("unchecked")
     public static Map<String,Object> removeUnnecessary(Map<String,Object> map) {
