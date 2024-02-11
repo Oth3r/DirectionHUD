@@ -6,6 +6,7 @@
   "key.directionhud.usage": "USAGE:",
   "key.directionhud.error": "ERROR:",
   "key.directionhud.error.command": "Command not recognized!",
+  "key.directionhud.error.args": "Invalid command arguments!",
   "key.directionhud.error.coordinates": "Invalid coordinates!",
   "key.directionhud.error.dimension": "Invalid dimension!",
   "key.directionhud.error.number": "Invalid number!",
