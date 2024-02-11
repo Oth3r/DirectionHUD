@@ -45,9 +45,16 @@ public class CUtl {
             return LangReader.of("key.directionhud."+key, args).getTxT();
         }
     }
+
+    /**
+     * the opposite color of the boolean, if true red
+     */
+    public static String toggleColor(boolean button) {
+        return button?"#FF5555":"#55FF55";
+    }
     // OFF/ON (COLOR)
     public static CTxT toggleTxT(boolean button) {
-        return CUtl.TBtn(button?"off":"on").color(button?'c':'a');
+        return CUtl.TBtn(button?"off":"on").color(toggleColor(button));
     }
     // [OFF/ON] (COLOR & FUNCTIONALITY)
     public static CTxT toggleBtn(boolean button, String cmd) {
