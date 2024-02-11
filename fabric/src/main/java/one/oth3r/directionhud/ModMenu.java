@@ -25,16 +25,6 @@ public class ModMenu implements ModMenuApi {
     private static OptionDescription desc(CTxT txt) {
         return OptionDescription.of(txt.b());
     }
-    private static ArrayList<Color> toColorList(List<String> list) {
-        ArrayList<Color> colors = new ArrayList<>();
-        for (String s:list) colors.add(Color.decode(s));
-        return colors;
-    }
-    private static ArrayList<String> toStringList(List<Color> list) {
-        ArrayList<String> strings = new ArrayList<>();
-        for (Color c:list) strings.add(String.format("#%02x%02x%02x", c.getRed(), c.getGreen(), c.getBlue()));
-        return strings;
-    }
     @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
         return parent -> YetAnotherConfigLib.createBuilder().save(config::save)
@@ -307,51 +297,49 @@ public class ModMenu implements ModMenuApi {
                                         .build())
                                 .build())
                         .group(OptionGroup.createBuilder()
-                                .name(lang("hud.color.category", Helper.capitalizeFirst(CUtl.lang("hud.color.primary").toString())).b())
-                                .description(OptionDescription.of(lang("hud.color.category.info",CUtl.lang("hud.color.primary")).b()))
+                                .name(HUD.color.lang("ui.primary").b())
                                 .option(Option.<Color>createBuilder()
-                                        .name(lang("hud.color").b())
+                                        .name(HUD.color.lang("ui.color").b())
                                         .binding(Color.decode(CUtl.color.format(config.hud.defaults.primary.Color)),() -> Color.decode(CUtl.color.format(config.hud.primary.Color)),
                                                 n -> config.hud.primary.Color = String.format("#%02x%02x%02x", n.getRed(), n.getGreen(), n.getBlue()))
                                         .controller(ColorControllerBuilder::create)
                                         .build())
                                 .option(Option.<Boolean>createBuilder()
-                                        .name(lang("hud.color.bold").b())
+                                        .name(HUD.color.lang("ui.bold").b())
                                         .binding(config.hud.defaults.primary.Bold, () -> config.hud.primary.Bold, n -> config.hud.primary.Bold = n)
                                         .controller(TickBoxControllerBuilder::create)
                                         .build())
                                 .option(Option.<Boolean>createBuilder()
-                                        .name(lang("hud.color.italics").b())
+                                        .name(HUD.color.lang("ui.italics").b())
                                         .binding(config.hud.defaults.primary.Italics, () -> config.hud.primary.Italics, n -> config.hud.primary.Italics = n)
                                         .controller(TickBoxControllerBuilder::create)
                                         .build())
                                 .option(Option.<Boolean>createBuilder()
-                                        .name(lang("hud.color.rainbow").b())
+                                        .name(HUD.color.lang("ui.rainbow").b())
                                         .binding(config.hud.defaults.primary.Rainbow, () -> config.hud.primary.Rainbow, n -> config.hud.primary.Rainbow = n)
                                         .controller(TickBoxControllerBuilder::create)
                                         .build())
                                 .build())
                         .group(OptionGroup.createBuilder()
-                                .name(lang("hud.color.category",Helper.capitalizeFirst(CUtl.lang("hud.color.secondary").toString())).b())
-                                .description(OptionDescription.of(lang("hud.color.category.info",CUtl.lang("hud.color.secondary")).b()))
+                                .name(HUD.color.lang("ui.secondary").b())
                                 .option(Option.<Color>createBuilder()
-                                        .name(lang("hud.color").b())
+                                        .name(HUD.color.lang("ui.color").b())
                                         .binding(Color.decode(CUtl.color.format(config.hud.defaults.secondary.Color)),() -> Color.decode(CUtl.color.format(config.hud.secondary.Color)),
                                                 n -> config.hud.secondary.Color = String.format("#%02x%02x%02x", n.getRed(), n.getGreen(), n.getBlue()))
                                         .controller(ColorControllerBuilder::create)
                                         .build())
                                 .option(Option.<Boolean>createBuilder()
-                                        .name(lang("hud.color.bold").b())
+                                        .name(HUD.color.lang("ui.bold").b())
                                         .binding(config.hud.defaults.secondary.Bold, () -> config.hud.secondary.Bold, n -> config.hud.secondary.Bold = n)
                                         .controller(TickBoxControllerBuilder::create)
                                         .build())
                                 .option(Option.<Boolean>createBuilder()
-                                        .name(lang("hud.color.italics").b())
+                                        .name(HUD.color.lang("ui.italics").b())
                                         .binding(config.hud.defaults.secondary.Italics, () -> config.hud.secondary.Italics, n -> config.hud.secondary.Italics = n)
                                         .controller(TickBoxControllerBuilder::create)
                                         .build())
                                 .option(Option.<Boolean>createBuilder()
-                                        .name(lang("hud.color.rainbow").b())
+                                        .name(HUD.color.lang("ui.rainbow").b())
                                         .binding(config.hud.defaults.secondary.Italics, () -> config.hud.secondary.Rainbow, n -> config.hud.secondary.Rainbow = n)
                                         .controller(TickBoxControllerBuilder::create)
                                         .build())

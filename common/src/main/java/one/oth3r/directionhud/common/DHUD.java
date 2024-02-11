@@ -517,7 +517,7 @@ public class DHUD {
             }
             // get the correct back button
             String backCMD = switch (type) {
-                case hud -> "/hud color edit "+settings+" "+subtype;
+                case hud -> "/hud color "+subtype+" edit "+settings;
                 case dest -> "/dest settings "+subtype+" "+settings;
                 case saved -> "/dest saved edit colorui \""+subtype+"\" "+settings;
                 case preset -> "/dhud preset colorui \""+subtype+"\" "+settings;
