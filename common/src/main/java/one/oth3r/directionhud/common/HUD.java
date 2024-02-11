@@ -858,7 +858,7 @@ public class HUD {
                 if (args[1].equals("edit")) changeUI(player, args.length==3?args[2]:"normal", args[0], null);
                 if (args.length < 3) return;
                 // color (type) set (color)
-                if (args[1].equals("color")) setColor(player,null,args[0],args[2],false);
+                if (args[1].equals("set")) setColor(player,null,args[0],args[2],false);
                 // color (type) (bold/italics/rainbow) (on/off) (settings)
                 else setToggle(player,args.length==4?args[3]:"normal",args[0],args[1],args[2],Return);
             }
@@ -933,7 +933,7 @@ public class HUD {
             // save the current color settings
             PlayerData.set.hud.color(player,typ,String.join("-",current));
             if (Return) changeUI(player,setting,type,null);
-            else player.sendMessage(CUtl.tag().append(lang("msg.set",lang(type),CUtl.color.getBadge(color))));
+            else player.sendMessage(CUtl.tag().append(lang("msg.set",lang(type),CUtl.color.getBadge(current[0]))));
         }
         public static void setToggle(Player player, String setting, String colorType, String type, String toggle, boolean Return) {
             int typ = colorType.equals("primary")?1:2;
