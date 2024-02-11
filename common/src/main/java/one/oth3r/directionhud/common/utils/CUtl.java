@@ -61,12 +61,6 @@ public class CUtl {
         return CUtl.TBtn(button?"on":"off").btn(true).color(button?'a':'c').hEvent(CUtl.TBtn("state.hover",
                 toggleTxT(button))).cEvent(1,cmd+(button?"off":"on"));
     }
-    public static String formatCMD(String cmd) {
-        return cmd.substring(1).replace(" ", "-");
-    }
-    public static String unFormatCMD(String cmd) {
-        return "/"+cmd.replace("-"," ");
-    }
     public static CTxT TBtn(String key, Object... args) {
         return lang("button."+key,args);
     }
