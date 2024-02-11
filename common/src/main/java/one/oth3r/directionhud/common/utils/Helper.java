@@ -224,9 +224,6 @@ public class Helper {
         System.arraycopy(arr, numToRemove, result, 0, result.length);
         return result;
     }
-    public static String capitalizeFirst(String string) {
-        return string.toUpperCase().charAt(0)+string.substring(1);
-    }
     public static class Pair<A, B> {
         private final A first;
         private final B second;
