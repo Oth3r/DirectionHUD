@@ -45,20 +45,21 @@ public class CUtl {
             return LangReader.of("key.directionhud."+key, args).getTxT();
         }
     }
+
+    /**
+     * the opposite color of the boolean, if true red
+     */
+    public static String toggleColor(boolean button) {
+        return button?"#FF5555":"#55FF55";
+    }
     // OFF/ON (COLOR)
     public static CTxT toggleTxT(boolean button) {
-        return CUtl.TBtn(button?"off":"on").color(button?'c':'a');
+        return CUtl.TBtn(button?"off":"on").color(toggleColor(button));
     }
     // [OFF/ON] (COLOR & FUNCTIONALITY)
     public static CTxT toggleBtn(boolean button, String cmd) {
         return CUtl.TBtn(button?"on":"off").btn(true).color(button?'a':'c').hEvent(CUtl.TBtn("state.hover",
                 toggleTxT(button))).cEvent(1,cmd+(button?"off":"on"));
-    }
-    public static String formatCMD(String cmd) {
-        return cmd.substring(1).replace(" ", "-");
-    }
-    public static String unFormatCMD(String cmd) {
-        return "/"+cmd.replace("-"," ");
     }
     public static CTxT TBtn(String key, Object... args) {
         return lang("button."+key,args);

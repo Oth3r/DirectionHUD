@@ -44,8 +44,13 @@ public class PlayerData {
             e.printStackTrace();
         }
     }
+    private static Map<String, Object> saveLoad(Player player, Map<String, Object> map) {
+        // saves the current map and sends back an updated map
+        mapToFile(player,map);
+        return fileToMap(player);
+    }
     @SuppressWarnings("unchecked")
-    public static Map<String, Object> updater(Player player, Map<String,Object> base) {
+    public static void updater(Player player, Map<String,Object> base) {
         base.put("name", player.getName());
         if (base.get("version").equals(1.0)) {
             base.put("version",1.1);
@@ -54,6 +59,8 @@ public class PlayerData {
             dSet.put("lastdeath", config.dest.Lastdeath);
             dest.put("setting",dSet);
             base.put("destination",dest);
+            // reload the file after updating a version
+            base = saveLoad(player,base);
         }
         if (base.get("version").equals(1.1)) {
             base.put("version",1.2);
@@ -82,6 +89,8 @@ public class PlayerData {
             dest.put("lastdeath",newDeaths);
             base.put("destination",dest);
             base.put("hud",hud);
+            // reload the file after updating a version
+            base = saveLoad(player,base);
         }
         if (base.get("version").equals(1.2)) {
             base.put("version",1.3);
@@ -112,6 +121,8 @@ public class PlayerData {
             }
             dest.put("lastdeath",lastdeath);
             base.put("dest",dest);
+            // reload the file after updating a version
+            base = saveLoad(player,base);
         }
         if (base.get("version").equals(1.3)) {
             // dest logic, add new tracking
@@ -173,6 +184,8 @@ public class PlayerData {
             setting.put("particles",particles);
             dest.put("setting",setting);
             base.put("destination",dest);
+            // reload the file after updating a version
+            base = saveLoad(player,base);
         }
         if (base.get("version").equals(1.4)) {
             base.put("version",1.5);
@@ -233,6 +246,8 @@ public class PlayerData {
             base.put("destination",dest);
             base.put("hud",hud);
             base.put("color_presets",config.colorPresets);
+            // reload the file after updating a version
+            base = saveLoad(player,base);
         }
         if (base.get("version").equals(1.5)) {
             base.put("version",1.6);
@@ -246,6 +261,8 @@ public class PlayerData {
             hud.put("setting",hudSetting);
             hud.put("enabled",null);
             base.put("hud",hud);
+            // reload the file after updating a version
+            base = saveLoad(player,base);
         }
         if (base.get("version").equals(1.6)) {
             base.put("version",1.7);
@@ -268,6 +285,8 @@ public class PlayerData {
             base.put("hud",hud);
             // new preset system
             base.put("color_presets", DHUD.preset.custom.update((ArrayList<String>) base.get("color_presets")));
+            // reload the file after updating a version
+            base = saveLoad(player,base);
         }
         if (base.get("version").equals(1.71)) {
             // revert
@@ -283,8 +302,11 @@ public class PlayerData {
             base.put("hud",hud);
             // remove the extra module tab found in the base from a broken past update
             base.put("module",null);
+            // reload the file after updating a version
+            base = saveLoad(player,base);
         }
-        return base;
+        // save at the end
+        mapToFile(player,base);
     }
     @SuppressWarnings("unchecked")
     public static Map<String,Object> removeUnnecessary(Map<String,Object> map) {
@@ -312,8 +334,7 @@ public class PlayerData {
         player.sendSettingPackets();
     }
     public static void addPlayer(Player player) {
-        Map<String, Object> map = updater(player, fileToMap(player));
-        mapToFile(player, map);
+        updater(player, fileToMap(player));
         updatePlayerMap(player);
         HashMap<String, Object> hashMap = new HashMap<>();
         hashMap.put("speed_data", player.getVec());

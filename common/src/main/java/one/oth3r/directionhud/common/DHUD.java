@@ -168,11 +168,14 @@ public class DHUD {
         else player.sendMessage(CUtl.tag().append(lang("reload",lang("reload_2").color('a'))));
     }
     public static class inbox {
+        private static CTxT lang(String key, Object... args) {
+            return DHUD.lang("inbox."+key, args);
+        }
         public static final int PER_PAGE = 3;
         public enum Type {
             track_pending,
             track_request,
-            destination;
+            destination
         }
         public static void tick(Player player) {
             ArrayList<HashMap<String, Object>> inbox = PlayerData.get.inbox(player);
@@ -294,7 +297,7 @@ public class DHUD {
             inbox.remove(entry);
             PlayerData.set.inbox(player,inbox);
             if (Return) {
-                player.sendMessage(CUtl.tag().append(lang("inbox.cleared",CTxT.of((String)entry.get("player_name")).color(CUtl.s()))));
+                player.sendMessage(CUtl.tag().append(lang("cleared",CTxT.of((String)entry.get("player_name")).color(CUtl.s()))));
                 player.performCommand("dhud inbox "+ listPage.getPageOf(entry));
             }
         }
@@ -307,8 +310,8 @@ public class DHUD {
                 if (from != null) name = from.getName();
             }
             if (entry.get("type").equals(Type.track_request.name())) {
-                msg.append(lang("inbox.track_request").color(CUtl.p())).append(" ").append(lang("inbox.time",((Double)entry.get("expire")).intValue()).color('7'))
-                        .append("\n  ").append(lang("inbox.from",CTxT.of(name).color(CUtl.s()))).append("\n   ")
+                msg.append(lang("track_request").color(CUtl.p())).append(" ").append(lang("time",((Double)entry.get("expire")).intValue()).color('7'))
+                        .append("\n  ").append(lang("from",CTxT.of(name).color(CUtl.s()))).append("\n   ")
                         .append(CUtl.TBtn("accept").btn(true).color('a')
                                 .hEvent(CUtl.TBtn("accept.hover").color('a'))
                                 .cEvent(1,"/dest track accept-r "+name)).append(" ")
@@ -317,18 +320,18 @@ public class DHUD {
                                 .cEvent(1,"/dest track deny-r "+name));
             }
             if (entry.get("type").equals(Type.track_pending.name())) {
-                msg.append(lang("inbox.track_pending").color(CUtl.p())).append(" ").append(lang("inbox.time",((Double)entry.get("expire")).intValue()).color('7'))
-                        .append("\n  ").append(lang("inbox.to",CTxT.of(name).color(CUtl.s()))).append("\n   ")
+                msg.append(lang("track_pending").color(CUtl.p())).append(" ").append(lang("time",((Double)entry.get("expire")).intValue()).color('7'))
+                        .append("\n  ").append(lang("to",CTxT.of(name).color(CUtl.s()))).append("\n   ")
                         .append(CUtl.TBtn("cancel").btn(true).color('c')
                                 .hEvent(CUtl.TBtn("cancel.hover").color('c'))
                                 .cEvent(1, "/dest track cancel-r "+name));
             }
             if (entry.get("type").equals(Type.destination.name())) {
-                msg.append(lang("inbox.destination").color(CUtl.p())).append(" ").append(lang("inbox.time",((Double)entry.get("expire")).intValue()).color('7'))
+                msg.append(lang("destination").color(CUtl.p())).append(" ").append(lang("inbox.time",((Double)entry.get("expire")).intValue()).color('7'))
                         .append(" ").append(CTxT.of(Assets.symbols.x).btn(true).color('c')
-                                .hEvent(lang("inbox.clear.hover").color('c'))
+                                .hEvent(lang("clear.hover").color('c'))
                                 .cEvent(1,"/dhud inbox clear "+entry.get("id")))
-                        .append("\n  ").append(lang("inbox.from",CTxT.of(name).color(CUtl.s()))).append("\n   ")
+                        .append("\n  ").append(lang("from",CTxT.of(name).color(CUtl.s()))).append("\n   ")
                         .append(Destination.social.getSendTxt(player,(String)entry.get("name"),new Loc(entry.get("loc").toString()),(String)entry.get("color")));
             }
             return msg;
@@ -336,12 +339,12 @@ public class DHUD {
         public static void UI(Player player, int pg) {
             Helper.ListPage<HashMap<String, Object>> listPage = new Helper.ListPage<>(PlayerData.get.inbox(player),PER_PAGE);
             CTxT msg = CTxT.of("");
-            msg.append(" ").append(lang("ui.inbox").color(Assets.mainColors.inbox)).append(CUtl.LINE_35).append("\n ");
+            msg.append(" ").append(lang("ui").color(Assets.mainColors.inbox)).append(CUtl.LINE_35).append("\n ");
             for (HashMap<String, Object> index : listPage.getPage(pg)) {
                 msg.append(display(player,index)).append("\n ");
             }
             // no entries
-            if (listPage.getList().isEmpty()) msg.append("\n ").append(lang("inbox.empty").color('7').italic(true)).append("\n");
+            if (listPage.getList().isEmpty()) msg.append("\n ").append(lang("empty").color('7').italic(true)).append("\n");
             // bottom row
             msg.append("\n ");
             if (listPage.getList().size() > PER_PAGE) msg.append(listPage.getNavButtons(pg,"/dhud inbox ")).append(" ");
@@ -514,7 +517,7 @@ public class DHUD {
             }
             // get the correct back button
             String backCMD = switch (type) {
-                case hud -> "/hud color edit "+settings+" "+subtype;
+                case hud -> "/hud color "+subtype+" edit "+settings;
                 case dest -> "/dest settings "+subtype+" "+settings;
                 case saved -> "/dest saved edit colorui \""+subtype+"\" "+settings;
                 case preset -> "/dhud preset colorui \""+subtype+"\" "+settings;
