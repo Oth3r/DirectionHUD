@@ -111,6 +111,7 @@ public class LoopManager {
     }
     private static void secondLoop(Player player) {
         DHUD.inbox.tick(player);
+        // count down the social cooldown
         Double timer = PlayerData.get.socialCooldown(player);
         if (timer != null) {
             PlayerData.set.socialCooldown(player,timer-1);
@@ -131,6 +132,11 @@ public class LoopManager {
             if (!Utl.checkEnabled.track(player)) Destination.social.track.clear(player);
         }
         Player target = Destination.social.track.getTarget(player);
+        // clear if tracking oneself, dunno how its possible, but it happened before
+        if (target == player) {
+            target = null;
+            Destination.social.track.clear(player);
+        }
         // if the target isn't null and the target has tracking on
         if (target != null && (boolean) PlayerData.get.dest.setting(target, Destination.Setting.features__track)) {
             // if the offline message was sent, reset it and send the back message
