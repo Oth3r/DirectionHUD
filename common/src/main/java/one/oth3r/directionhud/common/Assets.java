@@ -67,8 +67,7 @@ public class Assets {
             for (HUD.Module module:HUD.Module.values()) {
                 if (!module.equals(HUD.Module.unknown)) output.append(module).append(", ");
             }
-            output.setLength(output.length()-1); // remove the last ", "
-            return output.toString();
+            return output.substring(0,output.toString().length()-2); // remove the last ", "
         }
     }
     public static class symbols {
