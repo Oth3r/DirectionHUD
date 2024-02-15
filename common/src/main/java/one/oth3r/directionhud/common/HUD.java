@@ -546,6 +546,10 @@ public class HUD {
         return angle;
     }
     public static class modules {
+        // todo, not yet, need to do settings first
+//        public static CTxT lang(String key, Object... args) {
+//            return HUD.lang("module."+key, args);
+//        }
         private static final int PER_PAGE = 5;
         public static ArrayList<Module> getDefaultOrder() {
             ArrayList<Module> list = new ArrayList<>();
