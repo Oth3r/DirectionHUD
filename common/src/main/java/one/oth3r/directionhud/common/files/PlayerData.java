@@ -347,10 +347,15 @@ public class PlayerData {
         dataMap.remove(player);
     }
     public static String getMsgData(Player player, String key) {
-        return String.valueOf(dataMap.get(player).get("msg."+key));
+        // casting to string gets rid of nulls, so if null return empty string
+        String value = String.valueOf(dataMap.get(player).get("msg."+key));
+        return value.equals("null")?"":value;
     }
     public static void setMsgData(Player player, String key, String value) {
         dataMap.get(player).put("msg."+key,value);
+    }
+    public static void clearMsgData(Player player, String key) {
+        dataMap.get(player).put("msg."+key,"");
     }
     public static class defaults {
         public static Map<String,Object> get(Player player) {
