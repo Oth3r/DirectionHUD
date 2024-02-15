@@ -405,7 +405,7 @@ public class config {
 
             file.write("\n\n# "+CUtl.lang("config.hud").toString());
             file.write("\nhud.order=" + hud.Order);
-            file.write("\n# "+CUtl.lang("hud.module.order.options").toString());
+            file.write("\n# "+CUtl.config("options",Assets.configOptions.moduleOrder()));
 
             file.write("\n\n# "+CUtl.lang("config.hud.module").toString());
             file.write("\nhud.module.coordinates=" + hud.Coordinates);

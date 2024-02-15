@@ -33,19 +33,30 @@ public class CUtl {
     public static CTxT usage(String s) {
         return tag().append(lang("usage").color(Assets.mainColors.usage)).append(" ").append(s);
     }
-    public static CTxT lang(String key, Object... args) {
+    /**
+     * get an entry from the lang file without a prefix
+     * @param key lang key
+     * @param args arguments
+     * @return the CTxT of the entry
+     */
+    public static CTxT getLangEntry(String key, Object... args) {
         if (DirectionHUD.isClient) {
             Object[] fixedArgs = new Object[args.length];
             for (var i = 0;i < args.length;i++) {
                 if (args[i] instanceof CTxT) fixedArgs[i] = ((CTxT) args[i]).b();
                 else fixedArgs[i] = args[i];
             }
-            return Utl.getTranslation("key.directionhud."+key,fixedArgs);
+            return Utl.getTranslation(key,fixedArgs);
         } else {
-            return LangReader.of("key.directionhud."+key, args).getTxT();
+            return LangReader.of(key, args).getTxT();
         }
     }
-
+    public static CTxT lang(String key, Object... args) {
+        return getLangEntry("key.directionhud."+key,args);
+    }
+    public static CTxT config(String key, Object... args) {
+        return getLangEntry("config.directionhud."+key,args);
+    }
     /**
      * the opposite color of the boolean, if true red
      */
