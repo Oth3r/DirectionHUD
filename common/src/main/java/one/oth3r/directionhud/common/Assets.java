@@ -56,6 +56,21 @@ public class Assets {
         public static final String reload = "/dhud reload";
         public static final String inbox = "/dhud inbox";
     }
+
+    /**
+     * gets all the options for a config entry, better than hard coding into the lang file.
+     */
+    public static class configOptions {
+        public static String moduleOrder() {
+            StringBuilder output = new StringBuilder();
+            // get every module except for unknown
+            for (HUD.Module module:HUD.Module.values()) {
+                if (!module.equals(HUD.Module.unknown)) output.append(module).append(", ");
+            }
+            output.setLength(output.length()-1); // remove the last ", "
+            return output.toString();
+        }
+    }
     public static class symbols {
         public static class arrows {
             public static final String north = "\u2b06";

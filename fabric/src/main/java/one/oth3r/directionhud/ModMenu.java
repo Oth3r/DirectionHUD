@@ -168,9 +168,9 @@ public class ModMenu implements ModMenuApi {
                                 .controller(TickBoxControllerBuilder::create)
                                 .build())
                         .group(ListOption.<String>createBuilder()
-                                .name(CUtl.lang("hud.module.order.header").b())
-                                .description(desc(CUtl.lang("hud.module.order.info").append("\n")
-                                        .append(CUtl.lang("hud.module.order.options").color(CUtl.s()))))
+                                .name(CUtl.lang("hud.module.ui.order").b())
+                                .description(desc(CUtl.lang("hud.module.info.order").append("\n")
+                                        .append(CUtl.config("options",Assets.configOptions.moduleOrder()).color(CUtl.s()))))
                                 .binding(Enums.toStringList(config.hud.defaults.Order), () -> Enums.toStringList(config.hud.Order), n -> config.hud.Order = Enums.toEnumList(new ArrayList<>(n),HUD.Module.class))
                                 .controller(StringControllerBuilder::create)
                                 // CHANGE THIS WHEN MORE MODULES ARE OUT

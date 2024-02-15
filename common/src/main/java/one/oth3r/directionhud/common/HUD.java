@@ -355,7 +355,7 @@ public class HUD {
         } else {
             // 12 hr clock
             time.add("s"+getGameTime(true)+" ");
-            time.add("p"+(hour>=12?lang("module.time.pm"):lang("module.time.am")));
+            time.add("p"+(hour>=12?"PM":"AM"));
         }
         ArrayList<String> weather = new ArrayList<>();
         weather.add("p"+weatherIcon);
@@ -585,7 +585,7 @@ public class HUD {
                     PlayerData.set.hud.setting(player, s, settings.getConfig(s));
                 // reset module states
                 PlayerData.set.hud.moduleMap(player, PlayerData.defaults.hudModule());
-                msg.append(lang("module.reset_all", CUtl.TBtn("reset").color('c')));
+                msg.append(lang("module.msg.reset_all", CUtl.TBtn("reset").color('c')));
             } else {
                 // reset order
                 ArrayList<HUD.Module> order = PlayerData.get.hud.order(player); 
@@ -600,7 +600,7 @@ public class HUD {
                 // reset state
                 PlayerData.set.hud.module(player,module,getDefaultState(module));
                 // reset message
-                msg.append(lang("module.reset",CUtl.TBtn("reset").color('c'),lang("module."+ module)));
+                msg.append(lang("module.msg.reset",CUtl.TBtn("reset").color('c'),CTxT.of(module.toString()).color(CUtl.s())));
             }
             if (Return) UI(player, msg, 1);
             else player.sendMessage(msg);
@@ -618,7 +618,7 @@ public class HUD {
             order.add(pos,module);
             PlayerData.set.hud.order(player,order);
             Helper.ListPage<Module> listPage = new Helper.ListPage<>(PlayerData.get.hud.order(player),PER_PAGE);
-            CTxT msg = CUtl.tag().append(lang("module.order",CTxT.of(module.toString()).color(CUtl.s()),CTxT.of(String.valueOf(pos+1)).color(CUtl.s())));
+            CTxT msg = CUtl.tag().append(lang("module.msg.order",CTxT.of(module.toString()).color(CUtl.s()),CTxT.of(String.valueOf(pos+1)).color(CUtl.s())));
             if (Return) UI(player, msg, listPage.getPageOf(module));
             else player.sendMessage(msg);
         }
@@ -629,7 +629,7 @@ public class HUD {
             }
             Helper.ListPage<Module> listPage = new Helper.ListPage<>(PlayerData.get.hud.order(player),PER_PAGE);
             if (toggle == null) toggle = !PlayerData.get.hud.module(player,module);
-            CTxT msg = CUtl.tag().append(lang("module.toggle",CUtl.TBtn(toggle?"on":"off").color(toggle?'a':'c'),lang("module."+module).color(CUtl.s())));
+            CTxT msg = CUtl.tag().append(lang("module.msg.toggle",CUtl.TBtn(toggle?"on":"off").color(toggle?'a':'c'),CTxT.of(module.toString()).color(CUtl.s())));
             PlayerData.set.hud.module(player,module,toggle);
             if (Return) UI(player, msg, listPage.getPageOf(module));
             else player.sendMessage(msg);
@@ -782,7 +782,7 @@ public class HUD {
                 if (ModuleAngleDisplay.get((String) PlayerData.get.hud.setting(player, Setting.module__angle_display)).equals(ModuleAngleDisplay.both))
                     info.append(color.addColor(player,"/",1,135,20)).append(color.addColor(player,"55.1",2,155,20));
             }
-            if (onlyExample.length == 0) info.append("\n").append(lang("module."+module+".info").color('7'));
+            if (onlyExample.length == 0) info.append("\n").append(lang("module.info."+module).color('7'));
             return info;
         }
         public static String stateColor(Player player, Module module) {
@@ -815,10 +815,10 @@ public class HUD {
                         .append(CTxT.of(Assets.symbols.toggle).btn(true).color(CUtl.p())
                                 .cEvent(1,"/hud modules toggle-r "+module)
                                 .hEvent(CUtl.TBtn("hud.toggle.hover_mod",
-                                        lang("module."+module).color(CUtl.s()),
+                                        CTxT.of(module.toString()).color(CUtl.s()),
                                         CUtl.TBtn(!state?"on":"off").color(!state?'a':'c')))).append(" ")
                         //NAME
-                        .append(lang("module."+module).color(stateColor(player,module))
+                        .append(CTxT.of(module.toString()).color(stateColor(player,module))
                                 .hEvent(moduleInfo(player,module))).append(" ");
                 //EXTRA BUTTONS
                 msg.append(getButtons(player,module));
