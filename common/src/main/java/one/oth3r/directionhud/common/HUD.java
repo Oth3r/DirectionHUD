@@ -685,7 +685,7 @@ public class HUD {
                         .hEvent(CTxT.of("")
                                 .append(lang("settings."+type).color('e')).append("\n")
                                 .append(lang("settings."+type+".info").color('7')).append("\n\n")
-                                .append(lang("settings."+type+".hover",CUtl.toggleTxT(state))))
+                                .append(lang("settings."+type+".hover",CUtl.toggleTxT(!state))))
                         .cEvent(1,"/hud settings set-m "+type+" "+(state?"off":"on")));
                 type = Setting.module__tracking_target;
                 Setting.ModuleTrackingTarget currentTarget = Setting.ModuleTrackingTarget.get((String) PlayerData.get.hud.setting(player,type));
@@ -957,7 +957,7 @@ public class HUD {
             // save the new color settings
             PlayerData.set.hud.color(player,typ,String.join("-",current));
             // generate the message
-            CTxT msg = CUtl.tag().append(lang("msg.toggle",CUtl.toggleTxT(!state),lang(colorType),lang(type)));
+            CTxT msg = CUtl.tag().append(lang("msg.toggle",CUtl.toggleTxT(state),lang(colorType),lang(type)));
             if (Return) changeUI(player,setting,colorType,msg);
             else player.sendMessage(msg);
         }
@@ -1006,17 +1006,17 @@ public class HUD {
             CTxT reset = CUtl.TBtn("reset").btn(true).color('c').cEvent(1, "/hud color reset-r "+type+" "+setting)
                     .hEvent(lang("hover.reset",addColor(player,lang(type),typ,15,20)));
             // bold
-            CTxT boldButton = btn("bold").btn(true).color(CUtl.toggleColor(!getHUDBold(player, typ)))
+            CTxT boldButton = btn("bold").btn(true).color(CUtl.toggleColor(getHUDBold(player, typ)))
                     .cEvent(1,String.format("/hud color %s-r bold %s %s",type,(getHUDBold(player,typ)?"off":"on"),setting))
-                    .hEvent(lang("hover.toggle",CUtl.toggleTxT(getHUDBold(player,typ)),lang("bold").bold(true)));
+                    .hEvent(lang("hover.toggle",CUtl.toggleTxT(!getHUDBold(player,typ)),lang("bold").bold(true)));
             // italics
-            CTxT italicsButton = btn("italics").btn(true).color(CUtl.toggleColor(!getHUDItalics(player, typ)))
+            CTxT italicsButton = btn("italics").btn(true).color(CUtl.toggleColor(getHUDItalics(player, typ)))
                     .cEvent(1,String.format("/hud color %s-r italics %s %s",type,(getHUDItalics(player,typ)?"off":"on"),setting))
-                    .hEvent(lang("hover.toggle",CUtl.toggleTxT(getHUDItalics(player,typ)),lang("italics").italic(true)));
+                    .hEvent(lang("hover.toggle",CUtl.toggleTxT(!getHUDItalics(player,typ)),lang("italics").italic(true)));
             // rainbow
-            CTxT rgbButton = btn("rgb").btn(true).color(CUtl.toggleColor(!getHUDRainbow(player, typ)))
+            CTxT rgbButton = btn("rgb").btn(true).color(CUtl.toggleColor(getHUDRainbow(player, typ)))
                     .cEvent(1,String.format("/hud color %s-r rainbow %s %s",type,(getHUDRainbow(player,typ)?"off":"on"),setting))
-                    .hEvent(lang("hover.toggle",CUtl.toggleTxT(getHUDRainbow(player,typ)),lang("rainbow").rainbow(true,15f,20f)));
+                    .hEvent(lang("hover.toggle",CUtl.toggleTxT(!getHUDRainbow(player,typ)),lang("rainbow").rainbow(true,15f,20f)));
             // build the message
             msg.append(DHUD.preset.colorEditor(getHUDColor(player,typ),setting,DHUD.preset.Type.hud,type,"/hud color edit %s "+type))
                     .append("\n\n ").append(boldButton).append(" ").append(italicsButton).append(" ").append(rgbButton)
