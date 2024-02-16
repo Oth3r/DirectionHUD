@@ -1147,7 +1147,7 @@ public class HUD {
         public static CTxT resetB(Player player, Setting type) {
             CTxT msg = CTxT.of(Assets.symbols.x).btn(true).color('7');
             if (canBeReset(player,type)) {
-                msg.color('c').cEvent(1, "/hud settings reset " + type)
+                msg.color('c').cEvent(1, "/hud settings reset-r " + type)
                         .hEvent(CUtl.TBtn("reset.hover_settings",lang("settings."+type).color('c')));
             }
             return msg;
