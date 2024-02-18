@@ -90,26 +90,24 @@ public class Player {
         PacketHelper.sendPacket(this, Assets.packets.HUD, gson.toJson(hudData));
     }
     public void displayHUD(CTxT message) {
-        if (message.toString().equals("")) {
-            //if the HUD is enabled but there is no output
-            if (PlayerData.getMsgData(this,"hud.enabled_but_off") == null) {
-                PlayerData.setMsgData(this,"hud.enabled_but_off","true");
+        if (message.toString().isEmpty()) {
+            //if the HUD is enabled but there is no output, flip the tag
+            if (PlayerData.MsgData.get(this,"hud.enabled_but_off").isBlank()) {
+                PlayerData.MsgData.set(this,"hud.enabled_but_off","true");
+                // if actionbar, clear once, if bossbar remove player
                 if ((HUD.Setting.DisplayType.get((String) PlayerData.get.hud.setting(this, HUD.Setting.type)).equals(HUD.Setting.DisplayType.actionbar))) {
                     player.spigot().sendMessage(ChatMessageType.ACTION_BAR, CTxT.of("").b());
-                } else {
-                    DirectionHUD.bossBarManager.removePlayer(this);
-                }
+                } else DirectionHUD.bossBarManager.removePlayer(this);
             }
             return;
-        } else if (PlayerData.getMsgData(this,"hud.enabled_but_off") != null) {
-            // if hud was in previous state and now isn't, remove the temp tag
-            PlayerData.setMsgData(this,"hud.enabled_but_off",null);
+        } else if (!PlayerData.MsgData.get(this,"hud.enabled_but_off").isBlank()) {
+            // hud isn't blank but the blank tag was still enabled
+            PlayerData.MsgData.clear(this,"hud.enabled_but_off");
         }
-        if ((HUD.Setting.DisplayType.get((String) PlayerData.get.hud.setting(this, HUD.Setting.type)).equals(HUD.Setting.DisplayType.actionbar))) {
+        // if actionbar send actionbar, if bossbar update the bar
+        if ((HUD.Setting.DisplayType.get((String) PlayerData.get.hud.setting(this, HUD.Setting.type)).equals(HUD.Setting.DisplayType.actionbar)))
             player.spigot().sendMessage(ChatMessageType.ACTION_BAR, message.b());
-        } else {
-            DirectionHUD.bossBarManager.display(this,message);
-        }
+        else DirectionHUD.bossBarManager.display(this,message);
     }
     public String getName() {
         return player.getName();
