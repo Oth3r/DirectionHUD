@@ -61,13 +61,42 @@ public class Assets {
      * gets all the options for a config entry, better than hard coding into the lang file.
      */
     public static class configOptions {
-        public static String moduleOrder() {
+        @SafeVarargs
+        private static <T extends Enum<T>> String fromEnum(T[] enums, T... exclude) {
             StringBuilder output = new StringBuilder();
-            // get every module except for unknown
-            for (HUD.Module module:HUD.Module.values()) {
-                if (!module.equals(HUD.Module.unknown)) output.append(module).append(", ");
+            // get every enum except for the exclude list
+            for (T entry: enums) {
+                boolean stop = false;
+                // check if the entry is excluded, then skip the entry
+                for (T ex: exclude) {
+                    if (ex.equals(entry)) {
+                        stop = true;
+                        break;
+                    }
+                }
+                // skip entry
+                if (stop) continue;
+                output.append(entry).append(", ");
             }
             return output.substring(0,output.toString().length()-2); // remove the last ", "
+        }
+        public static String moduleOrder() {
+            return fromEnum(HUD.Module.values(), HUD.Module.unknown);
+        }
+        public static String DisplayType() {
+            return fromEnum(HUD.Setting.DisplayType.values());
+        }
+        public static String BossBarColor() {
+            return fromEnum(HUD.Setting.BarColor.values());
+        }
+        public static String TrackingTarget() {
+            return fromEnum(HUD.Setting.ModuleTrackingTarget.values());
+        }
+        public static String TrackingType() {
+            return fromEnum(HUD.Setting.ModuleTrackingType.values());
+        }
+        public static String AngleDisplay() {
+            return fromEnum(HUD.Setting.ModuleAngleDisplay.values());
         }
     }
     public static class symbols {

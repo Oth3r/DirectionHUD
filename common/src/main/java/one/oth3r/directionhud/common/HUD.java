@@ -64,12 +64,22 @@ public class HUD {
             list.add(bossbar__distance);
             list.add(module__time_24hr);
             list.add(module__speed_3d);
+            list.add(module__tracking_hybrid);
+            return list;
+        }
+        /**
+         * @return a list of modules that use booleans but have custom names for the boolean states
+         */
+        public static ArrayList<Setting> customBool() {
+            ArrayList<Setting> list = new ArrayList<>();
+            list.add(module__time_24hr);
+            list.add(module__speed_3d);
             return list;
         }
         public enum DisplayType {
             actionbar,
             bossbar;
-            public static final DisplayType[] values = values();
+            private static final DisplayType[] values = values();
             public DisplayType next() {
                 return values[(ordinal() + 1) % values.length];
             }
@@ -192,14 +202,10 @@ public class HUD {
                 module = true;
             }
             // /hud settings reset
-            if (args.length == 1 && args[0].equalsIgnoreCase("reset"))
-                player.sendMessage(settings.reset(player,Setting.none,false));
+            if (args.length == 1 && args[0].equalsIgnoreCase("reset")) settings.reset(player,Setting.none,Return);
             if (args.length == 2) {
                 // /hud settings reset (module)
-                if (args[0].equalsIgnoreCase("reset")) {
-                    if (Return) settings.reset(player, Setting.get(args[1]),true);
-                    else player.sendMessage(settings.reset(player, Setting.get(args[1]),false));
-                }
+                if (args[0].equalsIgnoreCase("reset")) settings.reset(player, Setting.get(args[1]),Return);
                 if (args[0].equalsIgnoreCase("set")) player.sendMessage(CUtl.error("setting"));
             }
             if (args.length == 3 && args[0].equalsIgnoreCase("set")) {
@@ -321,9 +327,15 @@ public class HUD {
                 // module.tracking_target
                 if (args[1].equalsIgnoreCase(Setting.module__tracking_target.toString()))
                     suggester.addAll(Enums.toStringList(Enums.toArrayList(Setting.ModuleTrackingTarget.values())));
+                // module.tracking_type
+                if (args[1].equalsIgnoreCase(Setting.module__tracking_type.toString()))
+                    suggester.addAll(Enums.toStringList(Enums.toArrayList(Setting.ModuleTrackingType.values())));
                 // module.speed_pattern
                 if (args[1].equalsIgnoreCase(Setting.module__speed_pattern.toString()))
                     suggester.add("\"0.0#\"");
+                // module.angle_display
+                if (args[1].equalsIgnoreCase(Setting.module__angle_display.toString()))
+                    suggester.addAll(Enums.toStringList(Enums.toArrayList(Setting.ModuleAngleDisplay.values())));
             }
             return suggester;
         }
@@ -546,10 +558,9 @@ public class HUD {
         return angle;
     }
     public static class modules {
-        // todo, not yet, need to do settings first
-//        public static CTxT lang(String key, Object... args) {
-//            return HUD.lang("module."+key, args);
-//        }
+        public static CTxT lang(String key, Object... args) {
+            return HUD.lang("module."+key, args);
+        }
         private static final int PER_PAGE = 5;
         public static ArrayList<Module> getDefaultOrder() {
             ArrayList<Module> list = new ArrayList<>();
@@ -589,22 +600,22 @@ public class HUD {
                     PlayerData.set.hud.setting(player, s, settings.getConfig(s));
                 // reset module states
                 PlayerData.set.hud.moduleMap(player, PlayerData.defaults.hudModule());
-                msg.append(lang("module.msg.reset_all", CUtl.TBtn("reset").color('c')));
+                msg.append(lang("msg.reset_all", CUtl.TBtn("reset").color('c')));
             } else {
                 // reset order
                 ArrayList<HUD.Module> order = PlayerData.get.hud.order(player); 
                 order.remove(module);
                 order.add(getDefaultOrder().indexOf(module),module);
                 PlayerData.set.hud.order(player,order);
-                // reset settings
+                // reset settings dealing with the module being reset
                 for (Setting s : Setting.moduleSettings()) {
-                    if (s.toString().contains("module."+module))
+                    if (s.toString().startsWith("module."+module))
                         PlayerData.set.hud.setting(player, s, settings.getConfig(s));
                 }
                 // reset state
                 PlayerData.set.hud.module(player,module,getDefaultState(module));
                 // reset message
-                msg.append(lang("module.msg.reset",CUtl.TBtn("reset").color('c'),CTxT.of(module.toString()).color(CUtl.s())));
+                msg.append(lang("msg.reset",CUtl.TBtn("reset").color('c'),CTxT.of(module.toString()).color(CUtl.s())));
             }
             if (Return) UI(player, msg, 1);
             else player.sendMessage(msg);
@@ -622,7 +633,7 @@ public class HUD {
             order.add(pos,module);
             PlayerData.set.hud.order(player,order);
             Helper.ListPage<Module> listPage = new Helper.ListPage<>(PlayerData.get.hud.order(player),PER_PAGE);
-            CTxT msg = CUtl.tag().append(lang("module.msg.order",CTxT.of(module.toString()).color(CUtl.s()),CTxT.of(String.valueOf(pos+1)).color(CUtl.s())));
+            CTxT msg = CUtl.tag().append(lang("msg.order",CTxT.of(module.toString()).color(CUtl.s()),CTxT.of(String.valueOf(pos+1)).color(CUtl.s())));
             if (Return) UI(player, msg, listPage.getPageOf(module));
             else player.sendMessage(msg);
         }
@@ -633,7 +644,7 @@ public class HUD {
             }
             Helper.ListPage<Module> listPage = new Helper.ListPage<>(PlayerData.get.hud.order(player),PER_PAGE);
             if (toggle == null) toggle = !PlayerData.get.hud.module(player,module);
-            CTxT msg = CUtl.tag().append(lang("module.msg.toggle",CUtl.TBtn(toggle?"on":"off").color(toggle?'a':'c'),CTxT.of(module.toString()).color(CUtl.s())));
+            CTxT msg = CUtl.tag().append(lang("msg.toggle",CUtl.TBtn(toggle?"on":"off").color(toggle?'a':'c'),CTxT.of(module.toString()).color(CUtl.s())));
             PlayerData.set.hud.module(player,module,toggle);
             if (Return) UI(player, msg, listPage.getPageOf(module));
             else player.sendMessage(msg);
@@ -671,59 +682,56 @@ public class HUD {
             if (module.equals(Module.time)) {
                 Setting type = Setting.module__time_24hr;
                 boolean state = (boolean) PlayerData.get.hud.setting(player,type);
-                button.append(lang("settings."+type+"."+(state?"on":"off")).btn(true).color(CUtl.s())
+                button.append(settings.lang(type+"."+(state?"on":"off")).btn(true).color(CUtl.s())
                         .hEvent(CTxT.of("")
-                                .append(lang("settings."+type).color('e')).append("\n")
-                                .append(lang("settings."+type+".info").color('7')).append("\n\n")
-                                .append(lang("settings."+type+".hover",lang("settings."+type+"."+(state?"off":"on")).color(CUtl.s()))))
+                                .append(settings.lang(type+".ui").color('e')).append("\n")
+                                .append(settings.lang("hover.info",settings.lang(type.toString())).color('7')).append("\n\n")
+                                .append(settings.lang("hover.set",settings.lang(type.toString()),settings.lang(type+"."+(state?"off":"on")).color(CUtl.s()))))
                         .cEvent(1,"/hud settings set-m "+type+" "+(state?"off":"on")));
             }
             if (module.equals(Module.tracking)) {
                 Setting type = Setting.module__tracking_hybrid;
                 boolean state = (boolean) PlayerData.get.hud.setting(player,type);
-                button.append(lang("settings."+type+".icon").btn(true).color(state?'a':'c')
+                button.append(settings.lang(type+".icon").btn(true).color(state?'a':'c')
                         .hEvent(CTxT.of("")
-                                .append(lang("settings."+type).color('e')).append("\n")
-                                .append(lang("settings."+type+".info").color('7')).append("\n\n")
-                                .append(lang("settings."+type+".hover",CUtl.toggleTxT(state))))
+                                .append(settings.lang(type+".ui").color('e')).append("\n")
+                                .append(settings.lang(type+".info").color('7')).append("\n\n")
+                                .append(settings.lang("hover.set",settings.lang(type.toString()),CUtl.toggleTxT(!state))))
                         .cEvent(1,"/hud settings set-m "+type+" "+(state?"off":"on")));
                 type = Setting.module__tracking_target;
                 Setting.ModuleTrackingTarget currentTarget = Setting.ModuleTrackingTarget.get((String) PlayerData.get.hud.setting(player,type));
                 Setting.ModuleTrackingTarget nextTarget = Enums.next(currentTarget,Setting.ModuleTrackingTarget.class);
-                button.append(lang("settings."+type+"."+currentTarget).btn(true).color(CUtl.s()).hEvent(CTxT.of("")
-                                .append(lang("settings."+type).color('e')).append("\n")
-                                .append(lang("settings."+type+".info").color('7')).append("\n\n")
-                                .append(lang("settings."+type+".hover",lang("settings."+type+"."+nextTarget).color(CUtl.s()))))
+                button.append(settings.lang(type+"."+currentTarget).btn(true).color(CUtl.s()).hEvent(CTxT.of("")
+                                .append(settings.lang(type+".ui").color('e')).append("\n")
+                                .append(settings.lang("hover.info",settings.lang(type.toString())).color('7')).append("\n\n")
+                                .append(settings.lang("hover.set",settings.lang(type.toString()),settings.lang(type+"."+nextTarget).color(CUtl.s()))))
                         .cEvent(1,"/hud settings set-m "+type+" "+nextTarget));
                 type = Setting.module__tracking_type;
                 Setting.ModuleTrackingType currentType = Setting.ModuleTrackingType.get((String) PlayerData.get.hud.setting(player, type));
                 Setting.ModuleTrackingType nextType = Enums.next(currentType,Setting.ModuleTrackingType.class);
-                button.append(CTxT.of(currentType.equals(Setting.ModuleTrackingType.simple)?arrows.up:arrows.north).btn(true).color(CUtl.s())
-                        .cEvent(1,"/hud settings set-m "+type+" "+nextType)
-                        .hEvent(CTxT.of("")
-                                .append(lang("settings."+type).color('e')).append(" - ")
+                button.append(CTxT.of(currentType.equals(Setting.ModuleTrackingType.simple)?arrows.up:arrows.north).btn(true).color(CUtl.s()).hEvent(CTxT.of("")
+                                .append(settings.lang(type+".ui").color('e')).append(" - ")
                                 .append(moduleInfo(player,Module.tracking,true).color(CUtl.s())).append("\n")
-                                .append(lang("settings."+type+"."+currentType+".info").color('7')).append("\n\n")
-                                .append(lang("settings."+type+".hover",lang("settings."+type+"."+nextType).color(CUtl.s())))));
+                                .append(settings.lang(type+"."+currentType+".info").color('7')).append("\n\n")
+                                .append(settings.lang("hover.set",settings.lang(type.toString()),settings.lang(type+"."+nextType).color(CUtl.s()))))
+                        .cEvent(1,"/hud settings set-m "+type+" "+nextType));
             }
             if (module.equals(Module.speed)) {
                 Setting type = Setting.module__speed_3d;
                 boolean state = (boolean) PlayerData.get.hud.setting(player,type);
-                button.append(lang("settings."+type+"."+(state?"on":"off")).btn(true).color(CUtl.s())
-                                .hEvent(CTxT.of("")
-                                        .append(lang("settings."+type).color(CUtl.s())).append("\n")
-                                        .append(lang("settings."+type+"."+(state?"on":"off")+".info").color('7')).append("\n\n")
-                                        .append(lang("settings."+type+".hover",lang("settings."+type+"."+(state?"off":"on")).color(CUtl.s()))))
-                                .cEvent(1,"/hud settings set-m "+type+" "+(state?"off":"on")));
+                button.append(settings.lang(type+"."+(state?"on":"off")).btn(true).color(CUtl.s()).hEvent(CTxT.of("")
+                                        .append(settings.lang(type+".ui").color(CUtl.s())).append("\n")
+                                        .append(settings.lang(type+"."+(state?"on":"off")+".info").color('7')).append("\n\n")
+                                        .append(settings.lang("hover.set",settings.lang(type.toString()),settings.lang(type+"."+(state?"off":"on")).color(CUtl.s()))))
+                        .cEvent(1,"/hud settings set-m "+type+" "+(state?"off":"on")));
                 type = Setting.module__speed_pattern;
-                button.append(CTxT.of((String) PlayerData.get.hud.setting(player, type)).btn(true).color(CUtl.s())
-                        .cEvent(2,"/hud settings set-m "+type+" ")
-                        .hEvent(CTxT.of("")
-                                .append(lang("settings."+type).color(CUtl.s())).append(" - ")
+                button.append(CTxT.of((String) PlayerData.get.hud.setting(player, type)).btn(true).color(CUtl.s()).hEvent(CTxT.of("")
+                                .append(settings.lang(type+".ui").color(CUtl.s())).append(" - ")
                                 .append(moduleInfo(player,Module.speed,true).color(CUtl.s())).append("\n")
-                                .append(lang("settings."+type+".info").color('7')).append("\n")
-                                .append(lang("settings."+type+".info_2").color('7').italic(true)).append("\n\n")
-                                .append(lang("settings."+type+".hover"))));
+                                .append(settings.lang(type+".info").color('7')).append("\n")
+                                .append(settings.lang(type+".info.2").color('7').italic(true)).append("\n\n")
+                                .append(settings.lang("hover.set.custom",settings.lang(type.toString()))))
+                        .cEvent(2,"/hud settings set-m "+type+" "));
             }
             if (module.equals(Module.angle)) {
                 Setting type = Setting.module__angle_display;
@@ -733,9 +741,10 @@ public class HUD {
                 if (currentType.equals(ModuleAngleDisplay.both)) buttonIcon += arrows.upDown;
                 else if (currentType.equals(ModuleAngleDisplay.pitch)) buttonIcon = arrows.upDown;
                 button.append(CTxT.of(buttonIcon).btn(true).color(CUtl.s()).hEvent(CTxT.of("")
-                                .append(lang("settings."+type).color('e')).append("\n")
-                                .append(lang("settings."+type+"."+currentType+".info").color('7')).append("\n\n")
-                                .append(lang("settings."+type+".hover",lang("settings."+type+"."+nextType).color(CUtl.s()))))
+                                .append(settings.lang(type+".ui").color('e')).append(" - ")
+                                .append(settings.lang(type+"."+currentType)).append("\n")
+                                .append(settings.lang(type+"."+currentType+".info").color('7')).append("\n\n")
+                                .append(settings.lang("hover.set",settings.lang(type.toString()),settings.lang(type+"."+nextType).color(CUtl.s()))))
                         .cEvent(1,"/hud settings set-m "+type+" "+nextType));
             }
             return button;
@@ -786,7 +795,7 @@ public class HUD {
                 if (ModuleAngleDisplay.get((String) PlayerData.get.hud.setting(player, Setting.module__angle_display)).equals(ModuleAngleDisplay.both))
                     info.append(color.addColor(player,"/",1,135,20)).append(color.addColor(player,"55.1",2,155,20));
             }
-            if (onlyExample.length == 0) info.append("\n").append(lang("module.info."+module).color('7'));
+            if (onlyExample.length == 0) info.append("\n").append(lang("info."+module).color('7'));
             return info;
         }
         public static String stateColor(Player player, Module module) {
@@ -806,7 +815,7 @@ public class HUD {
             Helper.ListPage<Module> listPage = new Helper.ListPage<>(PlayerData.get.hud.order(player),PER_PAGE);
             CTxT msg = CTxT.of("");
             if (abovemsg != null) msg.append(abovemsg).append("\n");
-            msg.append(" ").append(lang("ui.modules").color(Assets.mainColors.edit)).append(CTxT.of("\n                                     ").strikethrough(true));
+            msg.append(" ").append(lang("ui").color(Assets.mainColors.edit)).append(CTxT.of("\n                                     ").strikethrough(true));
             //MAKE THE TEXT
             for (Module module: listPage.getPage(pg)) {
                 boolean state = PlayerData.get.hud.module(player,module);
@@ -957,7 +966,7 @@ public class HUD {
             // save the new color settings
             PlayerData.set.hud.color(player,typ,String.join("-",current));
             // generate the message
-            CTxT msg = CUtl.tag().append(lang("msg.toggle",CUtl.toggleTxT(!state),lang(colorType),lang(type)));
+            CTxT msg = CUtl.tag().append(lang("msg.toggle",CUtl.toggleTxT(state),lang(colorType),lang(type)));
             if (Return) changeUI(player,setting,colorType,msg);
             else player.sendMessage(msg);
         }
@@ -1006,17 +1015,17 @@ public class HUD {
             CTxT reset = CUtl.TBtn("reset").btn(true).color('c').cEvent(1, "/hud color reset-r "+type+" "+setting)
                     .hEvent(lang("hover.reset",addColor(player,lang(type),typ,15,20)));
             // bold
-            CTxT boldButton = btn("bold").btn(true).color(CUtl.toggleColor(!getHUDBold(player, typ)))
+            CTxT boldButton = btn("bold").btn(true).color(CUtl.toggleColor(getHUDBold(player, typ)))
                     .cEvent(1,String.format("/hud color %s-r bold %s %s",type,(getHUDBold(player,typ)?"off":"on"),setting))
-                    .hEvent(lang("hover.toggle",CUtl.toggleTxT(getHUDBold(player,typ)),lang("bold").bold(true)));
+                    .hEvent(lang("hover.toggle",CUtl.toggleTxT(!getHUDBold(player,typ)),lang("bold").bold(true)));
             // italics
-            CTxT italicsButton = btn("italics").btn(true).color(CUtl.toggleColor(!getHUDItalics(player, typ)))
+            CTxT italicsButton = btn("italics").btn(true).color(CUtl.toggleColor(getHUDItalics(player, typ)))
                     .cEvent(1,String.format("/hud color %s-r italics %s %s",type,(getHUDItalics(player,typ)?"off":"on"),setting))
-                    .hEvent(lang("hover.toggle",CUtl.toggleTxT(getHUDItalics(player,typ)),lang("italics").italic(true)));
+                    .hEvent(lang("hover.toggle",CUtl.toggleTxT(!getHUDItalics(player,typ)),lang("italics").italic(true)));
             // rainbow
-            CTxT rgbButton = btn("rgb").btn(true).color(CUtl.toggleColor(!getHUDRainbow(player, typ)))
+            CTxT rgbButton = btn("rgb").btn(true).color(CUtl.toggleColor(getHUDRainbow(player, typ)))
                     .cEvent(1,String.format("/hud color %s-r rainbow %s %s",type,(getHUDRainbow(player,typ)?"off":"on"),setting))
-                    .hEvent(lang("hover.toggle",CUtl.toggleTxT(getHUDRainbow(player,typ)),lang("rainbow").rainbow(true,15f,20f)));
+                    .hEvent(lang("hover.toggle",CUtl.toggleTxT(!getHUDRainbow(player,typ)),lang("rainbow").rainbow(true,15f,20f)));
             // build the message
             msg.append(DHUD.preset.colorEditor(getHUDColor(player,typ),setting,DHUD.preset.Type.hud,type,"/hud color edit %s "+type))
                     .append("\n\n ").append(boldButton).append(" ").append(italicsButton).append(" ").append(rgbButton)
@@ -1041,6 +1050,9 @@ public class HUD {
         }
     }
     public static class settings {
+        public static CTxT lang(String key, Object... args) {
+            return HUD.lang("setting."+key, args);
+        }
         public static Object getConfig(Setting type) {
             Object output = false;
             switch (type) {
@@ -1059,68 +1071,76 @@ public class HUD {
             }
             return output;
         }
-        public static CTxT reset(Player player, Setting type, boolean Return) {
+        public static void reset(Player player, Setting type, boolean Return) {
             // non resettable settings
-            if (type.equals(Setting.bossbar__distance_max)) return CTxT.of("");
+            if (type.equals(Setting.bossbar__distance_max)) return;
+            // reset all
             if (type.equals(Setting.none)) {
-                // for all main settings, ex module settings
-                for (Setting s : Setting.baseSettings())
-                    PlayerData.set.hud.setting(player, s, getConfig(s));
+                // reset all main settings, excluding module settings
+                for (Setting s : Setting.baseSettings()) PlayerData.set.hud.setting(player, s, getConfig(s));
             } else {
+                // reset the selected setting
                 PlayerData.set.hud.setting(player,type,getConfig(type));
             }
-            // if bossbar distance, reset max alongside
+            // if bossbar distance, reset max alongside it
             if (type.equals(Setting.bossbar__distance))
                 PlayerData.set.hud.setting(player, Setting.get(type+"_max"),getConfig(Setting.get(type+"_max")));
             // update the HUD
             player.updateHUD();
-            // get the message for the reset type
-            CTxT typ = CTxT.of(lang("settings."+type).toString().toUpperCase()).color('c');
-            if (type.equals(Setting.none)) typ = CTxT.of(CUtl.TBtn("all")).color('c');
-            CTxT msg = CUtl.tag().append(lang("setting.reset",typ));
+            // make the reset message
+            CTxT msg = CUtl.tag().append(lang("msg.reset",lang("category",
+                    lang("category."+(type.toString().startsWith("bossbar")?"bossbar":"hud")),
+                    lang(type.toString()).color(CUtl.s()))));
+            if (type.equals(Setting.none)) msg = CUtl.tag().append(lang("msg.reset_all",CUtl.TBtn("all").color('c')));
+
             if (Return) UI(player, msg);
-            return msg;
+            else player.sendMessage(msg);
         }
         public static CTxT change(Player player, Setting type, String setting, boolean Return) {
             boolean state = setting.equals("on");
-            CTxT stateTxT = CUtl.TBtn(state?"on":"off").color(state?'a':'c');
-            setting = setting.toLowerCase();
             CTxT setTxT = CTxT.of("");
             // ON/OFF simple on off toggle
             if (type.equals(Setting.bossbar__distance) || type.equals(Setting.state) || type.equals(Setting.module__tracking_hybrid)) {
                 PlayerData.set.hud.setting(player,type,state);
                 // if changing the state update the hud
                 if (type.equals(Setting.state)) player.updateHUD();
-                setTxT.append(stateTxT);
-            }
-            if (type.equals(Setting.type)) {
-                PlayerData.set.hud.setting(player,type, Setting.DisplayType.valueOf(setting));
-                setTxT.append(lang("settings."+type+"."+ Setting.DisplayType.valueOf(setting)).color(CUtl.s()));
-                player.updateHUD();
-            }
-            if (type.equals(Setting.bossbar__color)) {
-                PlayerData.set.hud.setting(player,type, Setting.BarColor.valueOf(setting));
-                setTxT.append(lang("settings."+type+"."+ Setting.BarColor.valueOf(setting)).color(Assets.barColor(Setting.BarColor.valueOf(setting))));
-            }
-            if (type.equals(Setting.bossbar__distance_max)) {
-                int i = Math.max(Integer.parseInt(setting),0);
-                PlayerData.set.hud.setting(player,type,i);
-                setTxT.append(CTxT.of(String.valueOf(i)).color((boolean) PlayerData.get.hud.setting(player, Setting.bossbar__distance)?'a':'c'));
+                setTxT.append(CUtl.toggleTxT(state));
             }
             // ON/OFF with custom name for the states
             if (type.equals(Setting.module__time_24hr) || type.equals(Setting.module__speed_3d)) {
                 PlayerData.set.hud.setting(player,type,state);
-                setTxT.append(lang("settings."+type+"."+(state?"on":"off")).color(CUtl.s()));
+                setTxT.append(lang(type+"."+(state?"on":"off")).color(CUtl.s()));
+            }
+            // ---- CUSTOM HANDLING ----
+            if (type.equals(Setting.type)) {
+                Setting.DisplayType displayType = Setting.DisplayType.get(setting);
+                PlayerData.set.hud.setting(player,type,displayType);
+                setTxT.append(lang(type+"."+displayType).color(CUtl.s()));
+                player.updateHUD();
+            }
+            if (type.equals(Setting.bossbar__color)) {
+                Setting.BarColor barColor = Setting.BarColor.get(setting);
+                PlayerData.set.hud.setting(player,type,barColor);
+                setTxT.append(lang(type+"."+barColor).color(Assets.barColor(barColor)));
+            }
+            if (type.equals(Setting.bossbar__distance_max)) {
+                // make sure the number is greater than 0
+                int i = Math.max(Num.toInt(setting),0);
+                PlayerData.set.hud.setting(player,type,i);
+                setTxT.append(CTxT.of(String.valueOf(i)).color((boolean)PlayerData.get.hud.setting(player, Setting.bossbar__distance)?'a':'c'));
             }
             if (type.equals(Setting.module__tracking_target)) {
-                PlayerData.set.hud.setting(player, type, Setting.ModuleTrackingTarget.valueOf(setting));
-                setTxT.append(lang("settings."+type+"." + Setting.ModuleTrackingTarget.valueOf(setting)).color(CUtl.s()));
+                Setting.ModuleTrackingTarget moduleTrackingTarget = Setting.ModuleTrackingTarget.get(setting);
+                PlayerData.set.hud.setting(player, type, moduleTrackingTarget);
+                setTxT.append(lang(type+"."+moduleTrackingTarget).color(CUtl.s()));
             }
             if (type.equals(Setting.module__tracking_type)) {
-                PlayerData.set.hud.setting(player, type, Setting.ModuleTrackingType.valueOf(setting));
-                setTxT.append(lang("settings."+type+"." + Setting.ModuleTrackingType.valueOf(setting)).color(CUtl.s()));
+                Setting.ModuleTrackingType moduleTrackingType = Setting.ModuleTrackingType.get(setting);
+                PlayerData.set.hud.setting(player, type, moduleTrackingType);
+                setTxT.append(lang(type+"."+moduleTrackingType).color(CUtl.s()));
             }
             if (type.equals(Setting.module__speed_pattern)) {
+                // try to make the decimal format, if error don't do anything
                 try {
                     new DecimalFormat(setting);
                     PlayerData.set.hud.setting(player,type,setting);
@@ -1128,27 +1148,48 @@ public class HUD {
                 setTxT.append(CTxT.of(String.valueOf(PlayerData.get.hud.setting(player,type))).color(CUtl.s()));
             }
             if (type.equals(Setting.module__angle_display)) {
-                PlayerData.set.hud.setting(player, type, Setting.ModuleAngleDisplay.valueOf(setting));
-                setTxT.append(lang("settings."+type+"."+ ModuleAngleDisplay.valueOf(setting)).color(CUtl.s()));
+                ModuleAngleDisplay moduleAngleDisplay = Setting.ModuleAngleDisplay.get(setting);
+                PlayerData.set.hud.setting(player, type, moduleAngleDisplay);
+                setTxT.append(lang(type+"."+moduleAngleDisplay).color(CUtl.s()));
             }
-            CTxT msg = CUtl.tag().append(lang("settings."+type+".set",setTxT));
+            // make the message
+            CTxT msg = CUtl.tag(), typeTxT = lang(type.toString()).color(CUtl.s());
+            String extra = "";
+            // if apart of boolSettings, make it a toggle message
+            if (Setting.boolSettings().contains(type)) extra = ".toggle";
+            // if custom boolean, use the normal set message
+            if (Setting.customBool().contains(type)) extra = "";
+            if (type.toString().startsWith("bossbar.")) { // if bossbar, bossbar category
+                typeTxT = lang("category",lang("category.bossbar"),typeTxT);
+            } else if (!type.toString().startsWith("module.")) { // else not module, HUD category
+                typeTxT = lang("category",lang("category.hud"),typeTxT);
+            }
+
+            msg.append(lang("msg.set"+extra,typeTxT,setTxT));
             if (Return) UI(player, msg);
             return msg;
         }
+        /**
+         * checks if a setting can be reset by comparing the current state to the config state
+         */
         public static boolean canBeReset(Player player, Setting type) {
             boolean output = false;
             // bossbar max isn't a base, so skip
             if (type.equals(Setting.none) || type.equals(Setting.bossbar__distance_max)) return false;
+            // flip if the default and current settings doesn't match
             if (!PlayerData.get.hud.setting(player,type).equals(getConfig(type))) output = true;
+            // if bossbar.distance, check the child setting for the same thing
             if (type.equals(Setting.bossbar__distance))
                 if (((Double) PlayerData.get.hud.setting(player, Setting.bossbar__distance_max)).intValue() != (int)getConfig(Setting.bossbar__distance_max)) output = true;
             return output;
         }
-        public static CTxT resetB(Player player, Setting type) {
+        public static CTxT resetBtn(Player player, Setting type) {
             CTxT msg = CTxT.of(Assets.symbols.x).btn(true).color('7');
             if (canBeReset(player,type)) {
-                msg.color('c').cEvent(1, "/hud settings reset " + type)
-                        .hEvent(CUtl.TBtn("reset.hover_settings",lang("settings."+type).color('c')));
+                msg.color('c').cEvent(1, "/hud settings reset-r " + type)
+                        .hEvent(lang("hover.reset",lang("category",
+                                lang("category."+(type.toString().startsWith("bossbar")?"bossbar":"hud")),
+                                lang(type.toString())).color('c')));
             }
             return msg;
         }
@@ -1160,56 +1201,64 @@ public class HUD {
             }
             if (type.equals(Setting.type)) {
                 Setting.DisplayType nextType = Setting.DisplayType.valueOf((String) PlayerData.get.hud.setting(player,type)).next();
-                button.append(lang("settings."+type+"."+ PlayerData.get.hud.setting(player,type)).btn(true).color(CUtl.s())
+                button.append(lang(type+"."+ PlayerData.get.hud.setting(player,type)).btn(true).color(CUtl.s())
                         .cEvent(1,"/hud settings set-r "+type+" "+nextType)
-                        .hEvent(lang("settings."+type+".hover",lang("settings."+type+"."+nextType).color(CUtl.s()))));
+                        .hEvent(lang("hover.set",lang("category",
+                                        lang("category.hud"),lang(type.toString())),
+                                lang(type+"."+nextType).color(CUtl.s()))));
             }
             if (type.equals(Setting.bossbar__color)) {
-                button.append(lang("settings."+type+"."+PlayerData.get.hud.setting(player,type)).btn(true)
+                button.append(lang(type+"."+PlayerData.get.hud.setting(player,type)).btn(true)
                         .color(Assets.barColor((Setting.BarColor.valueOf((String) PlayerData.get.hud.setting(player,type)))))
-                        .cEvent(2,"/hud settings set-r "+type+" ").hEvent(lang("settings."+type+".hover")));
+                        .cEvent(2,"/hud settings set-r "+type+" ")
+                        .hEvent(lang("hover.set.custom",lang("category",
+                                        lang("category.bossbar"),lang(type.toString())))));
             }
             if (type.equals(Setting.bossbar__distance)) {
                 boolean state = (boolean) PlayerData.get.hud.setting(player,type);
                 button.append(CUtl.toggleBtn(state,"/hud settings set-r "+type+" ")).append(" ");
                 button.append(CTxT.of(String.valueOf(((Double) PlayerData.get.hud.setting(player, Setting.bossbar__distance_max)).intValue())).btn(true).color((boolean) PlayerData.get.hud.setting(player,type)?'a':'c')
                         .cEvent(2,"/hud settings set-r "+ Setting.bossbar__distance_max+" ")
-                        .hEvent(lang("settings."+type+"_max.hover").append("\n").append(lang("settings."+type+"_max.hover_2").italic(true).color('7'))));
+                        .hEvent(lang("hover.set.custom",lang("category",
+                                lang("category.bossbar"),lang(Setting.bossbar__distance_max.toString())))
+                                .append("\n").append(lang(type+"_max.hover").italic(true).color('7'))));
             }
             return button;
         }
         public static void UI(Player player, CTxT aboveMSG) {
             CTxT msg = CTxT.of("");
             if (aboveMSG != null) msg.append(aboveMSG).append("\n");
-            msg.append(" ").append(lang("ui.settings").color(Assets.mainColors.setting)).append(CTxT.of("\n                              \n").strikethrough(true));
+            msg.append(" ").append(lang("ui").color(Assets.mainColors.setting)).append(CTxT.of("\n                              \n").strikethrough(true));
             //HUD
-            msg.append(" ").append(lang("settings.hud").color(CUtl.p())).append(":\n  ");
+            msg.append(" ").append(lang("category.hud").color(CUtl.p())).append(":\n  ");
             msg     //STATE
-                    .append(resetB(player, Setting.state)).append(" ")
-                    .append(lang("settings."+ Setting.state).hEvent(lang("settings."+ Setting.state+".info"))).append(": ")
-                    .append(getButtons(player, Setting.state))
+                    .append(resetBtn(player, Setting.state)).append(" ")
+                    .append(lang(Setting.state+".ui").hEvent(CTxT.of(lang(Setting.state+".ui"))
+                                    .append("\n").append(lang("hover.info.toggle",lang("category.hud"),lang(Setting.state.toString())).color('7'))))
+                    .append(": ").append(getButtons(player, Setting.state))
                     .append("\n  ");
             msg     //TYPE
-                    .append(resetB(player, Setting.type)).append(" ")
-                    .append(lang("settings."+ Setting.type).hEvent(lang("settings."+ Setting.type+".info"))).append(": ")
-                    .append(getButtons(player, Setting.type))
+                    .append(resetBtn(player, Setting.type)).append(" ")
+                    .append(lang(Setting.type+".ui").hEvent(CTxT.of(lang(Setting.type+".ui"))
+                                    .append("\n").append(lang("hover.info",lang("category.hud"),lang(Setting.type.toString())).color('7'))))
+                    .append(": ").append(getButtons(player, Setting.type))
                     .append("\n");
             //BOSSBAR
-            msg.append(" ").append(lang("settings.bossbar").color(CUtl.p())).append(":\n  ");
+            msg.append(" ").append(lang("category.bossbar").color(CUtl.p())).append(":\n  ");
             msg     //COLOR
-                    .append(resetB(player, Setting.bossbar__color)).append(" ")
-                    .append(lang("settings."+ Setting.bossbar__color).hEvent(lang("settings."+ Setting.bossbar__color+".info"))).append(": ")
-                    .append(getButtons(player, Setting.bossbar__color))
+                    .append(resetBtn(player, Setting.bossbar__color)).append(" ")
+                    .append(lang(Setting.bossbar__color+".ui").hEvent(CTxT.of(lang(Setting.bossbar__color+".ui"))
+                            .append("\n").append(lang("hover.info",lang("category.bossbar"),lang(Setting.bossbar__color.toString())).color('7'))))
+                    .append(": ").append(getButtons(player, Setting.bossbar__color))
                     .append("\n  ");
             msg     //DISTANCE
-                    .append(resetB(player, Setting.bossbar__distance)).append(" ")
-                    .append(lang("settings."+ Setting.bossbar__distance).hEvent(lang("settings."+ Setting.bossbar__distance+".info")
-                            .append("\n").append(lang("settings."+ Setting.bossbar__distance+".info_2").color('e')))).append(": ")
+                    .append(resetBtn(player, Setting.bossbar__distance)).append(" ")
+                    .append(lang(Setting.bossbar__distance+".ui").hEvent(CTxT.of(lang(Setting.bossbar__distance+".ui"))
+                            .append("\n").append(lang(Setting.bossbar__distance+".info").color('7'))
+                            .append("\n").append(lang(Setting.bossbar__distance_max+".ui"))
+                            .append("\n").append(lang(Setting.bossbar__distance+".info.2").color('7')))).append(": ")
                     .append(getButtons(player, Setting.bossbar__distance))
                     .append("\n");
-            //MODULE
-            msg.append(" ").append(lang("settings.module").color(CUtl.p())).append(":\n  ");
-            msg.append(CUtl.CButton.hud.modules()).append("\n");
             CTxT reset = CUtl.TBtn("reset").btn(true).color('7');
             boolean resetOn = false;
             // see if a setting can be reset, then flip the switch
@@ -1218,7 +1267,7 @@ public class HUD {
                 resetOn = canBeReset(player,t);
             }
             if (resetOn) reset.color('c').cEvent(1,"/hud settings reset-r all")
-                    .hEvent(CUtl.TBtn("reset.hover_settings",CUtl.TBtn("all").color('c')));
+                    .hEvent(lang("hover.reset",CUtl.TBtn("all").color('c')));
             msg.append("\n    ").append(reset).append("  ").append(CUtl.CButton.back("/hud")).append("\n")
                     .append(CTxT.of("                              ").strikethrough(true));
             player.sendMessage(msg);
