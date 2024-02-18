@@ -64,6 +64,7 @@ public class HUD {
             list.add(bossbar__distance);
             list.add(module__time_24hr);
             list.add(module__speed_3d);
+            list.add(module__tracking_hybrid);
             return list;
         }
         public enum DisplayType {
