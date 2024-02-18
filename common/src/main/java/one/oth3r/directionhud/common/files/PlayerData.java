@@ -11,7 +11,6 @@ import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.utils.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileReader;
@@ -34,7 +33,7 @@ public class PlayerData {
             String value = String.valueOf(dataMap.get(player).get("msg."+key));
             return value.equals("null")?"":value;
         }
-        public static void set(Player player, String key,@NotNull String value) {
+        public static void set(Player player, String key, String value) {
             dataMap.get(player).put("msg."+key,value);
         }
         public static void clear(Player player, String key) {
