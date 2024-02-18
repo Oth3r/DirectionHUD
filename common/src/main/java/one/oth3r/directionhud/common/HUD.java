@@ -321,9 +321,15 @@ public class HUD {
                 // module.tracking_target
                 if (args[1].equalsIgnoreCase(Setting.module__tracking_target.toString()))
                     suggester.addAll(Enums.toStringList(Enums.toArrayList(Setting.ModuleTrackingTarget.values())));
+                // module.tracking_type
+                if (args[1].equalsIgnoreCase(Setting.module__tracking_type.toString()))
+                    suggester.addAll(Enums.toStringList(Enums.toArrayList(Setting.ModuleTrackingType.values())));
                 // module.speed_pattern
                 if (args[1].equalsIgnoreCase(Setting.module__speed_pattern.toString()))
                     suggester.add("\"0.0#\"");
+                // module.angle_display
+                if (args[1].equalsIgnoreCase(Setting.module__angle_display.toString()))
+                    suggester.addAll(Enums.toStringList(Enums.toArrayList(Setting.ModuleAngleDisplay.values())));
             }
             return suggester;
         }
