@@ -1377,9 +1377,9 @@ public class Destination {
                 player.sendMessage(msg.append("\n ").append(reason));
             }
             public static void clear(Player player) {
-                //remove everything to do with tracking in the one time map
-                for (String s: PlayerData.dataMap.get(player).keySet())
-                    if (s.contains("tracking")) PlayerData.setMsgData(player,s,null);
+                //remove everything to do with tracking in the msg data system
+                for (String s: PlayerData.MsgData.getKeys(player))
+                    if (s.contains("tracking")) PlayerData.MsgData.clear(player,s);
                 //clear the player
                 PlayerData.set.dest.tracking(player,null);
             }
@@ -1516,13 +1516,13 @@ public class Destination {
                 }
                 // if the target is null, means the player cant be found, probably offline
                 if (target == null) {
-                    if (PlayerData.getMsgData(player, "tracking.offline").isBlank()) {
+                    if (PlayerData.MsgData.get(player, "tracking.offline").isBlank()) {
                         // the offline message hasn't been sent
                         player.sendMessage(CUtl.tag().append(CUtl.lang("dest.track.offline")));
-                        PlayerData.setMsgData(player, "tracking.offline", "1");
+                        PlayerData.MsgData.set(player, "tracking.offline", "1");
                         // reset all other messages
-                        PlayerData.clearMsgData(player, "tracking.converted");
-                        PlayerData.clearMsgData(player, "tracking.dimension");
+                        PlayerData.MsgData.clear(player, "tracking.converted");
+                        PlayerData.MsgData.clear(player, "tracking.dimension");
                     }
                     return;
                 }
@@ -1533,26 +1533,26 @@ public class Destination {
                 }
                 // ------- TRACKING IS ON -------
                 // if the offline message was sent, reset it and send the back message
-                if (!PlayerData.getMsgData(player, "tracking.offline").isBlank()) {
+                if (!PlayerData.MsgData.get(player, "tracking.offline").isBlank()) {
                     player.sendMessage(CUtl.tag().append(CUtl.lang("dest.track.back"))); // tracking resumed msg
-                    PlayerData.clearMsgData(player,"tracking.offline");
+                    PlayerData.MsgData.clear(player,"tracking.offline");
                 }
                 // target is in the same dimension as the player
                 if (target.getDimension().equals(player.getDimension())) {
                     // if convert message has been sent before
-                    if (!PlayerData.getMsgData(player, "tracking.converted").isBlank()) {
+                    if (!PlayerData.MsgData.get(player, "tracking.converted").isBlank()) {
                         // send convert message to let player know the tracker was converted back to local dimension
                         player.sendMessage(CUtl.tag().append(lang("autoconvert.tracking")).append("\n ")
                                 .append(lang("autoconvert.tracking.info",
                                                 CTxT.of(Utl.dim.getName(target.getDimension())).italic(true).color(Utl.dim.getHEX(target.getDimension())))
                                         .italic(true).color('7')));
-                        PlayerData.clearMsgData(player, "tracking.converted");
+                        PlayerData.MsgData.clear(player, "tracking.converted");
                     }
                     // if tracking was stopped before
-                    if (!PlayerData.getMsgData(player, "tracking.dimension").isBlank()) {
+                    if (!PlayerData.MsgData.get(player, "tracking.dimension").isBlank()) {
                         /// send resume message to let player know the tracker was enabled again
                         player.sendMessage(CUtl.tag().append(CUtl.lang("dest.track.back")));
-                        PlayerData.clearMsgData(player, "tracking.dimension");
+                        PlayerData.MsgData.clear(player, "tracking.dimension");
                     }
                     return;
                 }
@@ -1561,29 +1561,29 @@ public class Destination {
                 if ((boolean) PlayerData.get.dest.setting(player, Destination.Setting.autoconvert) &&
                         Utl.dim.canConvert(player.getDimension(),target.getDimension())) {
                     // send the tracking resumed message if tracking was disabled from dimension differences (autoconvert was enabled midway, ect.)
-                    if (!PlayerData.getMsgData(player, "tracking.dimension").isBlank()) {
+                    if (!PlayerData.MsgData.get(player, "tracking.dimension").isBlank()) {
                         player.sendMessage(CUtl.tag().append(CUtl.lang("dest.track.back")));
-                        PlayerData.clearMsgData(player, "tracking.dimension");
+                        PlayerData.MsgData.clear(player, "tracking.dimension");
                     }
                     // send the convert message if it hasn't been sent
-                    if (PlayerData.getMsgData(player, "tracking.converted").isBlank()) {
+                    if (PlayerData.MsgData.get(player, "tracking.converted").isBlank()) {
                         player.sendMessage(CUtl.tag().append(CUtl.lang("dest.autoconvert.tracking")).append("\n ")
                                 .append(CUtl.lang("dest.autoconvert.tracking.info",
                                                 CTxT.of(Utl.dim.getName(target.getDimension())).italic(true).color(Utl.dim.getHEX(target.getDimension())))
                                         .italic(true).color('7')));
                         // change the status on the convert message
-                        PlayerData.setMsgData(player, "tracking.converted",target.getDimension());
+                        PlayerData.MsgData.set(player, "tracking.converted",target.getDimension());
                     }
-                } else if (PlayerData.getMsgData(player, "tracking.dimension").isBlank()) {
+                } else if (PlayerData.MsgData.get(player, "tracking.dimension").isBlank()) {
                     // if not convertible or AutoConvert is off, & the dimension difference message hasn't been sent,
                     // send the dimension message
                     player.sendMessage(CUtl.tag().append(CUtl.lang("dest.track.dimension").append("\n ")
                             .append(CUtl.lang("dest.autoconvert.tracking.info",
                                             CTxT.of(Utl.dim.getName(target.getDimension())).italic(true).color(Utl.dim.getHEX(target.getDimension())))
                                     .italic(true).color('7'))));
-                    PlayerData.setMsgData(player, "tracking.dimension", "1");
+                    PlayerData.MsgData.set(player, "tracking.dimension", "1");
                     // make sure the converted msg is reset
-                    PlayerData.clearMsgData(player, "tracking.converted");
+                    PlayerData.MsgData.clear(player, "tracking.converted");
                 }
             }
         }

@@ -57,20 +57,17 @@ public class CUtl {
     public static CTxT config(String key, Object... args) {
         return getLangEntry("config.directionhud."+key,args);
     }
-    /**
-     * the opposite color of the boolean, if true red
-     */
     public static String toggleColor(boolean button) {
-        return button?"#FF5555":"#55FF55";
+        return button?"#55FF55":"#FF5555";
     }
-    // OFF/ON (COLOR)
+    // OFF/ON w/COLOR
     public static CTxT toggleTxT(boolean button) {
-        return CUtl.TBtn(button?"off":"on").color(toggleColor(button));
+        return CUtl.TBtn(button?"on":"off").color(toggleColor(button));
     }
     // [OFF/ON] (COLOR & FUNCTIONALITY)
     public static CTxT toggleBtn(boolean button, String cmd) {
         return CUtl.TBtn(button?"on":"off").btn(true).color(button?'a':'c').hEvent(CUtl.TBtn("state.hover",
-                toggleTxT(button))).cEvent(1,cmd+(button?"off":"on"));
+                toggleTxT(!button))).cEvent(1,cmd+(button?"off":"on"));
     }
     public static CTxT TBtn(String key, Object... args) {
         return lang("button."+key,args);
