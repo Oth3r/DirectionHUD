@@ -400,6 +400,7 @@ public class config {
             file.write("\n# "+CUtl.lang("dhud.preset.config.info.2").toString());
             file.write("\n# "+CUtl.lang("dhud.preset.config.info.3").toString());
 
+            // ---- DEFAULTS ----
             file.write("\n\n\n# "+CUtl.lang("config.default").toString());
             file.write("\n# "+CUtl.lang("config.default.info").toString());
 
@@ -422,35 +423,35 @@ public class config {
             file.write("\nhud.settings.state=" + hud.State);
 
             file.write("\n\nhud.settings.type=" + hud.DisplayType);
-            file.write("\n# "+CUtl.lang("config.hud.settings.type.options").toString());
+            file.write("\n# "+CUtl.config("options",Assets.configOptions.DisplayType()));
 
             file.write("\n\nhud.settings.bossbar.color=" + hud.BarColor);
-            file.write("\n# "+CUtl.lang("config.hud.settings.bossbar.color.options").toString());
+            file.write("\n# "+CUtl.config("options",Assets.configOptions.BossBarColor()));
             file.write("\nhud.settings.bossbar.distance=" + hud.BarShowDistance);
             file.write("\nhud.settings.bossbar.distance_max=" + hud.ShowDistanceMAX);
 
             file.write("\n\nhud.settings.module.time_24hr=" + hud.Time24HR);
 
             file.write("\n\nhud.settings.module.tracking_hybrid=" + hud.TrackingHybrid);
-            file.write("\n# "+CUtl.lang("hud.settings.module.tracking_hybrid.info").toString());
+            file.write("\n# "+HUD.settings.lang("module.tracking_hybrid.info").toString());
             file.write("\nhud.settings.module.tracking_target=" + hud.TrackingTarget);
-            file.write("\n# "+CUtl.lang("hud.settings.module.tracking_target.options").toString());
-            file.write("\n# "+CUtl.lang("hud.settings.module.tracking_target.info").toString());
+            file.write("\n# "+CUtl.config("options",Assets.configOptions.TrackingTarget()));
+            file.write("\n# "+HUD.settings.lang("module.tracking_target.info").toString());
             file.write("\nhud.settings.module.tracking_type=" + hud.TrackingType);
-            file.write("\n# "+CUtl.lang("hud.settings.module.tracking_type.options").toString());
-            file.write("\n# "+CUtl.lang("hud.settings.module.tracking_type.simple.info").toString());
-            file.write("\n# "+CUtl.lang("hud.settings.module.tracking_type.compact.info").toString());
+            file.write("\n# "+CUtl.config("options",Assets.configOptions.TrackingType()));
+            file.write("\n# "+HUD.settings.lang("module.tracking_type.simple.info").toString());
+            file.write("\n# "+HUD.settings.lang("module.tracking_type.compact.info").toString());
 
             file.write("\n\nhud.settings.module.speed_3d=" + hud.Speed3D);
             file.write("\nhud.settings.module.speed_pattern=" + hud.SpeedPattern);
-            file.write("\n# "+CUtl.lang("hud.settings.module.speed_pattern.info").toString());
-            file.write("\n# "+CUtl.lang("hud.settings.module.speed_pattern.info_2").toString());
+            file.write("\n# "+HUD.settings.lang("module.speed_pattern.info").toString());
+            file.write("\n# "+HUD.settings.lang("module.speed_pattern.info.2").toString());
 
             file.write("\n\nhud.settings.module.angle_display=" + hud.AngleDisplay);
-            file.write("\n# "+CUtl.lang("hud.settings.module.angle_display.options").toString());
+            file.write("\n# "+CUtl.config("options",Assets.configOptions.AngleDisplay()));
 
-            file.write("\n\n\n# "+CUtl.lang("config.hud.color").toString());
-            file.write("\n# "+CUtl.lang("config.color.options").toString());
+
+            file.write("\n\n# "+HUD.color.lang("ui").toString());
             file.write("\nhud.color.primary=" + hud.primary.Color);
             file.write("\nhud.color.primary-bold=" + hud.primary.Bold);
             file.write("\nhud.color.primary-italics=" + hud.primary.Italics);
@@ -460,14 +461,15 @@ public class config {
             file.write("\nhud.color.secondary-italics=" + hud.secondary.Italics);
             file.write("\nhud.color.secondary-rainbow=" + hud.secondary.Rainbow);
 
+
+
             file.write("\n\n\n# "+CUtl.lang("config.dest").toString());
             file.write("\n# "+CUtl.lang("config.settings").toString());
             file.write("\ndest.settings.autoclear=" + dest.AutoClear);
             file.write("\ndest.settings.autoclear_rad=" + dest.AutoClearRad);
             file.write("\ndest.settings.autoconvert=" + dest.AutoConvert);
             file.write("\ndest.settings.ylevel=" + dest.YLevel);
-            file.write("\n\n# "+CUtl.lang("config.hud.color").toString());
-            file.write("\n# "+CUtl.lang("config.color.options").toString());
+            file.write("\n\n# "+CUtl.lang("config.color.options").toString());
             file.write("\ndest.settings.particles.dest=" + dest.particles.Dest);
             file.write("\ndest.settings.particles.dest_color=" + dest.particles.DestColor);
             file.write("\ndest.settings.particles.line=" + dest.particles.Line);
