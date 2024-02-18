@@ -11,6 +11,7 @@ import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.utils.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileReader;
@@ -21,6 +22,25 @@ import java.util.*;
 public class PlayerData {
     public static Map<Player,Map<String,Object>> playerMap = new HashMap<>();
     public static Map<Player,Map<String,Object>> dataMap = new HashMap<>();
+    public static class MsgData {
+        public static ArrayList<String> getKeys(Player player) {
+            ArrayList<String> keys = new ArrayList<>();
+            for (String s:PlayerData.dataMap.get(player).keySet())
+                if (s.startsWith("msg.")) keys.add(s);
+            return keys;
+        }
+        public static String get(Player player, String key) {
+            // casting to string gets rid of nulls, so if null return empty string
+            String value = String.valueOf(dataMap.get(player).get("msg."+key));
+            return value.equals("null")?"":value;
+        }
+        public static void set(Player player, String key,@NotNull String value) {
+            dataMap.get(player).put("msg."+key,value);
+        }
+        public static void clear(Player player, String key) {
+            dataMap.get(player).put("msg."+key,"");
+        }
+    }
     public static File getFile(Player player) {
         if (config.online) return new File(DirectionHUD.DATA_DIR+"playerdata/" +player.getUUID()+".json");
         else return new File(DirectionHUD.DATA_DIR+"playerdata/"+player.getName()+".json");
@@ -345,17 +365,6 @@ public class PlayerData {
         mapToFile(player, fileToMap(player));
         playerMap.remove(player);
         dataMap.remove(player);
-    }
-    public static String getMsgData(Player player, String key) {
-        // casting to string gets rid of nulls, so if null return empty string
-        String value = String.valueOf(dataMap.get(player).get("msg."+key));
-        return value.equals("null")?"":value;
-    }
-    public static void setMsgData(Player player, String key, String value) {
-        dataMap.get(player).put("msg."+key,value);
-    }
-    public static void clearMsgData(Player player, String key) {
-        dataMap.get(player).put("msg."+key,"");
     }
     public static class defaults {
         public static Map<String,Object> get(Player player) {
