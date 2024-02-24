@@ -177,7 +177,7 @@ public class HUD {
             String type = args[0].toLowerCase();
             String[] trimmedArgs = Helper.trimStart(args, 1);
             switch (type) {
-                case "modules" -> modulesCMD(player, trimmedArgs);
+                case "modules" -> modules.CMDExecutor(player, trimmedArgs);
                 case "settings" -> settingsCMD(player,trimmedArgs);
                 case "color" -> color.cmdExecutor(player, trimmedArgs);
                 case "toggle" -> player.sendMessage(settings.change(player,Setting.state,(boolean) PlayerData.get.hud.setting(player,Setting.state)?"off":"on",false));
@@ -217,35 +217,6 @@ public class HUD {
                 else player.sendMessage(settings.change(player, Setting.get(args[1]),args[2],false));
             }
         }
-        public static void modulesCMD(Player player, String[] args) {
-            //UI
-            if (args.length == 0) modules.UI(player, null, 1);
-            if (args.length < 1) return;
-            boolean Return = false;
-            // if the module has -r, remove it and enable returning
-            if (args[0].contains("-r")) {
-                args[0] = args[0].replace("-r","");
-                Return = true;
-            }
-            if (Num.isInt(args[0])) modules.UI(player,null,Integer.parseInt(args[0]));
-            //RESET
-            if (args[0].equals("reset")) {
-                if (args.length == 1) // reset all
-                    modules.reset(player,Module.unknown,Return);
-                else // reset per module
-                    modules.reset(player,Module.get(args[1]),Return);
-            }
-            if (args[0].equals("toggle")) {
-                if (args.length < 2) player.sendMessage(CUtl.error("hud.module"));
-                else modules.toggle(player, Module.valueOf(args[1]),null,Return);
-            }
-            if (args[0].equals("order")) {
-                if (args.length < 2) player.sendMessage(CUtl.error("hud.module"));
-                else if (args.length == 3 && Num.isInt(args[2]))
-                    modules.move(player, Module.get(args[1]), Integer.parseInt(args[2]), Return);
-                else player.sendMessage(CUtl.error("number"));
-            }
-        }
     }
     public static class commandSuggester {
         public static ArrayList<String> logic(Player player, int pos, String[] args) {
@@ -262,29 +233,11 @@ public class HUD {
                 String[] trimmedArgs = Helper.trimStart(args, 1);
                 int fixedPos = pos - 2;
                 switch (command) {
-                    case "modules" -> suggester.addAll(modulesCMD(player,fixedPos,trimmedArgs));
+                    case "modules" -> suggester.addAll(modules.CMDSuggester(player,fixedPos,trimmedArgs));
                     case "settings" -> suggester.addAll(settingsCMD(fixedPos,trimmedArgs));
                     case "color" -> suggester.addAll(color.cmdSuggester(player,fixedPos,trimmedArgs));
                 }
             }
-            return suggester;
-        }
-        public static ArrayList<String> modulesCMD(Player player, int pos, String[] args) {
-            ArrayList<String> suggester = new ArrayList<>();
-            // modules
-            if (pos == 0) {
-                suggester.add("order");
-                suggester.add("toggle");
-                suggester.add("reset");
-                return suggester;
-            }
-            // if -r is attached, remove it and continue with the suggester
-            args[0] = args[0].replaceAll("-r", "");
-            if (pos == 1) {
-                suggester.addAll(Enums.toStringList(modules.getDefaultOrder()));
-            }
-            if (pos == 2 && args[0].equalsIgnoreCase("order"))
-                suggester.add(String.valueOf(PlayerData.get.hud.order(player).indexOf(Module.get(args[1]))+1));
             return suggester;
         }
         public static ArrayList<String> settingsCMD(int pos, String[] args) {
@@ -558,10 +511,60 @@ public class HUD {
         return angle;
     }
     public static class modules {
+        private static final int PER_PAGE = 5;
         public static CTxT lang(String key, Object... args) {
             return HUD.lang("module."+key, args);
         }
-        private static final int PER_PAGE = 5;
+        public static void CMDExecutor(Player player, String[] args) {
+            // UI
+            if (args.length == 0) {
+                UI(player, null, 1);
+                return;
+            }
+            // UI (page)
+            if (Num.isInt(args[0])) UI(player,null,Integer.parseInt(args[0]));
+            // if there is -r, remove it and enable returning
+            boolean Return = args[0].contains("-r");
+            args[0] = args[0].replace("-r","");
+            // RESET
+            if (args[0].equals("reset")) {
+                // reset - all
+                if (args.length == 1) reset(player,Module.unknown,Return);
+                // reset (module) - per module
+                else reset(player,Module.get(args[1]),Return);
+            }
+            // TOGGLE
+            if (args[0].equals("toggle")) {
+                // send error if cmd length isn't long enough
+                if (args.length < 2) player.sendMessage(CUtl.error("args"));
+                else toggle(player, Module.valueOf(args[1]),null,Return);
+            }
+            // ORDER
+            if (args[0].equals("order")) {
+                // send error if cmd length isn't long enough or an order number isn't entered
+                if (args.length < 2) player.sendMessage(CUtl.error("args"));
+                else if (args.length == 3 && Num.isInt(args[2])) move(player, Module.get(args[1]), Integer.parseInt(args[2]), Return);
+                else player.sendMessage(CUtl.error("number"));
+            }
+        }
+        public static ArrayList<String> CMDSuggester(Player player, int pos, String[] args) {
+            ArrayList<String> suggester = new ArrayList<>();
+            // modules
+            if (pos == 0) {
+                suggester.add("order");
+                suggester.add("toggle");
+                suggester.add("reset");
+                return suggester;
+            }
+            // if -r is attached, remove it and continue with the suggester
+            args[0] = args[0].replaceAll("-r", "");
+            // modules (order/toggle/reset) [module]
+            if (pos == 1) suggester.addAll(Enums.toStringList(getDefaultOrder()));
+            // modules order (module) [order]
+            if (pos == 2 && args[0].equalsIgnoreCase("order"))
+                suggester.add(String.valueOf(PlayerData.get.hud.order(player).indexOf(Module.get(args[1]))+1));
+            return suggester;
+        }
         public static ArrayList<Module> getDefaultOrder() {
             ArrayList<Module> list = new ArrayList<>();
             list.add(Module.coordinates);
@@ -575,6 +578,10 @@ public class HUD {
             list.add(Module.angle);
             return list;
         }
+        /**
+         * gets the default module enabled state from the given module
+         * @return default state
+         */
         public static boolean getDefaultState(Module module) {
             boolean output = false;
             switch (module) {
@@ -590,6 +597,11 @@ public class HUD {
             }
             return output;
         }
+        /**
+         * reset module(s) to their default config state
+         * @param module module to reset, unknown to reset all
+         * @param Return to return to the modules UI
+         */
         public static void reset(Player player, Module module, boolean Return) {
             CTxT msg = CUtl.tag();
             if (module.equals(Module.unknown)) {
@@ -620,6 +632,12 @@ public class HUD {
             if (Return) UI(player, msg, 1);
             else player.sendMessage(msg);
         }
+        /**
+         * move a module's position in the HUD
+         * @param module module to move
+         * @param pos position in the list, starts at 1
+         * @param Return to return to the modules UI
+         */
         public static void move(Player player, Module module, int pos, boolean Return) {
             if (module.equals(Module.unknown)) {
                 player.sendMessage(CUtl.error("hud.module"));
@@ -637,6 +655,12 @@ public class HUD {
             if (Return) UI(player, msg, listPage.getPageOf(module));
             else player.sendMessage(msg);
         }
+        /**
+         * sets the enabled state of a module
+         * @param module module to edit
+         * @param toggle state to change to - null to flip
+         * @param Return to return to the modules UI
+         */
         public static void toggle(Player player, Module module, Boolean toggle, boolean Return) {
             if (module.equals(Module.unknown)) {
                 player.sendMessage(CUtl.error("hud.module"));
@@ -649,6 +673,11 @@ public class HUD {
             if (Return) UI(player, msg, listPage.getPageOf(module));
             else player.sendMessage(msg);
         }
+        /**
+         * module order fixer, removes unknown modules, and fills in the gaps if modules are missing
+         * @param list the list that needs to be fixed
+         * @return the fixed list
+         */
         public static ArrayList<Module> fixOrder(ArrayList<Module> list) {
             ArrayList<Module> allModules = getDefaultOrder();
             // if the module isn't valid, remove
@@ -661,6 +690,11 @@ public class HUD {
             list.addAll(allModules);
             return list;
         }
+        /**
+         * gets the module page # from the HUD setting that is associated with a module
+         * @param setting the module setting
+         * @return page #
+         */
         public static int getPageFromSetting(Player player, Setting setting) {
             Helper.ListPage<Module> listPage = new Helper.ListPage<>(PlayerData.get.hud.order(player),PER_PAGE);
             Module module = Module.unknown;
@@ -672,11 +706,18 @@ public class HUD {
             }
             return listPage.getPageOf(module);
         }
+        /**
+         * @return a list of enabled modules
+         */
         public static ArrayList<Module> getEnabled(Player player) {
             ArrayList<Module> enabled = new ArrayList<>();
             for (Module module: PlayerData.get.hud.order(player)) if (PlayerData.get.hud.module(player,module)) enabled.add(module);
             return enabled;
         }
+        /**
+         * get setting buttons for the provided module
+         * @return CTxT with the buttons
+         */
         public static CTxT getButtons(Player player, Module module) {
             CTxT button = CTxT.of("");
             if (module.equals(Module.time)) {
@@ -749,6 +790,11 @@ public class HUD {
             }
             return button;
         }
+        /**
+         * gets the sample of the given module as a CTxT
+         * @param onlyExample to return only the example
+         * @return returns the sample of the HUD module
+         */
         public static CTxT moduleInfo(Player player, Module module, boolean... onlyExample) {
             // get the hover info for each module
             CTxT info = CTxT.of("");
@@ -798,6 +844,13 @@ public class HUD {
             if (onlyExample.length == 0) info.append("\n").append(lang("info."+module).color('7'));
             return info;
         }
+        /**
+         * returns the color of the module -
+         * grey if off
+         * yellow if on but can't display
+         * green if on and displaying
+         * @return the HEX code of the color
+         */
         public static String stateColor(Player player, Module module) {
             if (!PlayerData.get.hud.module(player, module)) return Assets.mainColors.gray;
             boolean yellow = false;
@@ -811,6 +864,11 @@ public class HUD {
             if (yellow) return "#fff419";
             return "#19ff21";
         }
+        /**
+         * the HUD Modules chat UI
+         * @param abovemsg a messages that displays above the UI
+         * @param pg the module page to display
+         */
         public static void UI(Player player, CTxT abovemsg, int pg) {
             Helper.ListPage<Module> listPage = new Helper.ListPage<>(PlayerData.get.hud.order(player),PER_PAGE);
             CTxT msg = CTxT.of("");

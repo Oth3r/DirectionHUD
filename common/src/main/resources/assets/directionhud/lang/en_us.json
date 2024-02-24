@@ -35,7 +35,6 @@
   "key.directionhud.error.dest.track.none": "You don't have a tracking request from %s!",
   "key.directionhud.error.dest.track.cleared": "You aren't tracking anyone!",
   "key.directionhud.error.dest.social.cooldown": "Please wait before sending another social command!",
-  "key.directionhud.error.hud.module": "Invalid module!",
   "key.directionhud.error.dhud.preset": "Invalid preset!",
   "key.directionhud.error.dhud.preset.duplicate": "There is already a preset with the same name!",
   "key.directionhud.error.dhud.preset.max": "You've reached the max number of saved destinations!",
