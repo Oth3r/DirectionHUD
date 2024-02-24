@@ -4,7 +4,6 @@ import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.utils.Loc;
-import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
@@ -27,10 +26,10 @@ public class LoopManager {
             HUDTick = 0;
             for (Player player : Utl.getPlayers()) {
                 if ((boolean) PlayerData.get.hud.setting(player, HUD.Setting.state)) {
-                    HashMap<HUD.Module, ArrayList<String>> HUDData = HUD.getRawHUDText(player);
+                    HashMap<HUD.Module, ArrayList<String>> HUDData = HUD.build.getHUDInstructions(player);
                     // if the client has directionhud and the hud type is the actionBar send as a packet
                     if (DirectionHUD.clientPlayers.contains(player) && HUD.Setting.DisplayType.get((String) PlayerData.get.hud.setting(player, HUD.Setting.type)).equals(HUD.Setting.DisplayType.actionbar)) player.sendHUDPackets(HUDData);
-                    else player.displayHUD(HUD.build(player,HUDData));
+                    else player.displayHUD(HUD.build.compile(player,HUDData));
                 }
                 // if player has DEST, AutoClear is on, and the distance is in the AutoClear range, clear
                 if (Destination.get(player).hasXYZ() && (boolean) PlayerData.get.dest.setting(player, Destination.Setting.autoclear) &&

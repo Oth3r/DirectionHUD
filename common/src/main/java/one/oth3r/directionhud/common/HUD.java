@@ -296,219 +296,233 @@ public class HUD {
     public static CTxT lang(String key, Object... args) {
         return CUtl.lang("hud."+key, args);
     }
-    public static HashMap<Module, ArrayList<String>> getRawHUDText(Player player) {
-        //return a HashMap that for each HUD module, has a string with style instructions and the actual HUD
-        ArrayList<String> coordinates = new ArrayList<>();
-        coordinates.add("pXYZ: ");
-        coordinates.add("s"+player.getBlockX()+" "+player.getBlockY()+" "+player.getBlockZ());
-        ArrayList<String> destination = new ArrayList<>();
-        ArrayList<String> distance = new ArrayList<>();
-        ArrayList<String> tracking = getTrackingModule(player);
-        if (Destination.get(player).hasXYZ()) {
-            destination.add("p[");
-            destination.add("s"+ Destination.get(player).getXYZ());
-            destination.add("p]");
-            distance.add("p[");
-            distance.add("s"+ Destination.getDist(player));
-            distance.add("p]");
-        }
-        ArrayList<String> direction = new ArrayList<>();
-        direction.add("p"+getPlayerDirection(player));
-        ArrayList<String> time = new ArrayList<>();
-        if ((boolean) PlayerData.get.hud.setting(player, Setting.module__time_24hr)) {
-            time.add("s"+getGameTime(false));
-        } else {
-            // 12 hr clock
-            time.add("s"+getGameTime(true)+" ");
-            time.add("p"+(hour>=12?"PM":"AM"));
-        }
-        ArrayList<String> weather = new ArrayList<>();
-        weather.add("p"+weatherIcon);
-        HashMap<Module, ArrayList<String>> filledModules = new HashMap<>();
-        filledModules.put(Module.coordinates, coordinates);
-        filledModules.put(Module.distance, distance);
-        filledModules.put(Module.destination, destination);
-        filledModules.put(Module.direction, direction);
-        filledModules.put(Module.time, time);
-        filledModules.put(Module.weather, weather);
-        filledModules.put(Module.tracking, tracking);
-        filledModules.put(Module.speed, getSpeedModule(player));
-        filledModules.put(Module.angle, getAngleModule(player));
-        return filledModules;
-    }
-    public static CTxT build(Player player, HashMap<Module, ArrayList<String>> filledModules) {
-        // returns a CTxT with the fully built HUD
-        int start = 1;
-        CTxT msg = CTxT.of("");
-        // loop for all enabled modules
-        int count = 0;
-        for (Module module: modules.getEnabled(player)) {
-            count++;
-            // if dest isn't set
-            if (!Destination.get(player).hasXYZ()) {
-                // if dest or distance, remove
-                if (module.equals(Module.destination) || module.equals(Module.distance)) continue;
-            }
-            // if tracking module
-            if (module.equals(Module.tracking)) {
-                // if tracking type is dest and dest is off, remove.
-                // else player tracking type and no player tracked, remove
-                if (PlayerData.get.hud.setting(player, Setting.module__tracking_target).equals(Setting.ModuleTrackingTarget.dest.toString())) {
-                    if (!Destination.get(player).hasXYZ()) continue;
-                } else if (Destination.social.track.getTarget(player) == null) continue;
-            }
-            for (String str : filledModules.get(module)) {
-                String string = str.substring(1);
-                boolean strike = false;
-                // if '/', remove the char and enable strikethrough for the text
-                if (str.charAt(0) == '/') {
-                    str = str.substring(1);
-                    string = string.substring(1);
-                    strike = true;
+    public static class build {
+        /**
+         * builds the HUD for actionBar & BossBar use
+         * @param moduleInstructions a HashMap with the instructions for building the HUD
+         * @return a CTxT with the fully built HUD
+         */
+        public static CTxT compile(Player player, HashMap<Module, ArrayList<String>> moduleInstructions) {
+            // returns a CTxT with the fully built HUD
+            int start = 1;
+            CTxT msg = CTxT.of("");
+            // loop for all enabled modules
+            int count = 0;
+            for (Module module: modules.getEnabled(player)) {
+                count++;
+                // if dest isn't set
+                if (!Destination.get(player).hasXYZ()) {
+                    // if dest or distance, remove
+                    if (module.equals(Module.destination) || module.equals(Module.distance)) continue;
                 }
-                // if 'p' use primary color, 's' for secondary
-                int typ = str.charAt(0) == 'p'?1:2;
-                // add the color and style
-                msg.append(color.addColor(player,string,typ,LoopManager.rainbowF+start,5)
-                        .strikethrough(strike));
-                // if rainbow, move the starting position by how many characters were turned into a rainbow, for a seamless rainbow
-                if (color.getHUDRainbow(player,typ)) {
-                    String rgbStr = string.replaceAll("\\s", "");
-                    start = start + rgbStr.codePointCount(0, rgbStr.length())*5;
+                // if tracking module
+                if (module.equals(Module.tracking)) {
+                    // if tracking type is dest and dest is off, remove.
+                    // else player tracking type and no player tracked, remove
+                    if (PlayerData.get.hud.setting(player, Setting.module__tracking_target).equals(Setting.ModuleTrackingTarget.dest.toString())) {
+                        if (!Destination.get(player).hasXYZ()) continue;
+                    } else if (Destination.social.track.getTarget(player) == null) continue;
                 }
-            }
-            if (count < modules.getEnabled(player).size()) msg.append(" ");
-        }
-        if (msg.equals(CTxT.of(""))) return CTxT.of("");
-        //make the click event unique for detecting if an actionbar is from DirectionHUD or not
-        msg.cEvent(3,"https://modrinth.com/mod/directionhud");
-        return msg;
-    }
-    public static String getPlayerDirection(Player player) {
-        double rotation = (player.getYaw() - 180) % 360;
-        if (rotation < 0) {
-            rotation += 360.0;
-        }
-        if (Num.inBetween(rotation,0,22.5)) return "N";
-        else if (Num.inBetween(rotation,22.5,67.5)) return "NE";
-        else if (Num.inBetween(rotation,67.5,112.5)) return "E";
-        else if (Num.inBetween(rotation,112.5,157.5)) return "SE";
-        else if (Num.inBetween(rotation,157.5,202.5)) return "S";
-        else if (Num.inBetween(rotation,202.5,247.5)) return "SW";
-        else if (Num.inBetween(rotation,247.5,292.5)) return "W";
-        else if (Num.inBetween(rotation,292.5,337.5)) return "NW";
-        else if (Num.inBetween(rotation,337.5,360.0)) return "N";
-        else return "?";
-    }
-    public static String getGameTime(boolean t12hr) {
-        int hr = hour;
-        // add 0 to the start, then set the string to the last to numbers to always have a 2-digit number
-        String min = "0" + minute;
-        min = min.substring(min.length()-2);
-        if (t12hr) hr = (hr % 12 == 0)? 12:hr % 12;
-        return hr+":"+min;
-    }
-    public static ArrayList<String> getTrackingModule(Player player) {
-        ArrayList<String> tracking = new ArrayList<>();
-        if (!PlayerData.get.hud.module(player, Module.tracking)) return tracking;
-        // pointer target
-        Loc pointLoc = null;
-        // player tracking mode
-        Setting.ModuleTrackingTarget trackingTarget = Setting.ModuleTrackingTarget.get(
-                String.valueOf(PlayerData.get.hud.setting(player, Setting.module__tracking_target)));
-        boolean hybrid = (boolean) PlayerData.get.hud.setting(player,Setting.module__tracking_hybrid);
-        // PLAYER or HYBRID
-        if (trackingTarget.equals(Setting.ModuleTrackingTarget.player) || hybrid) {
-            // make sure there's a target
-            if (!(PlayerData.get.dest.tracking(player) == null)) {
-                Player target = Destination.social.track.getTarget(player);
-                // make sure the player is real
-                if (!(target == null)) {
-                    Loc plLoc = new Loc(target);
-                    // not in the same dimension
-                    if (!player.getDimension().equals(target.getDimension())) {
-                        // can convert and autoconvert is on
-                        if (Utl.dim.canConvert(player.getDimension(),target.getDimension()) && (boolean) PlayerData.get.dest.setting(player, Destination.Setting.autoconvert)) {
-                            plLoc.convertTo(player.getDimension());
-                        } else plLoc = null;
+                for (String str : moduleInstructions.get(module)) {
+                    String string = str.substring(1);
+                    boolean strike = false;
+                    // if '/', remove the char and enable strikethrough for the text
+                    if (str.charAt(0) == '/') {
+                        str = str.substring(1);
+                        string = string.substring(1);
+                        strike = true;
                     }
-                    // set the loc
-                    pointLoc = plLoc;
+                    // if 'p' use primary color, 's' for secondary
+                    int typ = str.charAt(0) == 'p'?1:2;
+                    // add the color and style
+                    msg.append(color.addColor(player,string,typ,LoopManager.rainbowF+start,5)
+                            .strikethrough(strike));
+                    // if rainbow, move the starting position by how many characters were turned into a rainbow, for a seamless rainbow
+                    if (color.getHUDRainbow(player,typ)) {
+                        String rgbStr = string.replaceAll("\\s", "");
+                        start = start + rgbStr.codePointCount(0, rgbStr.length())*5;
+                    }
+                }
+                if (count < modules.getEnabled(player).size()) msg.append(" ");
+            }
+            if (msg.equals(CTxT.of(""))) return CTxT.of("");
+            //make the click event unique for detecting if an actionbar is from DirectionHUD or not
+            msg.cEvent(3,"https://modrinth.com/mod/directionhud");
+            return msg;
+        }
+        /**
+         * puts all HUD building instructions into a HashMap
+         * @return HUD building instructions
+         */
+        public static HashMap<Module, ArrayList<String>> getHUDInstructions(Player player) {
+            ArrayList<String> coordinates = new ArrayList<>();
+            coordinates.add("pXYZ: ");
+            coordinates.add("s"+player.getBlockX()+" "+player.getBlockY()+" "+player.getBlockZ());
+            ArrayList<String> destination = new ArrayList<>();
+            ArrayList<String> distance = new ArrayList<>();
+            ArrayList<String> tracking = getTrackingModule(player);
+            if (Destination.get(player).hasXYZ()) {
+                destination.add("p[");
+                destination.add("s"+ Destination.get(player).getXYZ());
+                destination.add("p]");
+                distance.add("p[");
+                distance.add("s"+ Destination.getDist(player));
+                distance.add("p]");
+            }
+            ArrayList<String> direction = getDirectionModule(player);
+            ArrayList<String> time = getTimeModule(!(boolean)PlayerData.get.hud.setting(player, Setting.module__time_24hr));
+            ArrayList<String> weather = new ArrayList<>();
+            weather.add("p"+weatherIcon);
+            HashMap<Module, ArrayList<String>> filledModules = new HashMap<>();
+            filledModules.put(Module.coordinates, coordinates);
+            filledModules.put(Module.distance, distance);
+            filledModules.put(Module.destination, destination);
+            filledModules.put(Module.direction, direction);
+            filledModules.put(Module.time, time);
+            filledModules.put(Module.weather, weather);
+            filledModules.put(Module.tracking, tracking);
+            filledModules.put(Module.speed, getSpeedModule(player));
+            filledModules.put(Module.angle, getAngleModule(player));
+            return filledModules;
+        }
+        /**
+         * @return the direction module instructions
+         */
+        public static ArrayList<String> getDirectionModule(Player player) {
+            ArrayList<String> direction = new ArrayList<>();
+            double rotation = player.getYaw()+180;
+            String cardinal = "?";
+            if (Num.inBetween(rotation,360.0,22.5) ||
+                    Num.inBetween(rotation,337.5,360.0)) cardinal = "N";
+            else if (Num.inBetween(rotation,22.5,67.5)) cardinal = "NE";
+            else if (Num.inBetween(rotation,67.5,112.5)) cardinal = "E";
+            else if (Num.inBetween(rotation,112.5,157.5)) cardinal = "SE";
+            else if (Num.inBetween(rotation,157.5,202.5)) cardinal = "S";
+            else if (Num.inBetween(rotation,202.5,247.5)) cardinal = "SW";
+            else if (Num.inBetween(rotation,247.5,292.5)) cardinal = "W";
+            else if (Num.inBetween(rotation,292.5,337.5)) cardinal = "NW";
+            direction.add("p"+cardinal);
+            return direction;
+        }
+        /**
+         * @return the time module instructions
+         */
+        public static ArrayList<String> getTimeModule(boolean t12hr) {
+            ArrayList<String> time = new ArrayList<>();
+            int hr = hour;
+            // add 0 to the start, then set the string to the last two numbers to always have a 2-digit number
+            String min = "0" + minute;
+            min = min.substring(min.length()-2);
+            if (t12hr) {
+                // if hr % 12 = 0, its 12 am/pm
+                hr = (hr%12==0) ? 12 : hr%12;
+                time.add("s"+hr+":"+min);
+                time.add("p"+(hour>=12?"PM":"AM"));
+            } else time.add("s"+hr+":"+min);
+            return time;
+        }
+        public static ArrayList<String> getTrackingModule(Player player) {
+            ArrayList<String> tracking = new ArrayList<>();
+            if (!PlayerData.get.hud.module(player, Module.tracking)) return tracking;
+            // pointer target
+            Loc pointLoc = null;
+            // player tracking mode
+            Setting.ModuleTrackingTarget trackingTarget = Setting.ModuleTrackingTarget.get(
+                    String.valueOf(PlayerData.get.hud.setting(player, Setting.module__tracking_target)));
+            boolean hybrid = (boolean) PlayerData.get.hud.setting(player,Setting.module__tracking_hybrid);
+            // PLAYER or HYBRID
+            if (trackingTarget.equals(Setting.ModuleTrackingTarget.player) || hybrid) {
+                // make sure there's a target
+                if (!(PlayerData.get.dest.tracking(player) == null)) {
+                    Player target = Destination.social.track.getTarget(player);
+                    // make sure the player is real
+                    if (!(target == null)) {
+                        Loc plLoc = new Loc(target);
+                        // not in the same dimension
+                        if (!player.getDimension().equals(target.getDimension())) {
+                            // can convert and autoconvert is on
+                            if (Utl.dim.canConvert(player.getDimension(),target.getDimension()) && (boolean) PlayerData.get.dest.setting(player, Destination.Setting.autoconvert)) {
+                                plLoc.convertTo(player.getDimension());
+                            } else plLoc = null;
+                        }
+                        // set the loc
+                        pointLoc = plLoc;
+                    }
                 }
             }
+            // DEST or (HYBRID & NULL TRACKER)
+            if (trackingTarget.equals(Setting.ModuleTrackingTarget.dest) || (hybrid && pointLoc == null)) {
+                // make sure theres a dest
+                if (Destination.get(player).hasXYZ())
+                    pointLoc = Destination.get(player);
+            }
+            // check if there's a point set, otherwise return nothing
+            if (pointLoc == null) return tracking;
+            Setting.ModuleTrackingType trackingType = Setting.ModuleTrackingType.get(String.valueOf(PlayerData.get.hud.setting(player,Setting.module__tracking_type)));
+            boolean simple = trackingType.equals(Setting.ModuleTrackingType.simple);
+            tracking.add("/p["); // add the first bracket
+            // pointer logic
+            int x = pointLoc.getX()-player.getBlockX();
+            int z = (pointLoc.getZ()-player.getBlockZ())*-1;
+            double target = Math.toDegrees(Math.atan2(x, z));
+            double rotation = (player.getYaw() - 180) % 360;
+            // make sure 0 - 360
+            if (rotation < 0) rotation += 360;
+            if (target < 0) target += 360;
+            if (Num.inBetween(rotation, Num.wSubtract(target,15,360), Num.wAdd(target,15,360)))
+                tracking.add("s"+(simple?"-"+ arrows.up+"-" : arrows.north));
+            // NORTH
+            else if (Num.inBetween(rotation, target, Num.wAdd(target,65,360)))
+                tracking.add("s"+(simple? arrows.left+ arrows.up+"-" : arrows.north_west));
+            // NORTH WEST
+            else if (Num.inBetween(rotation, target, Num.wAdd(target,115,360)))
+                tracking.add("s"+(simple? arrows.left+"--" : arrows.west));
+            // WEST
+            else if (Num.inBetween(rotation, target, Num.wAdd(target,165,360)))
+                tracking.add("s"+(simple? arrows.left+ arrows.down+"-" : arrows.south_west));
+            // SOUTH WEST
+            else if (Num.inBetween(rotation, Num.wSubtract(target, 65, 360), target))
+                tracking.add("s"+(simple?"-"+ arrows.up+ arrows.right : arrows.north_east));
+            // NORTH EAST
+            else if (Num.inBetween(rotation, Num.wSubtract(target, 115, 360), target))
+                tracking.add("s"+(simple?"--"+ arrows.right : arrows.east));
+            // EAST
+            else if (Num.inBetween(rotation, Num.wSubtract(target, 165, 360), target))
+                tracking.add("s"+(simple?"-"+ arrows.down+ arrows.right : arrows.south_east));
+            // SOUTH EAST
+            else tracking.add("s"+(simple?"-"+ arrows.down+"-" : arrows.south));
+            // SOUTH
+            // if compact and the ylevel is different & there's a y level on the loc
+            if (!simple && !(boolean) PlayerData.get.dest.setting(player, Destination.Setting.ylevel) && pointLoc.yExists()) {
+                tracking.add("p|");
+                if (player.getLoc().getY() > pointLoc.getY())
+                    tracking.add("s"+arrows.south);
+                else tracking.add("s"+arrows.north);
+            }
+            tracking.add("/p]");
+            return tracking;
         }
-        // DEST or (HYBRID & NULL TRACKER)
-        if (trackingTarget.equals(Setting.ModuleTrackingTarget.dest) || (hybrid && pointLoc == null)) {
-            // make sure theres a dest
-            if (Destination.get(player).hasXYZ())
-                pointLoc = Destination.get(player);
+        public static ArrayList<String> getSpeedModule(Player player) {
+            ArrayList<String> speed = new ArrayList<>();
+            if (!PlayerData.get.hud.module(player,Module.speed)) return speed;
+            DecimalFormat f = new DecimalFormat((String) PlayerData.get.hud.setting(player,Setting.module__speed_pattern));
+            speed.add("s"+f.format(PlayerData.dataMap.get(player).get("speed")));
+            speed.add("p"+" B/S");
+            return speed;
         }
-        // check if there's a point set, otherwise return nothing
-        if (pointLoc == null) return tracking;
-        Setting.ModuleTrackingType trackingType = Setting.ModuleTrackingType.get(String.valueOf(PlayerData.get.hud.setting(player,Setting.module__tracking_type)));
-        boolean simple = trackingType.equals(Setting.ModuleTrackingType.simple);
-        tracking.add("/p["); // add the first bracket
-        // pointer logic
-        int x = pointLoc.getX()-player.getBlockX();
-        int z = (pointLoc.getZ()-player.getBlockZ())*-1;
-        double target = Math.toDegrees(Math.atan2(x, z));
-        double rotation = (player.getYaw() - 180) % 360;
-        // make sure 0 - 360
-        if (rotation < 0) rotation += 360;
-        if (target < 0) target += 360;
-        if (Num.inBetween(rotation, Num.wSubtract(target,15,360), Num.wAdd(target,15,360)))
-            tracking.add("s"+(simple?"-"+ arrows.up+"-" : arrows.north));
-        // NORTH
-        else if (Num.inBetween(rotation, target, Num.wAdd(target,65,360)))
-            tracking.add("s"+(simple? arrows.left+ arrows.up+"-" : arrows.north_west));
-        // NORTH WEST
-        else if (Num.inBetween(rotation, target, Num.wAdd(target,115,360)))
-            tracking.add("s"+(simple? arrows.left+"--" : arrows.west));
-        // WEST
-        else if (Num.inBetween(rotation, target, Num.wAdd(target,165,360)))
-            tracking.add("s"+(simple? arrows.left+ arrows.down+"-" : arrows.south_west));
-        // SOUTH WEST
-        else if (Num.inBetween(rotation, Num.wSubtract(target, 65, 360), target))
-            tracking.add("s"+(simple?"-"+ arrows.up+ arrows.right : arrows.north_east));
-        // NORTH EAST
-        else if (Num.inBetween(rotation, Num.wSubtract(target, 115, 360), target))
-            tracking.add("s"+(simple?"--"+ arrows.right : arrows.east));
-        // EAST
-        else if (Num.inBetween(rotation, Num.wSubtract(target, 165, 360), target))
-            tracking.add("s"+(simple?"-"+ arrows.down+ arrows.right : arrows.south_east));
-        // SOUTH EAST
-        else tracking.add("s"+(simple?"-"+ arrows.down+"-" : arrows.south));
-        // SOUTH
-        // if compact and the ylevel is different & there's a y level on the loc
-        if (!simple && !(boolean) PlayerData.get.dest.setting(player, Destination.Setting.ylevel) && pointLoc.yExists()) {
-            tracking.add("p|");
-            if (player.getLoc().getY() > pointLoc.getY())
-                tracking.add("s"+arrows.south);
-            else tracking.add("s"+arrows.north);
+        public static ArrayList<String> getAngleModule(Player player) {
+            ArrayList<String> angle = new ArrayList<>();
+            DecimalFormat f = new DecimalFormat("0.0");
+            ModuleAngleDisplay playerType = ModuleAngleDisplay.get((String)PlayerData.get.hud.setting(player,Setting.module__angle_display));
+            if (playerType.equals(ModuleAngleDisplay.yaw) || playerType.equals(ModuleAngleDisplay.both)) {
+                angle.add("s"+f.format(player.getYaw()));
+            }
+            if (playerType.equals(ModuleAngleDisplay.pitch) || playerType.equals(ModuleAngleDisplay.both)) {
+                if (playerType.equals(ModuleAngleDisplay.both)) angle.add("p"+"/");
+                angle.add("s"+f.format(player.getPitch()));
+            }
+            return angle;
         }
-        tracking.add("/p]");
-        return tracking;
-    }
-    public static ArrayList<String> getSpeedModule(Player player) {
-        ArrayList<String> speed = new ArrayList<>();
-        if (!PlayerData.get.hud.module(player,Module.speed)) return speed;
-        DecimalFormat f = new DecimalFormat((String) PlayerData.get.hud.setting(player,Setting.module__speed_pattern));
-        speed.add("s"+f.format(PlayerData.dataMap.get(player).get("speed")));
-        speed.add("p"+" B/S");
-        return speed;
-    }
-    public static ArrayList<String> getAngleModule(Player player) {
-        ArrayList<String> angle = new ArrayList<>();
-        DecimalFormat f = new DecimalFormat("0.0");
-        Setting.ModuleAngleDisplay playerType = ModuleAngleDisplay.get((String)PlayerData.get.hud.setting(player,Setting.module__angle_display));
-        if (playerType.equals(ModuleAngleDisplay.yaw) || playerType.equals(ModuleAngleDisplay.both)) {
-            angle.add("s"+f.format(player.getYaw()));
-        }
-        if (playerType.equals(ModuleAngleDisplay.pitch) || playerType.equals(ModuleAngleDisplay.both)) {
-            if (playerType.equals(ModuleAngleDisplay.both)) angle.add("p"+"/");
-            angle.add("s"+f.format(player.getPitch()));
-        }
-        return angle;
     }
     public static class modules {
         private static final int PER_PAGE = 5;
