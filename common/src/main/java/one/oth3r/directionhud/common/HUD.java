@@ -917,6 +917,19 @@ public class HUD {
         }
     }
     public static class color {
+        /**
+         * enum w/the different color toggles
+         */
+        public enum ColorToggle {
+            bold,italics,rainbow,unknown;
+            public static ColorToggle get(String s) {
+                try {
+                    return ColorToggle.valueOf(s);
+                } catch (IllegalArgumentException e) {
+                    return unknown;
+                }
+            }
+        }
         public static void cmdExecutor(Player player, String[] args) {
             if (args.length == 0) {
                 UI(player, null);
@@ -945,7 +958,7 @@ public class HUD {
                 // color (type) set (color)
                 if (args[1].equals("set")) setColor(player,null,args[0],args[2],false);
                 // color (type) (bold/italics/rainbow) (on/off) (settings)
-                else setToggle(player,args.length==4?args[3]:"normal",args[0],args[1],args[2],Return);
+                else setToggle(player,args.length==4?args[3]:"normal",args[0],ColorToggle.get(args[1]),args[2].equals("on"),Return);
             }
         }
         public static ArrayList<String> cmdSuggester(Player player, int pos, String[] args) {
@@ -991,14 +1004,29 @@ public class HUD {
         public static CTxT btn(String key, Object... args) {
             return lang("button."+key, args);
         }
-        public static void reset(Player player, String setting, String type, boolean Return) {
+        /**
+         * gets the default PlayerData entry for each color typ
+         * @param typ default HUD color type to get
+         * @return the default PlayerData entry for the HUD color type
+         */
+        public static String defaultEntry(int typ) {
+            if (typ==1) return config.hud.primary.Color +"-"+ config.hud.primary.Bold +"-"+ config.hud.primary.Italics +"-"+ config.hud.primary.Rainbow;
+            return config.hud.secondary.Color +"-"+ config.hud.secondary.Bold +"-"+ config.hud.secondary.Italics +"-"+ config.hud.secondary.Rainbow;
+        }
+        /**
+         * resets the specified color(s)
+         * @param UISettings color UI settings
+         * @param type the HUD color type
+         * @param Return to return back to the color UI or not
+         */
+        public static void reset(Player player, String UISettings, String type, boolean Return) {
             switch (type) {
                 case "all" -> {
-                    PlayerData.set.hud.color(player, 1, defaultFormat(1));
-                    PlayerData.set.hud.color(player, 2, defaultFormat(2));
+                    PlayerData.set.hud.color(player, 1, defaultEntry(1));
+                    PlayerData.set.hud.color(player, 2, defaultEntry(2));
                 }
-                case "primary" -> PlayerData.set.hud.color(player, 1, defaultFormat(1));
-                case "secondary" -> PlayerData.set.hud.color(player, 2, defaultFormat(2));
+                case "primary" -> PlayerData.set.hud.color(player, 1, defaultEntry(1));
+                case "secondary" -> PlayerData.set.hud.color(player, 2, defaultEntry(2));
                 default -> {
                     player.sendMessage(CUtl.error("args"));
                     return;
@@ -1006,10 +1034,17 @@ public class HUD {
             }
             CTxT msg = CUtl.tag().append(lang("msg.reset",CUtl.TBtn("reset").color('c'),lang(type)));
             if (Return && type.equals("all")) UI(player,msg);
-            else if (Return) changeUI(player,setting,type,msg);
+            else if (Return) changeUI(player,UISettings,type,msg);
             else player.sendMessage(msg);
         }
-        public static void setColor(Player player, String setting, String type, String color, boolean Return) {
+        /**
+         * sets the color of the HUD type specified
+         * @param UISettings color UI settings
+         * @param type the HUD color type
+         * @param color the color to set
+         * @param Return to return back to the color UI or not
+         */
+        public static void setColor(Player player, String UISettings, String type, String color, boolean Return) {
             int typ = type.equals("primary")?1:2;
             // get the current color settings into a String[]
             String[] current = PlayerData.get.hud.color(player,typ).split("-");
@@ -1017,20 +1052,27 @@ public class HUD {
             current[0] = CUtl.color.colorHandler(player,color,config.hud.primary.Color);
             // save the current color settings
             PlayerData.set.hud.color(player,typ,String.join("-",current));
-            if (Return) changeUI(player,setting,type,null);
+            if (Return) changeUI(player,UISettings,type,null);
             else player.sendMessage(CUtl.tag().append(lang("msg.set",lang(type),CUtl.color.getBadge(current[0]))));
         }
-        public static void setToggle(Player player, String setting, String colorType, String type, String toggle, boolean Return) {
+        /**
+         * sets the toggle state of the specified color setting
+         * @param UISettings color UI settings
+         * @param colorType the type of color to set the toggle in
+         * @param colorToggle the toggle to set
+         * @param state the state to set the toggle to
+         * @param Return to return back to the color UI or not
+         */
+        public static void setToggle(Player player, String UISettings, String colorType, ColorToggle colorToggle, boolean state, boolean Return) {
             int typ = colorType.equals("primary")?1:2;
-            boolean state = toggle.equals("on");
             // get the current color settings into a String[]
             String[] current = PlayerData.get.hud.color(player,typ).split("-");
             // edit the correct toggle
-            switch (type) {
-                case "bold" -> current[1] = String.valueOf(state);
-                case "italics" -> current[2] = String.valueOf(state);
-                case "rainbow" -> current[3] = String.valueOf(state);
-                default -> {
+            switch (colorToggle) {
+                case bold -> current[1] = String.valueOf(state);
+                case italics -> current[2] = String.valueOf(state);
+                case rainbow -> current[3] = String.valueOf(state);
+                case unknown -> {
                     player.sendMessage(CUtl.error("args"));
                     return;
                 }
@@ -1038,25 +1080,31 @@ public class HUD {
             // save the new color settings
             PlayerData.set.hud.color(player,typ,String.join("-",current));
             // generate the message
-            CTxT msg = CUtl.tag().append(lang("msg.toggle",CUtl.toggleTxT(state),lang(colorType),lang(type)));
-            if (Return) changeUI(player,setting,colorType,msg);
+            CTxT msg = CUtl.tag().append(lang("msg.toggle",CUtl.toggleTxT(state),lang(colorType),lang(colorToggle.toString())));
+            if (Return) changeUI(player,UISettings,colorType,msg);
             else player.sendMessage(msg);
         }
-        public static String defaultFormat(int i) {
-            if (i==1) return config.hud.primary.Color +"-"+ config.hud.primary.Bold +"-"+ config.hud.primary.Italics +"-"+ config.hud.primary.Rainbow;
-            return config.hud.secondary.Color +"-"+ config.hud.secondary.Bold +"-"+ config.hud.secondary.Italics +"-"+ config.hud.secondary.Rainbow;
+        /**
+         * gets the HUD color specified
+         * @param typ HUD color type
+         * @return the HUD color
+         */
+        public static String getHUDColor(Player player, int typ) {
+            return PlayerData.get.hud.color(player,typ).split("-")[0];
         }
-        public static String getHUDColor(Player player, int i) {
-            return PlayerData.get.hud.color(player,i).split("-")[0];
-        }
-        public static Boolean getHUDBold(Player player, int i) {
-            return Boolean.parseBoolean(PlayerData.get.hud.color(player,i).split("-")[1]);
-        }
-        public static Boolean getHUDItalics(Player player, int i) {
-            return Boolean.parseBoolean(PlayerData.get.hud.color(player,i).split("-")[2]);
-        }
-        public static Boolean getHUDRainbow(Player player, int i) {
-            return Boolean.parseBoolean(PlayerData.get.hud.color(player,i).split("-")[3]);
+        /**
+         * gets the toggle state of the specified color setting
+         * @param typ HUD color type
+         * @param colorToggle toggle type
+         * @return the state of toggle
+         */
+        public static boolean getHUDToggle(Player player, int typ, ColorToggle colorToggle) {
+            int toggle = switch (colorToggle) {
+                case bold -> 1;
+                case italics -> 2;
+                default -> 3;
+            };
+            return Boolean.parseBoolean(PlayerData.get.hud.color(player,typ).split("-")[toggle]);
         }
         /**
          * formats the given text with the hud colors selected
@@ -1066,15 +1114,22 @@ public class HUD {
          * @param step rainbow step
          */
         public static CTxT addColor(Player player, String txt, int typ, float start, float step) {
-            if (getHUDRainbow(player,typ)) return CTxT.of(txt).rainbow(true,start,step).italic(getHUDItalics(player,typ)).bold(getHUDBold(player,typ));
-            return CTxT.of(txt).color(getHUDColor(player,typ)).italic(getHUDItalics(player,typ)).bold(getHUDBold(player,typ));
+            CTxT output = CTxT.of(txt).italic(getHUDToggle(player,typ,ColorToggle.italics)).bold(getHUDToggle(player,typ,ColorToggle.bold));
+            if (getHUDToggle(player,typ,ColorToggle.rainbow)) return output.rainbow(true,start,step);
+            return output.color(getHUDColor(player,typ));
         }
         public static CTxT addColor(Player player, CTxT txt, int typ, float start, float step) {
             return addColor(player,txt.toString(),typ,start,step);
         }
-        public static void changeUI(Player player, String setting, String type, CTxT abovemsg) {
+        /**
+         * the chat UI for editing a HUD color
+         * @param setting the color UI settings
+         * @param type HUD color type
+         * @param aboveTxT text that gets placed above the UI
+         */
+        public static void changeUI(Player player, String setting, String type, CTxT aboveTxT) {
             CTxT msg = CTxT.of(""), line = CTxT.of("\n                               ").strikethrough(true);
-            if (abovemsg != null) msg.append(abovemsg).append("\n");
+            if (aboveTxT != null) msg.append(aboveTxT).append("\n");
             int typ = type.equals("primary")?1:2;
             // if not primary or secondary
             if (typ == 2 && !type.equals("secondary")) {
@@ -1087,23 +1142,27 @@ public class HUD {
             CTxT reset = CUtl.TBtn("reset").btn(true).color('c').cEvent(1, "/hud color reset-r "+type+" "+setting)
                     .hEvent(lang("hover.reset",addColor(player,lang(type),typ,15,20)));
             // bold
-            CTxT boldButton = btn("bold").btn(true).color(CUtl.toggleColor(getHUDBold(player, typ)))
-                    .cEvent(1,String.format("/hud color %s-r bold %s %s",type,(getHUDBold(player,typ)?"off":"on"),setting))
-                    .hEvent(lang("hover.toggle",CUtl.toggleTxT(!getHUDBold(player,typ)),lang("bold").bold(true)));
+            CTxT boldButton = btn("bold").btn(true).color(CUtl.toggleColor(getHUDToggle(player, typ, ColorToggle.bold)))
+                    .cEvent(1,String.format("/hud color %s-r bold %s %s",type,(getHUDToggle(player, typ, ColorToggle.bold)?"off":"on"),setting))
+                    .hEvent(lang("hover.toggle",CUtl.toggleTxT(!getHUDToggle(player, typ, ColorToggle.bold)),lang("bold").bold(true)));
             // italics
-            CTxT italicsButton = btn("italics").btn(true).color(CUtl.toggleColor(getHUDItalics(player, typ)))
-                    .cEvent(1,String.format("/hud color %s-r italics %s %s",type,(getHUDItalics(player,typ)?"off":"on"),setting))
-                    .hEvent(lang("hover.toggle",CUtl.toggleTxT(!getHUDItalics(player,typ)),lang("italics").italic(true)));
+            CTxT italicsButton = btn("italics").btn(true).color(CUtl.toggleColor(getHUDToggle(player, typ, ColorToggle.italics)))
+                    .cEvent(1,String.format("/hud color %s-r italics %s %s",type,(getHUDToggle(player, typ, ColorToggle.italics)?"off":"on"),setting))
+                    .hEvent(lang("hover.toggle",CUtl.toggleTxT(!getHUDToggle(player, typ, ColorToggle.italics)),lang("italics").italic(true)));
             // rainbow
-            CTxT rgbButton = btn("rgb").btn(true).color(CUtl.toggleColor(getHUDRainbow(player, typ)))
-                    .cEvent(1,String.format("/hud color %s-r rainbow %s %s",type,(getHUDRainbow(player,typ)?"off":"on"),setting))
-                    .hEvent(lang("hover.toggle",CUtl.toggleTxT(!getHUDRainbow(player,typ)),lang("rainbow").rainbow(true,15f,20f)));
+            CTxT rgbButton = btn("rgb").btn(true).color(CUtl.toggleColor(getHUDToggle(player, typ, ColorToggle.rainbow)))
+                    .cEvent(1,String.format("/hud color %s-r rainbow %s %s",type,(getHUDToggle(player, typ, ColorToggle.rainbow)?"off":"on"),setting))
+                    .hEvent(lang("hover.toggle",CUtl.toggleTxT(!getHUDToggle(player, typ, ColorToggle.rainbow)),lang("rainbow").rainbow(true,15f,20f)));
             // build the message
             msg.append(DHUD.preset.colorEditor(getHUDColor(player,typ),setting,DHUD.preset.Type.hud,type,"/hud color edit %s "+type))
                     .append("\n\n ").append(boldButton).append(" ").append(italicsButton).append(" ").append(rgbButton)
                     .append("\n\n     ").append(reset).append(" ").append(CUtl.CButton.back("/hud color")).append(line);
             player.sendMessage(msg);
         }
+        /**
+         * main UI for HUD colors
+         * @param aboveTxT text that gets placed above the UI
+         */
         public static void UI(Player player, CTxT aboveTxT) {
             CTxT msg = CTxT.of(""), line = CTxT.of("\n                                ").strikethrough(true);
             if (aboveTxT != null) msg.append(aboveTxT).append("\n");

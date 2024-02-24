@@ -373,8 +373,8 @@ public class PlayerData {
             hud.put("setting", defaults.hudSetting());
             hud.put("module", defaults.hudModule());
             hud.put("order", config.hud.Order);
-            hud.put("primary", HUD.color.defaultFormat(1));
-            hud.put("secondary", HUD.color.defaultFormat(2));
+            hud.put("primary", HUD.color.defaultEntry(1));
+            hud.put("secondary", HUD.color.defaultEntry(2));
             //dest
             Map<String,Object> destination = new HashMap<>();
             destination.put("dest", "null");
