@@ -167,49 +167,45 @@ public class HUD {
     public static int minute;
     public static int hour;
     public static String weatherIcon = "?";
-    public static class commandExecutor {
-        public static void logic(Player player, String[] args) {
-            if (!Utl.checkEnabled.hud(player)) return;
-            if (args.length == 0) {
-                UI(player,null);
-                return;
-            }
-            String type = args[0].toLowerCase();
-            String[] trimmedArgs = Helper.trimStart(args, 1);
-            switch (type) {
-                case "modules" -> modules.CMDExecutor(player, trimmedArgs);
-                case "settings" -> settings.CMDExecutor(player,trimmedArgs);
-                case "color" -> color.cmdExecutor(player, trimmedArgs);
-                case "toggle" -> settings.change(player,Setting.state,(boolean) PlayerData.get.hud.setting(player,Setting.state)?"off":"on",false);
-                default -> player.sendMessage(CUtl.error("command"));
-            }
-        }
-    }
-    public static class commandSuggester {
-        public static ArrayList<String> logic(Player player, int pos, String[] args) {
-            ArrayList<String> suggester = new ArrayList<>();
-            if (!Utl.checkEnabled.hud(player)) return suggester;
-            if (pos == 1) {
-                suggester.add("modules");
-                suggester.add("color");
-                suggester.add("toggle");
-                suggester.add("settings");
-            }
-            if (pos > 1) {
-                String command = args[0].toLowerCase();
-                String[] trimmedArgs = Helper.trimStart(args, 1);
-                int fixedPos = pos - 2;
-                switch (command) {
-                    case "modules" -> suggester.addAll(modules.CMDSuggester(player,fixedPos,trimmedArgs));
-                    case "settings" -> suggester.addAll(settings.CMDSuggester(fixedPos,trimmedArgs));
-                    case "color" -> suggester.addAll(color.cmdSuggester(player,fixedPos,trimmedArgs));
-                }
-            }
-            return suggester;
-        }
-    }
     public static CTxT lang(String key, Object... args) {
         return CUtl.lang("hud."+key, args);
+    }
+    public static void CMDExecutor(Player player, String[] args) {
+        if (!Utl.checkEnabled.hud(player)) return;
+        if (args.length == 0) {
+            UI(player,null);
+            return;
+        }
+        String type = args[0].toLowerCase();
+        String[] trimmedArgs = Helper.trimStart(args, 1);
+        switch (type) {
+            case "modules" -> modules.CMDExecutor(player, trimmedArgs);
+            case "settings" -> settings.CMDExecutor(player,trimmedArgs);
+            case "color" -> color.cmdExecutor(player, trimmedArgs);
+            case "toggle" -> settings.change(player,Setting.state,(boolean) PlayerData.get.hud.setting(player,Setting.state)?"off":"on",false);
+            default -> player.sendMessage(CUtl.error("command"));
+        }
+    }
+    public static ArrayList<String> CMDSuggester(Player player, int pos, String[] args) {
+        ArrayList<String> suggester = new ArrayList<>();
+        if (!Utl.checkEnabled.hud(player)) return suggester;
+        if (pos == 1) {
+            suggester.add("modules");
+            suggester.add("color");
+            suggester.add("toggle");
+            suggester.add("settings");
+        }
+        if (pos > 1) {
+            String command = args[0].toLowerCase();
+            String[] trimmedArgs = Helper.trimStart(args, 1);
+            int fixedPos = pos - 2;
+            switch (command) {
+                case "modules" -> suggester.addAll(modules.CMDSuggester(player,fixedPos,trimmedArgs));
+                case "settings" -> suggester.addAll(settings.CMDSuggester(fixedPos,trimmedArgs));
+                case "color" -> suggester.addAll(color.cmdSuggester(player,fixedPos,trimmedArgs));
+            }
+        }
+        return suggester;
     }
     public static class build {
         /**
