@@ -233,6 +233,9 @@ public class Helper {
         public String toString() {
             return "("+this.first+", "+this.second+")";
         }
+        public Pair<B,A> getFlipped() {
+            return new Pair<>(second,first);
+        }
         @Override
         public boolean equals(Object obj) {
             if (this == obj) {
