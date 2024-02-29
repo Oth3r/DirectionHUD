@@ -51,7 +51,8 @@ public class PlayerData {
             Gson gson = new GsonBuilder().create();
             return gson.fromJson(reader,new TypeToken<Map<String, Object>>() {}.getType());
         } catch (Exception e) {
-            e.printStackTrace();
+            DirectionHUD.LOGGER.info("ERROR READING PLAYER DATA - PLEASE REPORT WITH THE ERROR LOG");
+            DirectionHUD.LOGGER.info(e.getMessage());
         }
         return new HashMap<>();
     }
@@ -60,7 +61,8 @@ public class PlayerData {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             writer.write(gson.toJson(addExpires(player,map)));
         } catch (Exception e) {
-            e.printStackTrace();
+            DirectionHUD.LOGGER.info("ERROR WRITING PLAYER DATA - PLEASE REPORT WITH THE ERROR LOG");
+            DirectionHUD.LOGGER.info(e.getMessage());
         }
     }
     private static Map<String, Object> saveLoad(Player player, Map<String, Object> map) {

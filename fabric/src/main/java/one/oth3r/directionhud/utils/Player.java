@@ -68,7 +68,8 @@ public class Player {
                     DirectionHUD.commandManager.getDispatcher().parse(cmd, player.getCommandSource());
             DirectionHUD.commandManager.getDispatcher().execute(parse);
         } catch (CommandSyntaxException e) {
-            e.printStackTrace();
+            DirectionHUD.LOGGER.info("ERROR EXECUTING COMMAND - PLEASE REPORT WITH THE ERROR LOG");
+            DirectionHUD.LOGGER.info(e.getMessage());
         }
     }
     public void sendMessage(CTxT message) {

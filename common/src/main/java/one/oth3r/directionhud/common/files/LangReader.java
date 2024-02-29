@@ -83,7 +83,8 @@ public class LangReader {
             Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
             languageMap.putAll(new Gson().fromJson(reader, type));
         } catch (Exception e) {
-            e.printStackTrace();
+            DirectionHUD.LOGGER.info("ERROR WITH LANGUAGE FILE - PLEASE REPORT WITH THE ERROR LOG");
+            DirectionHUD.LOGGER.info(e.getMessage());
         }
     }
     public static String getLanguageValue(String key) {
