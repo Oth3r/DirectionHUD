@@ -8,15 +8,18 @@ import one.oth3r.directionhud.common.files.LangReader;
 import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.utils.CUtl;
+import one.oth3r.directionhud.common.utils.Helper.Dim;
+import one.oth3r.directionhud.common.utils.Helper.Num;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.util.Vector;
-import one.oth3r.directionhud.common.utils.Helper.Pair;
-import one.oth3r.directionhud.common.utils.Helper.Num;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
 
 public class Utl {
     public static CTxT getTranslation(String key,Object... args) {
@@ -122,92 +125,37 @@ public class Utl {
     public static class dim {
         public static final List<String> DEFAULT_DIMENSIONS = List.of("overworld|Overworld|#55FF55","nether|Nether|#e8342e","end|End|#edffb0");
         public static final List<String> DEFAULT_RATIOS = List.of("overworld=1|nether=8");
-        public static String format(String name) {
+        /**
+         * formats the un-formatted dimension received from the game
+         * @param dimension the un-formatted dimension
+         * @return the formatted dimension
+         */
+        public static String format(String dimension) {
             String defaultWorld = Bukkit.getWorlds().get(0).getName();
-            if (name.equals(defaultWorld)) return "overworld";
-            String[] split = name.split("_");
+            if (dimension.equals(defaultWorld)) return "overworld";
+            String[] split = dimension.split("_");
             return split[split.length-1];
         }
-        public static boolean checkValid(String s) {
-            return dims.containsKey(s);
-        }
-        public static String getName(String dim) {
-            if (!dims.containsKey(dim)) return "unknown";
-            HashMap<String,String> map = dims.get(dim);
-            return map.get("name");
-        }
-        public static boolean canConvert(String DIM1, String DIM2) {
-            // both in same dim, cant convert
-            if (DIM1.equalsIgnoreCase(DIM2)) return false;
-            Pair<String, String> key = new Pair<>(DIM1, DIM2);
-            Pair<String, String> flippedKey = new Pair<>(DIM2, DIM1);
-            // if the ratio exists, show the button
-            return conversionRatios.containsKey(key) || conversionRatios.containsKey(flippedKey);
-        }
-        public static List<String> getList() {
-            return new ArrayList<>(dims.keySet());
-        }
-        public static String getHEX(String dim) {
-            if (!dims.containsKey(dim)) return "#FF0000";
-            HashMap<String,String> map = dims.get(dim);
-            return map.get("color");
-        }
-        public static CTxT getLetterButton(String dim) {
-            if (!dims.containsKey(dim)) return CTxT.of("X").btn(true).hEvent(CTxT.of("???"));
-            HashMap<String,String> map = dims.get(dim);
-            return CTxT.of(map.get("name").charAt(0)+"".toUpperCase()).btn(true).color(map.get("color"))
-                    .hEvent(CTxT.of(map.get("name").toUpperCase()).color(map.get("color")));
-        }
-        public static HashMap<Pair<String, String>, Double> conversionRatios = new HashMap<>();
-        public static HashMap<String,HashMap<String,String>> dims = new HashMap<>();
-        //only works when the server is on, loads server dimensions into the config.
-        public static void loadConfig() {
-            //LOAD DIM RATIOS
-            HashMap<Pair<String, String>, Double> configRatios = new HashMap<>();
-            for (String s : config.dimensionRatios) {
-                String[] split = s.split("\\|");
-                if (split.length != 2) continue;
-                double ratio = Double.parseDouble(split[0].split("=")[1])/Double.parseDouble(split[1].split("=")[1]);
-                configRatios.put(new Pair<>(split[0].split("=")[0],split[1].split("=")[0]), ratio);
-            }
-            conversionRatios = configRatios;
-            //CONFIG TO MAP
-            HashMap<String,HashMap<String,String>> configDims = new HashMap<>();
-            for (String s : config.dimensions) {
-                String[] split = s.split("\\|");
-                if (split.length != 3) continue;
-                HashMap<String,String> data = new HashMap<>();
-                data.put("name",split[1]);
-                data.put("color",split[2]);
-                configDims.put(split[0],data);
-            }
-            dims = configDims;
-            //ADD MISSING DIMS TO MAP
+        /**
+         * adds the dimensions that are loaded in game but aren't in the config yet
+         */
+        public static void addMissing() {
+            Random random = new Random();
+            HashMap<String,HashMap<String,String>> missing = new HashMap<>();
+            // ADD MISSING DIMENSIONS TO MAP
             String defaultWorld = Bukkit.getWorlds().get(0).getName();
             for (World world : Bukkit.getWorlds()) {
                 String currentDIM = format(world.getName());
-                if (!dims.containsKey(currentDIM) && !currentDIM.equals(defaultWorld)) {
-                    HashMap<String,String> map = new HashMap<>();
-                    // try to make it look better, remove all "_" and "the" and capitalizes the first word. CANT IN SPIGOT SMH
-                    String formatted = currentDIM.substring(0,1).toUpperCase()+currentDIM.substring(1);
-                    //make random color to spice things up
-                    Random random = new Random();
-                    int red = random.nextInt(256);
-                    int green = random.nextInt(256);
-                    int blue = random.nextInt(256);
-                    map.put("name",formatted);
-                    map.put("color",String.format("#%02x%02x%02x", red, green, blue));
-                    dims.put(currentDIM,map);
-                }
+                if (Dim.getAll().contains(currentDIM) || currentDIM.equals(defaultWorld)) continue;
+                HashMap<String,String> map = new HashMap<>();
+                // format the dimension name by capitalizing the first letter
+                map.put("name",currentDIM.substring(0,1).toUpperCase()+currentDIM.substring(1));
+                //make a random color to spice things up
+                map.put("color",String.format("#%02x%02x%02x",
+                        random.nextInt(100,256),random.nextInt(100,256),random.nextInt(100,256)));
+                missing.put(currentDIM,map);
             }
-            //MAP TO CONFIG
-            List<String> output = new ArrayList<>();
-            for (Map.Entry<String, HashMap<String, String>> entry : dims.entrySet()) {
-                String key = entry.getKey();
-                HashMap<String, String> data = entry.getValue();
-                output.add(key+"|"+data.get("name")+"|"+data.get("color"));
-            }
-            config.dimensions = output;
+            Dim.addDimensions(missing);
         }
     }
 }

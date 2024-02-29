@@ -13,6 +13,7 @@ import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
 import one.oth3r.directionhud.common.HUD.Setting.ModuleAngleDisplay;
 import one.oth3r.directionhud.common.utils.Helper.Command.Suggester;
+import one.oth3r.directionhud.common.utils.Helper.Dim;
 
 import java.text.DecimalFormat;
 import java.util.*;
@@ -328,7 +329,7 @@ public class HUD {
                 // if hr % 12 = 0, its 12 am/pm
                 hr = (hr%12==0) ? 12 : hr%12;
                 time.add("s"+hr+":"+min);
-                time.add("p"+(hour>=12?"PM":"AM"));
+                time.add("p "+(hour>=12?"PM":"AM"));
             } else time.add("s"+hr+":"+min);
             return time;
         }
@@ -352,7 +353,7 @@ public class HUD {
                         // not in the same dimension
                         if (!player.getDimension().equals(target.getDimension())) {
                             // can convert and autoconvert is on
-                            if (Utl.dim.canConvert(player.getDimension(),target.getDimension()) && (boolean) PlayerData.get.dest.setting(player, Destination.Setting.autoconvert)) {
+                            if (Dim.canConvert(player.getDimension(),target.getDimension()) && (boolean) PlayerData.get.dest.setting(player, Destination.Setting.autoconvert)) {
                                 plLoc.convertTo(player.getDimension());
                             } else plLoc = null;
                         }

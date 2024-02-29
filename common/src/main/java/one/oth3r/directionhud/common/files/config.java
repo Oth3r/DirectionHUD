@@ -10,6 +10,7 @@ import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.utils.Utl;
+import one.oth3r.directionhud.common.utils.Helper.Dim;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -187,7 +188,7 @@ public class config {
             if (version.contains("v")) version = version.substring(1);
             loadVersion(properties,Float.parseFloat(version));
             LangReader.loadLanguageFile();
-            Utl.dim.loadConfig();
+            Dim.load();
             save();
         } catch (Exception e) {
             DirectionHUD.LOGGER.info("ERROR READING CONFIG - PLEASE REPORT WITH THE ERROR LOG");

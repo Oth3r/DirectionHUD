@@ -134,10 +134,10 @@ public class Player {
         return player.getUuidAsString();
     }
     public String getDimension() {
-        return Utl.dim.format(player.getWorld().getRegistryKey().getValue());
+        return Utl.dim.format(player.getWorld().getRegistryKey());
     }
     public String getSpawnDimension() {
-        return Utl.dim.format(player.getSpawnPointDimension().getValue());
+        return Utl.dim.format(player.getSpawnPointDimension());
     }
     public float getYaw() {
         return player.getYaw();
