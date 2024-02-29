@@ -9,6 +9,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class HUDCommand implements CommandExecutor, TabCompleter {
@@ -23,11 +24,13 @@ public class HUDCommand implements CommandExecutor, TabCompleter {
     }
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
-        int pos = args.length;
+        // if not player no tab complete
         if (!(sender instanceof org.bukkit.entity.Player plr)) {
             return new ArrayList<>();
         }
         Player player = Player.of(plr);
-        return HUD.CMDSuggester(player,pos,Helper.Command.quoteHandler(args));
+        // fix args
+        args = Helper.Command.quoteHandler(args);
+        return HUD.CMDSuggester(player,args.length,args);
     }
 }

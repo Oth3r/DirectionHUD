@@ -201,7 +201,6 @@ public class Helper {
             }
             // make sure if the buffer still has something then dump it to the output array
             if (!addBuffer.isEmpty()) output.add(addBuffer.toString());
-            output.removeAll(Collections.singleton("")); // remove all blank entries
             String[] arr = new String[output.size()];
             return output.toArray(arr);
         }

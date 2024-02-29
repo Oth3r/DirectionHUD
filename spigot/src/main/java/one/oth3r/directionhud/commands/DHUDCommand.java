@@ -26,11 +26,13 @@ public class DHUDCommand implements CommandExecutor, TabCompleter {
     }
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
-        int pos = args.length;
+        // if not player no tab complete
         if (!(sender instanceof org.bukkit.entity.Player plr)) {
             return new ArrayList<>();
         }
         Player player = Player.of(plr);
-        return DHUD.commandSuggester.logic(player,pos,Helper.Command.quoteHandler(args));
+        // fix args
+        args = Helper.Command.quoteHandler(args);
+        return DHUD.commandSuggester.logic(player,args.length,args);
     }
 }

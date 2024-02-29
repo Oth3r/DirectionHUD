@@ -25,11 +25,13 @@ public class DestinationCommand implements CommandExecutor, TabCompleter {
     }
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
-        int pos = args.length;
+        // if not player no tab complete
         if (!(sender instanceof org.bukkit.entity.Player plr)) {
             return new ArrayList<>();
         }
         Player player = Player.of(plr);
-        return Destination.commandSuggester.logic(player,pos,Helper.Command.quoteHandler(args));
+        // fix args
+        args = Helper.Command.quoteHandler(args);
+        return Destination.commandSuggester.logic(player,args.length,args);
     }
 }
