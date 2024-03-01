@@ -721,7 +721,7 @@ public class DHUD {
                         .cEvent(3,"https://modrinth.com/mod/directionhud/changelog"))
                 .append(line).append("\n ");
         // hud
-        if (Utl.checkEnabled.hud(player)) msg.append(CUtl.CButton.DHUD.hud()).append("  ");
+        if (Utl.checkEnabled.hud(player)) msg.append(HUD.button()).append("  ");
         // dest
         if (Utl.checkEnabled.destination(player)) msg.append(CUtl.CButton.DHUD.dest());
         msg.append("\n\n ");

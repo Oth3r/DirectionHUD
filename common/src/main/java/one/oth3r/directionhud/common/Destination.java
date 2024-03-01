@@ -1127,7 +1127,7 @@ public class Destination {
             msg.append(lang("ui.saved.edit").color(Assets.mainColors.saved)).append(CUtl.LARGE).append("\n");
             msg
                     .append(" ").append(CTxT.of("#"+dest.getOrder()).btn(true).color(CUtl.p())
-                            .hEvent(CUtl.TBtn("order.hover").color(CUtl.p()))
+                            .hEvent(CUtl.lang("hover.order").color(CUtl.p()))
                             .cEvent(2,"/dest saved edit-r order "+cmdName+" "))
                     .append(" ").append(CTxT.of(name).btn(true).color(CUtl.s())
                             .hEvent(CUtl.TBtn("dest.saved.name.hover").color(CUtl.s()))
