@@ -4,12 +4,12 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Vec3d;
 import one.oth3r.directionhud.DirectionHUD;
-import one.oth3r.directionhud.PacketBuilder;
-import one.oth3r.directionhud.common.Assets;
+import one.oth3r.directionhud.Payloads;
 import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.common.utils.Loc;
@@ -95,15 +95,13 @@ public class Player {
         // if player has DirectionHUD on client, send a hashmap with data
         if (DirectionHUD.clientPlayers.contains(this)) {
             Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-            PacketBuilder packet = new PacketBuilder(gson.toJson(PlayerData.get.fromMap(this)));
-            packet.sendToPlayer(Assets.packets.SETTINGS,player);
+            ServerPlayNetworking.send(player,new Payloads.Settings(gson.toJson(PlayerData.get.fromMap(this))));
         }
     }
     public void sendHUDPackets(HashMap<HUD.Module, ArrayList<String>> hudData) {
         // send the instructions to build the hud to the client
         Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-        PacketBuilder packet = new PacketBuilder(gson.toJson(hudData));
-        packet.sendToPlayer(Assets.packets.HUD,player);
+        ServerPlayNetworking.send(player,new Payloads.HUD(gson.toJson(hudData)));
     }
     public void displayHUD(CTxT message) {
         if (message.toString().isEmpty()) {
