@@ -68,7 +68,8 @@ public class Player {
                     DirectionHUD.commandManager.getDispatcher().parse(cmd, player.getCommandSource());
             DirectionHUD.commandManager.getDispatcher().execute(parse);
         } catch (CommandSyntaxException e) {
-            e.printStackTrace();
+            DirectionHUD.LOGGER.info("ERROR EXECUTING COMMAND - PLEASE REPORT WITH THE ERROR LOG");
+            DirectionHUD.LOGGER.info(e.getMessage());
         }
     }
     public void sendMessage(CTxT message) {
@@ -134,10 +135,10 @@ public class Player {
         return player.getUuidAsString();
     }
     public String getDimension() {
-        return Utl.dim.format(player.getWorld().getRegistryKey().getValue());
+        return Utl.dim.format(player.getWorld().getRegistryKey());
     }
     public String getSpawnDimension() {
-        return Utl.dim.format(player.getSpawnPointDimension().getValue());
+        return Utl.dim.format(player.getSpawnPointDimension());
     }
     public float getYaw() {
         return player.getYaw();

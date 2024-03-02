@@ -15,6 +15,6 @@ public class OnPlayerWorldChanged {
     @Inject(at = @At("HEAD"), method = "worldChanged(Lnet/minecraft/server/world/ServerWorld;)V")
     public void worldChangedCallback(ServerWorld world, CallbackInfo info) {
         Player player = Player.of((ServerPlayerEntity) (Object) this);
-        Events.playerChangeWorld(player,Utl.dim.format(world.getRegistryKey().getValue()),player.getDimension());
+        Events.playerChangeWorld(player,Utl.dim.format(world.getRegistryKey()),player.getDimension());
     }
 }

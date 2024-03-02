@@ -82,7 +82,7 @@ public class DirectionHUDClient implements ClientModInitializer {
                 Gson gson = new GsonBuilder().disableHtmlEscaping().create();
                 // if there is no actionbar override, build and send the HUD
                 if (overrideCd <= 0)
-                    client.player.sendMessage(HUD.build(getClientPlayer(client),gson.fromJson(packet.getMessage(), hashMapToken)).b(),true);
+                    client.player.sendMessage(HUD.build.compile(getClientPlayer(client),gson.fromJson(packet.getMessage(), hashMapToken)).b(),true);
             });
         });
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {

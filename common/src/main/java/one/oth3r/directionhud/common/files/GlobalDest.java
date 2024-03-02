@@ -27,7 +27,8 @@ public class GlobalDest {
             // add dummy entry, for identifying between local and global tests, only in memory, never saved to file
             dests.add(dests.size(),dummyEntry);
         } catch (Exception e) {
-            e.printStackTrace();
+            DirectionHUD.LOGGER.info("ERROR READING GLOBAL DEST FILE - PLEASE REPORT WITH THE ERROR LOG");
+            DirectionHUD.LOGGER.info(e.getMessage());
         }
         return dests;
     }
@@ -39,7 +40,8 @@ public class GlobalDest {
             fileDests.remove(dummyEntry);
             writer.write(gson.toJson(fileDests));
         } catch (Exception e) {
-            e.printStackTrace();
+            DirectionHUD.LOGGER.info("ERROR SAVING GLOBAL DEST FILE - PLEASE REPORT WITH THE ERROR LOG");
+            DirectionHUD.LOGGER.info(e.getMessage());
         }
     }
 }

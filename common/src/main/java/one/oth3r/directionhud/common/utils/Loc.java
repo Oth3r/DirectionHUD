@@ -4,6 +4,7 @@ import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
+import one.oth3r.directionhud.common.utils.Helper.Dim;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,7 +19,7 @@ public class Loc {
         this.x = xzBounds(x);
         this.y = yBounds(y);
         this.z = xzBounds(z);
-        if (Utl.dim.checkValid(dimension)) this.dimension = dimension;
+        if (Dim.checkValid(dimension)) this.dimension = dimension;
     }
     public Loc(Integer x, Integer y, Integer z) {
         this.x = xzBounds(x);
@@ -28,7 +29,7 @@ public class Loc {
     public Loc(Integer x, Integer z, String dimension) {
         this.x = xzBounds(x);
         this.z = xzBounds(z);
-        if (Utl.dim.checkValid(dimension)) this.dimension = dimension;
+        if (Dim.checkValid(dimension)) this.dimension = dimension;
     }
     public Loc(Integer x, Integer z) {
         this.x = xzBounds(x);
@@ -39,7 +40,7 @@ public class Loc {
     }
     public Loc(String xyz, String dimension) {
         parseXYZ(xyz);
-        if (Utl.dim.checkValid(dimension)) this.dimension = dimension;
+        if (Dim.checkValid(dimension)) this.dimension = dimension;
     }
     private static Integer yBounds(Integer s) {
         if (s == null) return null;
@@ -91,20 +92,13 @@ public class Loc {
         this.x = xzBounds(player.getBlockX());
         this.y = yBounds(player.getBlockY());
         this.z = xzBounds(player.getBlockZ());
-        if (Utl.dim.checkValid(dimension)) this.dimension = dimension;
+        if (Dim.checkValid(dimension)) this.dimension = dimension;
     }
     public void convertTo(String toDimension) {
         String fromDimension = this.getDIM();
         if (fromDimension.equalsIgnoreCase(toDimension)) return;
-        if (!Utl.dim.checkValid(toDimension)) return;
-        Helper.Pair<String, String> dimensionPair = new Helper.Pair<>(fromDimension, toDimension);
-        Double ratio;
-        if (Utl.dim.conversionRatios.containsKey(dimensionPair)) ratio = Utl.dim.conversionRatios.get(dimensionPair);
-        else {
-            dimensionPair = new Helper.Pair<>(toDimension,fromDimension);
-            if (Utl.dim.conversionRatios.containsKey(dimensionPair)) ratio = 1/ Utl.dim.conversionRatios.get(dimensionPair);
-            else return;
-        }
+        if (!Dim.checkValid(toDimension)) return;
+        Double ratio = Dim.getRatio(fromDimension, toDimension);
         this.setDIM(toDimension);
         this.setX((int) (this.getX()*ratio));
         this.setZ((int) (this.getZ()*ratio));
@@ -135,12 +129,12 @@ public class Loc {
     }
     public CTxT getBadge() {
         CTxT msg = CTxT.of("");
-        if (this.dimension != null) msg.append(Utl.dim.getLetterButton(getDIM())).append(" ");
+        if (this.dimension != null) msg.append(Dim.getBadge(getDIM())).append(" ");
         return msg.append(CTxT.of(getXYZ()).color('f'));
     }
     public CTxT getBadge(String name,String color) {
         CTxT msg = CTxT.of("");
-        if (this.dimension != null) msg.append(Utl.dim.getLetterButton(getDIM())).append(" ");
+        if (this.dimension != null) msg.append(Dim.getBadge(getDIM())).append(" ");
         return msg.append(CTxT.of(name).color(color).hEvent(CTxT.of(getXYZ())));
     }
 
@@ -169,7 +163,7 @@ public class Loc {
         return dimension;
     }
     public void setDIM(String setDIM) {
-        if (Utl.dim.checkValid(setDIM)) this.dimension = setDIM;
+        if (Dim.checkValid(setDIM)) this.dimension = setDIM;
     }
     public String toString() {
         return this.x+" "+this.y+" "+this.z+" "+this.dimension;

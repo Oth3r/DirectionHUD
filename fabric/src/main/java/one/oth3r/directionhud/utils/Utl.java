@@ -1,10 +1,10 @@
 package one.oth3r.directionhud.utils;
 
 import net.minecraft.particle.DustParticleEffect;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import one.oth3r.directionhud.DirectionHUD;
@@ -15,12 +15,15 @@ import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.utils.CUtl;
-import one.oth3r.directionhud.common.utils.Helper;
+import one.oth3r.directionhud.common.utils.Helper.Dim;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Random;
 
 public class Utl {
     public static CTxT getTranslation(String key, Object... args) {
@@ -127,92 +130,49 @@ public class Utl {
     public static class dim {
         public static final List<String> DEFAULT_DIMENSIONS = List.of("minecraft.overworld|Overworld|#55FF55","minecraft.the_nether|Nether|#e8342e","minecraft.the_end|End|#edffb0");
         public static final List<String> DEFAULT_RATIOS = List.of("minecraft.overworld=1|minecraft.the_nether=8");
-        public static String format(Identifier identifier) {
-            return identifier.toString().replace(":",".");
+        /**
+         * formats the un-formatted dimension received from the game
+         * @param worldRegistryKey the worldRegistryKey
+         * @return the formatted dimension string
+         */
+        public static String format(RegistryKey<World> worldRegistryKey) {
+            return worldRegistryKey.getValue().toString().replace(":",".");
         }
-        public static boolean checkValid(String s) {
-            return dims.containsKey(s);
-        }
-        public static String getName(String dim) {
-            if (!dims.containsKey(dim)) return "unknown";
-            HashMap<String,String> map = dims.get(dim);
-            return map.get("name");
-        }
-        public static boolean canConvert(String DIM1, String DIM2) {
-            // both in same dim, cant convert
-            if (DIM1.equalsIgnoreCase(DIM2)) return false;
-            Helper.Pair<String, String> key = new Helper.Pair<>(DIM1, DIM2);
-            Helper.Pair<String, String> flippedKey = new Helper.Pair<>(DIM2, DIM1);
-            // if the ratio exists, show the button
-            return conversionRatios.containsKey(key) || conversionRatios.containsKey(flippedKey);
-        }
-        public static List<String> getList() {
-            return new ArrayList<>(dims.keySet());
-        }
-        public static String getHEX(String dim) {
-            if (!dims.containsKey(dim)) return "#FF0000";
-            HashMap<String,String> map = dims.get(dim);
-            return map.get("color");
-        }
-        public static CTxT getLetterButton(String dim) {
-            if (!dims.containsKey(dim)) return CTxT.of("X").btn(true).hEvent(CTxT.of("???"));
-            HashMap<String,String> map = dims.get(dim);
-            return CTxT.of(map.get("name").charAt(0)+"".toUpperCase()).btn(true).color(map.get("color"))
-                    .hEvent(CTxT.of(map.get("name").toUpperCase()).color(map.get("color")));
-        }
-        public static HashMap<Helper.Pair<String, String>, Double> conversionRatios = new HashMap<>();
-        public static HashMap<String,HashMap<String,String>> dims = new HashMap<>();
-        //only works when the server is on, loads server dimensions into the config.
-        public static void loadConfig() {
-            if (DirectionHUD.server == null) return;
-            //LOAD DIM RATIOS
-            HashMap<Helper.Pair<String, String>, Double> configRatios = new HashMap<>();
-            for (String s : config.dimensionRatios) {
-                String[] split = s.split("\\|");
-                if (split.length != 2) continue;
-                double ratio = Double.parseDouble(split[0].split("=")[1])/Double.parseDouble(split[1].split("=")[1]);
-                configRatios.put(new Helper.Pair<>(split[0].split("=")[0], split[1].split("=")[0]), ratio);
-            }
-            conversionRatios = configRatios;
-            //CONFIG TO MAP
-            HashMap<String,HashMap<String,String>> configDims = new HashMap<>();
-            for (String s : config.dimensions) {
-                String[] split = s.split("\\|");
-                if (split.length != 3) continue;
-                HashMap<String,String> data = new HashMap<>();
-                data.put("name",split[1]);
-                data.put("color",split[2]);
-                configDims.put(split[0],data);
-            }
-            dims = configDims;
+        /**
+         * adds the dimensions that are loaded in game but aren't in the config yet
+         */
+        public static void addMissing() {
+            Random random = new Random();
+            HashMap<String,HashMap<String,String>> missing = new HashMap<>();
             //ADD MISSING DIMS TO MAP
             for (ServerWorld world : DirectionHUD.server.getWorlds()) {
-                String currentDIM = world.getRegistryKey().getValue().toString().replace(":",".");
-                String currentDIMp = world.getRegistryKey().getValue().getPath();
-                if (!dims.containsKey(currentDIM)) {
-                    HashMap<String,String> map = new HashMap<>();
-                    // try to make it look better, remove all "_" and "the" and capitalizes the first word.
-                    String formatted = currentDIMp.replaceAll("_"," ");
-                    formatted = formatted.replaceFirst("the ","");
-                    formatted = formatted.substring(0,1).toUpperCase()+formatted.substring(1);
-                    //make random color to spice things up
-                    Random random = new Random();
-                    int red = random.nextInt(256);
-                    int green = random.nextInt(256);
-                    int blue = random.nextInt(256);
-                    map.put("name",formatted);
-                    map.put("color",String.format("#%02x%02x%02x", red, green, blue));
-                    dims.put(currentDIM,map);
-                }
+                String currentDIM = format(world.getRegistryKey());
+                if (Dim.getAll().contains(currentDIM)) continue;
+                HashMap<String,String> map = new HashMap<>();
+                map.put("name",getFormattedDim(world));
+                //make a random color to spice things up
+                map.put("color",String.format("#%02x%02x%02x",
+                        random.nextInt(100,256),random.nextInt(100,256),random.nextInt(100,256)));
+                missing.put(currentDIM,map);
             }
-            //MAP TO CONFIG
-            List<String> output = new ArrayList<>();
-            for (Map.Entry<String, HashMap<String, String>> entry : dims.entrySet()) {
-                String key = entry.getKey();
-                HashMap<String, String> data = entry.getValue();
-                output.add(key+"|"+data.get("name")+"|"+data.get("color"));
-            }
-            config.dimensions = output;
+            Dim.addDimensions(missing);
+        }
+        /**
+         * tries to generate a formatted name for the dimension
+         * @param world the dimension world
+         * @return formatted dimension string
+         */
+        @NotNull
+        private static String getFormattedDim(ServerWorld world) {
+            // get the path of the dimension, removes the "minecraft."
+            String formatted = world.getRegistryKey().getValue().getPath();
+            // remove all "_" "the_nether" -> "the nether"
+            formatted = formatted.replaceAll("_"," ");
+            // remove 'the' "the nether" -> "nether"
+            formatted = formatted.replaceFirst("the ","");
+            // captilize the first letter "nether" -> "Nether"
+            formatted = formatted.substring(0,1).toUpperCase()+formatted.substring(1);
+            return formatted;
         }
     }
 }

@@ -90,7 +90,7 @@ public class CUtl {
             }
             public static CTxT settings() {
                 return TBtn("settings").btn(true).color(Assets.mainColors.setting).cEvent(1,"/dest settings")
-                        .hEvent(CTxT.of(Assets.cmdUsage.destSettings).color(Assets.mainColors.setting).append("\n").append(TBtn("settings.hover",lang("hud.module.destination"))));
+                        .hEvent(CTxT.of(Assets.cmdUsage.destSettings).color(Assets.mainColors.setting).append("\n").append(lang("hover.settings",lang("dest.ui.short"))));
             }
             public static CTxT saved() {
                 return TBtn("dest.saved").btn(true).color(Assets.mainColors.saved).cEvent(1,"/dest saved").hEvent(
@@ -130,25 +130,7 @@ public class CUtl {
                         CTxT.of(Assets.cmdUsage.destTrackClear).color('c').append("\n").append(TBtn("dest.track_clear.hover")));
             }
         }
-        public static class hud {
-            public static CTxT color() {
-                return TBtn("hud.color").rainbow(true,15f,45f).btn(true).cEvent(1,"/hud color")
-                        .hEvent(CTxT.of("").append(CTxT.of(Assets.cmdUsage.hudColor).rainbow(true,10f,23f)).append("\n").append(TBtn("hud.color.hover")));
-            }
-            public static CTxT modules() {
-                return TBtn("hud.modules").btn(true).color(Assets.mainColors.edit).cEvent(1,"/hud modules").hEvent(
-                        CTxT.of(Assets.cmdUsage.hudModules).color(Assets.mainColors.edit).append("\n").append(TBtn("hud.modules.hover")));
-            }
-            public static CTxT settings() {
-                return TBtn("settings").btn(true).color(Assets.mainColors.setting).cEvent(1,"/hud settings").hEvent(
-                        CTxT.of(Assets.cmdUsage.hudSettings).color(Assets.mainColors.setting).append("\n").append(TBtn("settings.hover",lang("hud"))));
-            }
-        }
         public static class DHUD {
-            public static CTxT hud() {
-                return TBtn("hud").btn(true).color(Assets.mainColors.hud).cEvent(1,"/hud").hEvent(
-                        CTxT.of(Assets.cmdUsage.hud).color(Assets.mainColors.hud).append("\n").append(TBtn("hud.hover")));
-            }
             public static CTxT dest() {
                 return TBtn("dest").btn(true).color(Assets.mainColors.dest).cEvent(1,"/dest").hEvent(
                         CTxT.of(Assets.cmdUsage.dest).color(Assets.mainColors.dest).append("\n").append(TBtn("dest.hover")));
