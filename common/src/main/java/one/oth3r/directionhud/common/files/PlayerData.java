@@ -51,7 +51,8 @@ public class PlayerData {
             Gson gson = new GsonBuilder().create();
             return gson.fromJson(reader,new TypeToken<Map<String, Object>>() {}.getType());
         } catch (Exception e) {
-            e.printStackTrace();
+            DirectionHUD.LOGGER.info("ERROR READING PLAYER DATA - PLEASE REPORT WITH THE ERROR LOG");
+            DirectionHUD.LOGGER.info(e.getMessage());
         }
         return new HashMap<>();
     }
@@ -60,7 +61,8 @@ public class PlayerData {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             writer.write(gson.toJson(addExpires(player,map)));
         } catch (Exception e) {
-            e.printStackTrace();
+            DirectionHUD.LOGGER.info("ERROR WRITING PLAYER DATA - PLEASE REPORT WITH THE ERROR LOG");
+            DirectionHUD.LOGGER.info(e.getMessage());
         }
     }
     private static Map<String, Object> saveLoad(Player player, Map<String, Object> map) {
@@ -373,8 +375,8 @@ public class PlayerData {
             hud.put("setting", defaults.hudSetting());
             hud.put("module", defaults.hudModule());
             hud.put("order", config.hud.Order);
-            hud.put("primary", HUD.color.defaultFormat(1));
-            hud.put("secondary", HUD.color.defaultFormat(2));
+            hud.put("primary", HUD.color.defaultEntry(1));
+            hud.put("secondary", HUD.color.defaultEntry(2));
             //dest
             Map<String,Object> destination = new HashMap<>();
             destination.put("dest", "null");

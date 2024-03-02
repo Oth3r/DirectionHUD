@@ -2,6 +2,7 @@ package one.oth3r.directionhud.common.utils;
 
 import one.oth3r.directionhud.common.DHUD;
 import one.oth3r.directionhud.common.files.PlayerData;
+import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
@@ -137,8 +138,8 @@ public class Helper {
             public static ArrayList<String> dims(String current, boolean displayEmpty) {
                 ArrayList<String> list = new ArrayList<>();
                 if (!current.isEmpty() || displayEmpty) {
-                    if (current.isEmpty()) return (ArrayList<String>) Utl.dim.getList();
-                    for (String dim : Utl.dim.getList()) {
+                    if (current.isEmpty()) return Dim.getAll();
+                    for (String dim : Dim.getAll()) {
                         if (dim.contains(current)) list.add(dim);
                     }
                 }
@@ -201,7 +202,6 @@ public class Helper {
             }
             // make sure if the buffer still has something then dump it to the output array
             if (!addBuffer.isEmpty()) output.add(addBuffer.toString());
-            output.removeAll(Collections.singleton("")); // remove all blank entries
             String[] arr = new String[output.size()];
             return output.toArray(arr);
         }
@@ -234,6 +234,9 @@ public class Helper {
         public String toString() {
             return "("+this.first+", "+this.second+")";
         }
+        public Pair<B,A> getFlipped() {
+            return new Pair<>(second,first);
+        }
         @Override
         public boolean equals(Object obj) {
             if (this == obj) {
@@ -252,7 +255,7 @@ public class Helper {
     }
     public static class ListPage<T> {
         // helps separate lists into page sized chunks
-        private ArrayList<T> list;
+        private final ArrayList<T> list;
         private final int perPage;
         public ListPage(ArrayList<T> list, int perPage) {
             this.list = list;
@@ -303,8 +306,138 @@ public class Helper {
             // build and return
             return CTxT.of("")
                     .append(left).append(" ")
-                    .append(CTxT.of(String.valueOf(page)).btn(true).color(CUtl.p()).cEvent(2,command).hEvent(CUtl.TBtn("page.set").color(CUtl.p())))
+                    .append(CTxT.of(String.valueOf(page)).btn(true).color(CUtl.p()).cEvent(2,command).hEvent(CUtl.lang("hover.page_set").color(CUtl.p())))
                     .append(" ").append(right);
+        }
+    }
+    public static class Dim {
+        private static final String COLOR = "color";
+        private static final String NAME = "name";
+        private static final HashMap<String,HashMap<String,String>> dimensions = new HashMap<>();
+        private static final HashMap<Pair<String, String>, Double> conversionRatios = new HashMap<>();
+        /**
+         * adds a set of dimensions to the dimension list
+         * @param moreDimensions list of dimensions to add
+         */
+        public static void addDimensions(HashMap<String,HashMap<String,String>> moreDimensions) {
+            // add the dimensions
+            for (String dimension : moreDimensions.keySet())
+                dimensions.put(dimension,moreDimensions.get(dimension));
+        }
+        /**
+         * saves the current dimensions to the config
+         */
+        public static void saveDimensions() {
+            ArrayList<String> output = new ArrayList<>();
+            for (Map.Entry<String, HashMap<String, String>> entry : dimensions.entrySet()) {
+                String key = entry.getKey();
+                HashMap<String, String> data = entry.getValue();
+                output.add(key+"|"+data.get(NAME)+"|"+data.get(COLOR));
+            }
+            config.dimensions = output;
+            config.save();
+        }
+        /**
+         * returns all dimension names
+         * @return list with dimension names
+         */
+        public static ArrayList<String> getAll() {
+            return new ArrayList<>(dimensions.keySet());
+        }
+        /**
+         * gets the formatted name of the dimension specified
+         * @param dimension the dimension
+         * @return the dimension's name
+         */
+        public static String getName(String dimension) {
+            if (!dimensions.containsKey(dimension)) return "unknown";
+            HashMap<String,String> map = dimensions.get(dimension);
+            return map.get(NAME);
+        }
+        /**
+         * gets the HEX color for the dimension specified
+         * @param dimension the dimension
+         * @return HEX color
+         */
+        public static String getColor(String dimension) {
+            if (!dimensions.containsKey(dimension)) return "#FF0000";
+            return dimensions.get(dimension).get(COLOR);
+        }
+        /**
+         * makes a one letter badge of the dimension, eg [O] for overworld
+         * @param dimension the dimension
+         * @return the badge
+         */
+        public static CTxT getBadge(String dimension) {
+            if (!dimensions.containsKey(dimension)) return CTxT.of("X").btn(true).hEvent(CTxT.of("???"));
+            HashMap<String,String> dimMap = dimensions.get(dimension);
+            return CTxT.of(String.valueOf(dimMap.get(NAME).charAt(0)).toUpperCase()).btn(true)
+                    .color(dimMap.get(COLOR)).hEvent(CTxT.of(dimMap.get(NAME)).color(dimMap.get(COLOR)));
+        }
+        /**
+         * checks if the two dimension's coordinates can be converted to each other
+         * @param dimensionA dimension one
+         * @param dimensionB dimension two
+         * @return if the dimensions can be converted or not
+         */
+        public static boolean canConvert(String dimensionA, String dimensionB) {
+            // both in same dim, cant convert
+            if (dimensionA.equalsIgnoreCase(dimensionB)) return false;
+            Pair<String, String> key = new Pair<>(dimensionA, dimensionB);
+            // if the ratio exists (both normal and flipped), it's true
+            return conversionRatios.containsKey(key) || conversionRatios.containsKey(key.getFlipped());
+        }
+        /**
+         * gets the ratio for 2 dimensions, flipped accordingly
+         * @param dimensionFrom the from dimension
+         * @param dimensionTo the to dimension
+         * @return the ratio as a double
+         */
+        public static double getRatio(String dimensionFrom, String dimensionTo) {
+            Pair<String, String> dimensionPair = new Helper.Pair<>(dimensionFrom, dimensionTo);
+            if (conversionRatios.containsKey(dimensionPair)) return conversionRatios.get(dimensionPair);
+            // flip the ratio if there's a flipped ratio
+            else if (conversionRatios.containsKey(dimensionPair.getFlipped())) return 1 / conversionRatios.get(dimensionPair);
+            // no ratio if no match
+            else return 1.0;
+        }
+        /**
+         * checks if the dimension is in the list of dimensions
+         * @return if the dimension exists in the list or not
+         */
+        public static boolean checkValid(String dimension) {
+            return dimensions.containsKey(dimension);
+        }
+        public static void load() {
+            loadConfigRatios();
+            loadConfigDimensions();
+            Utl.dim.addMissing();
+            saveDimensions();
+        }
+        private static void loadConfigRatios() {
+            conversionRatios.clear();
+            for (String s : config.dimensionRatios) {
+                String[] entries = s.split("\\|");
+                if (entries.length != 2) continue;
+                String[] entry1 = entries[0].split("="), entry2 = entries[1].split("=");
+                double ratio = Double.parseDouble(entry1[1]) / Double.parseDouble(entry2[1]);
+                conversionRatios.put(new Pair<>(entry1[0],entry2[0]), ratio);
+            }
+        }
+        private static void loadConfigDimensions() {
+            dimensions.clear();
+            // for all config dimensions
+            for (String entry : config.dimensions) {
+                String[] entries = entry.split("\\|");
+                // if not correct length
+                if (entries.length != 3) continue;
+                // filling data
+                HashMap<String,String> data = new HashMap<>();
+                data.put(NAME,entries[1]);
+                data.put(COLOR,entries[2]);
+                // add the dimension
+                dimensions.put(entries[0],data);
+            }
         }
     }
 }

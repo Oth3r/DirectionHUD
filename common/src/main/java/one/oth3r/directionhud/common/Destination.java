@@ -5,6 +5,7 @@ import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Helper.Command.Suggester;
+import one.oth3r.directionhud.common.utils.Helper.Dim;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.common.utils.CUtl;
@@ -166,7 +167,7 @@ public class Destination {
             //dest saved add <name> color
             //dest saved add <name> dim
             if (args.length == 2) {
-                if (Utl.dim.checkValid(args[1])) saved.add(true,player,list,args[0],new Loc(player,args[1]),null);
+                if (Dim.checkValid(args[1])) saved.add(true,player,list,args[0],new Loc(player,args[1]),null);
                 else saved.add(true,player,list,args[0],new Loc(player),args[1]);
                 return;
             }
@@ -176,7 +177,7 @@ public class Destination {
                 return;
             }
             //dest saved add <name> x y color
-            if (args.length == 4 && !Helper.Num.isInt(args[3]) && !Utl.dim.checkValid(args[3])) {
+            if (args.length == 4 && !Helper.Num.isInt(args[3]) && !Dim.checkValid(args[3])) {
                 saved.add(true,player,list,args[0],new Loc(Helper.Num.toInt(args[1]), Helper.Num.toInt(args[2]),player.getDimension()),args[3]);
                 return;
             }
@@ -196,7 +197,7 @@ public class Destination {
                 return;
             }
             //dest saved add <name> x y z color
-            if (args.length == 5 && !Utl.dim.checkValid(args[4])) {
+            if (args.length == 5 && !Dim.checkValid(args[4])) {
                 saved.add(true,player,list,args[0],new Loc(Helper.Num.toInt(args[1]), Helper.Num.toInt(args[2]), Helper.Num.toInt(args[3]),player.getDimension()),args[4]);
                 return;
             }
@@ -376,7 +377,7 @@ public class Destination {
             //dest send IGN x y (z, DIM, color)
             if (args.length == 4) {
                 //DIM
-                if (Utl.dim.getList().contains(args[3]))
+                if (Dim.getAll().contains(args[3]))
                     social.send(player,args[0],new Loc(Helper.Num.toInt(args[1]), Helper.Num.toInt(args[2]),args[3]),null,null);
                 else if (!Helper.Num.isInt(args[3]) || !CUtl.color.checkValid(args[3],"#ffccff")) {
                     //COLOR - check if a valid color on a random non default
@@ -386,7 +387,7 @@ public class Destination {
             //dest send IGN NAME x y (z, color, DIM)
             if (args.length == 5 && !Helper.Num.isInt(args[1])) {
                 //dest send IGN NAME x z DIM
-                if (Utl.dim.getList().contains(args[4]))
+                if (Dim.getAll().contains(args[4]))
                     social.send(player,args[0],new Loc(Helper.Num.toInt(args[2]), Helper.Num.toInt(args[3]),args[4]),args[1],null);
                 else if (!Helper.Num.isInt(args[4]) || !CUtl.color.checkValid(args[4],"#ffccff")) {
                     //dest send IGN NAME x z color
@@ -397,18 +398,18 @@ public class Destination {
             }
             //dest send IGN x y z (DIM, color)
             if (args.length == 5 && Helper.Num.isInt(args[3])) {
-                if (Utl.dim.getList().contains(args[4]))
+                if (Dim.getAll().contains(args[4]))
                     social.send(player,args[0],new Loc(Helper.Num.toInt(args[1]), Helper.Num.toInt(args[2]), Helper.Num.toInt(args[3]),args[4]),null,null);
                 else social.send(player,args[0],new Loc(Helper.Num.toInt(args[1]), Helper.Num.toInt(args[2]), Helper.Num.toInt(args[3]),pDIM),null,args[4]);
             }
             //dest send IGN x y DIM color
-            if (args.length == 5 && Utl.dim.getList().contains(args[3])) {
+            if (args.length == 5 && Dim.getAll().contains(args[3])) {
                 social.send(player,args[0],new Loc(Helper.Num.toInt(args[1]), Helper.Num.toInt(args[2]),args[3]),null,args[4]);
             }
             //dest send IGN NAME x y z (DIM, color)
             if (args.length == 6 && !Helper.Num.isInt(args[1])) {
                 if (Helper.Num.isInt(args[4])) {
-                    if (Utl.dim.getList().contains(args[5]))
+                    if (Dim.getAll().contains(args[5]))
                         social.send(player,args[0],new Loc(Helper.Num.toInt(args[2]), Helper.Num.toInt(args[3]), Helper.Num.toInt(args[4]),args[5]),args[1],null);
                     else social.send(player,args[0],new Loc(Helper.Num.toInt(args[2]), Helper.Num.toInt(args[3]), Helper.Num.toInt(args[4]),pDIM),args[1],args[5]);
                 } else {
@@ -418,7 +419,7 @@ public class Destination {
                 return;
             }
             //dest send IGN x y z DIM color
-            if (args.length == 6 && Utl.dim.getList().contains(args[4])) {
+            if (args.length == 6 && Dim.getAll().contains(args[4])) {
                 social.send(player,args[0],new Loc(Helper.Num.toInt(args[1]), Helper.Num.toInt(args[2]), Helper.Num.toInt(args[3]),args[4]),null,args[5]);
             }
             //dest send IGN NAME x y z DIM color
@@ -519,12 +520,12 @@ public class Destination {
                     suggester.addAll(Suggester.dims(current));
                     suggester.addAll(Suggester.colors(player,current));
                 }
-                if (Utl.dim.checkValid(args[3]))
+                if (Dim.checkValid(args[3]))
                     suggester.addAll(Suggester.colors(player,current));
             }
             // add <name> <x> (y) <z> (dim) ((color))
             if (pos == 5) {
-                if (Helper.Num.isInt(args[3]) && Utl.dim.checkValid(args[4]))
+                if (Helper.Num.isInt(args[3]) && Dim.checkValid(args[4]))
                     suggester.addAll(Suggester.colors(player,current));
             }
             return suggester;
@@ -729,7 +730,7 @@ public class Destination {
                 if (Helper.Num.isInt(args[3])) {
                     suggester.addAll(Suggester.dims(current));
                     suggester.addAll(Suggester.colors(player,current));
-                } else if (Utl.dim.getList().contains(args[3])) {
+                } else if (Dim.getAll().contains(args[3])) {
                     // send <player> <x> (y) (dimension) ((color))
                     suggester.addAll(Suggester.colors(player,current));
                 }
@@ -741,19 +742,19 @@ public class Destination {
                     if (Helper.Num.isInt(args[4])) {
                         suggester.addAll(Suggester.dims(current));
                         suggester.addAll(Suggester.colors(player,current));
-                    } else if (Utl.dim.getList().contains(args[4])) {
+                    } else if (Dim.getAll().contains(args[4])) {
                         suggester.addAll(Suggester.colors(player,current));
                     }
                 }
                 // send <player> <x> (y) <z> (dimension) ((color))
-                if (Helper.Num.isInt(args[1]) && Helper.Num.isInt(args[3]) && Utl.dim.getList().contains(args[4])){
+                if (Helper.Num.isInt(args[1]) && Helper.Num.isInt(args[3]) && Dim.getAll().contains(args[4])){
                     suggester.addAll(Suggester.colors(player,current));
                 }
                 return suggester;
             }
             // send <player> (name) <x> (y) <z> (dimension) ((color))
             if (pos == 6) {
-                if (!Helper.Num.isInt(args[1]) && Helper.Num.isInt(args[4]) && Utl.dim.getList().contains(args[5])) {
+                if (!Helper.Num.isInt(args[1]) && Helper.Num.isInt(args[4]) && Dim.getAll().contains(args[5])) {
                     suggester.addAll(Suggester.colors(player,current));
                     return suggester;
                 }
@@ -844,7 +845,7 @@ public class Destination {
             return;
         }
         CTxT convertMsg = CTxT.of("");
-        if (Utl.dim.canConvert(player.getDimension(),loc.getDIM()) && convert) {
+        if (Dim.canConvert(player.getDimension(),loc.getDIM()) && convert) {
             convertMsg.append(" ").append(lang("converted_badge").color('7').italic(true).hEvent(loc.getBadge()));
             loc.convertTo(player.getDimension());
         }
@@ -864,7 +865,7 @@ public class Destination {
         }
         CTxT convertMsg = CTxT.of("");
         Loc loc = dest.getLoc();
-        if (convert && Utl.dim.canConvert(player.getDimension(),loc.getDIM())) {
+        if (convert && Dim.canConvert(player.getDimension(),loc.getDIM())) {
             convertMsg.append(" ").append(lang("converted_badge").color('7').italic(true).hEvent(loc.getBadge()));
             loc.convertTo(player.getDimension());
         }
@@ -1008,7 +1009,7 @@ public class Destination {
                 if (send) player.sendMessage(CUtl.error("length",Helper.MAX_NAME));
                 return;
             }
-            if (!Utl.dim.checkValid(loc.getDIM())) {
+            if (!Dim.checkValid(loc.getDIM())) {
                 if (send) player.sendMessage(CUtl.error("dimension"));
                 return;
             }
@@ -1026,7 +1027,7 @@ public class Destination {
                 // there's no editing UI for global dests
                 if (!dest.global) buttons.append(CUtl.CButton.dest.edit(1,"/dest saved edit "+cmdName)).append(" ");
                 buttons.append(CUtl.CButton.dest.set("/dest set saved "+cmdName));
-                if (Utl.dim.canConvert(player.getDimension(),loc.getDIM()))
+                if (Dim.canConvert(player.getDimension(),loc.getDIM()))
                     buttons.append(" ").append(CUtl.CButton.dest.convert("/dest set saved "+cmdName+" convert"));
                 player.sendMessage(CUtl.tag().append(lang("saved.add",loc.getBadge(name,color).append(buttons))));
             }
@@ -1126,7 +1127,7 @@ public class Destination {
             msg.append(lang("ui.saved.edit").color(Assets.mainColors.saved)).append(CUtl.LARGE).append("\n");
             msg
                     .append(" ").append(CTxT.of("#"+dest.getOrder()).btn(true).color(CUtl.p())
-                            .hEvent(CUtl.TBtn("order.hover").color(CUtl.p()))
+                            .hEvent(CUtl.lang("hover.order").color(CUtl.p()))
                             .cEvent(2,"/dest saved edit-r order "+cmdName+" "))
                     .append(" ").append(CTxT.of(name).btn(true).color(CUtl.s())
                             .hEvent(CUtl.TBtn("dest.saved.name.hover").color(CUtl.s()))
@@ -1145,7 +1146,7 @@ public class Destination {
             //SET BUTTON
             msg.append(CUtl.CButton.dest.set("/dest set saved "+cmdName)).append(" ");
             //CONVERT
-            if (Utl.dim.canConvert(player.getDimension(),dest.getLoc().getDIM()))
+            if (Dim.canConvert(player.getDimension(),dest.getLoc().getDIM()))
                 msg.append(CUtl.CButton.dest.convert("/dest set saved " +cmdName+ " convert"));
             msg.append("\n\n ")
                     //DELETE
@@ -1188,7 +1189,7 @@ public class Destination {
                         //SET
                         .append(CUtl.CButton.dest.set("/dest set saved " + dest.getCMDName()));
                 //CONVERT
-                if (Utl.dim.canConvert(player.getDimension(), dest.getLoc().getDIM()))
+                if (Dim.canConvert(player.getDimension(), dest.getLoc().getDIM()))
                     msg.append(" ").append(CUtl.CButton.dest.convert("/dest set saved " + dest.getCMDName() + " convert"));
                 msg.append("\n");
             }
@@ -1223,7 +1224,7 @@ public class Destination {
                         //SET
                         .append(CUtl.CButton.dest.set("/dest set global " + dest.getName()));
                 //CONVERT
-                if (Utl.dim.canConvert(player.getDimension(), dest.getLoc().getDIM()))
+                if (Dim.canConvert(player.getDimension(), dest.getLoc().getDIM()))
                     msg.append(" ").append(CUtl.CButton.dest.convert("/dest set global " + dest.getName() + " convert"));
                 msg.append("\n");
             }
@@ -1244,7 +1245,7 @@ public class Destination {
         private static final int PER_PAGE = 4;
         public static void add(Player player, Loc loc) {
             ArrayList<String> deaths = PlayerData.get.dest.lastdeaths(player);
-            if (Utl.dim.checkValid(loc.getDIM())) {
+            if (Dim.checkValid(loc.getDIM())) {
                 //add to the top of the list
                 deaths.add(0,loc.toArray());
                 // WHILE more than max, remove the last entry (to deal with the size changing to be smaller in the future)
@@ -1262,9 +1263,9 @@ public class Destination {
                 Loc loc = new Loc(s);
                 String dim = loc.getDIM();
                 msg.append(loc.getBadge()).append("\n  ")
-                        .append(CUtl.CButton.dest.add("/dest add "+Utl.dim.getName(dim).toLowerCase()+"_death "+loc.getXYZ()+" "+dim+" "+Utl.dim.getHEX(dim).substring(1)))
+                        .append(CUtl.CButton.dest.add("/dest add "+Dim.getName(dim).toLowerCase()+"_death "+loc.getXYZ()+" "+dim+" "+Dim.getColor(dim).substring(1)))
                         .append(" ").append(CUtl.CButton.dest.set("/dest set "+loc.getXYZ()+" "+loc.getDIM()));
-                if (Utl.dim.canConvert(player.getDimension(),dim)) msg.append(" ").append(CUtl.CButton.dest.convert("/dest set "+loc.getXYZ()+" "+dim+" convert"));
+                if (Dim.canConvert(player.getDimension(),dim)) msg.append(" ").append(CUtl.CButton.dest.convert("/dest set "+loc.getXYZ()+" "+dim+" convert"));
                 msg.append("\n ");
             }
             if (listPage.getList().size()==0)
@@ -1318,7 +1319,7 @@ public class Destination {
                 player.sendMessage(CUtl.error("coordinates"));
                 return;
             }
-            if (!Utl.dim.checkValid(loc.getDIM())) {
+            if (!Dim.checkValid(loc.getDIM())) {
                 player.sendMessage(CUtl.error("dimension"));
                 return;
             }
@@ -1348,7 +1349,7 @@ public class Destination {
             // SET
             txt.append(CUtl.CButton.dest.set("/dest set "+loc.getXYZ()+" "+loc.getDIM())).append(" ");
             // CONVERT
-            if (Utl.dim.canConvert(player.getDimension(),loc.getDIM()))
+            if (Dim.canConvert(player.getDimension(),loc.getDIM()))
                 txt.append(CUtl.CButton.dest.convert("/dest set " +loc.getXYZ()+" "+loc.getDIM()+" convert")).append(" ");
             return txt;
         }
@@ -1544,7 +1545,7 @@ public class Destination {
                         // send convert message to let player know the tracker was converted back to local dimension
                         player.sendMessage(CUtl.tag().append(lang("autoconvert.tracking")).append("\n ")
                                 .append(lang("autoconvert.tracking.info",
-                                                CTxT.of(Utl.dim.getName(target.getDimension())).italic(true).color(Utl.dim.getHEX(target.getDimension())))
+                                                CTxT.of(Dim.getName(target.getDimension())).italic(true).color(Dim.getColor(target.getDimension())))
                                         .italic(true).color('7')));
                         PlayerData.MsgData.clear(player, "tracking.converted");
                     }
@@ -1559,7 +1560,7 @@ public class Destination {
                 // ------- target isn't in the same dimension as the player -------
                 // if AUTOCONVERT IS ON AND CONVERTIBLE
                 if ((boolean) PlayerData.get.dest.setting(player, Destination.Setting.autoconvert) &&
-                        Utl.dim.canConvert(player.getDimension(),target.getDimension())) {
+                        Dim.canConvert(player.getDimension(),target.getDimension())) {
                     // send the tracking resumed message if tracking was disabled from dimension differences (autoconvert was enabled midway, ect.)
                     if (!PlayerData.MsgData.get(player, "tracking.dimension").isBlank()) {
                         player.sendMessage(CUtl.tag().append(CUtl.lang("dest.track.back")));
@@ -1569,7 +1570,7 @@ public class Destination {
                     if (PlayerData.MsgData.get(player, "tracking.converted").isBlank()) {
                         player.sendMessage(CUtl.tag().append(CUtl.lang("dest.autoconvert.tracking")).append("\n ")
                                 .append(CUtl.lang("dest.autoconvert.tracking.info",
-                                                CTxT.of(Utl.dim.getName(target.getDimension())).italic(true).color(Utl.dim.getHEX(target.getDimension())))
+                                                CTxT.of(Dim.getName(target.getDimension())).italic(true).color(Dim.getColor(target.getDimension())))
                                         .italic(true).color('7')));
                         // change the status on the convert message
                         PlayerData.MsgData.set(player, "tracking.converted",target.getDimension());
@@ -1579,7 +1580,7 @@ public class Destination {
                     // send the dimension message
                     player.sendMessage(CUtl.tag().append(CUtl.lang("dest.track.dimension").append("\n ")
                             .append(CUtl.lang("dest.autoconvert.tracking.info",
-                                            CTxT.of(Utl.dim.getName(target.getDimension())).italic(true).color(Utl.dim.getHEX(target.getDimension())))
+                                            CTxT.of(Dim.getName(target.getDimension())).italic(true).color(Dim.getColor(target.getDimension())))
                                     .italic(true).color('7'))));
                     PlayerData.MsgData.set(player, "tracking.dimension", "1");
                     // make sure the converted msg is reset

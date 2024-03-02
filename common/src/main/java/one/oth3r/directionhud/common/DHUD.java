@@ -36,7 +36,7 @@ public class DHUD {
                     if (Utl.checkEnabled.reload(player)) reload(player);
                 }
                 case "dest", "destination" -> Destination.commandExecutor.logic(player,trimmedArgs);
-                case "hud" -> HUD.commandExecutor.logic(player,trimmedArgs);
+                case "hud" -> HUD.CMDExecutor(player,trimmedArgs);
                 default -> player.sendMessage(CUtl.error("command"));
             }
         }
@@ -118,7 +118,7 @@ public class DHUD {
                 int fixedPos = pos - 2;
                 switch (command) {
                     case "dest","destination" -> suggester.addAll(Destination.commandSuggester.logic(player,fixedPos+1,trimmedArgs));
-                    case "hud" -> suggester.addAll(HUD.commandSuggester.logic(player,fixedPos+1,trimmedArgs));
+                    case "hud" -> suggester.addAll(HUD.CMDSuggester(player,fixedPos+1,trimmedArgs));
                     case "preset" -> suggester.addAll(presetCMD(player,fixedPos,trimmedArgs));
                     case "color" -> {
                         if (fixedPos == 4) suggester.addAll(Suggester.colors(player,Suggester.getCurrent(trimmedArgs,fixedPos)));
@@ -721,7 +721,7 @@ public class DHUD {
                         .cEvent(3,"https://modrinth.com/mod/directionhud/changelog"))
                 .append(line).append("\n ");
         // hud
-        if (Utl.checkEnabled.hud(player)) msg.append(CUtl.CButton.DHUD.hud()).append("  ");
+        if (Utl.checkEnabled.hud(player)) msg.append(HUD.button()).append("  ");
         // dest
         if (Utl.checkEnabled.destination(player)) msg.append(CUtl.CButton.DHUD.dest());
         msg.append("\n\n ");
