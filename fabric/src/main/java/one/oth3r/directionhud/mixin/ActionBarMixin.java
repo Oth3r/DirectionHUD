@@ -18,11 +18,11 @@ public class ActionBarMixin {
     @Inject(at = @At("HEAD"), method = "setOverlayMessage(Lnet/minecraft/text/Text;Z)V")
     private void sendMessage(Text message, boolean tinted, CallbackInfo info) {
         // no point in doing anything if the message is empty
-        if (message.getString().equals("")) return;
+        if (message.getString().isEmpty()) return;
         MinecraftClient client = MinecraftClient.getInstance();
         // get the actionbar's click event
         ClickEvent click = message.getStyle().getClickEvent();
-        // if the click event has the ModRinth link, it's a directionhud actionbar
+        // if the click event has the Modrinth link, it's a directionhud actionbar, so check if it's not a DirectionHUD bar
         if (click == null || !click.getValue().equals("https://modrinth.com/mod/directionhud")) {
             if (client.player == null) return;
             Player player = DirectionHUDClient.getClientPlayer(client);
