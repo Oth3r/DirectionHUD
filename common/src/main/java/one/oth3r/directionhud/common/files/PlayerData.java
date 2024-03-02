@@ -4,12 +4,13 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import one.oth3r.directionhud.DirectionHUD;
+import one.oth3r.directionhud.common.DHUD;
 import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.utils.CUtl;
+import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.utils.Player;
-import one.oth3r.directionhud.utils.Utl;
 
 import java.io.File;
 import java.io.FileReader;
@@ -19,7 +20,26 @@ import java.util.*;
 
 public class PlayerData {
     public static Map<Player,Map<String,Object>> playerMap = new HashMap<>();
-    public static Map<Player,Map<String,String>> oneTimeMap = new HashMap<>();
+    public static Map<Player,Map<String,Object>> dataMap = new HashMap<>();
+    public static class MsgData {
+        public static ArrayList<String> getKeys(Player player) {
+            ArrayList<String> keys = new ArrayList<>();
+            for (String s:PlayerData.dataMap.get(player).keySet())
+                if (s.startsWith("msg.")) keys.add(s);
+            return keys;
+        }
+        public static String get(Player player, String key) {
+            // casting to string gets rid of nulls, so if null return empty string
+            String value = String.valueOf(dataMap.get(player).get("msg."+key));
+            return value.equals("null")?"":value;
+        }
+        public static void set(Player player, String key, String value) {
+            dataMap.get(player).put("msg."+key,value);
+        }
+        public static void clear(Player player, String key) {
+            dataMap.get(player).put("msg."+key,"");
+        }
+    }
     public static File getFile(Player player) {
         if (config.online) return new File(DirectionHUD.DATA_DIR+"playerdata/" +player.getUUID()+".json");
         else return new File(DirectionHUD.DATA_DIR+"playerdata/"+player.getName()+".json");
@@ -31,7 +51,8 @@ public class PlayerData {
             Gson gson = new GsonBuilder().create();
             return gson.fromJson(reader,new TypeToken<Map<String, Object>>() {}.getType());
         } catch (Exception e) {
-            e.printStackTrace();
+            DirectionHUD.LOGGER.info("ERROR READING PLAYER DATA - PLEASE REPORT WITH THE ERROR LOG");
+            DirectionHUD.LOGGER.info(e.getMessage());
         }
         return new HashMap<>();
     }
@@ -40,24 +61,32 @@ public class PlayerData {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             writer.write(gson.toJson(addExpires(player,map)));
         } catch (Exception e) {
-            e.printStackTrace();
+            DirectionHUD.LOGGER.info("ERROR WRITING PLAYER DATA - PLEASE REPORT WITH THE ERROR LOG");
+            DirectionHUD.LOGGER.info(e.getMessage());
         }
     }
+    private static Map<String, Object> saveLoad(Player player, Map<String, Object> map) {
+        // saves the current map and sends back an updated map
+        mapToFile(player,map);
+        return fileToMap(player);
+    }
     @SuppressWarnings("unchecked")
-    public static Map<String, Object> updater(Player player, Map<String,Object> map) {
-        map.put("name", player.getName());
-        if (map.get("version").equals(1.0)) {
-            map.put("version",1.1);
-            Map<String,Object> dest = (Map<String, Object>) map.get("destination");
+    public static void updater(Player player, Map<String,Object> base) {
+        base.put("name", player.getName());
+        if (base.get("version").equals(1.0)) {
+            base.put("version",1.1);
+            Map<String,Object> dest = (Map<String, Object>) base.get("destination");
             Map<String,Object> dSet = (Map<String, Object>) dest.get("setting");
             dSet.put("lastdeath", config.dest.Lastdeath);
             dest.put("setting",dSet);
-            map.put("destination",dest);
+            base.put("destination",dest);
+            // reload the file after updating a version
+            base = saveLoad(player,base);
         }
-        if (map.get("version").equals(1.1)) {
-            map.put("version",1.2);
-            Map<String,Object> hud = (Map<String, Object>) map.get("hud");
-            Map<String,Object> dest = (Map<String, Object>) map.get("destination");
+        if (base.get("version").equals(1.1)) {
+            base.put("version",1.2);
+            Map<String,Object> hud = (Map<String, Object>) base.get("hud");
+            Map<String,Object> dest = (Map<String, Object>) base.get("destination");
             String death = (String) dest.get("lastdeath");
             String[] deaths = death.split(" ");
             ArrayList<String> newDeaths = new ArrayList<>();
@@ -79,14 +108,16 @@ public class PlayerData {
             hud.put("primary",pri);
             hud.put("secondary",sec);
             dest.put("lastdeath",newDeaths);
-            map.put("destination",dest);
-            map.put("hud",hud);
+            base.put("destination",dest);
+            base.put("hud",hud);
+            // reload the file after updating a version
+            base = saveLoad(player,base);
         }
-        if (map.get("version").equals(1.2)) {
-            map.put("version",1.3);
-            Map<String,Object> dest = (Map<String, Object>) map.get("destination");
+        if (base.get("version").equals(1.2)) {
+            base.put("version",1.3);
+            Map<String,Object> dest = (Map<String, Object>) base.get("destination");
             dest.computeIfAbsent("saved", k -> new ArrayList<String>());
-            if (((ArrayList<String>) dest.get("saved")).size() != 0) {
+            if (!((ArrayList<String>) dest.get("saved")).isEmpty()) {
                 ArrayList<String> saved = (ArrayList<String>) dest.get("saved");
                 for (String s: saved) {
                     String[] split = s.split(" ");
@@ -110,14 +141,16 @@ public class PlayerData {
                 }
             }
             dest.put("lastdeath",lastdeath);
-            map.put("dest",dest);
+            base.put("dest",dest);
+            // reload the file after updating a version
+            base = saveLoad(player,base);
         }
-        if (map.get("version").equals(1.3)) {
+        if (base.get("version").equals(1.3)) {
             // dest logic, add new tracking
-            map.put("version",1.4);
-            map.remove("lastdeath");
-            Map<String,Object> dest = (Map<String, Object>) map.get("destination");
-            Map<String,Object> hud = (Map<String, Object>) map.get("hud");
+            base.put("version",1.4);
+            base.remove("lastdeath");
+            Map<String,Object> dest = (Map<String, Object>) base.get("destination");
+            Map<String,Object> hud = (Map<String, Object>) base.get("hud");
             Map<String,Object> hudModule = (Map<String, Object>) hud.get("module");
             hudModule.put("tracking",hudModule.get("compass"));
             hudModule.put("compass",null);
@@ -125,7 +158,7 @@ public class PlayerData {
             //ORDER FIX
             String order = (String) hud.get("order");
             hud.put("order",order.replace("compass","tracking"));
-            map.put("hud",hud);
+            base.put("hud",hud);
             //NEW TRACKING & XYZ FIX
             dest.put("tracking",null);
             String xyz = (String) dest.get("xyz");
@@ -152,7 +185,7 @@ public class PlayerData {
             for (String s: saved) {
                 String[] split = s.split(" ");
                 String[] coordS = split[1].split("_");
-                Loc loc = new Loc(Utl.tryInt(coordS[0]),Utl.tryInt(coordS[1]),Utl.tryInt(coordS[2]),split[2]);
+                Loc loc = new Loc(Helper.Num.toInt(coordS[0]), Helper.Num.toInt(coordS[1]), Helper.Num.toInt(coordS[2]),split[2]);
                 savedN.add(saved.indexOf(s), Arrays.asList(split[0],loc.toArray(),split[3]));
             }
             dest.put("saved",savedN);
@@ -171,15 +204,17 @@ public class PlayerData {
             setting.put("autoconvert", config.dest.AutoConvert);
             setting.put("particles",particles);
             dest.put("setting",setting);
-            map.put("destination",dest);
+            base.put("destination",dest);
+            // reload the file after updating a version
+            base = saveLoad(player,base);
         }
-        if (map.get("version").equals(1.4)) {
-            map.put("version",1.5);
+        if (base.get("version").equals(1.4)) {
+            base.put("version",1.5);
             Map<String,Object> temp = new HashMap<>();
-            Map<String,Object> dest = (Map<String, Object>) map.get("destination");
+            Map<String,Object> dest = (Map<String, Object>) base.get("destination");
             //MOVE COUNTDOWN FROM DEST TO TEMP
             if (dest.get("track") != null) temp.put("track",dest.get("track"));
-            map.put("temp",temp);
+            base.put("temp",temp);
             //UPDATE DEST PARTICLE COLORS TO NEW SYSTEM
             Map<String,Object> destSetting = (Map<String, Object>) dest.get("setting");
             Map<String,Object> particles = (Map<String, Object>) destSetting.get("particles");
@@ -211,7 +246,7 @@ public class PlayerData {
             }
             dest.put("saved",destSaved);
             //UPDATE HUD COLORS TO NEW SYSTEM
-            Map<String,Object> hud = (Map<String, Object>) map.get("hud");
+            Map<String,Object> hud = (Map<String, Object>) base.get("hud");
             String[] primary = ((String) hud.get("primary")).split("-");
             primary[0] = CUtl.color.updateOld(primary[0], config.hud.primary.Color);
             hud.put("primary",String.join("-",primary));
@@ -227,26 +262,72 @@ public class PlayerData {
             hudSetting.put("time24h",null);
             hudSettingModule.put("tracking_target", config.hud.TrackingTarget);
             hudSetting.put("module",hudSettingModule);
-            hud.put("order", HUD.modules.fixOrder(HUD.Module.toModuleList(new ArrayList<>(List.of(((String) hud.get("order")).split(" "))))));
+            hud.put("order", HUD.modules.fixOrder(Helper.Enums.toEnumList(new ArrayList<>(List.of(((String) hud.get("order")).split(" "))),HUD.Module.class)));
             hud.put("setting",hudSetting);
-            map.put("destination",dest);
-            map.put("hud",hud);
-            map.put("color_presets",config.colorPresets);
+            base.put("destination",dest);
+            base.put("hud",hud);
+            base.put("color_presets",config.colorPresets);
+            // reload the file after updating a version
+            base = saveLoad(player,base);
         }
-        if (map.get("version").equals(1.5)) {
-            map.put("version",1.6);
+        if (base.get("version").equals(1.5)) {
+            base.put("version",1.6);
             // new inbox system
-            map.put("temp",null);
-            map.put("inbox",new ArrayList<>());
+            base.put("temp",null);
+            base.put("inbox",new ArrayList<>());
             // move hud.enabled to hud.setting.state
-            Map<String,Object> hud = (Map<String, Object>) map.get("hud");
+            Map<String,Object> hud = (Map<String, Object>) base.get("hud");
             Map<String,Object> hudSetting = (Map<String, Object>) hud.get("setting");
             hudSetting.put("state",hud.get("enabled"));
             hud.put("setting",hudSetting);
             hud.put("enabled",null);
-            map.put("hud",hud);
+            base.put("hud",hud);
+            // reload the file after updating a version
+            base = saveLoad(player,base);
         }
-        return map;
+        if (base.get("version").equals(1.6)) {
+            base.put("version",1.7);
+            Map<String,Object> hud = (Map<String, Object>) base.get("hud");
+            // new hud module settings
+            Map<String,Object> hudSetting = (Map<String, Object>) hud.get("setting");
+            Map<String,Object> hudModuleSetting = (Map<String, Object>) hudSetting.get("module");
+            hudModuleSetting.put("tracking_hybrid",config.hud.TrackingHybrid);
+            hudModuleSetting.put("tracking_type",config.hud.TrackingType);
+            hudModuleSetting.put("speed_pattern", config.hud.SpeedPattern);
+            hudModuleSetting.put("speed_3d", config.hud.Speed3D);
+            hudModuleSetting.put("angle_display", config.hud.AngleDisplay);
+            hudSetting.put("module",hudModuleSetting);
+            hud.put("setting",hudSetting);
+            // new hud modules
+            Map<String,Object> hudModule = (Map<String, Object>) hud.get("module");
+            hudModule.put("speed",config.hud.Speed);
+            hudModule.put("angle",config.hud.Angle);
+            hud.put("module",hudModule);
+            base.put("hud",hud);
+            // new preset system
+            base.put("color_presets", DHUD.preset.custom.update((ArrayList<String>) base.get("color_presets")));
+            // reload the file after updating a version
+            base = saveLoad(player,base);
+        }
+        if (base.get("version").equals(1.71)) {
+            // revert
+            base.put("version",1.7);
+            base.put("order",null);
+        }
+        if (base.get("version").equals(1.7)) {
+            // skip to 1.72 as 1.71 was reverted
+            base.put("version",1.72);
+            Map<String,Object> hud = (Map<String, Object>) base.get("hud");
+            // update the HUD order, forgot to do that in 1.7
+            hud.put("order",HUD.modules.fixOrder(Helper.Enums.toEnumList((ArrayList<String>) hud.get("order"),HUD.Module.class)));
+            base.put("hud",hud);
+            // remove the extra module tab found in the base from a broken past update
+            base.put("module",null);
+            // reload the file after updating a version
+            base = saveLoad(player,base);
+        }
+        // save at the end
+        mapToFile(player,base);
     }
     @SuppressWarnings("unchecked")
     public static Map<String,Object> removeUnnecessary(Map<String,Object> map) {
@@ -274,23 +355,17 @@ public class PlayerData {
         player.sendSettingPackets();
     }
     public static void addPlayer(Player player) {
-        Map<String, Object> map = updater(player, fileToMap(player));
-        mapToFile(player, map);
+        updater(player, fileToMap(player));
         updatePlayerMap(player);
-        oneTimeMap.put(player,new HashMap<>());
+        HashMap<String, Object> hashMap = new HashMap<>();
+        hashMap.put("speed_data", player.getVec());
+        hashMap.put("speed", 0.0);
+        dataMap.put(player, hashMap);
     }
     public static void removePlayer(Player player) {
         mapToFile(player, fileToMap(player));
         playerMap.remove(player);
-        oneTimeMap.remove(player);
-    }
-    public static String getOneTime(Player player, String key) {
-        return oneTimeMap.get(player).get(key);
-    }
-    public static void setOneTime(Player player, String key, String value) {
-        Map<String,String> map = oneTimeMap.get(player);
-        map.put(key,value);
-        oneTimeMap.put(player,map);
+        dataMap.remove(player);
     }
     public static class defaults {
         public static Map<String,Object> get(Player player) {
@@ -300,8 +375,8 @@ public class PlayerData {
             hud.put("setting", defaults.hudSetting());
             hud.put("module", defaults.hudModule());
             hud.put("order", config.hud.Order);
-            hud.put("primary", HUD.color.defaultFormat(1));
-            hud.put("secondary", HUD.color.defaultFormat(2));
+            hud.put("primary", HUD.color.defaultEntry(1));
+            hud.put("secondary", HUD.color.defaultEntry(2));
             //dest
             Map<String,Object> destination = new HashMap<>();
             destination.put("dest", "null");
@@ -310,7 +385,7 @@ public class PlayerData {
             destination.put("lastdeath", new ArrayList<String>());
             destination.put("tracking", null);
             //base
-            map.put("version", 1.6);
+            map.put("version", 1.72);
             map.put("name", player.getName());
             map.put("hud", hud);
             map.put("destination", destination);
@@ -336,7 +411,12 @@ public class PlayerData {
         public static Map<String,Object> hudSettingModule() {
             Map<String,Object> module = new HashMap<>();
             module.put("time_24hr", config.hud.Time24HR);
+            module.put("tracking_hybrid", config.hud.TrackingHybrid);
             module.put("tracking_target", config.hud.TrackingTarget);
+            module.put("tracking_type", config.hud.TrackingType);
+            module.put("speed_pattern", config.hud.SpeedPattern);
+            module.put("speed_3d", config.hud.Speed3D);
+            module.put("angle_display", config.hud.AngleDisplay);
             return module;
         }
         public static Map<String,Object> hudModule() {
@@ -348,6 +428,8 @@ public class PlayerData {
             hudModule.put("tracking", config.hud.Tracking);
             hudModule.put("time", config.hud.Time);
             hudModule.put("weather", config.hud.Weather);
+            hudModule.put("speed", config.hud.Speed);
+            hudModule.put("angle", config.hud.Angle);
             return hudModule;
         }
         public static Map<String,Object> destSetting() {
@@ -385,72 +467,65 @@ public class PlayerData {
             if (playerMap.get(player) == null) addPlayer(player);
             return playerMap.get(player);
         }
-        public static ArrayList<String> colorPresets(Player player) {
-            return (ArrayList<String>) fileToMap(player).get("color_presets");
-        }
         public static class hud {
-            private static Map<String,Object> get(Player player) {
+            private static Map<String,Object> map(Player player) {
                 return (Map<String, Object>) fromMap(player).get("hud");
             }
-            public static boolean getModule(Player player, HUD.Module module) {
-                Map<String,Object> map = (Map<String,Object>) get(player).get("module");
+            public static boolean module(Player player, HUD.Module module) {
+                Map<String,Object> map = (Map<String,Object>) map(player).get("module");
                 return (boolean) map.get(module.toString());
             }
             public static ArrayList<HUD.Module> order(Player player) {
-                ArrayList<String> modules = (ArrayList<String>) get(player).get("order");
+                ArrayList<String> modules = (ArrayList<String>) map(player).get("order");
                 ArrayList<HUD.Module> types = new ArrayList<>();
                 for (String m:modules) types.add(HUD.Module.get(m));
                 return types;
             }
             public static String color(Player player, int typ) {
-                return (String) get(player).get(typ==1?"primary":"secondary");
+                return (String) map(player).get(typ==1?"primary":"secondary");
             }
-            public static class setting {
-                public static Map<String,Object> map(Player player) {
-                    return (Map<String,Object>) hud.get(player).get("setting");
+            public static Object setting(Player player, HUD.Setting type) {
+                Map<String,Object> settings = (Map<String,Object>) hud.map(player).get("setting");
+                String string = type.toString();
+                if (string.contains(".")) {
+                    String base = string.substring(0,string.indexOf('.'));
+                    Map<String,Object> bar = (Map<String,Object>) settings.get(base);
+                    return bar.get(string.substring(string.indexOf('.')+1));
                 }
-                public static Object get(Player player, HUD.Setting type) {
-                    String string = type.toString();
-                    if (string.contains(".")) {
-                        String base = string.substring(0,string.indexOf('.'));
-                        Map<String,Object> bar = (Map<String,Object>) map(player).get(base);
-                        return bar.get(string.substring(string.indexOf('.')+1));
-                    }
-                    return map(player).get(string);
-                }
+                return settings.get(string);
             }
         }
         public static class dest {
-            private static Map<String,Object> get(Player player, boolean map) {
+            private static Map<String,Object> map(Player player, boolean map) {
                 if (map) return (Map<String,Object>) fromMap(player).get("destination");
                 return (Map<String, Object>) fileToMap(player).get("destination");
             }
-            public static ArrayList<String> getLastdeaths(Player player) {
-                return (ArrayList<String>) get(player,false).get("lastdeath");
+            public static ArrayList<String> lastdeaths(Player player) {
+                return (ArrayList<String>) map(player,false).get("lastdeath");
             }
-            public static Loc getDest(Player player) {
-                return new Loc((String) get(player,true).get("dest"));
+            public static Loc loc(Player player) {
+                return new Loc((String) map(player,true).get("dest"));
             }
-            public static String getTracking(Player player) {
-                return (String) get(player,true).get("tracking");
+            public static String tracking(Player player) {
+                return (String) map(player,true).get("tracking");
             }
-            public static List<List<String>> getSaved(Player player) {
-                return (List<List<String>>) get(player,false).get("saved");
+            public static List<List<String>> saved(Player player) {
+                return (List<List<String>>) map(player,false).get("saved");
             }
-            public static class setting {
-                private static Map<String,Object> map(Player player) {
-                    return (Map<String,Object>) dest.get(player,true).get("setting");
+            public static Object setting(Player player, Destination.Setting setting) {
+                Map<String,Object> settings = (Map<String,Object>) dest.map(player,true).get("setting");
+                String string = setting.toString();
+                // if nested
+                if (string.contains(".")) {
+                    String base = string.substring(0,string.indexOf('.'));
+                    Map<String,Object> bar = (Map<String,Object>) settings.get(base);
+                    return bar.get(string.substring(string.indexOf('.')+1));
                 }
-                public static Object get(Player player, Destination.Setting settings) {
-                    String string = settings.toString();
-                    if (string.contains(".")) {
-                        String base = string.substring(0,string.indexOf('.'));
-                        Map<String,Object> bar = (Map<String,Object>) map(player).get(base);
-                        return bar.get(string.substring(string.indexOf('.')+1));
-                    }
-                    return map(player).get(string);
-                }
+                return settings.get(string);
             }
+        }
+        public static ArrayList<String> colorPresets(Player player) {
+            return (ArrayList<String>) fileToMap(player).get("color_presets");
         }
         public static Double socialCooldown(Player player) {
             return (Double) fromMap(player).get("social_cooldown");
@@ -463,11 +538,6 @@ public class PlayerData {
     }
     @SuppressWarnings("unchecked")
     public static class set {
-        public static void colorPresets(Player player, ArrayList<String> preset) {
-            Map<String,Object> map = fileToMap(player);
-            map.put("color_presets", preset);
-            mapToFile(player,map);
-        }
         public static class hud {
             public static void map(Player player, Map<String,Object> hud) {
                 Map<String,Object> map = fileToMap(player);
@@ -476,95 +546,88 @@ public class PlayerData {
                 updatePlayerMap(player);
             }
             public static void order(Player player, ArrayList<HUD.Module> order) {
-                Map<String,Object> data = get.hud.get(player);
+                Map<String,Object> data = get.hud.map(player);
                 data.put("order", order);
                 map(player, data);
             }
             public static void color(Player player, int typ, String color) {
-                Map<String,Object> data = get.hud.get(player);
+                Map<String,Object> data = get.hud.map(player);
                 data.put(typ==1?"primary":"secondary", color);
                 map(player, data);
             }
-            public static class setting {
-                private static void map(Player player, Map<String,Object> setting) {
-                    Map<String,Object> data = get.hud.get(player);
-                    data.put("setting", setting);
-                    hud.map(player, data);
-                }
-                public static void set(Player player, HUD.Setting type, Object setting) {
-                    String string = type.toString();
-                    Map<String,Object> data = get.hud.setting.map(player);
-                    if (string.contains(".")) {
-                        String base = string.substring(0,string.indexOf('.'));
-                        Map<String,Object> bar = (Map<String,Object>) get.hud.setting.map(player).get(base);
-                        bar.put(string.substring(string.indexOf('.')+1),setting);
-                        data.put(base,bar);
-                    } else {
-                        data.put(string.substring(string.indexOf('.')+1),setting);
-                    }
-                    map(player,data);
-                }
+            public static void setting(Player player, HUD.Setting type, Object setting) {
+                String string = type.toString();
+                Map<String,Object> settings = (Map<String,Object>) get.hud.map(player).get("setting");
+                if (string.contains(".")) { // if there's a dot, go deeper in the tree
+                    String base = string.substring(0,string.indexOf('.'));
+                    Map<String,Object> bar = (Map<String,Object>) settings.get(base);
+                    bar.put(string.substring(string.indexOf('.')+1),setting);
+                    settings.put(base,bar);
+                } else // else put directly
+                    settings.put(string,setting);
+                // save the data
+                Map<String,Object> data = get.hud.map(player);
+                data.put("setting", settings);
+                hud.map(player, data);
             }
-            public static void setModule(Player player, HUD.Module module, boolean b) {
-                Map<String,Object> data = get.hud.get(player);
-                Map<String,Object> modules = (Map<String, Object>) data.get("module");
+            public static void module(Player player, HUD.Module module, boolean b) {
+                Map<String,Object> modules = (Map<String, Object>) get.hud.map(player).get("module");
                 modules.put(module.toString(),b);
-                data.put("module",modules);
-                hud.map(player,data);
+                moduleMap(player,modules);
             }
-            public static void setModuleMap(Player player, Map<String,Object> module) {
-                Map<String,Object> data = get.hud.get(player);
+            public static void moduleMap(Player player, Map<String,Object> module) {
+                // set the modules all at once using a map
+                Map<String,Object> data = get.hud.map(player);
                 data.put("module", module);
                 hud.map(player, data);
             }
         }
         public static class dest {
-            public static void set(Player player, Map<String,Object> dest) {
+            public static void map(Player player, Map<String,Object> dest) {
                 Map<String,Object> map = fileToMap(player);
                 map.put("destination",dest);
                 mapToFile(player,map);
                 updatePlayerMap(player);
             }
-            public static void setDest(Player player, Loc loc) {
-                Map<String,Object> data = get.dest.get(player,false);
+            public static void loc(Player player, Loc loc) {
+                Map<String,Object> data = get.dest.map(player,false);
                 data.put("dest", loc.toArray());
-                set(player, data);
+                map(player, data);
             }
-            public static void setTracking(Player player, String s) {
-                Map<String,Object> data = get.dest.get(player,false);
+            public static void tracking(Player player, String s) {
+                Map<String,Object> data = get.dest.map(player,false);
                 data.put("tracking", s);
-                set(player, data);
+                map(player, data);
             }
-            public static void setLastdeaths(Player player, ArrayList<String> lastdeath) {
-                Map<String,Object> data = get.dest.get(player,false);
+            public static void lastdeaths(Player player, ArrayList<String> lastdeath) {
+                Map<String,Object> data = get.dest.map(player,false);
                 data.put("lastdeath", lastdeath);
-                set(player, data);
+                map(player, data);
             }
-            public static void setSaved(Player player, List<List<String>> saved) {
-                Map<String,Object> data = get.dest.get(player,false);
+            public static void saved(Player player, List<List<String>> saved) {
+                Map<String,Object> data = get.dest.map(player,false);
                 data.put("saved", saved);
-                set(player, data);
+                map(player, data);
             }
-            public static class setting {
-                private static void map(Player player, Map<String,Object> setting) {
-                    Map<String,Object> data = get.dest.get(player,false);
-                    data.put("setting", setting);
-                    dest.set(player, data);
-                }
-                public static void set(Player player, Destination.Setting settings, Object setting) {
-                    String string = settings.toString();
-                    Map<String,Object> data = get.dest.setting.map(player);
-                    if (string.contains(".")) {
-                        String base = string.substring(0,string.indexOf('.'));
-                        Map<String,Object> bar = (Map<String,Object>) get.dest.setting.map(player).get(base);
-                        bar.put(string.substring(string.indexOf('.')+1),setting);
-                        data.put(base,bar);
-                    } else {
-                        data.put(string.substring(string.indexOf('.')+1),setting);
-                    }
-                    map(player,data);
-                }
+            public static void setting(Player player, Destination.Setting type, Object setting) {
+                Map<String,Object> settings = (Map<String,Object>) get.dest.map(player,true).get("setting");
+                String string = type.toString();
+                if (string.contains(".")) {
+                    String base = string.substring(0,string.indexOf('.'));
+                    Map<String,Object> bar = (Map<String,Object>) settings.get(base);
+                    bar.put(string.substring(string.indexOf('.')+1),setting);
+                    settings.put(base,bar);
+                } else settings.put(string,setting);
+                // save the data
+                Map<String,Object> data = get.dest.map(player,false);
+                data.put("setting", settings);
+                dest.map(player, data);
             }
+        }
+        public static void colorPresets(Player player, ArrayList<String> preset) {
+            Map<String,Object> map = fileToMap(player);
+            map.put("color_presets", preset);
+            mapToFile(player,map);
         }
         public static void socialCooldown(Player player, Double d) {
             Map<String,Object> map = get.fromMap(player);

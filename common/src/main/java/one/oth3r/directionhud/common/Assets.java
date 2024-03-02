@@ -40,7 +40,6 @@ public class Assets {
     }
     public static class cmdUsage {
         public static final String hud = "/hud";
-        public static final String hudToggle = "/hud toggle";
         public static final String hudColor = "/hud color";
         public static final String hudModules = "/hud modules (order, toggle, reset)";
         public static final String hudSettings = "/hud settings";
@@ -57,12 +56,67 @@ public class Assets {
         public static final String reload = "/dhud reload";
         public static final String inbox = "/dhud inbox";
     }
+
+    /**
+     * gets all the options for a config entry, better than hard coding into the lang file.
+     */
+    public static class configOptions {
+        @SafeVarargs
+        private static <T extends Enum<T>> String fromEnum(T[] enums, T... exclude) {
+            StringBuilder output = new StringBuilder();
+            // get every enum except for the exclude list
+            for (T entry: enums) {
+                boolean stop = false;
+                // check if the entry is excluded, then skip the entry
+                for (T ex: exclude) {
+                    if (ex.equals(entry)) {
+                        stop = true;
+                        break;
+                    }
+                }
+                // skip entry
+                if (stop) continue;
+                output.append(entry).append(", ");
+            }
+            return output.substring(0,output.toString().length()-2); // remove the last ", "
+        }
+        public static String moduleOrder() {
+            return fromEnum(HUD.Module.values(), HUD.Module.unknown);
+        }
+        public static String DisplayType() {
+            return fromEnum(HUD.Setting.DisplayType.values());
+        }
+        public static String BossBarColor() {
+            return fromEnum(HUD.Setting.BarColor.values());
+        }
+        public static String TrackingTarget() {
+            return fromEnum(HUD.Setting.ModuleTrackingTarget.values());
+        }
+        public static String TrackingType() {
+            return fromEnum(HUD.Setting.ModuleTrackingType.values());
+        }
+        public static String AngleDisplay() {
+            return fromEnum(HUD.Setting.ModuleAngleDisplay.values());
+        }
+    }
     public static class symbols {
+        public static class arrows {
+            public static final String north = "\u2b06";
+            public static final String north_west = "\u2b09";
+            public static final String west = "\u2b05";
+            public static final String south_west = "\u2b0b";
+            public static final String south = "\u2b07";
+            public static final String south_east = "\u2b0a";
+            public static final String east = "\u2b95";
+            public static final String north_east = "\u2b08";
+            public static final String up = "\u25b2";
+            public static final String down = "\u25bc";
+            public static final String left = "\u25c0";
+            public static final String right = "\u25b6";
+            public static final String leftRight = "\u2b0c";
+            public static final String upDown = "\u2b0d";
+        }
         public static final String square = "\u2588";
-        public static final String up = "\u25b2";
-        public static final String down = "\u25bc";
-        public static final String left = "\u25c0";
-        public static final String right = "\u25b6";
         public static final String x = "\u2715";
         public static final String pencil = "\u270e";
         public static final String sun = "\u2600";

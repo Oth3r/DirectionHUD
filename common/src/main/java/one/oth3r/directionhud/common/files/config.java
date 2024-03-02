@@ -5,16 +5,21 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.Assets;
+import one.oth3r.directionhud.common.DHUD;
 import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.utils.Utl;
+import one.oth3r.directionhud.common.utils.Helper.Dim;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -26,16 +31,23 @@ public class config {
             public static final boolean BarShowDistance = true;
             public static final int ShowDistanceMAX = 0;
             public static final boolean State = true;
-            public static final ArrayList<HUD.Module> Order = HUD.modules.getDefault();
+            public static final ArrayList<HUD.Module> Order = HUD.modules.getDefaultOrder();
             public static final boolean Coordinates = true;
             public static final boolean Distance = true;
             public static final boolean Tracking = false;
+            public static final boolean TrackingHybrid = true;
+            public static final String TrackingTarget = HUD.Setting.ModuleTrackingTarget.player.toString();
+            public static final String TrackingType = HUD.Setting.ModuleTrackingType.simple.toString();
             public static final boolean Destination = true;
             public static final boolean Direction = true;
             public static final boolean Time = true;
-            public static final boolean Weather = true;
             public static final boolean Time24HR = false;
-            public static final String TrackingTarget = HUD.Setting.HUDTrackingTarget.player.toString();
+            public static final boolean Weather = true;
+            public static final boolean Speed = false;
+            public static final boolean Speed3D = true;
+            public static final String SpeedPattern = "0.00";
+            public static final boolean Angle = false;
+            public static final String AngleDisplay = HUD.Setting.ModuleAngleDisplay.both.toString();
             public static class primary {
                 public static final String Color = DirectionHUD.PRIMARY;
                 public static final boolean Bold = false;
@@ -58,12 +70,19 @@ public class config {
         public static boolean Coordinates = defaults.Coordinates;
         public static boolean Distance = defaults.Distance;
         public static boolean Tracking = defaults.Tracking;
+        public static boolean TrackingHybrid = defaults.TrackingHybrid;
+        public static String TrackingTarget = defaults.TrackingTarget;
+        public static String TrackingType = defaults.TrackingType;
         public static boolean Destination = defaults.Destination;
         public static boolean Direction = defaults.Direction;
         public static boolean Time = defaults.Time;
-        public static boolean Weather = defaults.Weather;
         public static boolean Time24HR = defaults.Time24HR;
-        public static String TrackingTarget = defaults.TrackingTarget;
+        public static boolean Weather = defaults.Weather;
+        public static boolean Speed = defaults.Speed;
+        public static boolean Speed3D = defaults.Speed3D;
+        public static String SpeedPattern = defaults.SpeedPattern;
+        public static boolean Angle = defaults.Angle;
+        public static String AngleDisplay = defaults.AngleDisplay;
         public static class primary {
             public static String Color = defaults.primary.Color;
             public static boolean Bold = defaults.primary.Bold;
@@ -115,7 +134,7 @@ public class config {
         public static String TrackingRequestMode = defaults.TrackingRequestMode;
     }
     public static class defaults {
-        public static final float version = 1.4f;
+        public static final float version = 1.5f;
         public static final String lang = "en_us";
         public static final int MAXy = 512;
         public static final int MAXxz = 30000000;
@@ -129,9 +148,9 @@ public class config {
         public static final int socialCooldown = 10;
         public static final int HUDLoop = 1;
         public static final int ParticleLoop = 20;
-
         public static final boolean globalDESTs = false;
-        public static final List<String> colorPresets = List.of("#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff","#ffffff");
+        public static final int MAXColorPresets = 14;
+        public static final List<String> colorPresets = new ArrayList<>();
         public static final List<String> dimensions = Utl.dim.DEFAULT_DIMENSIONS;
         public static final List<String> dimensionRatios = Utl.dim.DEFAULT_RATIOS;
     }
@@ -149,6 +168,7 @@ public class config {
     public static int HUDLoop = defaults.HUDLoop;
     public static int ParticleLoop = defaults.ParticleLoop;
     public static boolean globalDESTs = defaults.globalDESTs;
+    public static int MAXColorPresets = defaults.MAXColorPresets;
     public static List<String> colorPresets = defaults.colorPresets;
     public static List<String> dimensions = defaults.dimensions;
     public static List<String> dimensionRatios = defaults.dimensionRatios;
@@ -167,21 +187,20 @@ public class config {
             String version = (String) properties.computeIfAbsent("version", a -> String.valueOf(defaults.version));
             if (version.contains("v")) version = version.substring(1);
             loadVersion(properties,Float.parseFloat(version));
-            Utl.dim.loadConfig();
+            LangReader.loadLanguageFile();
+            Dim.load();
             save();
-        } catch (Exception f) {
-            //read fail
-            f.printStackTrace();
+        } catch (Exception e) {
+            DirectionHUD.LOGGER.info("ERROR READING CONFIG - PLEASE REPORT WITH THE ERROR LOG");
+            DirectionHUD.LOGGER.info(e.getMessage());
         }
     }
     public static void loadVersion(Properties properties, float version) {
         try {
             Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-            //json maps
-            Type arrayListMap = new TypeToken<ArrayList<String>>() {
-            }.getType();
-            Type moduleListMap = new TypeToken<ArrayList<HUD.Module>>() {
-            }.getType();
+            // json maps
+            Type arrayListMap = new TypeToken<ArrayList<String>>() {}.getType();
+            Type moduleListMap = new TypeToken<ArrayList<HUD.Module>>() {}.getType();
             // CONFIG
             MAXxz = Integer.parseInt((String) properties.computeIfAbsent("max-xz", a -> String.valueOf(defaults.MAXxz)));
             MAXy = Integer.parseInt((String) properties.computeIfAbsent("max-y", a -> String.valueOf(defaults.MAXy)));
@@ -201,12 +220,13 @@ public class config {
             // DIM
             dimensions = new Gson().fromJson((String) properties.computeIfAbsent("dimensions", a -> gson.toJson(defaults.dimensions)), arrayListMap);
             dimensionRatios = new Gson().fromJson((String) properties.computeIfAbsent("dimension-ratios", a -> gson.toJson(defaults.dimensionRatios)), arrayListMap);
-
+            // COLOR PRESETS
+            colorPresets = DHUD.preset.custom.validate(new Gson().fromJson((String) properties.computeIfAbsent("color-presets", a -> gson.toJson(defaults.colorPresets)), arrayListMap));
+            MAXColorPresets = Integer.parseInt((String) properties.computeIfAbsent("max-color-presets", a -> String.valueOf(defaults.MAXColorPresets)));
             // PLAYER DEFAULTS
-            colorPresets = new Gson().fromJson((String) properties.computeIfAbsent("color-presets", a -> gson.toJson(defaults.colorPresets)), arrayListMap);
             // HUD
             hud.Order = HUD.modules.fixOrder(new Gson().fromJson((String) properties.computeIfAbsent("hud.order", a -> gson.toJson(hud.defaults.Order)), moduleListMap));
-            // HUD MODULES
+            // HUD MODULE STATES
             hud.Coordinates = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.coordinates", a -> String.valueOf(hud.defaults.Coordinates)));
             hud.Distance = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.distance", a -> String.valueOf(hud.defaults.Distance)));
             hud.Tracking = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.tracking", a -> String.valueOf(hud.defaults.Tracking)));
@@ -214,6 +234,23 @@ public class config {
             hud.Direction = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.direction", a -> String.valueOf(hud.defaults.Direction)));
             hud.Time = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.time", a -> String.valueOf(hud.defaults.Time)));
             hud.Weather = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.weather", a -> String.valueOf(hud.defaults.Weather)));
+            hud.Speed = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.speed", a -> String.valueOf(hud.defaults.Speed)));
+            hud.Angle = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.angle", a -> String.valueOf(hud.defaults.Angle)));
+            // HUD MODULE SETTINGS
+            hud.TrackingHybrid = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.settings.module.tracking_hybrid", a -> String.valueOf(hud.defaults.TrackingHybrid)));
+            hud.TrackingTarget = HUD.Setting.ModuleTrackingTarget.get((String) properties.computeIfAbsent("hud.settings.module.tracking_target", a -> hud.defaults.TrackingTarget)).toString();
+            hud.TrackingType = HUD.Setting.ModuleTrackingType.get((String) properties.computeIfAbsent("hud.settings.module.tracking_type", a -> hud.defaults.TrackingType)).toString();
+            hud.Time24HR = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.settings.module.time_24hr", a -> String.valueOf(hud.defaults.Time24HR)));
+            hud.Speed3D = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.settings.module.speed_3d", a -> String.valueOf(hud.defaults.Speed3D)));
+            String pattern = (String) properties.computeIfAbsent("hud.settings.module.speed_pattern", a -> hud.defaults.SpeedPattern);
+            try {
+                new DecimalFormat(pattern);
+                hud.SpeedPattern = pattern;
+            } catch (IllegalArgumentException ignored) {
+                hud.SpeedPattern = hud.defaults.SpeedPattern;
+            }
+            hud.AngleDisplay = HUD.Setting.ModuleAngleDisplay.get((String) properties.computeIfAbsent("hud.settings.module.angle_display", a -> hud.defaults.AngleDisplay)).toString();
+
             // HUD COLOR
             hud.primary.Color = CUtl.color.format((String) properties.computeIfAbsent("hud.color.primary", a -> hud.defaults.primary.Color), hud.defaults.primary.Color);
             hud.primary.Bold = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.color.primary-bold", a -> String.valueOf(hud.defaults.primary.Bold)));
@@ -229,8 +266,6 @@ public class config {
             hud.BarColor = HUD.Setting.BarColor.get((String) properties.computeIfAbsent("hud.settings.bossbar.color", a -> hud.defaults.BarColor)).toString();
             hud.BarShowDistance = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.settings.bossbar.distance", a -> String.valueOf(hud.defaults.BarShowDistance)));
             hud.ShowDistanceMAX = Integer.parseInt((String) properties.computeIfAbsent("hud.settings.bossbar.distance_max", a -> String.valueOf(hud.defaults.ShowDistanceMAX)));
-            hud.Time24HR = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.settings.module.time_24hr", a -> String.valueOf(hud.defaults.Time24HR)));
-            hud.TrackingTarget = HUD.Setting.HUDTrackingTarget.get((String) properties.computeIfAbsent("hud.settings.module.tracking_target", a -> hud.defaults.TrackingTarget)).toString();
             // DEST SETTINGS
             dest.AutoClear = Boolean.parseBoolean((String) properties.computeIfAbsent("dest.settings.autoclear", a -> String.valueOf(dest.defaults.AutoClear)));
             dest.AutoClearRad = Math.min(15, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("dest.settings.autoclear_rad", a -> String.valueOf(dest.defaults.AutoClearRad)))));
@@ -249,6 +284,10 @@ public class config {
             dest.TrackingRequestMode = Destination.Setting.TrackingRequestMode.get((String) properties.computeIfAbsent("dest.settings.features.track_request_mode", a -> dest.defaults.TrackingRequestMode)).toString();
             dest.Lastdeath = Boolean.parseBoolean((String) properties.computeIfAbsent("dest.settings.features.lastdeath", a -> String.valueOf(dest.defaults.Lastdeath)));
             // CONFIG UPDATER, if the version is lower than the current, load from the old config
+            if (version <= 1.4f) {
+                colorPresets = DHUD.preset.custom.update(
+                        new Gson().fromJson((String)properties.computeIfAbsent("color-presets",a->gson.toJson(new ArrayList<>())),arrayListMap));
+            }
             // everything before & 1.3
             if (version <= 1.3f) {
                 DestMAX = Integer.parseInt((String) properties.computeIfAbsent("destination-max-saved", a -> String.valueOf(defaults.DestMAX)));
@@ -304,116 +343,149 @@ public class config {
                 hud.Tracking = Boolean.parseBoolean((String) properties.computeIfAbsent("compass", a -> String.valueOf(hud.defaults.Tracking)));
         } catch (Exception e) {
             DirectionHUD.LOGGER.info("ERROR LOADING CONFIG - PLEASE REPORT WITH THE ERROR LOG");
-            e.printStackTrace();
+            DirectionHUD.LOGGER.info(e.getMessage());
         }
     }
     public static void save() {
-        try (var file = new FileOutputStream(configFile(), false)) {
+        try (var file = Files.newBufferedWriter(configFile().toPath(), StandardCharsets.UTF_8)) {
             Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-            file.write("# DirectionHUD Config\n".getBytes());
-            file.write(("version="+defaults.version).getBytes());
-            file.write("\n".getBytes());
-            file.write(("\nmax-xz=" + MAXxz).getBytes());
-            file.write(("\nmax-y=" + MAXy).getBytes());
-            file.write(("\n# "+CUtl.lang("config.max.info",CUtl.lang("config.max.info_2")).toString()).getBytes());
-            file.write(("\nonline-mode=" + online).getBytes());
-            file.write(("\n# "+CUtl.lang("config.online_mode.info").toString()).getBytes());
-            file.write(("\nglobal-destinations=" + globalDESTs).getBytes());
-            file.write(("\n# "+CUtl.lang("config.global_dest.info").toString()).getBytes());
-            file.write(("\n# "+CUtl.lang("config.global_dest.info_3").toString()).getBytes());
-            file.write(("\ndestination-saving=" + DestSaving).getBytes());
-            file.write(("\n# "+CUtl.lang("config.dest_saving.info").toString()).getBytes());
-            file.write(("\ndestination-max=" + DestMAX).getBytes());
-            file.write(("\n# "+CUtl.lang("config.dest_max.info").toString()).getBytes());
-            file.write(("\nlastdeath-saving=" + LastDeathSaving).getBytes());
-            file.write(("\n# "+CUtl.lang("config.lastdeath_saving.info").toString()).getBytes());
-            file.write(("\nlastdeath-max=" + LastDeathMAX).getBytes());
-            file.write(("\n# "+CUtl.lang("config.lastdeath_max.info").toString()).getBytes());
-            file.write(("\nhud-editing=" + HUDEditing).getBytes());
-            file.write(("\n# "+CUtl.lang("config.hud_editing.info").toString()).getBytes());
-            file.write(("\n").getBytes()); //SOCIAL
-            file.write(("\nsocial-commands=" + social).getBytes());
-            file.write(("\n# "+CUtl.lang("config.social.info",CUtl.lang("config.social.info_2")).toString()).getBytes());
-            file.write(("\nsocial-cooldown=" + socialCooldown).getBytes());
-            file.write(("\n# "+CUtl.lang("config.social_cooldown.info").toString()).getBytes());
-            file.write(("\n").getBytes()); //LOOPS
-            file.write(("\nhud-loop=" + HUDLoop).getBytes());
-            file.write(("\n# "+CUtl.lang("config.hud_loop.info").toString()).getBytes());
-            file.write(("\nparticle-loop=" + ParticleLoop).getBytes());
-            file.write(("\n# "+CUtl.lang("config.particle_loop.info").toString()).getBytes());
-            file.write(("\n").getBytes()); //DIMS
-            file.write(("\ndimensions="+gson.toJson(dimensions)).getBytes());
-            file.write(("\n# "+CUtl.lang("config.dimensions.info").append("\n# ")
+            file.write("# DirectionHUD Config\n");
+            file.write("version="+defaults.version);
+            file.write("\n");
+            file.write("\nmax-xz=" + MAXxz);
+            file.write("\nmax-y=" + MAXy);
+            file.write("\n# "+CUtl.lang("config.max.info",CUtl.lang("config.max.info_2")).toString());
+            file.write("\nonline-mode=" + online);
+            file.write("\n# "+CUtl.lang("config.online_mode.info").toString());
+            file.write("\nglobal-destinations=" + globalDESTs);
+            file.write("\n# "+CUtl.lang("config.global_dest.info").toString());
+            file.write("\n# "+CUtl.lang("config.global_dest.info_3").toString());
+            file.write("\ndestination-saving=" + DestSaving);
+            file.write("\n# "+CUtl.lang("config.dest_saving.info").toString());
+            file.write("\ndestination-max=" + DestMAX);
+            file.write("\n# "+CUtl.lang("config.dest_max.info").toString());
+            file.write("\nlastdeath-saving=" + LastDeathSaving);
+            file.write("\n# "+CUtl.lang("config.lastdeath_saving.info").toString());
+            file.write("\nlastdeath-max=" + LastDeathMAX);
+            file.write("\n# "+CUtl.lang("config.lastdeath_max.info").toString());
+            file.write("\nhud-editing=" + HUDEditing);
+            file.write("\n# "+CUtl.lang("config.hud_editing.info").toString());
+            file.write("\n"); //SOCIAL
+            file.write("\nsocial-commands=" + social);
+            file.write("\n# "+CUtl.lang("config.social.info",CUtl.lang("config.social.info_2")).toString());
+            file.write("\nsocial-cooldown=" + socialCooldown);
+            file.write("\n# "+CUtl.lang("config.social_cooldown.info").toString());
+            file.write("\n"); //LOOPS
+            file.write("\nhud-loop=" + HUDLoop);
+            file.write("\n# "+CUtl.lang("config.hud_loop.info").toString());
+            file.write("\nparticle-loop=" + ParticleLoop);
+            file.write("\n# "+CUtl.lang("config.particle_loop.info").toString());
+            file.write("\n"); //DIMS
+            file.write("\ndimensions="+gson.toJson(dimensions));
+            file.write("\n# "+CUtl.lang("config.dimensions.info")
+                    .append("\n# ")
                     .append(CUtl.lang("config.dimensions.info_3",CUtl.lang("config.dimensions.info_3.1"),
                             CUtl.lang("config.dimensions.info_3.2"),CUtl.lang("config.dimensions.info_3.3"))).append("\n# ")
                     .append(CUtl.lang("config.dimensions.info_4")).append("\n# ")
                     .append(CUtl.lang("config.dimensions.info_5")).append("\n# ")
-                    .append(CUtl.lang("config.dimensions.info_6")).toString()).getBytes());
-            file.write(("\ndimension-ratios="+gson.toJson(dimensionRatios)).getBytes());
-            file.write(("\n# "+CUtl.lang("config.dimension_ratios.info").append("\n# ")
+                    .append(CUtl.lang("config.dimensions.info_6")).toString());
+            file.write("\ndimension-ratios="+gson.toJson(dimensionRatios));
+            file.write("\n# "+CUtl.lang("config.dimension_ratios.info").append("\n# ")
                     .append(CUtl.lang("config.dimension_ratios.info_2",CUtl.lang("config.dimension_ratios.info_2.1"),
-                            CUtl.lang("config.dimension_ratios.info_2.2"))).toString()).getBytes());
+                            CUtl.lang("config.dimension_ratios.info_2.2"))).toString());
 
-            file.write(("\n\n\n# "+CUtl.lang("config.default").toString()).getBytes());
-            file.write(("\n# "+CUtl.lang("config.default.info").toString()).getBytes());
-            file.write(("\ncolor-presets=" + gson.toJson(colorPresets)).getBytes());
-            file.write(("\n# "+CUtl.lang("config.color_presets.info").toString()).getBytes());
+            file.write("\n\n# "+CUtl.lang("dhud.preset.config").toString());
+            file.write("\nmax-color-presets=" + MAXColorPresets);
+            file.write("\ncolor-presets=" + gson.toJson(colorPresets));
+            file.write("\n# "+CUtl.lang("dhud.preset.config.info").toString());
+            file.write("\n# "+CUtl.lang("dhud.preset.config.info.2").toString());
+            file.write("\n# "+CUtl.lang("dhud.preset.config.info.3").toString());
 
-            file.write(("\n\n# "+CUtl.lang("config.hud").toString()).getBytes());
-            file.write(("\nhud.order=" + hud.Order).getBytes());
-            file.write(("\n# "+CUtl.lang("config.hud.order.options").toString()).getBytes());
-            file.write(("\n\n# "+CUtl.lang("config.hud.module").toString()).getBytes());
-            file.write(("\nhud.module.coordinates=" + hud.Coordinates).getBytes());
-            file.write(("\nhud.module.distance=" + hud.Distance).getBytes());
-            file.write(("\nhud.module.tracking=" + hud.Tracking).getBytes());
-            file.write(("\nhud.module.destination=" + hud.Destination).getBytes());
-            file.write(("\nhud.module.direction=" + hud.Direction).getBytes());
-            file.write(("\nhud.module.time=" + hud.Time).getBytes());
-            file.write(("\nhud.module.weather=" + hud.Weather).getBytes());
-            file.write(("\n\n# "+CUtl.lang("config.settings").toString()).getBytes());
-            file.write(("\nhud.settings.state=" + hud.State).getBytes());
-            file.write(("\nhud.settings.type=" + hud.DisplayType).getBytes());
-            file.write(("\n# "+CUtl.lang("config.hud.settings.type.options").toString()).getBytes());
-            file.write(("\nhud.settings.bossbar.color=" + hud.BarColor).getBytes());
-            file.write(("\n# "+CUtl.lang("config.hud.settings.bossbar.color.options").toString()).getBytes());
-            file.write(("\nhud.settings.bossbar.distance=" + hud.BarShowDistance).getBytes());
-            file.write(("\nhud.settings.bossbar.distance_max=" + hud.ShowDistanceMAX).getBytes());
-            file.write(("\nhud.settings.module.time_24hr=" + hud.Time24HR).getBytes());
-            file.write(("\nhud.settings.module.tracking_target=" + hud.TrackingTarget).getBytes());
-            file.write(("\n# "+CUtl.lang("config.hud.settings.module.tracking_target.options").toString()).getBytes());
-            file.write(("\n\n# "+CUtl.lang("config.hud.color").toString()).getBytes());
-            file.write(("\n# "+CUtl.lang("config.color.options").toString()).getBytes());
-            file.write(("\nhud.color.primary=" + hud.primary.Color).getBytes());
-            file.write(("\nhud.color.primary-bold=" + hud.primary.Bold).getBytes());
-            file.write(("\nhud.color.primary-italics=" + hud.primary.Italics).getBytes());
-            file.write(("\nhud.color.primary-rainbow=" + hud.primary.Rainbow).getBytes());
-            file.write(("\nhud.color.secondary=" + hud.secondary.Color).getBytes());
-            file.write(("\nhud.color.secondary-bold=" + hud.secondary.Bold).getBytes());
-            file.write(("\nhud.color.secondary-italics=" + hud.secondary.Italics).getBytes());
-            file.write(("\nhud.color.secondary-rainbow=" + hud.secondary.Rainbow).getBytes());
+            // ---- DEFAULTS ----
+            file.write("\n\n\n# "+CUtl.lang("config.default").toString());
+            file.write("\n# "+CUtl.lang("config.default.info").toString());
 
-            file.write(("\n\n\n# "+CUtl.lang("config.dest").toString()).getBytes());
-            file.write(("\n# "+CUtl.lang("config.settings").toString()).getBytes());
-            file.write(("\ndest.settings.autoclear=" + dest.AutoClear).getBytes());
-            file.write(("\ndest.settings.autoclear_rad=" + dest.AutoClearRad).getBytes());
-            file.write(("\ndest.settings.autoconvert=" + dest.AutoConvert).getBytes());
-            file.write(("\ndest.settings.ylevel=" + dest.YLevel).getBytes());
-            file.write(("\n\n# "+CUtl.lang("config.hud.color").toString()).getBytes());
-            file.write(("\n# "+CUtl.lang("config.color.options").toString()).getBytes());
-            file.write(("\ndest.settings.particles.dest=" + dest.particles.Dest).getBytes());
-            file.write(("\ndest.settings.particles.dest_color=" + dest.particles.DestColor).getBytes());
-            file.write(("\ndest.settings.particles.line=" + dest.particles.Line).getBytes());
-            file.write(("\ndest.settings.particles.line_color=" + dest.particles.LineColor).getBytes());
-            file.write(("\ndest.settings.particles.tracking=" + dest.particles.Tracking).getBytes());
-            file.write(("\ndest.settings.particles.tracking_color=" + dest.particles.TrackingColor).getBytes());
-            file.write(("\n\n# "+CUtl.lang("config.dest.settings.features").toString()).getBytes());
-            file.write(("\ndest.settings.features.send=" + dest.Send).getBytes());
-            file.write(("\ndest.settings.features.track=" + dest.Track).getBytes());
-            file.write(("\ndest.settings.features.track_request_mode=" + dest.TrackingRequestMode).getBytes());
-            file.write(("\n# "+CUtl.lang("config.dest.settings.features.track_request_mode.options").toString()).getBytes());
-            file.write(("\ndest.settings.features.lastdeath=" + dest.Lastdeath).getBytes());
+            file.write("\n\n# "+CUtl.lang("config.hud").toString());
+            file.write("\nhud.order=" + hud.Order);
+            file.write("\n# "+CUtl.config("options",Assets.configOptions.moduleOrder()));
+
+            file.write("\n\n# "+CUtl.lang("config.hud.module").toString());
+            file.write("\nhud.module.coordinates=" + hud.Coordinates);
+            file.write("\nhud.module.distance=" + hud.Distance);
+            file.write("\nhud.module.tracking=" + hud.Tracking);
+            file.write("\nhud.module.destination=" + hud.Destination);
+            file.write("\nhud.module.direction=" + hud.Direction);
+            file.write("\nhud.module.time=" + hud.Time);
+            file.write("\nhud.module.weather=" + hud.Weather);
+            file.write("\nhud.module.speed=" + hud.Speed);
+            file.write("\nhud.module.angle=" + hud.Angle);
+
+            file.write("\n\n# "+CUtl.lang("config.settings").toString());
+            file.write("\nhud.settings.state=" + hud.State);
+
+            file.write("\n\nhud.settings.type=" + hud.DisplayType);
+            file.write("\n# "+CUtl.config("options",Assets.configOptions.DisplayType()));
+
+            file.write("\n\nhud.settings.bossbar.color=" + hud.BarColor);
+            file.write("\n# "+CUtl.config("options",Assets.configOptions.BossBarColor()));
+            file.write("\nhud.settings.bossbar.distance=" + hud.BarShowDistance);
+            file.write("\nhud.settings.bossbar.distance_max=" + hud.ShowDistanceMAX);
+
+            file.write("\n\nhud.settings.module.time_24hr=" + hud.Time24HR);
+
+            file.write("\n\nhud.settings.module.tracking_hybrid=" + hud.TrackingHybrid);
+            file.write("\n# "+HUD.settings.lang("module.tracking_hybrid.info").toString());
+            file.write("\nhud.settings.module.tracking_target=" + hud.TrackingTarget);
+            file.write("\n# "+CUtl.config("options",Assets.configOptions.TrackingTarget()));
+            file.write("\n# "+HUD.settings.lang("module.tracking_target.info").toString());
+            file.write("\nhud.settings.module.tracking_type=" + hud.TrackingType);
+            file.write("\n# "+CUtl.config("options",Assets.configOptions.TrackingType()));
+            file.write("\n# "+HUD.settings.lang("module.tracking_type.simple.info").toString());
+            file.write("\n# "+HUD.settings.lang("module.tracking_type.compact.info").toString());
+
+            file.write("\n\nhud.settings.module.speed_3d=" + hud.Speed3D);
+            file.write("\nhud.settings.module.speed_pattern=" + hud.SpeedPattern);
+            file.write("\n# "+HUD.settings.lang("module.speed_pattern.info").toString());
+            file.write("\n# "+HUD.settings.lang("module.speed_pattern.info.2").toString());
+
+            file.write("\n\nhud.settings.module.angle_display=" + hud.AngleDisplay);
+            file.write("\n# "+CUtl.config("options",Assets.configOptions.AngleDisplay()));
+
+
+            file.write("\n\n# "+HUD.color.lang("ui").toString());
+            file.write("\nhud.color.primary=" + hud.primary.Color);
+            file.write("\nhud.color.primary-bold=" + hud.primary.Bold);
+            file.write("\nhud.color.primary-italics=" + hud.primary.Italics);
+            file.write("\nhud.color.primary-rainbow=" + hud.primary.Rainbow);
+            file.write("\nhud.color.secondary=" + hud.secondary.Color);
+            file.write("\nhud.color.secondary-bold=" + hud.secondary.Bold);
+            file.write("\nhud.color.secondary-italics=" + hud.secondary.Italics);
+            file.write("\nhud.color.secondary-rainbow=" + hud.secondary.Rainbow);
+
+
+
+            file.write("\n\n\n# "+CUtl.lang("config.dest").toString());
+            file.write("\n# "+CUtl.lang("config.settings").toString());
+            file.write("\ndest.settings.autoclear=" + dest.AutoClear);
+            file.write("\ndest.settings.autoclear_rad=" + dest.AutoClearRad);
+            file.write("\ndest.settings.autoconvert=" + dest.AutoConvert);
+            file.write("\ndest.settings.ylevel=" + dest.YLevel);
+            file.write("\n\n# "+CUtl.lang("config.color.options").toString());
+            file.write("\ndest.settings.particles.dest=" + dest.particles.Dest);
+            file.write("\ndest.settings.particles.dest_color=" + dest.particles.DestColor);
+            file.write("\ndest.settings.particles.line=" + dest.particles.Line);
+            file.write("\ndest.settings.particles.line_color=" + dest.particles.LineColor);
+            file.write("\ndest.settings.particles.tracking=" + dest.particles.Tracking);
+            file.write("\ndest.settings.particles.tracking_color=" + dest.particles.TrackingColor);
+            file.write("\n\n# "+CUtl.lang("config.dest.settings.features").toString());
+            file.write("\ndest.settings.features.send=" + dest.Send);
+            file.write("\ndest.settings.features.track=" + dest.Track);
+            file.write("\ndest.settings.features.track_request_mode=" + dest.TrackingRequestMode);
+            file.write("\n# "+CUtl.lang("config.dest.settings.features.track_request_mode.options").toString());
+            file.write("\ndest.settings.features.lastdeath=" + dest.Lastdeath);
         } catch (Exception e) {
-            e.printStackTrace();
+            DirectionHUD.LOGGER.info("ERROR WRITING CONFIG - PLEASE REPORT WITH THE ERROR LOG");
+            DirectionHUD.LOGGER.info(e.getMessage());
         }
     }
 }

@@ -68,7 +68,8 @@ public class Player {
                     DirectionHUD.commandManager.getDispatcher().parse(cmd, player.getCommandSource());
             DirectionHUD.commandManager.getDispatcher().execute(parse);
         } catch (CommandSyntaxException e) {
-            e.printStackTrace();
+            DirectionHUD.LOGGER.info("ERROR EXECUTING COMMAND - PLEASE REPORT WITH THE ERROR LOG");
+            DirectionHUD.LOGGER.info(e.getMessage());
         }
     }
     public void sendMessage(CTxT message) {
@@ -80,13 +81,13 @@ public class Player {
     // Call after toggling the hud.
     public void updateHUD() {
         // if toggled off
-        if (!(boolean)PlayerData.get.hud.setting.get(this, HUD.Setting.state)) {
+        if (!(boolean) PlayerData.get.hud.setting(this, HUD.Setting.state)) {
             //if actionbar send empty to clear else remove bossbar
-            if (PlayerData.get.hud.setting.get(this,HUD.Setting.type).equals(HUD.Setting.DisplayType.actionbar.toString()))
+            if (PlayerData.get.hud.setting(this,HUD.Setting.type).equals(HUD.Setting.DisplayType.actionbar.toString()))
                 this.sendActionBar(CTxT.of(""));
             else DirectionHUD.bossBarManager.removePlayer(this);
         }
-        if (PlayerData.get.hud.setting.get(this, HUD.Setting.type).equals(HUD.Setting.DisplayType.actionbar.toString()))
+        if (PlayerData.get.hud.setting(this, HUD.Setting.type).equals(HUD.Setting.DisplayType.actionbar.toString()))
             DirectionHUD.bossBarManager.removePlayer(this);
         else this.sendActionBar(CTxT.of(""));
     }
@@ -105,26 +106,24 @@ public class Player {
         packet.sendToPlayer(Assets.packets.HUD,player);
     }
     public void displayHUD(CTxT message) {
-        if (message.toString().equals("")) {
-            //if the HUD is enabled but there is no output
-            if (PlayerData.getOneTime(this,"hud.enabled_but_off") == null) {
-                PlayerData.setOneTime(this,"hud.enabled_but_off","true");
-                if ((HUD.Setting.DisplayType.get((String) PlayerData.get.hud.setting.get(this, HUD.Setting.type)).equals(HUD.Setting.DisplayType.actionbar))) {
+        if (message.toString().isEmpty()) {
+            //if the HUD is enabled but there is no output, flip the tag
+            if (PlayerData.MsgData.get(this,"hud.enabled_but_off").isBlank()) {
+                PlayerData.MsgData.set(this,"hud.enabled_but_off","true");
+                // if actionbar, clear once, if bossbar remove player
+                if ((HUD.Setting.DisplayType.get((String) PlayerData.get.hud.setting(this, HUD.Setting.type)).equals(HUD.Setting.DisplayType.actionbar))) {
                     player.sendMessage(CTxT.of("").b(),true);
-                } else {
-                    DirectionHUD.bossBarManager.removePlayer(this);
-                }
+                } else DirectionHUD.bossBarManager.removePlayer(this);
             }
             return;
-        } else if (PlayerData.getOneTime(this,"hud.enabled_but_off") != null) {
-            // if hud was in previous state and now isn't, remove the temp tag
-            PlayerData.setOneTime(this,"hud.enabled_but_off",null);
+        } else if (!PlayerData.MsgData.get(this,"hud.enabled_but_off").isBlank()) {
+            // hud isn't blank but the blank tag was still enabled
+            PlayerData.MsgData.clear(this,"hud.enabled_but_off");
         }
-        if ((HUD.Setting.DisplayType.get((String) PlayerData.get.hud.setting.get(this, HUD.Setting.type)).equals(HUD.Setting.DisplayType.actionbar))) {
+        // if actionbar send actionbar, if bossbar update the bar
+        if ((HUD.Setting.DisplayType.get((String) PlayerData.get.hud.setting(this, HUD.Setting.type)).equals(HUD.Setting.DisplayType.actionbar)))
             player.sendMessage(message.b(),true);
-        } else {
-            DirectionHUD.bossBarManager.display(this,message);
-        }
+        else DirectionHUD.bossBarManager.display(this,message);
     }
     public String getName() {
         return player.getName().getString();
@@ -136,13 +135,16 @@ public class Player {
         return player.getUuidAsString();
     }
     public String getDimension() {
-        return Utl.dim.format(player.getWorld().getRegistryKey().getValue());
+        return Utl.dim.format(player.getWorld().getRegistryKey());
     }
     public String getSpawnDimension() {
-        return Utl.dim.format(player.getSpawnPointDimension().getValue());
+        return Utl.dim.format(player.getSpawnPointDimension());
     }
     public float getYaw() {
         return player.getYaw();
+    }
+    public float getPitch() {
+        return player.getPitch();
     }
     public ArrayList<Double> getVec() {
         ArrayList<Double> vec = new ArrayList<>();

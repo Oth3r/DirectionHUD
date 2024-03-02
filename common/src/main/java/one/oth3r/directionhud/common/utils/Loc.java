@@ -4,6 +4,7 @@ import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
+import one.oth3r.directionhud.common.utils.Helper.Dim;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,7 +19,7 @@ public class Loc {
         this.x = xzBounds(x);
         this.y = yBounds(y);
         this.z = xzBounds(z);
-        if (Utl.dim.checkValid(dimension)) this.dimension = dimension;
+        if (Dim.checkValid(dimension)) this.dimension = dimension;
     }
     public Loc(Integer x, Integer y, Integer z) {
         this.x = xzBounds(x);
@@ -28,7 +29,7 @@ public class Loc {
     public Loc(Integer x, Integer z, String dimension) {
         this.x = xzBounds(x);
         this.z = xzBounds(z);
-        if (Utl.dim.checkValid(dimension)) this.dimension = dimension;
+        if (Dim.checkValid(dimension)) this.dimension = dimension;
     }
     public Loc(Integer x, Integer z) {
         this.x = xzBounds(x);
@@ -39,7 +40,7 @@ public class Loc {
     }
     public Loc(String xyz, String dimension) {
         parseXYZ(xyz);
-        if (Utl.dim.checkValid(dimension)) this.dimension = dimension;
+        if (Dim.checkValid(dimension)) this.dimension = dimension;
     }
     private static Integer yBounds(Integer s) {
         if (s == null) return null;
@@ -56,9 +57,9 @@ public class Loc {
         if (xyz.charAt(0)=='[' && xyz.charAt(xyz.length()-1)==']') {
             String[] list = xyz.substring(1, xyz.length() - 1).split(", ");
             if (list.length >= 3)  {
-                this.x = Helper.forceInt(list[0]);
-                if (list[1] != null && !list[1].equals("null")) this.y = Helper.forceInt(list[1]);
-                this.z = Helper.forceInt(list[2]);
+                this.x = Helper.Num.toInt(list[0]);
+                if (list[1] != null && !list[1].equals("null")) this.y = Helper.Num.toInt(list[1]);
+                this.z = Helper.Num.toInt(list[2]);
             }
             if (list.length == 4) this.dimension = list[3];
             return;
@@ -70,16 +71,16 @@ public class Loc {
             this.z = 0;
             return;
         }
-        if (!Utl.isInt(sp.get(0))) sp.set(0, "0");
-        if (!Utl.isInt(sp.get(1))) sp.set(1, "0");
-        if (sp.size() == 3 && !Helper.isNum(sp.get(2))) sp.set(2,"0");
-        this.x = xzBounds(Helper.forceInt(sp.get(0)));
+        if (!Helper.Num.isInt(sp.get(0))) sp.set(0, "0");
+        if (!Helper.Num.isInt(sp.get(1))) sp.set(1, "0");
+        if (sp.size() == 3 && !Helper.Num.isNum(sp.get(2))) sp.set(2,"0");
+        this.x = xzBounds(Helper.Num.toInt(sp.get(0)));
         if (sp.size() == 2) {
-            this.z = xzBounds(Helper.forceInt(sp.get(1)));
+            this.z = xzBounds(Helper.Num.toInt(sp.get(1)));
             return;
         }
-        this.y = yBounds(Helper.forceInt(sp.get(1)));
-        this.z = xzBounds(Helper.forceInt(sp.get(2)));
+        this.y = yBounds(Helper.Num.toInt(sp.get(1)));
+        this.z = xzBounds(Helper.Num.toInt(sp.get(2)));
     }
     public Loc(Player player) {
         this.x = xzBounds(player.getBlockX());
@@ -91,20 +92,13 @@ public class Loc {
         this.x = xzBounds(player.getBlockX());
         this.y = yBounds(player.getBlockY());
         this.z = xzBounds(player.getBlockZ());
-        if (Utl.dim.checkValid(dimension)) this.dimension = dimension;
+        if (Dim.checkValid(dimension)) this.dimension = dimension;
     }
     public void convertTo(String toDimension) {
         String fromDimension = this.getDIM();
         if (fromDimension.equalsIgnoreCase(toDimension)) return;
-        if (!Utl.dim.checkValid(toDimension)) return;
-        Utl.Pair<String, String> dimensionPair = new Utl.Pair<>(fromDimension, toDimension);
-        Double ratio;
-        if (Utl.dim.conversionRatios.containsKey(dimensionPair)) ratio = Utl.dim.conversionRatios.get(dimensionPair);
-        else {
-            dimensionPair = new Utl.Pair<>(toDimension,fromDimension);
-            if (Utl.dim.conversionRatios.containsKey(dimensionPair)) ratio = 1/ Utl.dim.conversionRatios.get(dimensionPair);
-            else return;
-        }
+        if (!Dim.checkValid(toDimension)) return;
+        Double ratio = Dim.getRatio(fromDimension, toDimension);
         this.setDIM(toDimension);
         this.setX((int) (this.getX()*ratio));
         this.setZ((int) (this.getZ()*ratio));
@@ -135,12 +129,12 @@ public class Loc {
     }
     public CTxT getBadge() {
         CTxT msg = CTxT.of("");
-        if (this.dimension != null) msg.append(Utl.dim.getLetterButton(getDIM())).append(" ");
+        if (this.dimension != null) msg.append(Dim.getBadge(getDIM())).append(" ");
         return msg.append(CTxT.of(getXYZ()).color('f'));
     }
     public CTxT getBadge(String name,String color) {
         CTxT msg = CTxT.of("");
-        if (this.dimension != null) msg.append(Utl.dim.getLetterButton(getDIM())).append(" ");
+        if (this.dimension != null) msg.append(Dim.getBadge(getDIM())).append(" ");
         return msg.append(CTxT.of(name).color(color).hEvent(CTxT.of(getXYZ())));
     }
 
@@ -169,7 +163,7 @@ public class Loc {
         return dimension;
     }
     public void setDIM(String setDIM) {
-        if (Utl.dim.checkValid(setDIM)) this.dimension = setDIM;
+        if (Dim.checkValid(setDIM)) this.dimension = setDIM;
     }
     public String toString() {
         return this.x+" "+this.y+" "+this.z+" "+this.dimension;
