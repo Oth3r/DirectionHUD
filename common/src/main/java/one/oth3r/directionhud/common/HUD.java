@@ -169,7 +169,7 @@ public class HUD {
     public static int hour;
     public static String weatherIcon = "?";
     public static CTxT lang(String key, Object... args) {
-        return CUtl.lang("hud."+key, args);
+        return CUtl.getLangEntry("hud."+key, args);
     }
     public static void CMDExecutor(Player player, String[] args) {
         if (!Utl.checkEnabled.hud(player)) return;

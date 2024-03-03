@@ -18,7 +18,7 @@ import java.util.*;
 
 public class DHUD {
     private static CTxT lang(String key, Object... args) {
-        return CUtl.lang("dhud."+key, args);
+        return CUtl.getLangEntry("dhud."+key, args);
     }
     public static class commandExecutor {
         public static void logic(Player player, String[] args) {
