@@ -43,6 +43,21 @@ public class Helper {
             }
             return next;
         }
+        /**
+         * gets an enum from a string without returning null
+         * @param enumString the string of the enum
+         * @param enumType the class of enums
+         * @return an enum, if there isn't a match, it returns the first enum
+         */
+        public static <T extends Enum<T>> T get(String enumString, Class<T> enumType) {
+            T[] values = enumType.getEnumConstants();
+            for (T all : values) {
+                // check if there is a match for any of the enum names
+                if (enumString.equals(all.name())) return all;
+            }
+            // if there's no match return the first entry
+            return values[0];
+        }
     }
     public static class Num {
         public static boolean isInt(String string) {
