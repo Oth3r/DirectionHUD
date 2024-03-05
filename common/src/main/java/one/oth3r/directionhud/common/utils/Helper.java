@@ -321,7 +321,7 @@ public class Helper {
             // build and return
             return CTxT.of("")
                     .append(left).append(" ")
-                    .append(CTxT.of(String.valueOf(page)).btn(true).color(CUtl.p()).cEvent(2,command).hEvent(CUtl.lang("hover.page_set").color(CUtl.p())))
+                    .append(CTxT.of(String.valueOf(page)).btn(true).color(CUtl.p()).cEvent(2,command).hEvent(CUtl.hover("page_set").color(CUtl.p())))
                     .append(" ").append(right);
         }
     }

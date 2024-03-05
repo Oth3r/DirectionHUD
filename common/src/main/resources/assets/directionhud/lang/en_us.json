@@ -1,10 +1,13 @@
 {
   "category.directionhud.all": "DirectionHUD",
   "key.directionhud.keybind.toggle": "Toggle HUD",
+
+  "msg.usage": "USAGE:",
+  "msg.error": "ERROR:",
+
   "key.directionhud.on": "on",
   "key.directionhud.off": "off",
-  "key.directionhud.usage": "USAGE:",
-  "key.directionhud.error": "ERROR:",
+
   "key.directionhud.error.command": "Command not recognized!",
   "key.directionhud.error.args": "Invalid command arguments!",
   "key.directionhud.error.coordinates": "Invalid coordinates!",
@@ -35,10 +38,6 @@
   "key.directionhud.error.dest.track.none": "You don't have a tracking request from %s!",
   "key.directionhud.error.dest.track.cleared": "You aren't tracking anyone!",
   "key.directionhud.error.dest.social.cooldown": "Please wait before sending another social command!",
-  "key.directionhud.error.dhud.preset": "Invalid preset!",
-  "key.directionhud.error.dhud.preset.duplicate": "There is already a preset with the same name!",
-  "key.directionhud.error.dhud.preset.max": "You've reached the max number of saved destinations!",
-  "key.directionhud.error.dhud.preset.name": "There isn't a preset with the name %s!",
 
   "key.directionhud.button.off": "OFF",
   "key.directionhud.button.on": "ON",
@@ -79,55 +78,61 @@
   "key.directionhud.button.dest.track": "TRACK",
   "key.directionhud.button.dest.track.hover": "Click to track a player's location.",
   "key.directionhud.button.dest.track_clear.hover": "Click to clear the currently tracked player.",
-  "key.directionhud.button.dhud.inbox": "INBOX",
-  "key.directionhud.button.dhud.inbox.hover": "Click to see the inbox.",
-  "key.directionhud.button.dhud.reload": "RELOAD",
-  "key.directionhud.button.dhud.reload.hover": "Click to reload the config file.",
-  "key.directionhud.button.accept": "ACCEPT",
-  "key.directionhud.button.accept.hover": "Click to accept.",
-  "key.directionhud.button.deny": "DENY",
-  "key.directionhud.button.deny.hover": "Click to deny.",
-  "key.directionhud.button.cancel": "CANCEL",
-  "key.directionhud.button.cancel.hover": "Click to cancel.",
+
   "key.directionhud.button.autoclear_rad.hover": "Click to enter a new AutoClear radius.",
   "key.directionhud.button.autoclear_rad.hover_2": "(Min = 1 | Max = 15)",
-  "key.directionhud.button.reset": "RESET",
-
-  "key.directionhud.button.settings": "SETTINGS",
-  "key.directionhud.hover.settings": "Click to edit %s settings.",
-  "key.directionhud.hover.page_set": "Click to set the page #.",
-  "key.directionhud.hover.order": "Click to edit the order.",
-  "key.directionhud.hover.reset": "Click to reset %s %s.",
 
 
-  "dhud.reload": "%s player and config files!",
-  "dhud.reload_2": "Reloaded",
+  "button.settings": "SETTINGS",
+  "hover.settings": "Click to edit %s settings.",
+  "button.accept": "ACCEPT",
+  "hover.accept": "Click to accept.",
+  "button.deny": "DENY",
+  "hover.deny": "Click to deny.",
+  "button.cancel": "CANCEL",
+  "hover.cancel": "Click to cancel.",
+  "button.reset": "RESET",
+  "hover.reset": "Click to reset %s %s.",
 
 
+  "hover.page_set": "Click to set the page #.",
+  "hover.order": "Click to edit the order.",
+
+
+
+  "dhud.button.reload": "RELOAD",
+  "dhud.hover.reload": "Click to reload the config file.",
+  "dhud.msg.reload": "Reloaded player and config files!",
+
+
+  "dhud.inbox.hover.clear": "Click to clear entry.",
   "dhud.inbox.ui": "Inbox",
-  "dhud.inbox.empty": "Its quiet in here...",
-  "dhud.inbox.from": "From %s",
-  "dhud.inbox.to": "To %s",
-  "dhud.inbox.track_request": "Track Request:",
-  "dhud.inbox.track_pending": "Pending Track Req:",
-  "dhud.inbox.destination": "Destination:",
-  "dhud.inbox.time": "%ss",
-  "dhud.inbox.clear.hover": "Click to clear entry.",
-  "dhud.inbox.cleared": "Cleared destination from %s!",
+  "dhud.inbox.ui.empty": "Inbox is currently empty!",
+  "dhud.inbox.ui.from": "From %s",
+  "dhud.inbox.ui.to": "To %s",
+  "dhud.inbox.ui.track_request": "Track Request: %s",
+  "dhud.inbox.ui.track_pending": "Pending Track Req: %s",
+  "dhud.inbox.ui.destination": "Destination: %s",
+  "dhud.inbox.ui.time": "%ss",
+  "dhud.inbox.button": "INBOX",
+  "dhud.inbox.hover": "Click to see your inbox.",
+  "dhud.inbox.msg.cleared": "Cleared destination from %s!",
 
 
   "dhud.preset.ui": "Presets",
   "dhud.preset.ui.custom": "Custom Presets",
   "dhud.preset.ui.color": "Preset Color",
   "dhud.preset.config": "Color Presets",
-  "dhud.preset.config.info": "Default presets that show up for each player.",
+  "dhud.preset.config.info": "Default color presets that show up for each player.",
   "dhud.preset.config.info.2": "(optional, can be deleted by the player after their data file creation)",
-  "dhud.preset.config.info.3": "Entry example: \"PresetName|#ffaacc\"",
+  "dhud.preset.error.invalid": "Invalid preset!",
+  "dhud.preset.error.duplicate": "There is already a preset with a matching name!",
+  "dhud.preset.error.max": "You've reached the max number of saved presets!",
   "dhud.preset.button.default": "DEFAULT",
   "dhud.preset.button.minecraft": "MINECRAFT",
   "dhud.preset.button.custom": "CUSTOM",
-  "dhud.preset.button.preset": "PRESETS",
-  "dhud.preset.hover.preset": "Click to view and edit your custom preset colors.",
+  "dhud.preset.button": "PRESETS",
+  "dhud.preset.hover": "Click to view and edit your custom preset colors.",
   "dhud.preset.hover.preset.editor": "Click set the color to a custom %s color.",
   "dhud.preset.hover.preset.editor_2": "PRESET",
   "dhud.preset.hover.preset.plus": "Click to save the %s to a custom preset.",
@@ -214,7 +219,7 @@
   "hud.color.bold": "bold",
   "hud.color.italics": "italics",
   "hud.color.rainbow": "rainbow",
-  "hud.color.msg.reset": "%s %s styles!",
+  "hud.color.msg.reset": "Reset %s styles!",
   "hud.color.msg.set": "Set %s HUD color to %s!",
   "hud.color.msg.toggle": "Turned %s %s %s!",
 
@@ -424,7 +429,8 @@
 
 
 
-  "config.directionhud.options": "Options: %s",
+  "config.description.options": "Options: %s",
+  "config.description.example": "Example: %s",
 
   "key.directionhud.config.color.options": "Valid Colors: any HEX color (#ffccff)",
   "key.directionhud.config.settings": "Settings",

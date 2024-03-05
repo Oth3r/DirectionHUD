@@ -19,7 +19,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -285,7 +284,7 @@ public class config {
             dest.Lastdeath = Boolean.parseBoolean((String) properties.computeIfAbsent("dest.settings.features.lastdeath", a -> String.valueOf(dest.defaults.Lastdeath)));
             // CONFIG UPDATER, if the version is lower than the current, load from the old config
             if (version <= 1.4f) {
-                colorPresets = DHUD.preset.custom.update(
+                colorPresets = DHUD.preset.custom.updateTo1_7(
                         new Gson().fromJson((String)properties.computeIfAbsent("color-presets",a->gson.toJson(new ArrayList<>())),arrayListMap));
             }
             // everything before & 1.3
@@ -399,7 +398,7 @@ public class config {
             file.write("\ncolor-presets=" + gson.toJson(colorPresets));
             file.write("\n# "+CUtl.lang("dhud.preset.config.info").toString());
             file.write("\n# "+CUtl.lang("dhud.preset.config.info.2").toString());
-            file.write("\n# "+CUtl.lang("dhud.preset.config.info.3").toString());
+            file.write("\n# "+CUtl.config("description.example",Assets.configOptions.colorPreset()).toString());
 
             // ---- DEFAULTS ----
             file.write("\n\n\n# "+CUtl.lang("config.default").toString());
@@ -407,7 +406,7 @@ public class config {
 
             file.write("\n\n# "+CUtl.lang("config.hud").toString());
             file.write("\nhud.order=" + hud.Order);
-            file.write("\n# "+CUtl.config("options",Assets.configOptions.moduleOrder()));
+            file.write("\n# "+CUtl.config("description.options",Assets.configOptions.moduleOrder()));
 
             file.write("\n\n# "+CUtl.lang("config.hud.module").toString());
             file.write("\nhud.module.coordinates=" + hud.Coordinates);
@@ -424,10 +423,10 @@ public class config {
             file.write("\nhud.settings.state=" + hud.State);
 
             file.write("\n\nhud.settings.type=" + hud.DisplayType);
-            file.write("\n# "+CUtl.config("options",Assets.configOptions.DisplayType()));
+            file.write("\n# "+CUtl.config("description.options",Assets.configOptions.DisplayType()));
 
             file.write("\n\nhud.settings.bossbar.color=" + hud.BarColor);
-            file.write("\n# "+CUtl.config("options",Assets.configOptions.BossBarColor()));
+            file.write("\n# "+CUtl.config("description.options",Assets.configOptions.BossBarColor()));
             file.write("\nhud.settings.bossbar.distance=" + hud.BarShowDistance);
             file.write("\nhud.settings.bossbar.distance_max=" + hud.ShowDistanceMAX);
 
@@ -436,10 +435,10 @@ public class config {
             file.write("\n\nhud.settings.module.tracking_hybrid=" + hud.TrackingHybrid);
             file.write("\n# "+HUD.settings.lang("module.tracking_hybrid.info").toString());
             file.write("\nhud.settings.module.tracking_target=" + hud.TrackingTarget);
-            file.write("\n# "+CUtl.config("options",Assets.configOptions.TrackingTarget()));
+            file.write("\n# "+CUtl.config("description.options",Assets.configOptions.TrackingTarget()));
             file.write("\n# "+HUD.settings.lang("module.tracking_target.info").toString());
             file.write("\nhud.settings.module.tracking_type=" + hud.TrackingType);
-            file.write("\n# "+CUtl.config("options",Assets.configOptions.TrackingType()));
+            file.write("\n# "+CUtl.config("description.options",Assets.configOptions.TrackingType()));
             file.write("\n# "+HUD.settings.lang("module.tracking_type.simple.info").toString());
             file.write("\n# "+HUD.settings.lang("module.tracking_type.compact.info").toString());
 
@@ -449,7 +448,7 @@ public class config {
             file.write("\n# "+HUD.settings.lang("module.speed_pattern.info.2").toString());
 
             file.write("\n\nhud.settings.module.angle_display=" + hud.AngleDisplay);
-            file.write("\n# "+CUtl.config("options",Assets.configOptions.AngleDisplay()));
+            file.write("\n# "+CUtl.config("description.options",Assets.configOptions.AngleDisplay()));
 
 
             file.write("\n\n# "+HUD.color.lang("ui").toString());
