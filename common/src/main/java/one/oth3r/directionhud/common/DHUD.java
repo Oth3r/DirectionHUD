@@ -322,7 +322,7 @@ public class DHUD {
                 case destination ->
                         msg.append(lang("ui.destination",time).color(CUtl.p())).append(" ")
                             // x button
-                            .append(" ").append(CTxT.of(Assets.symbols.x).btn(true).color('c')
+                            .append(CTxT.of(Assets.symbols.x).btn(true).color('c')
                                     .hEvent(lang("hover.clear").color('c'))
                                     .cEvent(1,"/dhud inbox clear "+entry.get("id")))
                             // to / from
