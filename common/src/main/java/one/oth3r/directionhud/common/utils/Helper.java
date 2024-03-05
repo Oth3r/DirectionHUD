@@ -409,10 +409,10 @@ public class Helper {
          * @return the ratio as a double
          */
         public static double getRatio(String dimensionFrom, String dimensionTo) {
-            Pair<String, String> dimensionPair = new Helper.Pair<>(dimensionFrom, dimensionTo);
+            Pair<String, String> dimensionPair = new Helper.Pair<>(dimensionFrom, dimensionTo), flippedPair = dimensionPair.getFlipped();
             if (conversionRatios.containsKey(dimensionPair)) return conversionRatios.get(dimensionPair);
             // flip the ratio if there's a flipped ratio
-            else if (conversionRatios.containsKey(dimensionPair.getFlipped())) return 1 / conversionRatios.get(dimensionPair);
+            else if (conversionRatios.containsKey(flippedPair)) return 1 / conversionRatios.get(flippedPair);
             // no ratio if no match
             else return 1.0;
         }
