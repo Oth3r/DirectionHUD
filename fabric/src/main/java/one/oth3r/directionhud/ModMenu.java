@@ -152,7 +152,7 @@ public class ModMenu implements ModMenuApi {
                                 .name(Text.of("color-presets"))
                                 .description(desc(CUtl.lang("dhud.preset.config.info").append("\n")
                                         .append(CUtl.lang("dhud.preset.config.info.2").color('7')).append("\n\n")
-                                        .append(CUtl.lang("dhud.preset.config.info.3").color(CUtl.s()))))
+                                        .append(CUtl.config("description.example",Assets.configOptions.colorPreset()).color(CUtl.s()))))
                                 .binding(config.defaults.colorPresets, () -> config.colorPresets, n -> config.colorPresets = n)
                                 .controller(StringControllerBuilder::create)
                                 .initial("")
@@ -168,7 +168,7 @@ public class ModMenu implements ModMenuApi {
                         .group(ListOption.<String>createBuilder()
                                 .name(HUD.modules.lang("ui.order").b())
                                 .description(desc(HUD.modules.lang("info.order").append("\n")
-                                        .append(CUtl.config("options",Assets.configOptions.moduleOrder()).color(CUtl.s()))))
+                                        .append(CUtl.config("description.options",Assets.configOptions.moduleOrder()).color(CUtl.s()))))
                                 .binding(Enums.toStringList(config.hud.defaults.Order), () -> Enums.toStringList(config.hud.Order), n -> config.hud.Order = Enums.toEnumList(new ArrayList<>(n),HUD.Module.class))
                                 .controller(StringControllerBuilder::create)
                                 // CHANGE THIS WHEN MORE MODULES ARE OUT

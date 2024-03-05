@@ -305,7 +305,7 @@ public class PlayerData {
             hud.put("module",hudModule);
             base.put("hud",hud);
             // new preset system
-            base.put("color_presets", DHUD.preset.custom.update((ArrayList<String>) base.get("color_presets")));
+            base.put("color_presets", DHUD.preset.custom.updateTo1_7((ArrayList<String>) base.get("color_presets")));
             // reload the file after updating a version
             base = saveLoad(player,base);
         }

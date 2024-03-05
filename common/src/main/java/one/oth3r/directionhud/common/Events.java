@@ -41,6 +41,9 @@ public class Events {
         playerSoftLeave(player);
         DirectionHUD.clientPlayers.remove(player);
     }
+    /**
+     * effectively reloads the player without deleting certain required maps (like clientPlayers)
+     */
     public static void playerSoftLeave(Player player) {
         DHUD.inbox.removeAllTracking(player);
         PlayerData.removePlayer(player);

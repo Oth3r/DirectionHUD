@@ -767,8 +767,8 @@ public class Destination {
             if (pos == 0) {
                 if (PlayerData.get.dest.tracking(player)!=null) suggester.add("clear");
                 suggester.add("set");
-                if (DHUD.inbox.getAllMatches(player, DHUD.inbox.Type.track_pending)!=null) suggester.add("cancel");
-                if (DHUD.inbox.getAllMatches(player, DHUD.inbox.Type.track_request)!=null) {
+                if (DHUD.inbox.getAllType(player, DHUD.inbox.Type.track_pending)!=null) suggester.add("cancel");
+                if (DHUD.inbox.getAllType(player, DHUD.inbox.Type.track_request)!=null) {
                     suggester.add("accept");
                     suggester.add("deny");
                 }
@@ -777,12 +777,12 @@ public class Destination {
                 if (args[0].equalsIgnoreCase("set"))
                     suggester.addAll(Suggester.players(player));
                 if (args[0].equalsIgnoreCase("accept") || args[0].equalsIgnoreCase("deny")) {
-                    ArrayList<HashMap<String,Object>> matches = DHUD.inbox.getAllMatches(player, DHUD.inbox.Type.track_request);
+                    ArrayList<HashMap<String,Object>> matches = DHUD.inbox.getAllType(player, DHUD.inbox.Type.track_request);
                     if (matches==null) return suggester;
                     for (HashMap<String,Object> entry:matches) suggester.add((String) entry.get("player_name"));
                 }
                 if (args[0].equalsIgnoreCase("cancel")) {
-                    ArrayList<HashMap<String,Object>> matches = DHUD.inbox.getAllMatches(player, DHUD.inbox.Type.track_pending);
+                    ArrayList<HashMap<String,Object>> matches = DHUD.inbox.getAllType(player, DHUD.inbox.Type.track_pending);
                     if (matches==null) return suggester;
                     for (HashMap<String,Object> entry:matches) suggester.add((String) entry.get("player_name"));
                 }
@@ -1127,7 +1127,7 @@ public class Destination {
             msg.append(lang("ui.saved.edit").color(Assets.mainColors.saved)).append(CUtl.LARGE).append("\n");
             msg
                     .append(" ").append(CTxT.of("#"+dest.getOrder()).btn(true).color(CUtl.p())
-                            .hEvent(CUtl.lang("hover.order").color(CUtl.p()))
+                            .hEvent(CUtl.hover("order").color(CUtl.p()))
                             .cEvent(2,"/dest saved edit-r order "+cmdName+" "))
                     .append(" ").append(CTxT.of(name).btn(true).color(CUtl.s())
                             .hEvent(CUtl.TBtn("dest.saved.name.hover").color(CUtl.s()))
@@ -1433,10 +1433,10 @@ public class Destination {
                 player.sendMessage(CUtl.tag().append(lang("track",CTxT.of(target.getName()).color(CUtl.s())))
                         .append("\n ").append(lang("track_expire", 300).color('7').italic(true)));
                 target.sendMessage(CUtl.tag().append(lang("track_player",CTxT.of(player.getName()).color(CUtl.s()))).append("\n ")
-                        .append(CUtl.TBtn("accept").btn(true).color('a').cEvent(1,"/dest track accept "+player.getName())
-                                .hEvent(CUtl.TBtn("accept.hover"))).append(" ")
-                        .append(CUtl.TBtn("deny").btn(true).color('c').cEvent(1,"/dest track deny "+player.getName())
-                                .hEvent(CUtl.TBtn("deny.hover"))));
+                        .append(CUtl.button("accept").btn(true).color('a').cEvent(1,"/dest track accept "+player.getName())
+                                .hEvent(CUtl.hover("accept"))).append(" ")
+                        .append(CUtl.button("deny").btn(true).color('c').cEvent(1,"/dest track deny "+player.getName())
+                                .hEvent(CUtl.hover("deny"))));
             }
             public static void process(Player player, String tracker, ProcessType type, boolean Return) {
                 // processing both accepting and denying @ same time because the code is so similar
@@ -1674,7 +1674,9 @@ public class Destination {
             CTxT msg = CTxT.of(Assets.symbols.x).btn(true).color('7');
             if (canBeReset(player,type)) {
                 msg.color('c').cEvent(1, "/dest settings reset " + type)
-                        .hEvent(CUtl.TBtn("reset.hover_settings",lang("settings."+type).color('c')));
+                // todo
+//                        .hEvent(CUtl.TBtn("reset.hover_settings",lang("settings."+type).color('c')))
+                ;
             }
             return msg;
         }
@@ -1797,7 +1799,7 @@ public class Destination {
                             .append(getButtons(player, Setting.features__lastdeath)).append("\n ");
                 }
             }
-            CTxT reset = CUtl.TBtn("reset").btn(true).color('7');
+            CTxT reset = CUtl.button("reset").btn(true).color('7');
             boolean resetOn = false;
             for (Setting t: Setting.base()) {
                 if (resetOn) break;
@@ -1806,7 +1808,9 @@ public class Destination {
                 resetOn = canBeReset(player,t);
             }
             if (resetOn) reset.color('c').cEvent(1,"/dest settings reset all")
-                    .hEvent(CUtl.TBtn("reset.hover_settings",CUtl.TBtn("all").color('c')));
+                // todo
+//                    .hEvent(CUtl.TBtn("reset.hover_settings",CUtl.TBtn("all").color('c')))
+                    ;
             msg.append("\n     ").append(reset).append("  ").append(CUtl.CButton.back("/dest")).append("\n")
                     .append(CTxT.of("                                ").strikethrough(true));
             player.sendMessage(msg);

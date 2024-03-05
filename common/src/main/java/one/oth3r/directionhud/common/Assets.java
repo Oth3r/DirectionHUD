@@ -98,6 +98,9 @@ public class Assets {
         public static String AngleDisplay() {
             return fromEnum(HUD.Setting.ModuleAngleDisplay.values());
         }
+        public static String colorPreset() {
+            return "\"PresetName|#ffaacc\"";
+        }
     }
     public static class symbols {
         public static class arrows {
