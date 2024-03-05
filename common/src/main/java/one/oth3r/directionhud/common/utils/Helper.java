@@ -43,6 +43,21 @@ public class Helper {
             }
             return next;
         }
+        /**
+         * gets an enum from a string without returning null
+         * @param enumString the string of the enum
+         * @param enumType the class of enums
+         * @return an enum, if there isn't a match, it returns the first enum
+         */
+        public static <T extends Enum<T>> T get(String enumString, Class<T> enumType) {
+            T[] values = enumType.getEnumConstants();
+            for (T all : values) {
+                // check if there is a match for any of the enum names
+                if (enumString.equals(all.name())) return all;
+            }
+            // if there's no match return the first entry
+            return values[0];
+        }
     }
     public static class Num {
         public static boolean isInt(String string) {
@@ -306,7 +321,7 @@ public class Helper {
             // build and return
             return CTxT.of("")
                     .append(left).append(" ")
-                    .append(CTxT.of(String.valueOf(page)).btn(true).color(CUtl.p()).cEvent(2,command).hEvent(CUtl.lang("hover.page_set").color(CUtl.p())))
+                    .append(CTxT.of(String.valueOf(page)).btn(true).color(CUtl.p()).cEvent(2,command).hEvent(CUtl.hover("page_set").color(CUtl.p())))
                     .append(" ").append(right);
         }
     }
@@ -394,10 +409,10 @@ public class Helper {
          * @return the ratio as a double
          */
         public static double getRatio(String dimensionFrom, String dimensionTo) {
-            Pair<String, String> dimensionPair = new Helper.Pair<>(dimensionFrom, dimensionTo);
+            Pair<String, String> dimensionPair = new Helper.Pair<>(dimensionFrom, dimensionTo), flippedPair = dimensionPair.getFlipped();
             if (conversionRatios.containsKey(dimensionPair)) return conversionRatios.get(dimensionPair);
             // flip the ratio if there's a flipped ratio
-            else if (conversionRatios.containsKey(dimensionPair.getFlipped())) return 1 / conversionRatios.get(dimensionPair);
+            else if (conversionRatios.containsKey(flippedPair)) return 1 / conversionRatios.get(flippedPair);
             // no ratio if no match
             else return 1.0;
         }

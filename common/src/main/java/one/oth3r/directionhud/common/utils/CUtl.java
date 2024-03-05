@@ -28,10 +28,13 @@ public class CUtl {
         return DirectionHUD.SECONDARY;
     }
     public static CTxT error(String key, Object... args) {
-        return tag().append(lang("error").color(Assets.mainColors.error)).append(" ").append(lang("error."+key, args));
+        return error().append(lang("error."+key, args));
+    }
+    public static CTxT error() {
+        return tag().append(getLangEntry("msg.error").color(Assets.mainColors.error)).append(" ");
     }
     public static CTxT usage(String s) {
-        return tag().append(lang("usage").color(Assets.mainColors.usage)).append(" ").append(s);
+        return tag().append(getLangEntry("msg.usage").color(Assets.mainColors.usage)).append(" ").append(s);
     }
     /**
      * get an entry from the lang file without a prefix
@@ -55,7 +58,13 @@ public class CUtl {
         return getLangEntry("key.directionhud."+key,args);
     }
     public static CTxT config(String key, Object... args) {
-        return getLangEntry("config.directionhud."+key,args);
+        return getLangEntry("config."+key,args);
+    }
+    public static CTxT button(String key, Object... args) {
+        return getLangEntry("button."+key,args);
+    }
+    public static CTxT hover(String key, Object... args) {
+        return getLangEntry("hover."+key,args);
     }
     public static String toggleColor(boolean button) {
         return button?"#55FF55":"#FF5555";
@@ -89,8 +98,8 @@ public class CUtl {
                 return CTxT.of(Assets.symbols.pencil).btn(true).color(Assets.mainColors.edit).cEvent(t,cmd).hEvent(TBtn("dest.edit.hover").color(Assets.mainColors.edit)).color(Assets.mainColors.edit);
             }
             public static CTxT settings() {
-                return TBtn("settings").btn(true).color(Assets.mainColors.setting).cEvent(1,"/dest settings")
-                        .hEvent(CTxT.of(Assets.cmdUsage.destSettings).color(Assets.mainColors.setting).append("\n").append(lang("hover.settings",lang("dest.ui.short"))));
+                return button("settings").btn(true).color(Assets.mainColors.setting).cEvent(1,"/dest settings")
+                        .hEvent(CTxT.of(Assets.cmdUsage.destSettings).color(Assets.mainColors.setting).append("\n").append(hover("settings",lang("dest.ui.short"))));
             }
             public static CTxT saved() {
                 return TBtn("dest.saved").btn(true).color(Assets.mainColors.saved).cEvent(1,"/dest saved").hEvent(
@@ -135,18 +144,7 @@ public class CUtl {
                 return TBtn("dest").btn(true).color(Assets.mainColors.dest).cEvent(1,"/dest").hEvent(
                         CTxT.of(Assets.cmdUsage.dest).color(Assets.mainColors.dest).append("\n").append(TBtn("dest.hover")));
             }
-            public static CTxT inbox() {
-                return TBtn("dhud.inbox").btn(true).color(Assets.mainColors.inbox).cEvent(1,"/dhud inbox").hEvent(
-                        CTxT.of(Assets.cmdUsage.inbox).color(Assets.mainColors.inbox).append("\n").append(TBtn("dhud.inbox.hover")));
-            }
-            public static CTxT presets() {
-                return lang("dhud.preset.button.preset").btn(true).color(Assets.mainColors.presets).cEvent(1,"/dhud preset")
-                        .hEvent(CTxT.of("/dhud presets").color(Assets.mainColors.presets).append("\n").append(lang("dhud.preset.hover.preset")));
-            }
-            public static CTxT reload() {
-                return TBtn("dhud.reload").btn(true).color(Assets.mainColors.reload).cEvent(1,"/dhud reload").hEvent(
-                        CTxT.of(Assets.cmdUsage.reload).color(Assets.mainColors.reload).append("\n").append(TBtn("dhud.reload.hover")));
-            }
+
         }
     }
     public static class color {
