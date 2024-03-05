@@ -21,7 +21,7 @@ public class DHUDCommand implements CommandExecutor, TabCompleter {
             return true;
         }
         Player player = Player.of(plr);
-        DHUD.commandExecutor.logic(player, Helper.Command.quoteHandler(args));
+        DHUD.CMDExecutor(player, Helper.Command.quoteHandler(args));
         return true;
     }
     @Override
@@ -33,6 +33,6 @@ public class DHUDCommand implements CommandExecutor, TabCompleter {
         Player player = Player.of(plr);
         // fix args
         args = Helper.Command.quoteHandler(args);
-        return DHUD.commandSuggester.logic(player,args.length,args);
+        return DHUD.CMDSuggester(player,args.length,args);
     }
 }
