@@ -112,6 +112,9 @@ public class Player {
     public String getName() {
         return player.getName();
     }
+    public CTxT getHighlightedName() {
+        return CTxT.of(getName()).color(CUtl.s());
+    }
     public org.bukkit.entity.Player getPlayer() {
         return player;
     }

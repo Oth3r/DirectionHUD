@@ -7,10 +7,11 @@ import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.DHUD;
 import one.oth3r.directionhud.common.Destination;
+import one.oth3r.directionhud.common.Destination.Setting.*;
 import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.utils.Utl;
-import one.oth3r.directionhud.common.utils.Helper.Dim;
+import one.oth3r.directionhud.common.utils.Helper.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -188,6 +189,7 @@ public class config {
             loadVersion(properties,Float.parseFloat(version));
             LangReader.loadLanguageFile();
             Dim.load();
+            if (globalDESTs) GlobalDest.load();
             save();
         } catch (Exception e) {
             DirectionHUD.LOGGER.info("ERROR READING CONFIG - PLEASE REPORT WITH THE ERROR LOG");
@@ -280,9 +282,13 @@ public class config {
             // DEST FEATURES
             dest.Send = Boolean.parseBoolean((String) properties.computeIfAbsent("dest.settings.features.send", a -> String.valueOf(dest.defaults.Send)));
             dest.Track = Boolean.parseBoolean((String) properties.computeIfAbsent("dest.settings.features.track", a -> String.valueOf(dest.defaults.Track)));
-            dest.TrackingRequestMode = Destination.Setting.TrackingRequestMode.get((String) properties.computeIfAbsent("dest.settings.features.track_request_mode", a -> dest.defaults.TrackingRequestMode)).toString();
+            dest.TrackingRequestMode = Enums.get(properties.computeIfAbsent("dest.settings.features.track_request_mode", a -> dest.defaults.TrackingRequestMode),TrackingRequestMode.class).toString();
             dest.Lastdeath = Boolean.parseBoolean((String) properties.computeIfAbsent("dest.settings.features.lastdeath", a -> String.valueOf(dest.defaults.Lastdeath)));
             // CONFIG UPDATER, if the version is lower than the current, load from the old config
+            if (version <= 1.4f) {
+                // update global destinations to the new system
+                GlobalDest.loadLegacy();
+            }
             if (version <= 1.4f) {
                 colorPresets = DHUD.preset.custom.updateTo1_7(
                         gson.fromJson((String)properties.computeIfAbsent("color-presets",a->gson.toJson(new ArrayList<>())),arrayListMap));

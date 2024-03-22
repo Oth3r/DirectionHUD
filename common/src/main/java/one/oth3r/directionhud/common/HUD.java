@@ -223,7 +223,7 @@ public class HUD {
             for (Module module: modules.getEnabled(player)) {
                 count++;
                 // if dest isn't set
-                if (!Destination.get(player).hasXYZ()) {
+                if (!Destination.dest.get(player).hasXYZ()) {
                     // if dest or distance, remove
                     if (module.equals(Module.destination) || module.equals(Module.distance)) continue;
                 }
@@ -232,7 +232,7 @@ public class HUD {
                     // if tracking type is dest and dest is off, remove.
                     // else player tracking type and no player tracked, remove
                     if (PlayerData.get.hud.setting(player, Setting.module__tracking_target).equals(Setting.ModuleTrackingTarget.dest.toString())) {
-                        if (!Destination.get(player).hasXYZ()) continue;
+                        if (!Destination.dest.get(player).hasXYZ()) continue;
                     } else if (Destination.social.track.getTarget(player) == null) continue;
                 }
                 for (String str : moduleInstructions.get(module)) {
@@ -273,12 +273,12 @@ public class HUD {
             ArrayList<String> destination = new ArrayList<>();
             ArrayList<String> distance = new ArrayList<>();
             ArrayList<String> tracking = getTrackingModule(player);
-            if (Destination.get(player).hasXYZ()) {
+            if (Destination.dest.get(player).hasXYZ()) {
                 destination.add("p[");
-                destination.add("s"+ Destination.get(player).getXYZ());
+                destination.add("s"+ Destination.dest.get(player).getXYZ());
                 destination.add("p]");
                 distance.add("p[");
-                distance.add("s"+ Destination.getDist(player));
+                distance.add("s"+ Destination.dest.getDist(player));
                 distance.add("p]");
             }
             ArrayList<String> direction = getDirectionModule(player);
@@ -365,8 +365,8 @@ public class HUD {
             // DEST or (HYBRID & NULL TRACKER)
             if (trackingTarget.equals(Setting.ModuleTrackingTarget.dest) || (hybrid && pointLoc == null)) {
                 // make sure theres a dest
-                if (Destination.get(player).hasXYZ())
-                    pointLoc = Destination.get(player);
+                if (Destination.dest.get(player).hasXYZ())
+                    pointLoc = Destination.dest.get(player);
             }
             // check if there's a point set, otherwise return nothing
             if (pointLoc == null) return tracking;
@@ -405,7 +405,7 @@ public class HUD {
             else tracking.add("s"+(simple?"-"+ arrows.down+"-" : arrows.south));
             // SOUTH
             // if compact and the ylevel is different & there's a y level on the loc
-            if (!simple && !(boolean) PlayerData.get.dest.setting(player, Destination.Setting.ylevel) && pointLoc.yExists()) {
+            if (!simple && !(boolean) PlayerData.get.dest.setting(player, Destination.Setting.ylevel) && pointLoc.getY() != null) {
                 tracking.add("p|");
                 if (player.getLoc().getY() > pointLoc.getY())
                     tracking.add("s"+arrows.south);
@@ -788,7 +788,7 @@ public class HUD {
         public static String stateColor(Player player, Module module) {
             if (!PlayerData.get.hud.module(player, module)) return Assets.mainColors.gray;
             boolean yellow = false;
-            if (!Destination.get(player).hasXYZ()) {
+            if (!Destination.dest.get(player).hasXYZ()) {
                 if (module.equals(Module.destination) || module.equals(Module.distance) || (module.equals(Module.tracking) &&
                         Setting.ModuleTrackingTarget.get((String) PlayerData.get.hud.setting(player, Setting.module__tracking_target)).equals(Setting.ModuleTrackingTarget.dest)))
                     yellow = true;
@@ -1354,9 +1354,11 @@ public class HUD {
             CTxT msg = CTxT.of(Assets.symbols.x).btn(true).color('7');
             if (canBeReset(player,setting)) {
                 msg.color('c').cEvent(1, "/hud settings reset-r " + setting)
-                        .hEvent(CUtl.hover("reset",lang("category",
-                                lang("category."+(setting.toString().startsWith("bossbar")?"bossbar":"hud")),
-                                lang(setting.toString())).color('c'),lang("hover.reset_fill")));
+                        .hEvent(CUtl.hover("reset",
+                                lang("category",
+                                        lang("category."+(setting.toString().startsWith("bossbar")?"bossbar":"hud")),
+                                        lang(setting.toString())).color('c'),
+                                CUtl.LANG.hover("reset.settings")));
             }
             return msg;
         }
@@ -1444,7 +1446,7 @@ public class HUD {
                 resetOn = canBeReset(player,t);
             }
             if (resetOn) reset.color('c').cEvent(1,"/hud settings reset-r all")
-                    .hEvent(CUtl.hover("reset",CUtl.TBtn("all").color('c'),lang("hover.reset_fill")));
+                    .hEvent(CUtl.LANG.hover("reset",CUtl.TBtn("all").color('c'),CUtl.LANG.hover("reset.settings")));
             msg.append("\n    ").append(reset).append("  ").append(CUtl.CButton.back("/hud")).append("\n")
                     .append(CTxT.of("                              ").strikethrough(true));
             player.sendMessage(msg);

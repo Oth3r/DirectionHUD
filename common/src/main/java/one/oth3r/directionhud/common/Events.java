@@ -21,14 +21,14 @@ public class Events {
         } catch (Exception e) {
             DirectionHUD.LOGGER.info("Failed to create playerdata directory:\n" + e.getMessage());
         }
-        GlobalDest.fileToMap();
         config.load();
         DirectionHUD.LOGGER.info("Started server!");
     }
     public static void serverEnd() {
         for (Player player: Utl.getPlayers()) playerLeave(player);
         // clear everything as serverEnd on client can just be exiting single-player
-        GlobalDest.dests.clear();
+        GlobalDest.clear();
+        PlayerData.clearPlayerData();
         PlayerData.playerMap.clear();
         PlayerData.dataMap.clear();
         DirectionHUD.clientPlayers.clear();
@@ -50,36 +50,31 @@ public class Events {
         DirectionHUD.bossBarManager.removePlayer(player);
     }
     public static void playerChangeWorld(Player player, String fromDIM, String toDIM) {
-        if (Destination.get(player).hasXYZ()) {
-            Loc loc = Destination.get(player);
+        if (Destination.dest.get(player).hasXYZ()) {
+            Loc loc = Destination.dest.get(player);
             // don't clear if the dest's dim is the same as the new dim
-            if (toDIM.equals(Destination.get(player).getDIM())) return;
-            if (Dim.canConvert(toDIM, Destination.get(player).getDIM()) &&
+            if (toDIM.equals(Destination.dest.get(player).getDimension())) return;
+            if (Dim.canConvert(toDIM, Destination.dest.get(player).getDimension()) &&
                     (boolean) PlayerData.get.dest.setting(player, Destination.Setting.autoconvert)) {
                 //DEST AutoConvert logic
-                Loc cLoc = Destination.get(player);
+                Loc cLoc = Destination.dest.get(player);
                 cLoc.convertTo(toDIM);
-                Destination.silentSet(player,cLoc);
+                Destination.dest.set(player,cLoc);
                 player.sendMessage(CUtl.tag().append(CUtl.lang("dest.autoconvert.dest"))
                         .append("\n ").append(CUtl.lang("dest.autoconvert.dest.info",loc.getBadge(),cLoc.getBadge()).italic(true).color('7')));
             } else if ((boolean) PlayerData.get.dest.setting(player, Destination.Setting.autoclear)) {
-                //DEST AutoClear logic
-                CTxT msg = CTxT.of("").append(CUtl.lang("dest.changed.cleared.dim").color('7').italic(true))
-                        .append(" ").append(CUtl.CButton.dest.set("/dest set "+loc.getXYZ()+" "+fromDIM));
-                if (Dim.canConvert(toDIM, Destination.get(player).getDIM()))
-                    msg.append(" ").append(CUtl.CButton.dest.convert("/dest set "+loc.getXYZ()+" "+fromDIM+" convert"));
-                Destination.clear(player, msg);
+                // clear if autoclear is on
+                Destination.dest.clear(player, 3);
             }
         }
     }
     public static void playerDeath(Player player, Loc death) {
         if (!config.LastDeathSaving || !(boolean) PlayerData.get.dest.setting(player, Destination.Setting.features__lastdeath)) return;
         Destination.lastdeath.add(player, death);
-        CTxT msg = CUtl.tag().append(CUtl.lang("dest.lastdeath.save"))
-                .append(" ").append(death.getBadge())
-                .append(" ").append(CUtl.CButton.dest.set("/dest set "+death.getXYZ()+" "+death.getDIM()));
-        if (Dim.canConvert(player.getSpawnDimension(),death.getDIM()))
-            msg.append(" ").append(CUtl.CButton.dest.convert("/dest set "+death.getXYZ()+" "+death.getDIM()+" convert"));
+        CTxT msg = CUtl.tag().append(Destination.lastdeath.LANG.msg("save",
+                death.getBadge()
+                .append(" ").append(Destination.dest.setButtons("/dest set "+death.getXYZ()+" "+death.getDimension(),
+                        Dim.canConvert(player.getSpawnDimension(),death.getDimension())))));
         player.sendMessage(msg);
     }
 }

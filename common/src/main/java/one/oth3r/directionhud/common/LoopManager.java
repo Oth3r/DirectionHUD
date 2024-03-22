@@ -33,9 +33,9 @@ public class LoopManager {
                     else player.displayHUD(HUD.build.compile(player,HUDData));
                 }
                 // if player has DEST, AutoClear is on, and the distance is in the AutoClear range, clear
-                if (Destination.get(player).hasXYZ() && (boolean) PlayerData.get.dest.setting(player, Destination.Setting.autoclear) &&
-                        Destination.getDist(player) <= (double) PlayerData.get.dest.setting(player, Destination.Setting.autoclear_rad)) {
-                    Destination.clear(player, CUtl.lang("dest.changed.cleared.reached").color('7').italic(true));
+                if (Destination.dest.get(player).hasXYZ() && (boolean) PlayerData.get.dest.setting(player, Destination.Setting.autoclear) &&
+                        Destination.dest.getDist(player) <= (double) PlayerData.get.dest.setting(player, Destination.Setting.autoclear_rad)) {
+                    Destination.dest.clear(player, 2);
                 }
             }
         }
@@ -72,10 +72,10 @@ public class LoopManager {
     }
     private static void particles(Player player) {
         // spawn all the particles
-        if (Destination.get(player).hasXYZ()) {
+        if (Destination.dest.get(player).hasXYZ()) {
             // destination particles
             if ((boolean) PlayerData.get.dest.setting(player, Destination.Setting.particles__dest)) {
-                ArrayList<Double> destVec1 = Destination.get(player).getVec(player);
+                ArrayList<Double> destVec1 = Destination.dest.get(player).getVec(player);
                 ArrayList<Double> destVec2 = new ArrayList<>(destVec1);
                 destVec1.set(1,destVec1.get(1)+3);
                 destVec2.set(1,destVec2.get(1)-3);
@@ -83,7 +83,7 @@ public class LoopManager {
             }
             // line particles
             if ((boolean) PlayerData.get.dest.setting(player, Destination.Setting.particles__line))
-                player.spawnParticleLine(Destination.get(player).getVec(player),Utl.particle.LINE);
+                player.spawnParticleLine(Destination.dest.get(player).getVec(player),Utl.particle.LINE);
         }
         // track particles
         if ((boolean) PlayerData.get.dest.setting(player, Destination.Setting.particles__tracking)) {

@@ -30,8 +30,8 @@ public class BossBarManager {
         assert bossBar != null;
         bossBar.setName(hud.b());
         bossBar.setColor(BossBar.Color.byName(HUD.Setting.BarColor.get((String) PlayerData.get.hud.setting(player, HUD.Setting.bossbar__color)).toString()));
-        if (Destination.get(player).hasXYZ() && (boolean) PlayerData.get.hud.setting(player,HUD.Setting.bossbar__distance)) {
-            int dist = Destination.getDist(player);
+        if (Destination.dest.get(player).hasXYZ() && (boolean) PlayerData.get.hud.setting(player,HUD.Setting.bossbar__distance)) {
+            int dist = Destination.dest.getDist(player);
             double progress = getProgress(dist,(double) PlayerData.get.hud.setting(player,HUD.Setting.bossbar__distance_max));
             bossBar.setStyle(BossBar.Style.NOTCHED_10);
             if ((double) PlayerData.get.hud.setting(player,HUD.Setting.bossbar__distance_max) == 0) {

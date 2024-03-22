@@ -16,6 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CUtl {
+    public static final Lang LANG = new Lang("");
     public static CTxT LARGE = CTxT.of("\n                                             ").strikethrough(true);
     public static CTxT LINE_35 = CTxT.of("\n                                   ").strikethrough(true);
     public static CTxT tag() {
@@ -28,7 +29,7 @@ public class CUtl {
         return DirectionHUD.SECONDARY;
     }
     public static CTxT error(String key, Object... args) {
-        return error().append(lang("error."+key, args));
+        return error().append(getLangEntry("error."+key, args));
     }
     public static CTxT error() {
         return tag().append(getLangEntry("msg.error").color(Assets.mainColors.error)).append(" ");
@@ -86,14 +87,7 @@ public class CUtl {
             return TBtn("back").btn(true).color(Assets.mainColors.back).cEvent(1,cmd).hEvent(CTxT.of(cmd).color(Assets.mainColors.back).append("\n").append(TBtn("back.hover")));
         }
         public static class dest {
-            public static CTxT convert(String cmd) {
-                return CTxT.of(Assets.symbols.convert).btn(true).color(Assets.mainColors.convert).cEvent(1,cmd).hEvent(
-                        CTxT.of(cmd).color(Assets.mainColors.convert).append("\n").append(TBtn("dest.convert.hover")));
-            }
-            public static CTxT set(String cmd) {
-                return TBtn("dest.set").btn(true).color(Assets.mainColors.set).cEvent(1,cmd).hEvent(
-                        CTxT.of(cmd).color(Assets.mainColors.set).append("\n").append(TBtn("dest.set.hover")));
-            }
+            // todo move to Destination, make it for viewing
             public static CTxT edit(int t, String cmd) {
                 return CTxT.of(Assets.symbols.pencil).btn(true).color(Assets.mainColors.edit).cEvent(t,cmd).hEvent(TBtn("dest.edit.hover").color(Assets.mainColors.edit)).color(Assets.mainColors.edit);
             }
@@ -118,7 +112,7 @@ public class CUtl {
                         CTxT.of(Assets.cmdUsage.destSet).color(Assets.mainColors.set).append("\n").append(TBtn("dest.set.hover_info")));
             }
             public static CTxT clear(Player player) {
-                boolean o = Destination.get(player).hasXYZ();
+                boolean o = Destination.dest.get(player).hasXYZ();
                 return CTxT.of(Assets.symbols.x).btn(true).color(o?'c':'7').cEvent(o?1:0,"/dest clear").hEvent(
                         CTxT.of(Assets.cmdUsage.destClear).color(o?'c':'7').append("\n").append(TBtn("dest.clear.hover")));
             }
@@ -235,17 +229,17 @@ public class CUtl {
         }
         public static String colorHandler(Player player, String color, String defaultColor) {
             //if color is preset, get the preset color
-            if (color != null && color.contains("preset-")) {
-                String name = color.split("-")[1];
-                // find the right preset and get the color
-                for (String preset : PlayerData.get.colorPresets(player)) {
-                    if (DHUD.preset.custom.getName(preset).equals(name)) {
-                        color = DHUD.preset.custom.getColor(preset);
-                        break;
+            if (color != null) {
+                if (color.contains("preset-")) {
+                    String name = color.split("-")[1];
+                    // find the right preset and get the color
+                    for (String preset : PlayerData.get.colorPresets(player)) {
+                        if (DHUD.preset.custom.getName(preset).equals(name)) {
+                            color = DHUD.preset.custom.getColor(preset);
+                            break;
+                        }
                     }
                 }
-            }
-            if (color != null)
                 switch (color.toLowerCase()) {
                     case "red" -> color = DEFAULT_COLORS.get(1);
                     case "orange" -> color = DEFAULT_COLORS.get(4);
@@ -255,6 +249,7 @@ public class CUtl {
                     case "purple" -> color = DEFAULT_COLORS.get(16);
                     case "gray" -> color = DEFAULT_COLORS.get(19);
                 }
+            }
             color = format(color,defaultColor);
             return color;
         }

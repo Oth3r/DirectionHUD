@@ -12,6 +12,7 @@ import one.oth3r.directionhud.PacketBuilder;
 import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.files.PlayerData;
+import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Loc;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -127,6 +128,14 @@ public class Player {
     }
     public String getName() {
         return player.getName().getString();
+    }
+
+    /**
+     * makes a CTxT with the players name in the secondary color
+     * @return the highlighted player name
+     */
+    public CTxT getHighlightedName() {
+        return CTxT.of(getName()).color(CUtl.s());
     }
     public ServerPlayerEntity getPlayer() {
         return player;

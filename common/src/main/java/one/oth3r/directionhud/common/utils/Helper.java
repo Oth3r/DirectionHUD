@@ -49,11 +49,11 @@ public class Helper {
          * @param enumType the class of enums
          * @return an enum, if there isn't a match, it returns the first enum
          */
-        public static <T extends Enum<T>> T get(String enumString, Class<T> enumType) {
+        public static <T extends Enum<T>> T get(Object enumString, Class<T> enumType) {
             T[] values = enumType.getEnumConstants();
             for (T all : values) {
                 // check if there is a match for any of the enum names
-                if (enumString.equals(all.name())) return all;
+                if (enumString.toString().equals(all.name())) return all;
             }
             // if there's no match return the first entry
             return values[0];
@@ -140,6 +140,9 @@ public class Helper {
                 if (current.isEmpty() || list.get(0).startsWith(current)) return list;
                 return new ArrayList<>();
             }
+            public static String name() {
+                return "\"name\"";
+            }
             public static ArrayList<String> players(Player player) {
                 //get player strings excluding the inputted player
                 ArrayList<String> list = new ArrayList<>();
@@ -196,7 +199,7 @@ public class Helper {
             ArrayList<String> output = new ArrayList<>();
             StringBuilder addBuffer = new StringBuilder();
             for (String s : args) {
-                s = s.replaceAll("\\\\",""); // remove all "\" with empty
+                s = removeSpecial(s); // remove all special characters
                 if (s.contains("\"")) {
                     int count = s.length() - s.replaceAll("\"","").length(); // count how many quotes there are
                     s = s.replace("\"",""); // remove the quote
@@ -238,6 +241,13 @@ public class Helper {
         String[] result = new String[arr.length - numToRemove];
         System.arraycopy(arr, numToRemove, result, 0, result.length);
         return result;
+    }
+    /**
+     * removes any special characters from the inputted string
+     * @return stripped string
+     */
+    public static String removeSpecial(String input) {
+        return input.replaceAll("[\\\\|{}\\[\\]()]|[,;:'\\s]", "");
     }
     public static class Pair<A, B> {
         private final A first;

@@ -1,56 +1,134 @@
 package one.oth3r.directionhud.common.utils;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import one.oth3r.directionhud.common.files.config;
+import one.oth3r.directionhud.common.utils.Helper.Dim;
+import one.oth3r.directionhud.common.utils.Helper.Num;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
-import one.oth3r.directionhud.utils.Utl;
-import one.oth3r.directionhud.common.utils.Helper.Dim;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 public class Loc {
     private Integer x = null;
     private Integer y = null;
     private Integer z = null;
     private String dimension = null;
+    private String name = null;
+    private String color = null;
     public Loc() {}
+
+    /**
+     * creates Loc with x, y, z, dimension, name, & color
+     */
+    public Loc(Integer x, Integer y, Integer z, String dimension, String name, String color) {
+        this.x = xzBounds(x);
+        this.y = yBounds(y);
+        this.z = xzBounds(z);
+        if (Dim.checkValid(dimension)) this.dimension = dimension;
+        this.name = name;
+        this.color = CUtl.color.format(color);
+    }
+
+    /**
+     * creates Loc with x, y, z, & dimension
+     */
     public Loc(Integer x, Integer y, Integer z, String dimension) {
         this.x = xzBounds(x);
         this.y = yBounds(y);
         this.z = xzBounds(z);
         if (Dim.checkValid(dimension)) this.dimension = dimension;
     }
+
+    /**
+     * creates Loc with x, y, & z
+     */
     public Loc(Integer x, Integer y, Integer z) {
         this.x = xzBounds(x);
         this.y = yBounds(y);
         this.z = xzBounds(z);
     }
+
+    /**
+     * creates a Loc with x, z, and dimension
+     */
     public Loc(Integer x, Integer z, String dimension) {
         this.x = xzBounds(x);
         this.z = xzBounds(z);
         if (Dim.checkValid(dimension)) this.dimension = dimension;
     }
+
+    /**
+     * creates a Loc with only x and z
+     */
     public Loc(Integer x, Integer z) {
         this.x = xzBounds(x);
         this.z = xzBounds(z);
     }
-    public Loc(String xyz) {
-        parseXYZ(xyz);
+    //todo xyz fix (dont take xyz anymore)
+//        public Loc(String xyz) {
+//            parseXYZ(xyz);
+//        }
+//        public Loc(String xyz, String dimension) {
+//            parseXYZ(xyz);
+//            if (Dim.checkValid(dimension)) this.dimension = dimension;
+//        }
+
+    /**
+     * makes a Loc based on Loc.toString()
+     * @param loc the string produced by Loc.toString()
+     */
+    public Loc(String loc) {
+        if (loc.equals("null") || !loc.contains("{")) return;
+        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+        Type hashToken = new TypeToken<HashMap<String,String>>() {}.getType();
+        HashMap<String, String> map = gson.fromJson(loc,hashToken);
+        // always contains x & z but double check anyway
+        if (map.get("x") != null) this.x = Num.toInt(map.get("x"));
+        if (map.get("y") != null) this.y = Num.toInt(map.get("y"));
+        if (map.get("z") != null) this.z = Num.toInt(map.get("z"));
+        this.dimension = map.get("dimension");
+        this.name = map.get("name");
+        this.color = CUtl.color.format(map.get("color"));
     }
-    public Loc(String xyz, String dimension) {
-        parseXYZ(xyz);
-        if (Dim.checkValid(dimension)) this.dimension = dimension;
+
+    /**
+     * creates a Loc based on the player's current location and dimension
+     */
+    public Loc(Player player) {
+        this.x = xzBounds(player.getBlockX());
+        this.y = yBounds(player.getBlockY());
+        this.z = xzBounds(player.getBlockZ());
+        this.dimension = player.getDimension();
     }
-    private static Integer yBounds(Integer s) {
+
+    /**
+     * creates a Loc based on the player's location and a custom name
+     * @param name the custom name
+     */
+    public Loc(Player player, String name) {
+        this.x = xzBounds(player.getBlockX());
+        this.y = yBounds(player.getBlockY());
+        this.z = xzBounds(player.getBlockZ());
+        this.name = name;
+    }
+    private Integer yBounds(Integer s) {
         if (s == null) return null;
         if (s > config.MAXy) return config.MAXy;
         return Math.max(s, config.MAXy*-1);
     }
-    private static Integer xzBounds(Integer s) {
+    private Integer xzBounds(Integer s) {
         if (s == null) return null;
         if (s > config.MAXxz) return config.MAXxz;
         return Math.max(s, config.MAXxz*-1);
+    }
+    public Loc(boolean legacy, String xyz) {
+        parseXYZ(xyz);
     }
     private void parseXYZ(String xyz) {
         if (xyz == null || xyz.equals("null")) return;
@@ -82,40 +160,48 @@ public class Loc {
         this.y = yBounds(Helper.Num.toInt(sp.get(1)));
         this.z = xzBounds(Helper.Num.toInt(sp.get(2)));
     }
-    public Loc(Player player) {
-        this.x = xzBounds(player.getBlockX());
-        this.y = yBounds(player.getBlockY());
-        this.z = xzBounds(player.getBlockZ());
-        this.dimension = player.getDimension();
-    }
-    public Loc(Player player, String dimension) {
-        this.x = xzBounds(player.getBlockX());
-        this.y = yBounds(player.getBlockY());
-        this.z = xzBounds(player.getBlockZ());
-        if (Dim.checkValid(dimension)) this.dimension = dimension;
-    }
     public void convertTo(String toDimension) {
-        String fromDimension = this.getDIM();
+        String fromDimension = this.getDimension();
         if (fromDimension.equalsIgnoreCase(toDimension)) return;
         if (!Dim.checkValid(toDimension)) return;
         Double ratio = Dim.getRatio(fromDimension, toDimension);
-        this.setDIM(toDimension);
+        this.setDimension(toDimension);
         this.setX((int) (this.getX()*ratio));
         this.setZ((int) (this.getZ()*ratio));
     }
     public boolean hasXYZ() {
         return this.getXYZ() != null;
     }
+    public boolean hasDestRequirements() {
+        return hasXYZ() && this.dimension != null && this.name != null && this.color != null;
+    }
     public String getXYZ() {
         if (x == null || z == null) return null;
         if (y == null) return x+" "+z;
         return x+" "+y+" "+z;
     }
+    // todo deprecate
     public String toArray() {
         if (x == null || z == null) return "null";
         if (this.dimension == null) return Arrays.toString(new String[]{this.x+"",this.y+"",this.z+""});
         return Arrays.toString(new String[]{this.x+"",this.y+"",this.z+"",this.dimension});
     }
+    /**
+     * displays a string version of the Loc, which is a HashMap
+     */
+    @Override
+    public String toString() {
+        if (!hasXYZ()) return "null";
+        HashMap<String,String> map = new HashMap<>();
+        map.put("x",x.toString());
+        map.put("z",z.toString());
+        if (y != null) map.put("y",y.toString());
+        if (dimension != null) map.put("dimension",dimension);
+        if (name != null) map.put("name",name);
+        if (color != null) map.put("color",color);
+        return map.toString();
+    }
+    // todo create a common Vec class please this sucks
     public ArrayList<Double> getVec(Player player) {
         ArrayList<Double> vector = new ArrayList<>();
         Integer i = this.y;
@@ -127,45 +213,85 @@ public class Loc {
         }
         return vector;
     }
+    /**
+     * create a Loc badge
+     * @return badge
+     */
     public CTxT getBadge() {
         CTxT msg = CTxT.of("");
-        if (this.dimension != null) msg.append(Dim.getBadge(getDIM())).append(" ");
-        return msg.append(CTxT.of(getXYZ()).color('f'));
+        // if there's a dimension, add a dimension badge to the start of the message
+        if (this.dimension != null) msg.append(Dim.getBadge(getDimension())).append(" ");
+        // if there's a name, make the badge the name, e.g. [O] name
+        if (this.name != null) msg.append(CTxT.of(this.name).color(this.color==null?"#ffffff":this.color)
+                .hEvent(CTxT.of(getXYZ())));
+        // no name, just have the coordinates
+        else msg.append(CTxT.of(getXYZ()));
+        return msg;
     }
-    public CTxT getBadge(String name,String color) {
+
+    /**
+     * creates a Loc badge with the coordinates even with the name filled
+     * @return badge
+     */
+    public CTxT getNamelessBadge() {
         CTxT msg = CTxT.of("");
-        if (this.dimension != null) msg.append(Dim.getBadge(getDIM())).append(" ");
-        return msg.append(CTxT.of(name).color(color).hEvent(CTxT.of(getXYZ())));
+        // if there's a dimension, add a dimension badge to the start of the message
+        if (this.dimension != null) msg.append(Dim.getBadge(getDimension())).append(" ");
+        // if there's a name, make it the hover
+        if (this.name != null) msg.append(CTxT.of(getXYZ())
+                .hEvent(CTxT.of(this.name).color(this.color==null?"#ffffff":this.color)));
+        // no name, just have the coordinates
+        else msg.append(CTxT.of(getXYZ()));
+        return msg;
     }
+
+    // ----- GETTERS AND SETTERS -----
 
     public Integer getX() {
         return x;
     }
+
     public void setX(Integer x) {
         this.x = x;
     }
-    public boolean yExists() {
-        return this.y != null;
-    }
+
     public Integer getY() {
         return y;
     }
+
     public void setY(Integer y) {
         this.y = y;
     }
+
     public Integer getZ() {
         return z;
     }
+
     public void setZ(Integer z) {
         this.z = z;
     }
-    public String getDIM() {
+
+    public String getDimension() {
         return dimension;
     }
-    public void setDIM(String setDIM) {
-        if (Dim.checkValid(setDIM)) this.dimension = setDIM;
+
+    public void setDimension(String dimension) {
+        if (Dim.checkValid(dimension)) this.dimension = dimension;
     }
-    public String toString() {
-        return this.x+" "+this.y+" "+this.z+" "+this.dimension;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = CUtl.color.format(color);
     }
 }

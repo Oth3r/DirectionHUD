@@ -1,6 +1,5 @@
 package one.oth3r.directionhud.common;
 
-import one.oth3r.directionhud.common.files.GlobalDest;
 import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.DirectionHUD;
@@ -77,7 +76,6 @@ public class DHUD {
      */
     public static void reload(Player player) {
         config.load();
-        GlobalDest.fileToMap();
         // fully reload the players
         for (Player pl: Utl.getPlayers()) {
             Events.playerSoftLeave(pl);
@@ -114,6 +112,10 @@ public class DHUD {
             track_request,
             destination
         }
+
+        /**
+         * counts down all expire clocks in the inbox
+         */
         public static void tick(Player player) {
             ArrayList<HashMap<String, Object>> inbox = PlayerData.get.inbox(player);
             // iterate over the arraylist, as we are editing it, cant use for loop
@@ -130,8 +132,8 @@ public class DHUD {
                     if (entry.get("type").equals(Type.track_pending.name())) {
                         Player target = Player.of((String) entry.get("player_name"));
                         if (target==null) continue;
-                        target.sendMessage(CUtl.tag().append(CUtl.lang("dest.track.expired.target",CTxT.of(player.getName()).color(CUtl.s()))));
-                        player.sendMessage(CUtl.tag().append(CUtl.lang("dest.track.expired",CTxT.of(target.getName()).color(CUtl.s()))));
+                        target.sendMessage(CUtl.tag().append(Destination.social.track.LANG.msg("expired.target", player.getHighlightedName())));
+                        player.sendMessage(CUtl.tag().append(Destination.social.track.LANG.msg("expired",target.getHighlightedName())));
                     }
                 }
             }
@@ -228,11 +230,10 @@ public class DHUD {
          * @param target target player
          * @param from the player who sent the destination
          * @param time how long the entry should last
-         * @param name name of the destination
          * @param loc the destination location
-         * @param color color of the destination
          */
-        public static void addDest(Player target, Player from, int time, String name, Loc loc, String color) {
+        public static void addDest(Player target, Player from, int time, Loc loc) {
+            if (!loc.hasDestRequirements()) return;
             ArrayList<HashMap<String, Object>> inbox = PlayerData.get.inbox(target);
             HashMap<String, Object> entry = new HashMap<>();
             entry.put("type", Type.destination.name());
@@ -240,11 +241,7 @@ public class DHUD {
             entry.put("player_uuid",from.getUUID());
             entry.put("id", Helper.createID());
             entry.put("expire",String.valueOf(time));
-            entry.put("name",name);
-            entry.put("loc",String.valueOf(loc.toArray()));
-            // the # in the color breaks everything??? really weird ngl, remove the #
-            if (color.contains("#")) color = color.substring(1);
-            entry.put("color",color);
+            entry.put("loc",loc.toString());
             // add to the top of the list
             inbox.add(0,entry);
             // save the inbox
@@ -285,7 +282,7 @@ public class DHUD {
          */
         public static CTxT getEntryTxT(Player player, HashMap<String, Object> entry) {
             // get the entry type
-            Type type = Enums.get((String)entry.get("type"),Type.class);
+            Type type = Enums.get(entry.get("type"),Type.class);
             // get the entry name
             String name = (String)entry.get("player_name");
             // get name from UUID if online mode is on
@@ -328,7 +325,7 @@ public class DHUD {
                             // to / from
                             .append("\n  ").append(from).append("\n   ")
                             // destination badge
-                            .append(Destination.social.getSendTxt(player,(String)entry.get("name"),new Loc(entry.get("loc").toString()),(String)entry.get("color")));
+                            .append(Destination.social.send.getSendTxt(player,new Loc(entry.get("loc").toString())));
             }
             return msg;
         }
@@ -349,6 +346,7 @@ public class DHUD {
     }
     public static class preset {
         private static final int PER_PAGE = 7;
+        public static final String DEFAULT_UI_SETTINGS = "normal";
         public static CTxT lang(String key, Object... args) {
             return DHUD.lang("preset."+key, args);
         }
@@ -461,8 +459,8 @@ public class DHUD {
                 }
                 case saved -> {
                     // if using dhud set, its always local destinations
-                    Destination.saved.setColor(player,Destination.saved.getList(player),
-                            UISettings,subtype,color,true);
+                    Destination.saved.setColor(player,new Destination.saved.Dest(player,subtype,false),
+                            UISettings,color,true);
                 }
                 case preset -> {
                     custom.setColor(player,UISettings,subtype,color,true);
