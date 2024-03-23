@@ -14,10 +14,8 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.geysermc.floodgate.api.player.FloodgatePlayer;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Objects;
 import java.util.logging.Logger;
 
@@ -60,7 +58,7 @@ public class DirectionHUD extends JavaPlugin implements PluginMessageListener {
         }.runTaskTimerAsynchronously(this, 0L, 1L);
         // register incoming and outgoing packets
         this.getServer().getMessenger().registerIncomingPluginChannel(this, PacketHelper.getChannel(Assets.packets.INITIALIZATION), this);
-        this.getServer().getMessenger().registerOutgoingPluginChannel(this, PacketHelper.getChannel(Assets.packets.SETTINGS));
+        this.getServer().getMessenger().registerOutgoingPluginChannel(this, PacketHelper.getChannel(Assets.packets.PLAYER_DATA));
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, PacketHelper.getChannel(Assets.packets.HUD));
     }
     @Override

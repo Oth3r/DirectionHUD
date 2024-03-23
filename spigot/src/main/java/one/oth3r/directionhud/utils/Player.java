@@ -7,7 +7,10 @@ import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.PacketHelper;
 import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.HUD;
-import one.oth3r.directionhud.common.files.PlayerData;
+import one.oth3r.directionhud.common.LoopManager;
+import one.oth3r.directionhud.common.files.playerdata.PlayerData;
+import one.oth3r.directionhud.common.files.playerdata.PData;
+import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Loc;
 import org.bukkit.Bukkit;
 import org.bukkit.Particle;
@@ -67,13 +70,13 @@ public class Player {
     // Call after toggling/updating the hud.
     public void updateHUD() {
         // if toggled off
-        if (!(boolean)PlayerData.get.hud.setting(this, HUD.Setting.state)) {
+        if (!(boolean)this.setPData().getHud().getSetting(HUD.Setting.state)) {
             //if actionbar send empty to clear else remove bossbar
-            if (PlayerData.get.hud.setting(this, HUD.Setting.type).equals(HUD.Setting.DisplayType.actionbar.toString()))
+            if (this.setPData().getHud().getSetting(HUD.Setting.type).equals(HUD.Setting.DisplayType.actionbar.toString()))
                 this.sendActionBar(CTxT.of(""));
             else DirectionHUD.bossBarManager.removePlayer(this);
         }
-        if (PlayerData.get.hud.setting(this, HUD.Setting.type).equals(HUD.Setting.DisplayType.actionbar.toString()))
+        if (this.setPData().getHud().getSetting(HUD.Setting.type).equals(HUD.Setting.DisplayType.actionbar.toString()))
             DirectionHUD.bossBarManager.removePlayer(this);
         else this.sendActionBar(CTxT.of(""));
     }
@@ -81,7 +84,7 @@ public class Player {
         // if player has DirectionHUD on client, send a hashmap with data
         if (DirectionHUD.clientPlayers.contains(this)) {
             Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-            PacketHelper.sendPacket(this,Assets.packets.SETTINGS,gson.toJson(PlayerData.get.fromMap(this)));
+            PacketHelper.sendPacket(this,Assets.packets.PLAYER_DATA,gson.toJson(this.getPData()));
         }
     }
     public void sendHUDPackets(HashMap<HUD.Module, ArrayList<String>> hudData) {
@@ -92,20 +95,20 @@ public class Player {
     public void displayHUD(CTxT message) {
         if (message.toString().isEmpty()) {
             //if the HUD is enabled but there is no output, flip the tag
-            if (PlayerData.MsgData.get(this,"hud.enabled_but_off").isBlank()) {
-                PlayerData.MsgData.set(this,"hud.enabled_but_off","true");
+            if (this.getPData().getMsg("hud.enabled_but_off").isBlank()) {
+                this.getPData().setMsg("hud.enabled_but_off","true");
                 // if actionbar, clear once, if bossbar remove player
-                if ((HUD.Setting.DisplayType.get((String) PlayerData.get.hud.setting(this, HUD.Setting.type)).equals(HUD.Setting.DisplayType.actionbar))) {
+                if ((HUD.Setting.DisplayType.get((String) this.setPData().getHud().getSetting(HUD.Setting.type)).equals(HUD.Setting.DisplayType.actionbar))) {
                     player.spigot().sendMessage(ChatMessageType.ACTION_BAR, CTxT.of("").b());
                 } else DirectionHUD.bossBarManager.removePlayer(this);
             }
             return;
-        } else if (!PlayerData.MsgData.get(this,"hud.enabled_but_off").isBlank()) {
+        } else if (!this.getPData().getMsg("hud.enabled_but_off").isBlank()) {
             // hud isn't blank but the blank tag was still enabled
-            PlayerData.MsgData.clear(this,"hud.enabled_but_off");
+            this.getPData().clearMsg("hud.enabled_but_off");
         }
         // if actionbar send actionbar, if bossbar update the bar
-        if ((HUD.Setting.DisplayType.get((String) PlayerData.get.hud.setting(this, HUD.Setting.type)).equals(HUD.Setting.DisplayType.actionbar)))
+        if ((HUD.Setting.DisplayType.get((String) this.setPData().getHud().getSetting(HUD.Setting.type)).equals(HUD.Setting.DisplayType.actionbar)))
             player.spigot().sendMessage(ChatMessageType.ACTION_BAR, message.b());
         else DirectionHUD.bossBarManager.display(this,message);
     }
@@ -115,6 +118,19 @@ public class Player {
     public CTxT getHighlightedName() {
         return CTxT.of(getName()).color(CUtl.s());
     }
+    public PData getPData() {
+        return PlayerData.getPData(this);
+    }
+
+    /**
+     * returns the pData for setting, and adds the player to the list for pData saving
+     * @return pData
+     */
+    public PData setPData() {
+        LoopManager.addSavePlayer(this);
+        return getPData();
+    }
+
     public org.bukkit.entity.Player getPlayer() {
         return player;
     }

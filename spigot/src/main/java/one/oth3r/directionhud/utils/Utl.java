@@ -5,7 +5,6 @@ import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.files.LangReader;
-import one.oth3r.directionhud.common.files.PlayerData;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Helper.Dim;
@@ -83,13 +82,13 @@ public class Utl {
             return player.getPlayer().hasPermission("directionhud.destination.saving");
         }
         public static boolean lastdeath(Player player) {
-            return (boolean)PlayerData.get.dest.setting(player, Destination.Setting.features__lastdeath) && config.LastDeathSaving;
+            return (boolean)player.getPData().getDEST().getSetting(Destination.Setting.features__lastdeath) && config.LastDeathSaving;
         }
         public static boolean send(Player player) {
-            return (boolean)PlayerData.get.dest.setting(player, Destination.Setting.features__send) && config.social;
+            return (boolean)player.getPData().getDEST().getSetting(Destination.Setting.features__send) && config.social;
         }
         public static boolean track(Player player) {
-            return (boolean)PlayerData.get.dest.setting(player, Destination.Setting.features__track) && config.social;
+            return (boolean)player.getPData().getDEST().getSetting(Destination.Setting.features__track) && config.social;
         }
     }
     public static class particle {
@@ -113,11 +112,11 @@ public class Utl {
             }
         }
         public static Particle.DustOptions getParticle(String particleType, Player player) {
-            int[] i = CUtl.color.RGB((String) PlayerData.get.dest.setting(player, Destination.Setting.particles__line_color));
+            int[] i = CUtl.color.RGB((String) player.getPData().getDEST().getSetting(Destination.Setting.particles__line_color));
             if (particleType.equals(LINE)) return new Particle.DustOptions(Color.fromRGB(i[0],i[1],i[2]), 1);
-            i = CUtl.color.RGB((String) PlayerData.get.dest.setting(player, Destination.Setting.particles__dest_color));
+            i = CUtl.color.RGB((String) player.getPData().getDEST().getSetting(Destination.Setting.particles__dest_color));
             if (particleType.equals(DEST)) return new Particle.DustOptions(Color.fromRGB(i[0],i[1],i[2]), 3);
-            i = CUtl.color.RGB((String) PlayerData.get.dest.setting(player, Destination.Setting.particles__tracking_color));
+            i = CUtl.color.RGB((String) player.getPData().getDEST().getSetting(Destination.Setting.particles__tracking_color));
             if (particleType.equals(TRACKING)) return new Particle.DustOptions(Color.fromRGB(i[0],i[1],i[2]), 0.5f);
             return new Particle.DustOptions(Color.BLACK,1);
         }

@@ -1,7 +1,7 @@
 package one.oth3r.directionhud.common;
 
 import one.oth3r.directionhud.common.files.GlobalDest;
-import one.oth3r.directionhud.common.files.PlayerData;
+import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Helper.Command.Suggester;
@@ -152,7 +152,7 @@ public class Destination {
         }
         public static ArrayList<String> base(Player player) {
             ArrayList<String> suggester = new ArrayList<>();
-            if (config.LastDeathSaving && (boolean) PlayerData.get.dest.setting(player, Setting.features__lastdeath)) suggester.add("lastdeath");
+            if (config.LastDeathSaving && (boolean) player.getPData().getDEST().getSetting(Setting.features__lastdeath)) suggester.add("lastdeath");
             if (Utl.checkEnabled.saving(player)) {
                 suggester.add("add");
                 suggester.add("saved");
@@ -172,14 +172,14 @@ public class Destination {
     }
     public static class dest {
         public static Loc get(Player player) {
-            Loc loc = PlayerData.get.dest.loc(player);
+            Loc loc = player.getPData().getDEST().getDest();
             if (!loc.hasXYZ()) return new Loc();
-            if ((boolean) PlayerData.get.dest.setting(player, Setting.ylevel)) loc.setY(player.getBlockY());
+            if ((boolean) player.getPData().getDEST().getSetting(Setting.ylevel)) loc.setY(player.getBlockY());
             return loc;
         }
         public static boolean inAutoClearRadius(Player player, Loc loc) {
-            if ((boolean) PlayerData.get.dest.setting(player, Setting.autoclear))
-                return Utl.vec.distance(new Loc(player).getVec(player),loc.getVec(player)) <= (double) PlayerData.get.dest.setting(player, Setting.autoclear_rad);
+            if ((boolean) player.getPData().getDEST().getSetting(Setting.autoclear))
+                return Utl.vec.distance(new Loc(player).getVec(player),loc.getVec(player)) <= (double) player.getPData().getDEST().getSetting(Setting.autoclear_rad);
             else return false;
         }
         public static int getDist(Player player) {
@@ -191,7 +191,7 @@ public class Destination {
          * clears the destination without notifying the player
          */
         public static void clear(Player player) {
-            PlayerData.set.dest.loc(player, new Loc());
+            player.setPData().getDEST().setDest(new Loc());
         }
         /**
          * clears the destination with a message for the player
@@ -225,7 +225,7 @@ public class Destination {
          * sets the destination without notifying the player, still checks for autoclear instantly clearing or not
          */
         public static void set(Player player, Loc loc) {
-            if (!inAutoClearRadius(player, loc)) PlayerData.set.dest.loc(player, loc);
+            if (!inAutoClearRadius(player, loc)) player.setPData().getDEST().setDest(loc);
         }
         /**
          * generates the set message for the player
@@ -234,8 +234,8 @@ public class Destination {
         public static void setMSG(Player player, CTxT setLoc) {
             player.sendMessage(CUtl.tag().append(LANG.msg("set",setLoc))
                     .append(LANG.msg("set.info",
-                            CUtl.toggleTxT((boolean) PlayerData.get.dest.setting(player, Setting.autoclear)),
-                            CUtl.toggleTxT((boolean) PlayerData.get.dest.setting(player, Setting.autoconvert)))));
+                            CUtl.toggleTxT((boolean) player.getPData().getDEST().getSetting(Setting.autoclear)),
+                            CUtl.toggleTxT((boolean) player.getPData().getDEST().getSetting(Setting.autoconvert)))));
         }
         /**
          * sets the destination with bad data checks and convert toggle
@@ -788,7 +788,7 @@ public class Destination {
                         GlobalDest.setDestinations(list);
                         // save changes to file
                         GlobalDest.mapToFile();
-                    } else PlayerData.set.dest.saved(player, list);
+                    } else player.setPData().getDEST().setSaved(list);
                 }
             }
             public boolean isValid() {
@@ -879,7 +879,7 @@ public class Destination {
         }
         public static List<Loc> getList(Player player) {
             // get the local destination list
-            return PlayerData.get.dest.saved(player);
+            return player.getPData().getDEST().getSaved();
         }
 
         /**
@@ -1229,14 +1229,14 @@ public class Destination {
          * @param loc Loc to add
          */
         public static void add(Player player, Loc loc) {
-            ArrayList<String> deaths = PlayerData.get.dest.lastdeaths(player);
+            ArrayList<Loc> deaths = (ArrayList<Loc>) player.getPData().getDEST().getLastdeath();
             if (Dim.checkValid(loc.getDimension())) {
                 //add to the top of the list
-                deaths.add(0,loc.toString());
+                deaths.add(0,loc);
                 // WHILE more than max, remove the last entry (to deal with the size changing to be smaller in the future)
                 while (deaths.size() > config.LastDeathMAX) deaths.remove(deaths.size()-1);
             }
-            PlayerData.set.dest.lastdeaths(player,deaths);
+            player.setPData().getDEST().setLastdeath(deaths);
         }
 
         /**
@@ -1244,12 +1244,11 @@ public class Destination {
          * @param pg pg to display
          */
         public static void UI(Player player,int pg) {
-            Helper.ListPage<String> listPage = new Helper.ListPage<>(PlayerData.get.dest.lastdeaths(player),PER_PAGE);
+            Helper.ListPage<Loc> listPage = new Helper.ListPage<>((ArrayList<Loc>)player.getPData().getDEST().getLastdeath(),PER_PAGE);
             CTxT msg = CTxT.of(""), line = CTxT.of("\n                                   ").strikethrough(true);
             msg.append(" ").append(LANG.ui().color(Assets.mainColors.lastdeath)).append(line).append("\n ");
             // display the list
-            for (String s: listPage.getPage(pg)) {
-                Loc loc = new Loc(s);
+            for (Loc loc: listPage.getPage(pg)) {
                 String dim = loc.getDimension();
                 msg.append(loc.getBadge()).append("\n  ")
                         .append(CUtl.CButton.dest.add("/dest add "+Dim.getName(dim).toLowerCase()+"_death "+loc.getXYZ()+" "+dim+" "+Dim.getColor(dim).substring(1)))
@@ -1273,7 +1272,7 @@ public class Destination {
          * @return if there is a social cooldown or not
          */
         public static boolean cooldown(Player player) {
-            if (PlayerData.get.socialCooldown(player) != null) {
+            if (player.getPData().getSocialCooldown() != null) {
                 player.sendMessage(CUtl.LANG.error("social.cooldown"));
                 return true;
             }
@@ -1544,7 +1543,7 @@ public class Destination {
 
                 // LOGIC
                 // add the cooldown
-                PlayerData.set.socialCooldown(player,config.socialCooldown.doubleValue());
+                player.setPData().setSocialCooldown(config.socialCooldown.doubleValue());
 
                 player.sendMessage(CUtl.tag().append(LANG.msg("sent",CTxT.of(target.getName()).color(CUtl.s()),
                         CTxT.of("\n ").append(loc.getBadge()))));
@@ -1599,7 +1598,7 @@ public class Destination {
                 ArrayList<String> suggester = new ArrayList<>();
                 // track (clear*|set|cancel*|accept*|deny*)
                 if (pos == 0) {
-                    if (PlayerData.get.dest.tracking(player)!=null) suggester.add("clear");
+                    if (getTarget(player)!=null) suggester.add("clear");
                     suggester.add("set");
                     if (DHUD.inbox.getAllType(player, DHUD.inbox.Type.track_pending)!=null) suggester.add("cancel");
                     if (DHUD.inbox.getAllType(player, DHUD.inbox.Type.track_request)!=null) {
@@ -1648,7 +1647,7 @@ public class Destination {
              * @return the target, null if no one is being tracked
              */
             public static Player getTarget(Player player) {
-                String track = PlayerData.get.dest.tracking(player);
+                String track = player.getPData().getDEST().getTracking();
                 if (track == null) return null;
                 return Player.of(track);
             }
@@ -1678,10 +1677,10 @@ public class Destination {
              */
             public static void clear(Player player) {
                 // clear everything to do with tracking in the msg data system
-                for (String key: PlayerData.MsgData.getKeys(player))
-                    if (key.contains("tracking")) PlayerData.MsgData.clear(player,key);
+                for (String key: player.getPData().getMsgKeys())
+                    if (key.contains("tracking")) player.getPData().clearMsg(key);
                 // remove the target
-                PlayerData.set.dest.tracking(player,null);
+                player.setPData().getDEST().setTracking(null);
             }
 
             /**
@@ -1691,8 +1690,8 @@ public class Destination {
              */
             public static void set(Player player, Player target) {
                 // if online, use UUID, if not use the target NAME
-                if (config.online) PlayerData.set.dest.tracking(player,target.getUUID());
-                else PlayerData.set.dest.tracking(player,target.getName());
+                if (config.online) player.setPData().getDEST().setTracking(target.getUUID());
+                else player.setPData().getDEST().setTracking(target.getName());
                 // get both players as CTxT
                 CTxT playerTxT = CTxT.of(player.getName()).color(CUtl.s()), targetTxT = CTxT.of(target.getName()).color(CUtl.s());
                 // send messages to both target and tracker
@@ -1719,7 +1718,7 @@ public class Destination {
                     player.sendMessage(LANG.error("self"));
                     return;
                 }
-                if (!(boolean) PlayerData.get.dest.setting(target, Setting.features__track)) {
+                if (!(boolean) player.getPData().getDEST().getSetting(Setting.features__track)) {
                     player.sendMessage(LANG.error("target_disabled",targetTxT));
                     return;
                 }
@@ -1734,9 +1733,9 @@ public class Destination {
                     return;
                 }
                 // add the cooldown
-                PlayerData.set.socialCooldown(player,config.socialCooldown.doubleValue());
+                player.setPData().setSocialCooldown(config.socialCooldown.doubleValue());
                 // target has instant tracking
-                if (Enums.get(PlayerData.get.dest.setting(target, Setting.features__track_request_mode),Setting.TrackingRequestMode.class)
+                if (Enums.get(player.getPData().getDEST().getSetting(Setting.features__track_request_mode),Setting.TrackingRequestMode.class)
                         .equals(Setting.TrackingRequestMode.instant)) {
                     set(player,target);
                     return;
@@ -1792,7 +1791,7 @@ public class Destination {
                     return;
                 }
                 // if the target has tracking turned off - SYNC ERROR
-                if (!(boolean) PlayerData.get.dest.setting(target, Setting.features__track)) {
+                if (!(boolean) player.getPData().getDEST().getSetting(Setting.features__track)) {
                     DHUD.inbox.removeEntry(player,entry);
                     player.sendMessage(CUtl.tag().append("SYNC ERROR - REPORT IT! (TARGET-TRACK-OFF)"));
                     return;
@@ -1819,7 +1818,7 @@ public class Destination {
              */
             public static void logic(Player player) {
                 // if there isn't an entry in the tracking
-                if (PlayerData.get.dest.tracking(player) == null) return;
+                if (getTarget(player) == null) return;
                 // INFO (null if not sent, not if otherwise)
                 // tracking.offline = target offline
                 // tracking.dimension = not in same dimension & cant convert (trail cold)
@@ -1831,7 +1830,7 @@ public class Destination {
                     return;
                 }
                 // player has tracking disabled
-                if (!(boolean) PlayerData.get.dest.setting(player, Destination.Setting.features__track)) {
+                if (!(boolean) player.getPData().getDEST().getSetting(Destination.Setting.features__track)) {
                     Destination.social.track.clear(player,2);
                     return;
                 }
@@ -1843,71 +1842,71 @@ public class Destination {
                 }
                 // if the target is null, means the player cant be found, probably offline
                 if (target == null) {
-                    if (PlayerData.MsgData.get(player, "tracking.offline").isBlank()) {
+                    if (player.getPData().getMsg("tracking.offline").isBlank()) {
                         // the offline message hasn't been sent
                         player.sendMessage(CUtl.tag().append(LANG.msg("target_offline")));
-                        PlayerData.MsgData.set(player, "tracking.offline", "1");
+                        player.getPData().setMsg("tracking.offline", "1");
                         // reset all other messages
-                        PlayerData.MsgData.clear(player, "tracking.converted");
-                        PlayerData.MsgData.clear(player, "tracking.dimension");
+                        player.getPData().clearMsg("tracking.converted");
+                        player.getPData().clearMsg("tracking.dimension");
                     }
                     return;
                 }
                 // target turned off tracking
-                if (!(boolean)PlayerData.get.dest.setting(target, Destination.Setting.features__track)) {
+                if (!(boolean)player.getPData().getDEST().getSetting(Destination.Setting.features__track)) {
                     Destination.social.track.clear(player,3);
                     return;
                 }
                 // ------- TRACKING IS ON -------
                 // if the offline message was sent, reset it and send the back message
-                if (!PlayerData.MsgData.get(player, "tracking.offline").isBlank()) {
+                if (!player.getPData().getMsg("tracking.offline").isBlank()) {
                     player.sendMessage(CUtl.tag().append(LANG.msg("resumed"))); // tracking resumed msg
-                    PlayerData.MsgData.clear(player,"tracking.offline");
+                    player.getPData().clearMsg("tracking.offline");
                 }
                 // target is in the same dimension as the player
                 if (target.getDimension().equals(player.getDimension())) {
                     // if convert message has been sent before
-                    if (!PlayerData.MsgData.get(player, "tracking.converted").isBlank()) {
+                    if (!player.getPData().getMsg("tracking.converted").isBlank()) {
                         // send convert message to let player know the tracker was converted back to local dimension
                         player.sendMessage(CUtl.tag().append(Destination.LANG.msg("autoconvert.tracking",
                                 Destination.LANG.msg("autoconvert.tracking.2",
                                                 CTxT.of(Dim.getName(target.getDimension())).italic(true).color(Dim.getColor(target.getDimension()))))));
-                        PlayerData.MsgData.clear(player, "tracking.converted");
+                        player.getPData().clearMsg("tracking.converted");
                     }
                     // if tracking was stopped before
-                    if (!PlayerData.MsgData.get(player, "tracking.dimension").isBlank()) {
+                    if (!player.getPData().getMsg("tracking.dimension").isBlank()) {
                         /// send resume message to let player know the tracker was enabled again
                         player.sendMessage(CUtl.tag().append(LANG.msg("resumed")));
-                        PlayerData.MsgData.clear(player, "tracking.dimension");
+                        player.getPData().clearMsg("tracking.dimension");
                     }
                     return;
                 }
                 // ------- target isn't in the same dimension as the player -------
                 // if AUTOCONVERT IS ON AND CONVERTIBLE
-                if ((boolean) PlayerData.get.dest.setting(player, Destination.Setting.autoconvert) &&
+                if ((boolean) player.getPData().getDEST().getSetting(Destination.Setting.autoconvert) &&
                         Dim.canConvert(player.getDimension(),target.getDimension())) {
                     // send the tracking resumed message if tracking was disabled from dimension differences (autoconvert was enabled midway, ect.)
-                    if (!PlayerData.MsgData.get(player, "tracking.dimension").isBlank()) {
+                    if (!player.getPData().getMsg("tracking.dimension").isBlank()) {
                         player.sendMessage(CUtl.tag().append(LANG.msg("resumed")));
-                        PlayerData.MsgData.clear(player, "tracking.dimension");
+                        player.getPData().clearMsg("tracking.dimension");
                     }
                     // send the convert message if it hasn't been sent
-                    if (PlayerData.MsgData.get(player, "tracking.converted").isBlank()) {
+                    if (player.getPData().getMsg("tracking.converted").isBlank()) {
                         player.sendMessage(CUtl.tag().append(Destination.LANG.msg("autoconvert.tracking",
                                 Destination.LANG.msg("autoconvert.tracking.2",
                                         CTxT.of(Dim.getName(target.getDimension())).italic(true).color(Dim.getColor(target.getDimension()))))));
                         // change the status on the convert message
-                        PlayerData.MsgData.set(player, "tracking.converted",target.getDimension());
+                        player.getPData().setMsg("tracking.converted",target.getDimension());
                     }
-                } else if (PlayerData.MsgData.get(player, "tracking.dimension").isBlank()) {
+                } else if (player.getPData().getMsg("tracking.dimension").isBlank()) {
                     // if not convertible or AutoConvert is off, & the dimension difference message hasn't been sent,
                     // send the dimension message
                     player.sendMessage(CUtl.tag().append(LANG.msg("target_dimension",
                             Destination.LANG.msg("autoconvert.tracking.2",
                                             CTxT.of(Dim.getName(target.getDimension())).italic(true).color(Dim.getColor(target.getDimension()))))));
-                    PlayerData.MsgData.set(player, "tracking.dimension", "1");
+                    player.getPData().setMsg("tracking.dimension", "1");
                     // make sure the converted msg is reset
-                    PlayerData.MsgData.clear(player, "tracking.converted");
+                    player.getPData().clearMsg("tracking.converted");
                 }
             }
         }
@@ -1948,21 +1947,21 @@ public class Destination {
             // reset all
             if (setting.equals(Setting.none)) {
                 // reset every setting
-                for (Setting s : Setting.values()) PlayerData.set.dest.setting(player,s,getConfig(s));
+                for (Setting s : Setting.values()) player.setPData().getDEST().setSetting(s,getConfig(s));
             } else {
                 // else reset the selected setting
-                PlayerData.set.dest.setting(player,setting,getConfig(setting));
+                player.setPData().getDEST().setSetting(setting,getConfig(setting));
             }
             // reset every setting that has children
             // also reset autoclear RAD if autoclear
             if (setting.equals(Setting.autoclear))
-                PlayerData.set.dest.setting(player, Setting.autoclear_rad,getConfig(Setting.autoclear_rad));
+                player.setPData().getDEST().setSetting( Setting.autoclear_rad,getConfig(Setting.autoclear_rad));
             // resetting particle settings, reset the color
             if (Setting.particles().contains(setting))
-                PlayerData.set.dest.setting(player,Setting.get(setting+"_color"),getConfig(Setting.get(setting+"_color")));
+                player.setPData().getDEST().setSetting(Setting.get(setting+"_color"),getConfig(Setting.get(setting+"_color")));
             // reset track mode for track reset
             if (setting.equals(Setting.features__track))
-                PlayerData.set.dest.setting(player, Setting.features__track_request_mode,getConfig(Setting.features__track_request_mode));
+                player.setPData().getDEST().setSetting( Setting.features__track_request_mode,getConfig(Setting.features__track_request_mode));
 
             CTxT msg = CUtl.tag().append(CUtl.LANG.msg("reset",LANG.get(setting.toString()).color(CUtl.s())));
             if (setting.equals(Setting.none)) msg = CUtl.tag().append(LANG.msg("reset_all",CUtl.LANG.btn("all").color('c')));
@@ -1986,11 +1985,11 @@ public class Destination {
                     return;
                 }
                 int i = Math.max(Math.min(Num.toInt(state),15),1);
-                PlayerData.set.dest.setting(player, Setting.autoclear_rad,i);
-                setTxT.append(CTxT.of(String.valueOf(i)).color((boolean) PlayerData.get.dest.setting(player, Setting.autoclear)?'a':'c'));
+                player.setPData().getDEST().setSetting( Setting.autoclear_rad,i);
+                setTxT.append(CTxT.of(String.valueOf(i)).color((boolean) player.getPData().getDEST().getSetting(Setting.autoclear)?'a':'c'));
             }
             if (setting.equals(Setting.features__track_request_mode)) {
-                PlayerData.set.dest.setting(player, setting, Enums.get(state,Setting.TrackingRequestMode.class));
+                player.setPData().getDEST().setSetting( setting, Enums.get(state,Setting.TrackingRequestMode.class));
                 setTxT.append(LANG.get(setting +"."+ Enums.get(state,Setting.TrackingRequestMode.class)).color(CUtl.s()));
             }
             // color UI todo MAKE IT ACTUALLY CHANGE THE COLOR AND COLOR UI IS A DIFFERENT THING
@@ -2000,7 +1999,7 @@ public class Destination {
             }
             // if bool, boolean set
             if (Setting.bool().contains(setting)) {
-                PlayerData.set.dest.setting(player,setting,bool);
+                player.setPData().getDEST().setSetting(setting,bool);
                 setTxT.append(CUtl.toggleTxT(bool));
             }
             // message generator
@@ -2026,13 +2025,13 @@ public class Destination {
         public static boolean canBeReset(Player player, Setting type) {
             boolean output = false;
             if (type.equals(Setting.none)) return false;
-            if (PlayerData.get.dest.setting(player,type) != getConfig(type)) output = true;
+            if (player.getPData().getDEST().getSetting(type) != getConfig(type)) output = true;
             if (type.equals(Setting.autoclear))
-                if (((Double) PlayerData.get.dest.setting(player, Setting.autoclear_rad)).intValue() != (int)getConfig(Setting.autoclear_rad)) output = true;
+                if (((Double) player.getPData().getDEST().getSetting(Setting.autoclear_rad)).intValue() != (int)getConfig(Setting.autoclear_rad)) output = true;
             if (type.equals(Setting.features__track))
-                if (!PlayerData.get.dest.setting(player, Setting.features__track_request_mode).equals(getConfig(Setting.features__track_request_mode))) output = true;
+                if (!player.getPData().getDEST().getSetting(Setting.features__track_request_mode).equals(getConfig(Setting.features__track_request_mode))) output = true;
             if (Setting.colors().contains(Setting.get(type+"_color")))
-                if (!PlayerData.get.dest.setting(player, Setting.get(type+"_color")).equals(getConfig(Setting.get(type+"_color")))) output = true;
+                if (!player.getPData().getDEST().getSetting(Setting.get(type+"_color")).equals(getConfig(Setting.get(type+"_color")))) output = true;
             return output;
         }
         /**
@@ -2056,7 +2055,7 @@ public class Destination {
          * @return the CTxT with the button
          */
         public static CTxT getButtons(Player player, Setting setting) {
-            boolean state = (boolean) PlayerData.get.dest.setting(player,setting);
+            boolean state = (boolean) player.getPData().getDEST().getSetting(setting);
             CTxT button = CTxT.of("");
             if (setting.equals(Setting.none)) return button;
             // if boolean setting add the toggle button
@@ -2064,7 +2063,7 @@ public class Destination {
             // autoclear
             if (setting.equals(Setting.autoclear)) {
                 // get int values of the doubles in the PlayerData files to look better
-                button.append(CTxT.of(String.valueOf(((Double) PlayerData.get.dest.setting(player, Setting.get(setting+"_rad"))).intValue())).btn(true)
+                button.append(CTxT.of(String.valueOf(((Double) player.getPData().getDEST().getSetting(Setting.get(setting+"_rad"))).intValue())).btn(true)
                         .color(state?'a':'c').cEvent(2,"/dest settings set-r "+setting+"_rad ")
                         .hEvent(LANG.get(Setting.autoclear_rad+".ui").color(state?'a':'c').append("\n")
                                 .append(LANG.hover("set.custom",LANG.get(Setting.autoclear_rad.toString()))).append("\n")
@@ -2073,7 +2072,7 @@ public class Destination {
             // track mode
             if (setting.equals(Setting.features__track)) {
                 Setting type = Setting.features__track_request_mode;
-                TrackingRequestMode mode = Enums.get(PlayerData.get.dest.setting(player,type),TrackingRequestMode.class);
+                TrackingRequestMode mode = Enums.get(player.getPData().getDEST().getSetting(type),TrackingRequestMode.class);
                 TrackingRequestMode nextMode = Enums.next(mode,TrackingRequestMode.class);
                 button.append(CTxT.of(mode.getSymbol()).btn(true).color(CUtl.s())
                         .cEvent(1,"/dest settings set-r "+type+" "+nextMode)
@@ -2083,7 +2082,7 @@ public class Destination {
             }
             // particles
             if (Setting.particles().contains(setting)) {
-                String color = (String) PlayerData.get.dest.setting(player, Setting.get(setting+"_color"));
+                String color = (String) player.getPData().getDEST().getSetting(Setting.get(setting+"_color"));
                 button.append(CTxT.of(Assets.symbols.pencil).btn(true).color(color)
                         .cEvent(1,"/dest settings colorui "+setting+"_color "+DHUD.preset.DEFAULT_UI_SETTINGS)
                         .hEvent(LANG.hover("set.color",LANG.get(setting.toString()).color(color))));
@@ -2093,7 +2092,7 @@ public class Destination {
         public static void colorUI(Player player, String UISettings, Setting setting, CTxT aboveMSG) {
             // todo
             if (!Setting.colors().contains(setting)) return; // if not a color setting
-            String currentColor = (String) PlayerData.get.dest.setting(player,setting); // get the current color
+            String currentColor = (String) player.getPData().getDEST().getSetting(setting); // get the current color
             CTxT uiType = lang("settings."+setting.toString().substring(0,setting.toString().length()-6)),
                     msg = CTxT.of("");
             if (aboveMSG != null) msg.append(aboveMSG).append("\n");
@@ -2106,9 +2105,9 @@ public class Destination {
         }
         public static void setColor(Player player, String UISettings, Setting type, String color, boolean Return) {
             // format color
-            color = CUtl.color.colorHandler(player,color,(String)PlayerData.get.dest.setting(player,type));
+            color = CUtl.color.colorHandler(player,color,(String)player.getPData().getDEST().getSetting(type));
             CTxT uiType = lang("settings."+type.toString().substring(0,type.toString().length()-6));
-            PlayerData.set.dest.setting(player,type,color);
+            player.setPData().getDEST().setSetting(type,color);
             CTxT msg = CUtl.tag().append(lang("settings.particles.color.set",uiType.toString().toUpperCase(),CUtl.color.getBadge(color)));
             if (Return) colorUI(player,UISettings,type,msg);
             else player.sendMessage(msg);
@@ -2207,8 +2206,8 @@ public class Destination {
         msg.append(lang("ui").color(Assets.mainColors.dest)).append(CTxT.of("\n                                  ").strikethrough(true)).append("\n ");
         // lmao this is a mess but is it the best way to do it? dunno
         boolean line1Free = false;
-        boolean line2Free = !((boolean) PlayerData.get.dest.setting(player, Setting.features__lastdeath) && config.LastDeathSaving);
-        boolean trackBig = PlayerData.get.dest.tracking(player) != null;
+        boolean line2Free = !((boolean) player.getPData().getDEST().getSetting(Setting.features__lastdeath) && config.LastDeathSaving);
+        boolean trackBig = social.track.getTarget(player) != null;
         boolean sendThird = Utl.checkEnabled.send(player);
         //SAVED + ADD
         if (Utl.checkEnabled.saving(player)) {

@@ -136,7 +136,7 @@ public class Assets {
     }
     public enum packets {
         INITIALIZATION("initialize_v1.0"),
-        SETTINGS("player_settings_v1.0"),
+        PLAYER_DATA("player_data_v1.0"),
         HUD("hud_v1.0");
         private final String identifier;
         packets(String key) {

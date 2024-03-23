@@ -2,7 +2,7 @@ package one.oth3r.directionhud.utils;
 
 import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.HUD;
-import one.oth3r.directionhud.common.files.PlayerData;
+import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
@@ -26,12 +26,12 @@ public class BossBarManager {
         if (!bossBars.containsKey(player)) addPlayer(player);
         BossBar bossBar = bossBars.get(player);
         bossBar.setTitle(hud.b().toLegacyText());
-        bossBar.setColor(BarColor.valueOf(((String) PlayerData.get.hud.setting(player, HUD.Setting.bossbar__color)).toUpperCase()));
-        if (Destination.dest.get(player).hasXYZ() && (boolean) PlayerData.get.hud.setting(player, HUD.Setting.bossbar__distance)) {
+        bossBar.setColor(BarColor.valueOf(((String) player.getPData().getHud().getSetting(HUD.Setting.bossbar__color)).toUpperCase()));
+        if (Destination.dest.get(player).hasXYZ() && (boolean) player.getPData().getHud().getSetting(HUD.Setting.bossbar__distance)) {
             int dist = Destination.dest.getDist(player);
-            double progress = getProgress(dist,(double) PlayerData.get.hud.setting(player, HUD.Setting.bossbar__distance_max));
+            double progress = getProgress(dist,(double) player.getPData().getHud().getSetting(HUD.Setting.bossbar__distance_max));
             bossBar.setStyle(BarStyle.SEGMENTED_10);
-            if ((double) PlayerData.get.hud.setting(player, HUD.Setting.bossbar__distance_max) == 0) {
+            if ((double) player.getPData().getHud().getSetting(HUD.Setting.bossbar__distance_max) == 0) {
                 progress = getProgress(dist,1000);
                 StringBuilder s = new StringBuilder();
                 for (int i = 1;i<5;i++) {

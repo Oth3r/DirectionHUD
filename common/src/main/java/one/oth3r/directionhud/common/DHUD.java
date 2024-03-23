@@ -1,6 +1,6 @@
 package one.oth3r.directionhud.common;
 
-import one.oth3r.directionhud.common.files.PlayerData;
+import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.utils.Helper;
@@ -117,7 +117,7 @@ public class DHUD {
          * counts down all expire clocks in the inbox
          */
         public static void tick(Player player) {
-            ArrayList<HashMap<String, Object>> inbox = PlayerData.get.inbox(player);
+            ArrayList<HashMap<String, Object>> inbox = (ArrayList<HashMap<String, Object>>) player.getPData().getInbox();
             // iterate over the arraylist, as we are editing it, cant use for loop
             Iterator<HashMap<String, Object>> iterator = inbox.iterator();
             while (iterator.hasNext()) {
@@ -137,14 +137,14 @@ public class DHUD {
                     }
                 }
             }
-            PlayerData.set.inbox(player,inbox);
+            player.setPData().setInbox(inbox);
         }
         /**
          * removes all entries to deal with tracking, because tracking entries doesn't save between sessions
          */
         public static void removeAllTracking(Player player) {
             // removes all pending and requests from the player and their targets
-            ArrayList<HashMap<String, Object>> inbox = PlayerData.get.inbox(player);
+            ArrayList<HashMap<String, Object>> inbox = player.getPData().getInbox();
             // iterate over the arraylist, as we are editing it, cant use for loop
             Iterator<HashMap<String, Object>> iterator = inbox.iterator();
             while (iterator.hasNext()) {
@@ -165,7 +165,7 @@ public class DHUD {
                     iterator.remove();
                 }
             }
-            PlayerData.set.inbox(player,inbox);
+            player.setPData().setInbox(inbox);
         }
         /**
          * searches all player entries for a matching key and value from a certain type
@@ -175,7 +175,7 @@ public class DHUD {
          * @return the first entry that contains the key and value
          */
         public static HashMap<String, Object> search(Player player, Type type, String key, Object value) {
-            ArrayList<HashMap<String, Object>> inbox = PlayerData.get.inbox(player);
+            ArrayList<HashMap<String, Object>> inbox = player.getPData().getInbox();
             for (HashMap<String, Object> entry: inbox) {
                 // if the type isn't null, and it doesn't match, continue to the next entry
                 if (type!=null && !entry.get("type").equals(type.name())) continue;
@@ -189,7 +189,7 @@ public class DHUD {
          * @return null if none found, the list of entries if there are any
          */
         public static ArrayList<HashMap<String, Object>> getAllType(Player player, Type type) {
-            ArrayList<HashMap<String, Object>> inbox = PlayerData.get.inbox(player);
+            ArrayList<HashMap<String, Object>> inbox = player.getPData().getInbox();
             ArrayList<HashMap<String, Object>> matches = new ArrayList<>();
             for (HashMap<String, Object> entry: inbox)
                 if (entry.get("type").equals(type.name())) matches.add(0,entry);
@@ -205,7 +205,7 @@ public class DHUD {
         public static void addTracking(Player target, Player from, int time) {
             String ID = Helper.createID();
             // create the track request for the target
-            ArrayList<HashMap<String, Object>> inbox = PlayerData.get.inbox(target);
+            ArrayList<HashMap<String, Object>> inbox = target.getPData().getInbox();
             HashMap<String, Object> entry = new HashMap<>();
             entry.put("type", Type.track_request);
             entry.put("player_name",from.getName());
@@ -213,9 +213,9 @@ public class DHUD {
             entry.put("id",ID);
             entry.put("expire",time);
             inbox.add(0,entry);
-            PlayerData.set.inbox(target,inbox);
+            target.setPData().setInbox(inbox);
             // create the track pending for the requester
-            inbox = PlayerData.get.inbox(from);
+            inbox = from.getPData().getInbox();
             entry = new HashMap<>();
             entry.put("type", Type.track_pending);
             entry.put("player_name",target.getName());
@@ -223,7 +223,7 @@ public class DHUD {
             entry.put("id",ID);
             entry.put("expire",time);
             inbox.add(0,entry);
-            PlayerData.set.inbox(from,inbox);
+            from.setPData().setInbox(inbox);
         }
         /**
          * adds a destination to the target player's inbox
@@ -234,7 +234,7 @@ public class DHUD {
          */
         public static void addDest(Player target, Player from, int time, Loc loc) {
             if (!loc.hasDestRequirements()) return;
-            ArrayList<HashMap<String, Object>> inbox = PlayerData.get.inbox(target);
+            ArrayList<HashMap<String, Object>> inbox = target.getPData().getInbox();
             HashMap<String, Object> entry = new HashMap<>();
             entry.put("type", Type.destination.name());
             entry.put("player_name",from.getName());
@@ -245,7 +245,7 @@ public class DHUD {
             // add to the top of the list
             inbox.add(0,entry);
             // save the inbox
-            PlayerData.set.inbox(target,inbox);
+            target.setPData().setInbox(inbox);
         }
         /**
          * removes the entry provided
@@ -253,9 +253,9 @@ public class DHUD {
          */
         public static void removeEntry(Player player, HashMap<String, Object> entry) {
             if (entry == null) return;
-            ArrayList<HashMap<String, Object>> inbox = PlayerData.get.inbox(player);
+            ArrayList<HashMap<String, Object>> inbox = player.getPData().getInbox();
             inbox.remove(entry);
-            PlayerData.set.inbox(player,inbox);
+            player.setPData().setInbox(inbox);
         }
         /**
          * delete an entry via ID
@@ -263,7 +263,7 @@ public class DHUD {
          * @param playerBased if requested by the player, to send a message and return or not
          */
         public static void delete(Player player, String ID, boolean playerBased) {
-            Helper.ListPage<HashMap<String, Object>> listPage = new Helper.ListPage<>(PlayerData.get.inbox(player),PER_PAGE);
+            Helper.ListPage<HashMap<String, Object>> listPage = new Helper.ListPage<>(player.getPData().getInbox(),PER_PAGE);
             //delete via ID (command)
             HashMap<String, Object> entry = search(player,null,"id",ID);
             // stop if there's nothing to clear
@@ -330,7 +330,7 @@ public class DHUD {
             return msg;
         }
         public static void UI(Player player, int pg) {
-            Helper.ListPage<HashMap<String, Object>> listPage = new Helper.ListPage<>(PlayerData.get.inbox(player),PER_PAGE);
+            Helper.ListPage<HashMap<String, Object>> listPage = new Helper.ListPage<>(player.getPData().getInbox(),PER_PAGE);
             CTxT msg = CTxT.of(" ").append(lang("ui").color(Assets.mainColors.inbox)).append(CUtl.LINE_35).append("\n ");
             for (HashMap<String, Object> index : listPage.getPage(pg)) {
                 msg.append(getEntryTxT(player,index)).append("\n ");
@@ -374,7 +374,7 @@ public class DHUD {
                 else if (Helper.Num.isNum(args[0])) custom.UI(player,Helper.Num.toInt(args[0]),null);
                     // via preset name
                 else {
-                    ArrayList<String> presets = PlayerData.get.colorPresets(player);
+                    ArrayList<String> presets = player.getPData().getColorPresets();
                     ListPage<String> listPage = new ListPage<>(presets, PER_PAGE);
                     // check if the preset is valid, then get the page for that preset
                     if (custom.getNames(presets).contains(args[0])) {
@@ -420,7 +420,7 @@ public class DHUD {
                 if (pos == 1) return Suggester.colors(player,Suggester.getCurrent(args,pos));
                 if (pos == 2) suggester.add("name");
             } else {
-                if (pos == 1) suggester.addAll(Suggester.wrapQuotes(custom.getNames(PlayerData.get.colorPresets(player))));
+                if (pos == 1) suggester.addAll(Suggester.wrapQuotes(custom.getNames(player.getPData().getColorPresets())));
                 else if (args[0].equals("rename")) suggester.add("name");
                 else if (args[0].equals("color")) return Suggester.colors(player,Suggester.getCurrent(args,pos));
             }
@@ -591,7 +591,7 @@ public class DHUD {
             } else {
                 // custom, just numbers for the pages instead of an identifier, easier that way trust me
                 int pg = Helper.Num.toInt(page);
-                ListPage<String> listPage = new ListPage<>(PlayerData.get.colorPresets(player),7);
+                ListPage<String> listPage = new ListPage<>(player.getPData().getColorPresets(),7);
                 customBtn = listPage.getNavButtons(pg,clickCMD+"preset ");
                 for (String preset : listPage.getPage(pg)) {
                     String color = custom.getColor(preset), name = custom.getName(preset);
@@ -715,8 +715,8 @@ public class DHUD {
                 msg.append(lang("ui.custom").color(Assets.mainColors.presets)).append(line);
                 CTxT addBtn = CTxT.of("+").btn(true).color('a').cEvent(2,"/dhud preset save-r ").hEvent(lang("hover.save").color('a'));
                 // disable if max saved colors reached
-                if (PlayerData.get.colorPresets(player).size() >= config.MAXColorPresets) addBtn.color('7').cEvent(1,null).hEvent(null);
-                ListPage<String> listPage = new ListPage<>(PlayerData.get.colorPresets(player),PER_PAGE);
+                if (player.getPData().getColorPresets().size() >= config.MAXColorPresets) addBtn.color('7').cEvent(1,null).hEvent(null);
+                ListPage<String> listPage = new ListPage<>(player.getPData().getColorPresets(),PER_PAGE);
                 for (String preset : listPage.getPage(pg)) {
                     String color = getColor(preset), name = getName(preset);
                     msg.append("\n ").append(CTxT.of(Assets.symbols.x).color('c').btn(true)
@@ -749,7 +749,7 @@ public class DHUD {
              * @param aboveTxT the TxT above the UI
              */
             public static void colorUI(Player player, String UISettings, String name, CTxT aboveTxT) {
-                ArrayList<String> presets = PlayerData.get.colorPresets(player);
+                ArrayList<String> presets = player.getPData().getColorPresets();
                 ArrayList<String> names = getNames(presets);
                 if (!names.contains(name)) return;
                 String currentColor = getColors(presets).get(names.indexOf(name));
@@ -771,7 +771,7 @@ public class DHUD {
              * @param Return whether to return to the UI or not
              */
             public static void setColor(Player player, String UISettings, String name, String color, boolean Return) {
-                ArrayList<String> presets = PlayerData.get.colorPresets(player);
+                ArrayList<String> presets = player.getPData().getColorPresets();
                 ArrayList<String> names = getNames(presets);
                 // remove the bad data
                 if (!names.contains(name)) {
@@ -784,7 +784,7 @@ public class DHUD {
                 int index = names.indexOf(name);
                 String oldPreset = presets.get(index), preset = name+"|"+color;
                 presets.set(index,preset);
-                PlayerData.set.colorPresets(player,presets);
+                player.setPData().setColorPresets(presets);
                 if (Return) colorUI(player,UISettings,name,null);
                 else player.sendMessage(CUtl.tag().append(lang("msg.color",getBadge(oldPreset,false),CUtl.color.getBadge(color))));
             }
@@ -793,7 +793,7 @@ public class DHUD {
              * @param Return displays the UI or not
              */
             public static void save(Player player, String name, String color, boolean Return) {
-                ArrayList<String> presets = PlayerData.get.colorPresets(player);
+                ArrayList<String> presets = player.getPData().getColorPresets();
                 // errors
                 if (getNames(presets).contains(name)) {
                     player.sendMessage(error("duplicate"));
@@ -812,7 +812,7 @@ public class DHUD {
                 // add & save the preset
                 String entry = name+"|"+color;
                 presets.add(entry);
-                PlayerData.set.colorPresets(player,presets);
+                player.setPData().setColorPresets(presets);
                 // listPage for getting the page of the new entry when returning
                 ListPage<String> listPage = new ListPage<>(presets,PER_PAGE);
                 CTxT msg = CUtl.tag().append(lang("msg.save",getBadge(entry,true)));
@@ -824,7 +824,7 @@ public class DHUD {
              * @param Return displays the UI or not
              */
             public static void rename(Player player, String name, String newName, boolean Return) {
-                ArrayList<String> presets = PlayerData.get.colorPresets(player);
+                ArrayList<String> presets = player.getPData().getColorPresets();
                 ArrayList<String> names = getNames(presets);
                 // remove the bad data
                 if (!names.contains(name)) {
@@ -842,7 +842,7 @@ public class DHUD {
                 int index = names.indexOf(name);
                 String preset = newName+"|"+getColors(presets).get(index);
                 presets.set(index,preset);
-                PlayerData.set.colorPresets(player,presets);
+                player.setPData().setColorPresets(presets);
                 // player formatting
                 CTxT msg = CUtl.tag().append(lang("msg.rename",getBadge(name+"|"+getColors(presets).get(index),false),getBadge(preset,false)));
                 ListPage<String> listPage = new ListPage<>(names,PER_PAGE);
@@ -854,7 +854,7 @@ public class DHUD {
              * @param Return displays the UI or not
              */
             public static void delete(Player player, String name, boolean Return) {
-                ArrayList<String> presets = PlayerData.get.colorPresets(player);
+                ArrayList<String> presets = player.getPData().getColorPresets();
                 ArrayList<String> names = getNames(presets);
                 // remove the bad data
                 if (!names.contains(name)) {
@@ -864,7 +864,7 @@ public class DHUD {
                 String preset = presets.get(names.indexOf(name));
                 // remove the preset
                 presets.remove(preset);
-                PlayerData.set.colorPresets(player,presets);
+                player.setPData().setColorPresets(presets);
                 // player formatting
                 CTxT msg = CUtl.tag().append(lang("msg.delete",getBadge(preset,true)));
                 ListPage<String> listPage = new ListPage<>(names,PER_PAGE);

@@ -85,16 +85,13 @@ public class Loc {
      */
     public Loc(String loc) {
         if (loc.equals("null") || !loc.contains("{")) return;
-        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-        Type hashToken = new TypeToken<HashMap<String,String>>() {}.getType();
-        HashMap<String, String> map = gson.fromJson(loc,hashToken);
-        // always contains x & z but double check anyway
-        if (map.get("x") != null) this.x = Num.toInt(map.get("x"));
-        if (map.get("y") != null) this.y = Num.toInt(map.get("y"));
-        if (map.get("z") != null) this.z = Num.toInt(map.get("z"));
-        this.dimension = map.get("dimension");
-        this.name = map.get("name");
-        this.color = CUtl.color.format(map.get("color"));
+        Gson gson = new Gson();
+        Loc data = gson.fromJson(loc, Loc.class);
+        this.color = data.color;
+        this.x = data.x;
+        this.name = data.name;
+        this.y = data.y;
+        this.z = data.z;
     }
 
     /**
@@ -115,6 +112,7 @@ public class Loc {
         this.x = xzBounds(player.getBlockX());
         this.y = yBounds(player.getBlockY());
         this.z = xzBounds(player.getBlockZ());
+        this.dimension = player.getDimension();
         this.name = name;
     }
     private Integer yBounds(Integer s) {
@@ -191,15 +189,8 @@ public class Loc {
      */
     @Override
     public String toString() {
-        if (!hasXYZ()) return "null";
-        HashMap<String,String> map = new HashMap<>();
-        map.put("x",x.toString());
-        map.put("z",z.toString());
-        if (y != null) map.put("y",y.toString());
-        if (dimension != null) map.put("dimension",dimension);
-        if (name != null) map.put("name",name);
-        if (color != null) map.put("color",color);
-        return map.toString();
+        Gson gson = new GsonBuilder().create();
+        return gson.toJson(this);
     }
     // todo create a common Vec class please this sucks
     public ArrayList<Double> getVec(Player player) {

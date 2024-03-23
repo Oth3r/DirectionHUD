@@ -2,7 +2,7 @@ package one.oth3r.directionhud.common;
 
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.files.GlobalDest;
-import one.oth3r.directionhud.common.files.PlayerData;
+import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Loc;
@@ -29,8 +29,6 @@ public class Events {
         // clear everything as serverEnd on client can just be exiting single-player
         GlobalDest.clear();
         PlayerData.clearPlayerData();
-        PlayerData.playerMap.clear();
-        PlayerData.dataMap.clear();
         DirectionHUD.clientPlayers.clear();
         DirectionHUD.LOGGER.info("Safely shutdown!");
     }
@@ -55,21 +53,21 @@ public class Events {
             // don't clear if the dest's dim is the same as the new dim
             if (toDIM.equals(Destination.dest.get(player).getDimension())) return;
             if (Dim.canConvert(toDIM, Destination.dest.get(player).getDimension()) &&
-                    (boolean) PlayerData.get.dest.setting(player, Destination.Setting.autoconvert)) {
+                    (boolean) player.getPData().getDEST().getSetting(Destination.Setting.autoconvert)) {
                 //DEST AutoConvert logic
                 Loc cLoc = Destination.dest.get(player);
                 cLoc.convertTo(toDIM);
                 Destination.dest.set(player,cLoc);
                 player.sendMessage(CUtl.tag().append(CUtl.lang("dest.autoconvert.dest"))
                         .append("\n ").append(CUtl.lang("dest.autoconvert.dest.info",loc.getBadge(),cLoc.getBadge()).italic(true).color('7')));
-            } else if ((boolean) PlayerData.get.dest.setting(player, Destination.Setting.autoclear)) {
+            } else if ((boolean) player.getPData().getDEST().getSetting(Destination.Setting.autoclear)) {
                 // clear if autoclear is on
                 Destination.dest.clear(player, 3);
             }
         }
     }
     public static void playerDeath(Player player, Loc death) {
-        if (!config.LastDeathSaving || !(boolean) PlayerData.get.dest.setting(player, Destination.Setting.features__lastdeath)) return;
+        if (!config.LastDeathSaving || !(boolean) player.getPData().getDEST().getSetting(Destination.Setting.features__lastdeath)) return;
         Destination.lastdeath.add(player, death);
         CTxT msg = CUtl.tag().append(Destination.lastdeath.LANG.msg("save",
                 death.getBadge()

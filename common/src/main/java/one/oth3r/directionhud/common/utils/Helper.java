@@ -1,7 +1,7 @@
 package one.oth3r.directionhud.common.utils;
 
 import one.oth3r.directionhud.common.DHUD;
-import one.oth3r.directionhud.common.files.PlayerData;
+import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
@@ -170,7 +170,7 @@ public class Helper {
                 ArrayList<String> list = new ArrayList<>();
                 ArrayList<String> presets = new ArrayList<>();
                 // add all presets to a list
-                for (String name : DHUD.preset.custom.getNames(PlayerData.get.colorPresets(player)))
+                for (String name : DHUD.preset.custom.getNames(player.getPData().getColorPresets()))
                     presets.add(String.format("\"preset-%s\"",name));
                 // displaying logic, if not empty and not display empty or empty and display empty
                 if (!current.isEmpty() || displayEmpty) {
