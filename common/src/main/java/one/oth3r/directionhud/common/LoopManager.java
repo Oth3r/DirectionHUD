@@ -18,7 +18,8 @@ public class LoopManager {
      */
     private static final ArrayList<Player> savePlayers = new ArrayList<>();
     public static void addSavePlayer(Player player) {
-        savePlayers.add(player);
+        // only add if not already in
+        if (!savePlayers.contains(player)) savePlayers.add(player);
     }
     public static void removeSavePlayer(Player player) {
         savePlayers.remove(player);

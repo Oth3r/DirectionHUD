@@ -116,7 +116,9 @@ public class DHUD {
          * counts down all expire clocks in the inbox
          */
         public static void tick(Player player) {
-            ArrayList<HashMap<String, Object>> inbox = (ArrayList<HashMap<String, Object>>) player.getPData().getInbox();
+            ArrayList<HashMap<String, Object>> inbox = player.getPData().getInbox();
+            // don't process anything if empty
+            if (inbox.isEmpty()) return;
             // iterate over the arraylist, as we are editing it, cant use for loop
             Iterator<HashMap<String, Object>> iterator = inbox.iterator();
             while (iterator.hasNext()) {
@@ -136,7 +138,8 @@ public class DHUD {
                     }
                 }
             }
-            player.setPData().setInbox(inbox);
+            // save the inbox after the loop, but don't have to save the file
+            player.getPData().setInbox(inbox);
         }
         /**
          * removes all entries to deal with tracking, because tracking entries doesn't save between sessions
