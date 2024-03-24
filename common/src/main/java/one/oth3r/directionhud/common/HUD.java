@@ -800,7 +800,7 @@ public class HUD {
                         Setting.ModuleTrackingTarget.get((String) player.getPData().getHud().getSetting(Setting.module__tracking_target)).equals(Setting.ModuleTrackingTarget.dest)))
                     yellow = true;
             }
-            if (module.equals(Module.tracking) && Destination.social.track.getTarget(player)==null && Setting.ModuleTrackingTarget.get((String) player.getPData().getHud().getSetting( Setting.module__tracking_target)).equals(Setting.ModuleTrackingTarget.player))
+            if (module.equals(Module.tracking) && Destination.social.track.getTarget(player)==null && Setting.ModuleTrackingTarget.get((String) player.getPData().getHud().getSetting(Setting.module__tracking_target)).equals(Setting.ModuleTrackingTarget.player))
                 yellow = true;
             if (yellow) return "#fff419";
             return "#19ff21";
@@ -1115,7 +1115,7 @@ public class HUD {
          */
         public static CTxT button() {
             return CUtl.button("settings").btn(true).color(Assets.mainColors.setting).cEvent(1,"/hud settings")
-                    .hEvent(CTxT.of(Assets.cmdUsage.hud).color(Assets.mainColors.setting).append("\n").append(CUtl.hover("settings",CUtl.lang("hud"))));
+                    .hEvent(CTxT.of(Assets.cmdUsage.hudSettings).color(Assets.mainColors.setting).append("\n").append(CUtl.hover("settings",CUtl.lang("hud"))));
         }
         public static void CMDExecutor(Player player, String[] args) {
             //UI
@@ -1289,7 +1289,7 @@ public class HUD {
                 // make sure the number is greater than 0
                 int i = Math.max(Num.toInt(state),0);
                 player.setPData().getHud().setSetting(setting,i);
-                setTxT.append(CTxT.of(String.valueOf(i)).color((boolean)player.getPData().getHud().getSetting( Setting.bossbar__distance)?'a':'c'));
+                setTxT.append(CTxT.of(String.valueOf(i)).color((boolean)player.getPData().getHud().getSetting(Setting.bossbar__distance)?'a':'c'));
             }
             if (setting.equals(Setting.module__tracking_target)) {
                 Setting.ModuleTrackingTarget moduleTrackingTarget = Setting.ModuleTrackingTarget.get(state);
@@ -1342,7 +1342,7 @@ public class HUD {
             if (!player.getPData().getHud().getSetting(setting).equals(getConfig(setting))) output = true;
             // if bossbar.distance, check the child setting for the same thing
             if (setting.equals(Setting.bossbar__distance))
-                if (((Double) player.getPData().getHud().getSetting( Setting.bossbar__distance_max)).intValue() != (int)getConfig(Setting.bossbar__distance_max)) output = true;
+                if ((int) player.getPData().getHud().getSetting(Setting.bossbar__distance_max) != (int)getConfig(Setting.bossbar__distance_max)) output = true;
             return output;
         }
         /**
@@ -1391,7 +1391,7 @@ public class HUD {
             if (setting.equals(Setting.bossbar__distance)) {
                 boolean state = (boolean) player.getPData().getHud().getSetting(setting);
                 button.append(CUtl.toggleBtn(state,"/hud settings set-r "+setting+" ")).append(" ");
-                button.append(CTxT.of(String.valueOf(((Double) player.getPData().getHud().getSetting( Setting.bossbar__distance_max)).intValue())).btn(true).color((boolean) player.getPData().getHud().getSetting(setting)?'a':'c')
+                button.append(CTxT.of(String.valueOf((int)player.getPData().getHud().getSetting(Setting.bossbar__distance_max))).btn(true).color((boolean) player.getPData().getHud().getSetting(setting)?'a':'c')
                         .cEvent(2,"/hud settings set-r "+ Setting.bossbar__distance_max+" ")
                         .hEvent(lang("hover.set.custom",lang("category",
                                 lang("category.bossbar"),lang(Setting.bossbar__distance_max.toString())))

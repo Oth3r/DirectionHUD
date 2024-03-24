@@ -11,7 +11,7 @@ public class pd_hud_setting_bossbar {
     @SerializedName("distance")
     private Boolean distance = config.hud.Distance;
     @SerializedName("distance_max")
-    private Double distanceMax = (double) config.hud.ShowDistanceMAX;
+    private Integer distanceMax = config.hud.ShowDistanceMAX;
 
     public String getColor() {
         return color;
@@ -29,11 +29,11 @@ public class pd_hud_setting_bossbar {
         this.distance = distance;
     }
 
-    public Double getDistanceMax() {
+    public Integer getDistanceMax() {
         return distanceMax;
     }
 
-    public void setDistanceMax(Double distanceMax) {
+    public void setDistanceMax(Integer distanceMax) {
         this.distanceMax = distanceMax;
     }
 }

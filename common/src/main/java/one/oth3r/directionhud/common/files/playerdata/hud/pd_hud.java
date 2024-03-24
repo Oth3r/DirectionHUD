@@ -68,7 +68,7 @@ public class pd_hud {
             case state -> getSetting().setState((Boolean) setting);
             case bossbar__color -> getSetting().getBossbar().setColor(setting.toString());
             case bossbar__distance -> getSetting().getBossbar().setDistance((Boolean) setting);
-            case bossbar__distance_max -> getSetting().getBossbar().setDistanceMax((Double) setting);
+            case bossbar__distance_max -> getSetting().getBossbar().setDistanceMax((int) setting);
             case module__angle_display -> getSetting().getModule().setAngleDisplay(setting.toString());
             case module__speed_3d -> getSetting().getModule().setSpeed3d((Boolean) setting);
             case module__speed_pattern -> getSetting().getModule().setSpeedPattern((String) setting);
