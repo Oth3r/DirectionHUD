@@ -1,6 +1,5 @@
 package one.oth3r.directionhud.common;
 
-import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.utils.Helper;
@@ -454,7 +453,7 @@ public class DHUD {
                     HUD.color.setColor(player,UISettings,subtype,color,true);
                 }
                 case dest -> {
-                    Destination.settings.setColor(player,UISettings,
+                    Destination.settings.setParticleColor(player,UISettings,
                             Destination.Setting.get(subtype),color,true);
                 }
                 case saved -> {

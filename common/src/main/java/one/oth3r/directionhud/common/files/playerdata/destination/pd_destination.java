@@ -81,7 +81,7 @@ public class pd_destination {
         switch (setting) {
             case ylevel -> getSetting().setYlevel((Boolean) state);
             case autoclear -> getSetting().setAutoclear((Boolean) state);
-            case autoclear_rad -> getSetting().setAutoclearRad((Double) state);
+            case autoclear_rad -> getSetting().setAutoclearRad((int) state);
             case autoconvert -> getSetting().setAutoconvert((Boolean) state);
             case features__send -> getSetting().getFeatures().setSend((Boolean) state);
             case features__track -> getSetting().getFeatures().setTrack((Boolean) state);

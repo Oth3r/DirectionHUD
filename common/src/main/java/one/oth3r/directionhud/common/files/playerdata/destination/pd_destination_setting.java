@@ -11,7 +11,7 @@ public class pd_destination_setting {
     @SerializedName("autoclear")
     private Boolean autoclear = config.dest.AutoClear;
     @SerializedName("autoclear_rad")
-    private Double autoclearRad = (double) config.dest.AutoClearRad;
+    private Integer autoclearRad = config.dest.AutoClearRad;
     @SerializedName("autoconvert")
     private Boolean autoconvert = config.dest.AutoConvert;
     @SerializedName("features")
@@ -51,11 +51,11 @@ public class pd_destination_setting {
         this.autoclear = autoclear;
     }
 
-    public Double getAutoclearRad() {
+    public Integer getAutoclearRad() {
         return autoclearRad;
     }
 
-    public void setAutoclearRad(Double autoclearRad) {
+    public void setAutoclearRad(Integer autoclearRad) {
         this.autoclearRad = autoclearRad;
     }
 

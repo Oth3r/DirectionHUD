@@ -91,10 +91,6 @@ public class CUtl {
             public static CTxT edit(int t, String cmd) {
                 return CTxT.of(Assets.symbols.pencil).btn(true).color(Assets.mainColors.edit).cEvent(t,cmd).hEvent(TBtn("dest.edit.hover").color(Assets.mainColors.edit)).color(Assets.mainColors.edit);
             }
-            public static CTxT settings() {
-                return button("settings").btn(true).color(Assets.mainColors.setting).cEvent(1,"/dest settings")
-                        .hEvent(CTxT.of(Assets.cmdUsage.destSettings).color(Assets.mainColors.setting).append("\n").append(hover("settings",lang("dest.ui.short"))));
-            }
             public static CTxT saved() {
                 return TBtn("dest.saved").btn(true).color(Assets.mainColors.saved).cEvent(1,"/dest saved").hEvent(
                         CTxT.of(Assets.cmdUsage.destSaved).color(Assets.mainColors.saved).append("\n").append(TBtn("dest.saved.hover")));

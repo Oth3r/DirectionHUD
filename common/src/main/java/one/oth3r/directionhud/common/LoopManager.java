@@ -48,7 +48,7 @@ public class LoopManager {
                 }
                 // if player has DEST, AutoClear is on, and the distance is in the AutoClear range, clear
                 if (Destination.dest.get(player).hasXYZ() && (boolean) player.getPData().getDEST().getSetting(Destination.Setting.autoclear) &&
-                        Destination.dest.getDist(player) <= (double) player.getPData().getDEST().getSetting(Destination.Setting.autoclear_rad)) {
+                        Destination.dest.getDist(player) <= (int) player.getPData().getDEST().getSetting(Destination.Setting.autoclear_rad)) {
                     Destination.dest.clear(player, 2);
                 }
             }

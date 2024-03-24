@@ -26,7 +26,6 @@
 
   "key.directionhud.button.off": "OFF",
   "key.directionhud.button.on": "ON",
-  "key.directionhud.button.all": "ALL",
   "key.directionhud.button.state.hover": "Click to turn %s.",
   "key.directionhud.button.back": "BACK",
   "key.directionhud.button.back.hover": "Click to go back to the previous screen.",
@@ -64,6 +63,7 @@
   "hover.reset": "Click to reset %s %s.",
   "hover.reset.settings": "settings",
   "button.add": "ADD",
+  "button.all": "ALL",
 
   "hover.page_set": "Click to set the page #.",
   "hover.order": "Click to edit the order.",
@@ -278,8 +278,8 @@
 
 
 
-  "destination": "Destination",
-  "destination.ui": "Destination Commands",
+  "destination": "destination",
+  "destination.ui.commands": "Destination Commands",
   "destination.ui.short": "DEST",
 
   "destination.error.cleared": "The destination is already cleared!",
@@ -381,6 +381,7 @@
 
 
   "destination.setting.ui": "Destination Settings",
+  "destination.setting.ui.particle_color": "%s Particle Color",
   "destination.setting.ui.category.destination": "Destination",
   "destination.setting.ui.category.particles": "Particles",
   "destination.setting.ui.category.features": "Features",

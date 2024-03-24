@@ -1,7 +1,6 @@
 package one.oth3r.directionhud.common;
 
 import one.oth3r.directionhud.common.files.GlobalDest;
-import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Helper.Command.Suggester;
@@ -74,7 +73,7 @@ public class Destination {
             ArrayList<Setting> list = new ArrayList<>();
             list.add(particles__line);
             list.add(particles__dest);
-            list.add(particles__dest);
+            list.add(particles__tracking);
             return list;
         }
         public static ArrayList<Setting> features() {
@@ -108,20 +107,11 @@ public class Destination {
                 case "saved" -> saved.CMDExecutor(player, trimmedArgs);
                 case "add" -> saved.addCMDExecutor(player, trimmedArgs, false);
                 case "lastdeath" -> lastdeath.CMDExecutor(player, trimmedArgs);
-                case "settings" -> settingsCMD(player, trimmedArgs);
+                case "settings" -> settings.CMDExecutor(player, trimmedArgs);
                 case "send" -> social.send.CMDExecutor(player, trimmedArgs);
                 case "track" -> social.track.CMDExecutor(player, trimmedArgs);
                 default -> player.sendMessage(CUtl.error("command"));
             }
-        }
-
-        public static void settingsCMD(Player player, String[] args) {
-            if (args.length == 0) settings.UI(player, null);
-            if (args.length == 2) {
-                if (args[0].equalsIgnoreCase("reset")) settings.reset(player, Setting.get(args[1]), true);
-                else settings.change(player, Setting.get(args[0]), args[1], true);
-            }
-            if (args.length == 3) settings.change(player, Setting.get(args[0]), args[1], false);
         }
 
     }
@@ -129,7 +119,18 @@ public class Destination {
         public static ArrayList<String> logic(Player player, int pos, String[] args) {
             ArrayList<String> suggester = new ArrayList<>();
             if (!Utl.checkEnabled.destination(player)) return suggester;
-            if (pos == 1) suggester.addAll(base(player));
+            if (pos == 1) {
+                if (config.LastDeathSaving && (boolean) player.getPData().getDEST().getSetting(Setting.features__lastdeath)) suggester.add("lastdeath");
+                if (Utl.checkEnabled.saving(player)) {
+                    suggester.add("add");
+                    suggester.add("saved");
+                }
+                suggester.add("set");
+                if (dest.get(player).hasXYZ()) suggester.add("clear");
+                suggester.add("settings");
+                if (Utl.checkEnabled.send(player)) suggester.add("send");
+                if (Utl.checkEnabled.track(player)) suggester.add("track");
+            }
             if (pos > 1) {
                 String command = args[0].toLowerCase();
                 String[] trimmedArgs = Helper.trimStart(args, 1);
@@ -137,9 +138,7 @@ public class Destination {
                 switch (command) {
                     case "saved" -> suggester.addAll(saved.CMDSuggester(player,fixedPos,trimmedArgs));
                     case "add" -> suggester.addAll(saved.addCMDSuggester(player,fixedPos,trimmedArgs));
-                    case "settings" -> {
-                        if (fixedPos == 0) suggester.add("reset");
-                    }
+                    case "settings" -> suggester.addAll(settings.CMDSuggester(player, fixedPos,trimmedArgs));
                     case "color" -> {
                         if (fixedPos == 3 && trimmedArgs[0].equals("set")) suggester.addAll(Suggester.colors(player,Suggester.getCurrent(trimmedArgs,fixedPos)));
                     }
@@ -150,21 +149,6 @@ public class Destination {
             }
             return suggester;
         }
-        public static ArrayList<String> base(Player player) {
-            ArrayList<String> suggester = new ArrayList<>();
-            if (config.LastDeathSaving && (boolean) player.getPData().getDEST().getSetting(Setting.features__lastdeath)) suggester.add("lastdeath");
-            if (Utl.checkEnabled.saving(player)) {
-                suggester.add("add");
-                suggester.add("saved");
-            }
-            suggester.add("set");
-            if (dest.get(player).hasXYZ()) suggester.add("clear");
-            suggester.add("settings");
-            if (Utl.checkEnabled.send(player)) suggester.add("send");
-            if (Utl.checkEnabled.track(player)) suggester.add("track");
-            return suggester;
-        }
-
     }
     public static final Lang LANG = new Lang("destination.");
     private static CTxT lang(String key, Object... args) {
@@ -863,7 +847,7 @@ public class Destination {
              * @return if errors were sent or not
              */
             public boolean sendErrors() {
-                if (this.isValid()) {
+                if (this.isValid() && this.dest.hasDestRequirements()) {
                     // if valid but name is too long
                     if (this.dest.getName().length() > Helper.MAX_NAME) {
                         player.sendMessage(CUtl.LANG.error("length",Helper.MAX_NAME));
@@ -909,6 +893,8 @@ public class Destination {
          * @param destination the destination to save
          */
         public static void add(Player player, Dest destination) {
+            // format the color
+            destination.setColor(CUtl.color.colorHandler(player,destination.getColor()));
             // if errors were sent (invalid), return
             if (destination.sendErrors()) return;
             if (destination.getList().size() >= config.DestMAX) {
@@ -920,8 +906,7 @@ public class Destination {
                 return;
             }
 
-            // format the color
-            destination.setColor(CUtl.color.colorHandler(player,destination.getColor()));
+
             // save the destination
             destination.add();
 
@@ -1914,6 +1899,77 @@ public class Destination {
     public static class settings {
         public static final Lang LANG = new Lang("destination.setting.");
         /**
+         * the main button for destination SETTINGS
+         */
+        public static CTxT BUTTON = CUtl.LANG.btn("settings").btn(true).color(Assets.mainColors.setting)
+                .cEvent(1,"/dest settings")
+                .hEvent(CTxT.of(Assets.cmdUsage.destSettings).color(Assets.mainColors.setting).append("\n")
+                        .append(CUtl.LANG.hover("settings",CUtl.LANG.get("destination"))));
+        public static void CMDExecutor(Player player, String[] args) {
+            // UI
+            if (args.length == 0) {
+                UI(player, null);
+                return;
+            }
+            // if there is -r, remove it and enable returning
+            boolean Return = args[0].contains("-r");
+            args[0] = args[0].replace("-r","");
+
+            // RESET
+            if (args[0].equals("reset")) {
+                if (args.length == 1) reset(player,Setting.none,Return);
+                    // reset (module) - per module
+                else reset(player, Setting.get(args[1]),Return);
+            }
+            // SET
+            if (args[0].equals("set")) {
+                if (args.length != 3) player.sendMessage(CUtl.error("args"));
+                // else set
+                else change(player, Setting.get(args[1]),args[2],Return);
+            }
+            if (args[0].equals("colorui")) {
+                if (args.length == 3) colorUI(player,args[2],Setting.get(args[1]));
+            }
+        }
+        public static ArrayList<String> CMDSuggester(Player player, int pos, String[] args) {
+            ArrayList<String> suggester = new ArrayList<>();
+            // base
+            if (pos == 0) {
+                suggester.add("set");
+                suggester.add("reset");
+                return suggester;
+            }
+            // if -r is attached, remove it and continue with the suggester
+            args[0] = args[0].replaceAll("-r", "");
+            // settings (set, reset)
+            if (pos == 1) {
+                // add all settings
+                for (Setting s: Setting.values())
+                    suggester.add(s.toString());
+                // remove none as it was added when adding all settings
+                suggester.remove(Setting.none.toString());
+            }
+            // settings set (type)
+            if (pos == 2 && args[0].equalsIgnoreCase("set")) {
+                Setting setting = Setting.get(args[1]);
+                // boolean settings
+                if (Setting.bool().contains(setting)) {
+                    suggester.add("on");
+                    suggester.add("off");
+                }
+                // color settings
+                if (Setting.colors().contains(setting))
+                    suggester.addAll(Suggester.colors(player,Suggester.getCurrent(args,pos)));
+                // tracking request
+                if (setting.equals(Setting.features__track_request_mode))
+                    suggester.addAll(Enums.toStringList(Enums.toArrayList(TrackingRequestMode.values())));
+                // autoclear.rad
+                if (setting.equals(Setting.autoclear_rad))
+                    suggester.add("0");
+            }
+            return suggester;
+        }
+        /**
          * gets the config state from the Setting
          * @param setting setting to get
          * @return the current config value for the setting
@@ -1985,17 +2041,18 @@ public class Destination {
                     return;
                 }
                 int i = Math.max(Math.min(Num.toInt(state),15),1);
-                player.setPData().getDEST().setSetting( Setting.autoclear_rad,i);
+                player.setPData().getDEST().setSetting(Setting.autoclear_rad,i);
                 setTxT.append(CTxT.of(String.valueOf(i)).color((boolean) player.getPData().getDEST().getSetting(Setting.autoclear)?'a':'c'));
             }
+            // req mode set
             if (setting.equals(Setting.features__track_request_mode)) {
                 player.setPData().getDEST().setSetting( setting, Enums.get(state,Setting.TrackingRequestMode.class));
                 setTxT.append(LANG.get(setting +"."+ Enums.get(state,Setting.TrackingRequestMode.class)).color(CUtl.s()));
             }
-            // color UI todo MAKE IT ACTUALLY CHANGE THE COLOR AND COLOR UI IS A DIFFERENT THING
+            // color set
             if (Setting.colors().contains(setting)) {
-                colorUI(player,state,setting,null);
-                return;
+                setParticleColor(player,null,setting,state,false);
+                setTxT.append(CUtl.color.getBadge((String) player.getPData().getDEST().getSetting(setting)));
             }
             // if bool, boolean set
             if (Setting.bool().contains(setting)) {
@@ -2004,11 +2061,11 @@ public class Destination {
             }
             // message generator
             CTxT msg = CUtl.tag();
-            // boolean message
+            // particle boolean message
             if (Setting.particles().contains(setting)) {
                 msg.append(LANG.msg("set.toggle",LANG.get("particle",LANG.get(setting.toString()).color(CUtl.s())),setTxT));
             }
-            // particle message
+            // boolean message
             else if (Setting.bool().contains(setting)) {
                 msg.append(LANG.msg("set.toggle",LANG.get(setting.toString()).color(CUtl.s()),setTxT));
             }
@@ -2027,7 +2084,7 @@ public class Destination {
             if (type.equals(Setting.none)) return false;
             if (player.getPData().getDEST().getSetting(type) != getConfig(type)) output = true;
             if (type.equals(Setting.autoclear))
-                if (((Double) player.getPData().getDEST().getSetting(Setting.autoclear_rad)).intValue() != (int)getConfig(Setting.autoclear_rad)) output = true;
+                if ((int)player.getPData().getDEST().getSetting(Setting.autoclear_rad) != (int)getConfig(Setting.autoclear_rad)) output = true;
             if (type.equals(Setting.features__track))
                 if (!player.getPData().getDEST().getSetting(Setting.features__track_request_mode).equals(getConfig(Setting.features__track_request_mode))) output = true;
             if (Setting.colors().contains(Setting.get(type+"_color")))
@@ -2063,7 +2120,7 @@ public class Destination {
             // autoclear
             if (setting.equals(Setting.autoclear)) {
                 // get int values of the doubles in the PlayerData files to look better
-                button.append(CTxT.of(String.valueOf(((Double) player.getPData().getDEST().getSetting(Setting.get(setting+"_rad"))).intValue())).btn(true)
+                button.append(CTxT.of(String.valueOf((int) player.getPData().getDEST().getSetting(Setting.get(setting+"_rad")))).btn(true)
                         .color(state?'a':'c').cEvent(2,"/dest settings set-r "+setting+"_rad ")
                         .hEvent(LANG.get(Setting.autoclear_rad+".ui").color(state?'a':'c').append("\n")
                                 .append(LANG.hover("set.custom",LANG.get(Setting.autoclear_rad.toString()))).append("\n")
@@ -2089,29 +2146,43 @@ public class Destination {
             }
             return button;
         }
-        public static void colorUI(Player player, String UISettings, Setting setting, CTxT aboveMSG) {
-            // todo
-            if (!Setting.colors().contains(setting)) return; // if not a color setting
-            String currentColor = (String) player.getPData().getDEST().getSetting(setting); // get the current color
-            CTxT uiType = lang("settings."+setting.toString().substring(0,setting.toString().length()-6)),
-                    msg = CTxT.of("");
-            if (aboveMSG != null) msg.append(aboveMSG).append("\n");
-            msg.append(" ").append(uiType.color(currentColor))
-                    .append(CTxT.of("\n                               \n").strikethrough(true))
-                    .append(DHUD.preset.colorEditor(currentColor,UISettings, DHUD.preset.Type.dest,setting.toString(),"/dest settings "+setting+" %s"))
-                    .append("\n\n           ").append(CUtl.CButton.back("/dest settings"))
-                    .append(CTxT.of("\n                               ").strikethrough(true));
+        /**
+         * the color UI for particle color
+         * @param UISettings the UI settings
+         * @param setting the particle color to edit
+         */
+        public static void colorUI(Player player, String UISettings, Setting setting) {
+            // return if not a color setting
+            if (!Setting.colors().contains(setting)) return;
+            String currentColor = (String) player.getPData().getDEST().getSetting(setting);
+            // get the current color
+            CTxT msg = CTxT.of(""), line = CTxT.of("\n                               ").strikethrough(true);
+            msg.append(" ").append(LANG.ui("particle_color",
+                            // get the base particle color name by removing _color
+                            LANG.get(setting.toString().replace("_color","")+".ui")).color(currentColor))
+                    .append(line).append("\n")
+                    .append(DHUD.preset.colorEditor(currentColor,UISettings, DHUD.preset.Type.dest,setting.toString(),"/dest settings colorui "+setting+" %s"))
+                    .append("\n\n           ").append(CUtl.CButton.back("/dest settings")).append(line);
             player.sendMessage(msg);
         }
-        public static void setColor(Player player, String UISettings, Setting type, String color, boolean Return) {
+        /**
+         * sets the particle color
+         * @param UISettings the UI settings if returning to color UI
+         * @param type the particle color to change
+         * @param color the color to set to
+         * @param Return return to color UI
+         */
+        public static void setParticleColor(Player player, String UISettings, Setting type, String color, boolean Return) {
             // format color
             color = CUtl.color.colorHandler(player,color,(String)player.getPData().getDEST().getSetting(type));
-            CTxT uiType = lang("settings."+type.toString().substring(0,type.toString().length()-6));
             player.setPData().getDEST().setSetting(type,color);
-            CTxT msg = CUtl.tag().append(lang("settings.particles.color.set",uiType.toString().toUpperCase(),CUtl.color.getBadge(color)));
-            if (Return) colorUI(player,UISettings,type,msg);
-            else player.sendMessage(msg);
+            if (Return) colorUI(player,UISettings,type);
         }
+
+        /**
+         * the main UI for destination settings
+         * @param aboveTxT the TxT to show above the UI
+         */
         public static void UI(Player player, CTxT aboveTxT) {
             CTxT msg = CTxT.of(""), line = CTxT.of("\n                                ").strikethrough(true);
             if (aboveTxT != null) msg.append(aboveTxT).append("\n");
@@ -2195,7 +2266,7 @@ public class Destination {
                 resetOn = canBeReset(player,t);
             }
             if (resetOn) reset.color('c').cEvent(1,"/dest settings reset-r all")
-                    .hEvent(CUtl.LANG.hover("reset",CUtl.TBtn("all").color('c'),CUtl.LANG.hover("reset.settings")));
+                    .hEvent(CUtl.LANG.hover("reset",CUtl.LANG.btn("all").color('c'),CUtl.LANG.hover("reset.settings")));
             // bottom row
             msg.append("\n     ").append(reset).append("  ").append(CUtl.CButton.back("/dest")).append(line);
             player.sendMessage(msg);
@@ -2203,7 +2274,7 @@ public class Destination {
     }
     public static void UI(Player player) {
         CTxT msg = CTxT.of(" ");
-        msg.append(lang("ui").color(Assets.mainColors.dest)).append(CTxT.of("\n                                  ").strikethrough(true)).append("\n ");
+        msg.append(lang("ui.commands").color(Assets.mainColors.dest)).append(CTxT.of("\n                                  ").strikethrough(true)).append("\n ");
         // lmao this is a mess but is it the best way to do it? dunno
         boolean line1Free = false;
         boolean line2Free = !((boolean) player.getPData().getDEST().getSetting(Setting.features__lastdeath) && config.LastDeathSaving);
@@ -2229,7 +2300,7 @@ public class Destination {
             } else msg.append("  ");
         }
         //SETTINGS
-        msg.append(CUtl.CButton.dest.settings());
+        msg.append(settings.BUTTON);
         if (line1Free) {
             msg.append("\n\n ");
         } else if (line2Free) msg.append("  ");
