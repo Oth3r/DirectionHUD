@@ -15,7 +15,8 @@ import net.minecraft.text.Text;
 import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.LoopManager;
-import one.oth3r.directionhud.common.files.PlayerData;
+import one.oth3r.directionhud.common.files.playerdata.PData;
+import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.utils.Player;
 import org.lwjgl.glfw.GLFW;
 
@@ -26,7 +27,6 @@ import java.util.HashMap;
 public class DirectionHUDClient implements ClientModInitializer {
     public static boolean singleplayer = false;
     public static boolean onSupportedServer = false;
-    public static HashMap<String, Object> packetData = new HashMap<>();
     private static KeyBinding keyBinding;
     public static Text override = Text.of("");
     public static int overrideCd = 0;
@@ -61,15 +61,13 @@ public class DirectionHUDClient implements ClientModInitializer {
                 }
             }
         });
-        ClientPlayNetworking.registerGlobalReceiver(PacketBuilder.getIdentifier(Assets.packets.SETTINGS), (client, handler, buf, responseSender) -> {
+        ClientPlayNetworking.registerGlobalReceiver(PacketBuilder.getIdentifier(Assets.packets.PLAYER_DATA), (client, handler, buf, responseSender) -> {
             // receiving setting packets from the server, copy to not throw an error
             PacketBuilder packet = new PacketBuilder(buf.copy());
             assert client.player != null;
             client.execute(() -> {
-                Type hashMapToken = new TypeToken<HashMap<String, Object>>() {}.getType();
                 Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-                packetData = gson.fromJson(packet.getMessage(), hashMapToken);
-                if (!client.isInSingleplayer()) PlayerData.playerMap.put(Player.of(),packetData);
+                if (!client.isInSingleplayer()) PlayerData.setPlayerData(new Player(),gson.fromJson(packet.getMessage(), PData.class));
                 onSupportedServer = true;
             });
         });
@@ -96,8 +94,7 @@ public class DirectionHUDClient implements ClientModInitializer {
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
             singleplayer = false;
             onSupportedServer = false;
-            packetData = new HashMap<>();
-            PlayerData.playerMap.clear();
+            PlayerData.removePlayer(new Player());
         });
     }
     public static Player getClientPlayer(MinecraftClient client) {

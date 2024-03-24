@@ -1,22 +1,17 @@
 package one.oth3r.directionhud.common.files.playerdata;
 
-import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import one.oth3r.directionhud.DirectionHUD;
-import one.oth3r.directionhud.common.DHUD;
-import one.oth3r.directionhud.common.Destination;
-import one.oth3r.directionhud.common.HUD;
+import one.oth3r.directionhud.common.LoopManager;
 import one.oth3r.directionhud.common.files.config;
-import one.oth3r.directionhud.common.utils.CUtl;
-import one.oth3r.directionhud.common.utils.Helper;
-import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.utils.Player;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.lang.reflect.Type;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PlayerData {
     private static final Map<Player, PData> playerData = new HashMap<>();
@@ -30,7 +25,12 @@ public class PlayerData {
     public static Map<Player, PData> getPlayerData() {
         return new HashMap<>(playerData);
     }
-
+    public static void setPlayerData(Player player, PData pData) {
+        playerData.put(player,pData);
+    }
+    public static void removePlayerData(Player player) {
+        playerData.remove(player);
+    }
     /**
      * gets the pData for the player, creating a new one if they don't have
      * @return the pData
@@ -57,8 +57,9 @@ public class PlayerData {
      * removes a player from the system
      */
     public static void removePlayer(Player player) {
+        LoopManager.removeSavePlayer(player);
         toFile(player);
-        playerData.remove(player);
+        removePlayerData(player);
     }
 
 
