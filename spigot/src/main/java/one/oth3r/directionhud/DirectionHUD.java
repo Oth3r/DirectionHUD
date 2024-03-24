@@ -75,7 +75,7 @@ public class DirectionHUD extends JavaPlugin implements PluginMessageListener {
             DirectionHUD.LOGGER.info("Received initialization packet from "+player.getName());
             Player dplayer = Player.of(player);
             clientPlayers.add(dplayer);
-            dplayer.sendSettingPackets();
+            dplayer.sendPDataPackets();
         }
     }
 }

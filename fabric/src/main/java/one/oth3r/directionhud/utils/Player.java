@@ -14,7 +14,7 @@ import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.LoopManager;
 import one.oth3r.directionhud.common.files.playerdata.PData;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
-import one.oth3r.directionhud.common.utils.CUtl;
+import one.oth3r.directionhud.common.template.PlayerTemplate;
 import one.oth3r.directionhud.common.utils.Loc;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
 
-public class Player {
+public class Player extends PlayerTemplate {
     private ServerPlayerEntity player;
     @Override
     public boolean equals(Object obj) {
@@ -40,10 +40,6 @@ public class Player {
     @Override
     public int hashCode() {
         return Objects.hash(player);
-    }
-    @Override
-    public String toString() {
-        return "DirectionHUD Player: "+this.getName();
     }
     public Player() {}
     public static Player of() {
@@ -81,21 +77,17 @@ public class Player {
     public void sendActionBar(CTxT message) {
         player.sendMessage(message.b(),true);
     }
-    // Call after toggling the hud.
-    public void updateHUD() {
-        // if toggled off
-        if (!(boolean) getPData().getHud().getSetting(HUD.Setting.state)) {
-            //if actionbar send empty to clear else remove bossbar
-            if (getPData().getHud().getSetting(HUD.Setting.type).equals(HUD.Setting.DisplayType.actionbar.toString()))
-                this.sendActionBar(CTxT.of(""));
-            else DirectionHUD.bossBarManager.removePlayer(this);
-        }
-        if (getPData().getHud().getSetting(HUD.Setting.type).equals(HUD.Setting.DisplayType.actionbar.toString()))
-            DirectionHUD.bossBarManager.removePlayer(this);
-        else this.sendActionBar(CTxT.of(""));
+
+    @Override
+    public void displayBossBar(CTxT message) {
+        DirectionHUD.bossBarManager.display(this,message);
     }
-    public void sendSettingPackets() {
-        // if player has DirectionHUD on client, send a hashmap with data
+    @Override
+    public void removeBossBar() {
+        DirectionHUD.bossBarManager.removePlayer(this);
+    }
+    @Override
+    public void sendPDataPackets() {
         if (DirectionHUD.clientPlayers.contains(this)) {
             Gson gson = new GsonBuilder().disableHtmlEscaping().create();
             PacketBuilder packet = new PacketBuilder(gson.toJson(getPData()));
@@ -108,41 +100,12 @@ public class Player {
         PacketBuilder packet = new PacketBuilder(gson.toJson(hudData));
         packet.sendToPlayer(Assets.packets.HUD,player);
     }
-    public void displayHUD(CTxT message) {
-        if (message.toString().isEmpty()) {
-            //if the HUD is enabled but there is no output, flip the tag
-            if (this.getPData().getMsg("hud.enabled_but_off").isBlank()) {
-                this.getPData().setMsg("hud.enabled_but_off","true");
-                // if actionbar, clear once, if bossbar remove player
-                if ((HUD.Setting.DisplayType.get((String) getPData().getHud().getSetting(HUD.Setting.type)).equals(HUD.Setting.DisplayType.actionbar))) {
-                    player.sendMessage(CTxT.of("").b(),true);
-                } else DirectionHUD.bossBarManager.removePlayer(this);
-            }
-            return;
-        } else if (!this.getPData().getMsg("hud.enabled_but_off").isBlank()) {
-            // hud isn't blank but the blank tag was still enabled
-            this.getPData().clearMsg("hud.enabled_but_off");
-        }
-        // if actionbar send actionbar, if bossbar update the bar
-        if ((HUD.Setting.DisplayType.get((String) getPData().getHud().getSetting(HUD.Setting.type)).equals(HUD.Setting.DisplayType.actionbar)))
-            player.sendMessage(message.b(),true);
-        else DirectionHUD.bossBarManager.display(this,message);
-    }
     public String getName() {
         return player.getName().getString();
-    }
-
-    /**
-     * makes a CTxT with the players name in the secondary color
-     * @return the highlighted player name
-     */
-    public CTxT getHighlightedName() {
-        return CTxT.of(getName()).color(CUtl.s());
     }
     public PData getPData() {
         return PlayerData.getPData(this);
     }
-
     /**
      * returns the pData for setting, and adds the player to the list for pData saving
      * @return pData

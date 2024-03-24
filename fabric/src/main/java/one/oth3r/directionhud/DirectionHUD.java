@@ -70,7 +70,7 @@ public class DirectionHUD implements ModInitializer {
 					DirectionHUD.LOGGER.info("Received initialization packet from "+player.getName().getString());
 					Player dPlayer = Player.of(player);
 					DirectionHUD.clientPlayers.add(dPlayer);
-					dPlayer.sendSettingPackets();
+					dPlayer.sendPDataPackets();
 				}));
 		//COMMANDS
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
