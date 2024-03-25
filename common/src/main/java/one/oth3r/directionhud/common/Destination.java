@@ -155,6 +155,15 @@ public class Destination {
         return CUtl.getLangEntry("destination."+key, args);
     }
     public static class dest {
+        public static CTxT SET_BUTTON() {
+            return LANG.btn("set").btn(true).color(Assets.mainColors.set).cEvent(2,"/dest set ").hEvent(
+                    CTxT.of(Assets.cmdUsage.destSet).color(Assets.mainColors.set).append("\n").append(LANG.hover("set_self")));
+        }
+        public static CTxT CLEAR_BUTTON(Player player) {
+            boolean o = Destination.dest.get(player).hasXYZ();
+            return CTxT.of(Assets.symbols.x).btn(true).color(o?'c':'7').cEvent(o?1:0,"/dest clear").hEvent(
+                    CTxT.of(Assets.cmdUsage.destClear).color(o?'c':'7').append("\n").append(LANG.hover("clear")));
+        }
         public static Loc get(Player player) {
             Loc loc = player.getPData().getDEST().getDest();
             if (!loc.hasXYZ()) return new Loc();
@@ -385,6 +394,19 @@ public class Destination {
     public static class saved {
         private static final int PER_PAGE = 7;
         public static final Lang LANG = new Lang("destination.saved.");
+        public static CTxT BUTTON = LANG.btn().btn(true).color(Assets.mainColors.saved).cEvent(1,"/dest saved")
+                .hEvent(CTxT.of(Assets.cmdUsage.destSaved).color(Assets.mainColors.saved).append("\n").append(LANG.hover()));
+        public static CTxT ADD_BUTTON = CTxT.of("+").btn(true).color(Assets.mainColors.add).cEvent(2,"/dest add ")
+                .hEvent(CTxT.of(Assets.cmdUsage.destAdd).color(Assets.mainColors.add).append("\n")
+                        .append(LANG.hover("add",LANG.hover("add.2").color(Assets.mainColors.add))));
+        public static CTxT SAVE_BUTTON(String cmd) {
+            return CTxT.of("+").btn(true).color(Assets.mainColors.add).cEvent(2,cmd)
+                    .hEvent(LANG.hover("save",LANG.hover("save.2").color(Assets.mainColors.add)));
+        }
+        public static CTxT EDIT_BUTTON(int click, String cmd) {
+            return CTxT.of(Assets.symbols.pencil).btn(true).color(Assets.mainColors.edit).cEvent(click,cmd)
+                    .hEvent(LANG.hover("edit",CUtl.LANG.get("destination")).color(Assets.mainColors.edit)).color(Assets.mainColors.edit);
+        }
         /*
         all command executors and suggesters for SAVED
          */
@@ -609,7 +631,7 @@ public class Destination {
             if (!Utl.checkEnabled.saving(player)) return;
             //dest saved add <name>
             if (args.length == 1) {
-                add(player,new Dest(player,new Loc(player,args[0]),global));
+                addButton(player,new Dest(player,new Loc(player,args[0]),global));
                 return;
             }
             if (!Num.inBetween(args.length, 2, 6)) {
@@ -626,47 +648,47 @@ public class Destination {
                 } else {
                     baseLoc.setColor(args[1]);
                 }
-                add(player,new Dest(player,baseLoc,global));
+                addButton(player,new Dest(player,baseLoc,global));
                 return;
             }
             //dest saved add <name> x z
             if (args.length == 3) {
-                add(player,new Dest(player,new Loc(Num.toInt(args[1]),null, Num.toInt(args[2]),playerDIM,args[0],null),global));
+                addButton(player,new Dest(player,new Loc(Num.toInt(args[1]),null, Num.toInt(args[2]),playerDIM,args[0],null),global));
                 return;
             }
             //dest saved add <name> x z color
             if (args.length == 4 && !Num.isInt(args[3]) && !Dim.checkValid(args[3])) {
-                add(player,new Dest(player,new Loc(Num.toInt(args[1]),null,Num.toInt(args[2]),playerDIM,args[0],args[3]),global));
+                addButton(player,new Dest(player,new Loc(Num.toInt(args[1]),null,Num.toInt(args[2]),playerDIM,args[0],args[3]),global));
                 return;
             }
             //dest saved add <name> x y DIM
             if (args.length == 4 && !Num.isInt(args[3])) {
-                add(player,new Dest(player,new Loc(Num.toInt(args[1]),null,Num.toInt(args[2]),args[3],args[0],null),false));
+                addButton(player,new Dest(player,new Loc(Num.toInt(args[1]),null,Num.toInt(args[2]),args[3],args[0],null),false));
                 return;
             }
             //dest saved add <name> x y z
             if (args.length == 4 && Num.isInt(args[3])) {
-                add(player,new Dest(player,new Loc(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),playerDIM,args[0],null),false));
+                addButton(player,new Dest(player,new Loc(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),playerDIM,args[0],null),false));
                 return;
             }
             //dest saved add <name> x y DIM color
             if (args.length == 5 && !Num.isInt(args[3])) {
-                add(player,new Dest(player,new Loc(Num.toInt(args[1]),null,Num.toInt(args[2]),args[3],args[0],args[4]),false));
+                addButton(player,new Dest(player,new Loc(Num.toInt(args[1]),null,Num.toInt(args[2]),args[3],args[0],args[4]),false));
                 return;
             }
             //dest saved add <name> x y z color
             if (args.length == 5 && !Dim.checkValid(args[4])) {
-                add(player,new Dest(player,new Loc(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),playerDIM,args[0],args[4]),false));
+                addButton(player,new Dest(player,new Loc(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),playerDIM,args[0],args[4]),false));
                 return;
             }
             //dest saved add <name> x y z DIM
             if (args.length == 5) {
-                add(player,new Dest(player,new Loc(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),args[4],args[0],null),false));
+                addButton(player,new Dest(player,new Loc(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),args[4],args[0],null),false));
                 return;
             }
             //dest saved add <name> x y z DIM color
             if (args.length == 6) {
-                add(player,new Dest(player,new Loc(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),args[4],args[0],args[5]),false));
+                addButton(player,new Dest(player,new Loc(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),args[4],args[0],args[5]),false));
                 return;
             }
             player.sendMessage(CUtl.usage(Assets.cmdUsage.destAdd));
@@ -711,6 +733,7 @@ public class Destination {
             }
             return suggester;
         }
+
         /**
          * destination helper
          */
@@ -892,7 +915,7 @@ public class Destination {
          * saves a new destination
          * @param destination the destination to save
          */
-        public static void add(Player player, Dest destination) {
+        public static void addButton(Player player, Dest destination) {
             // format the color
             destination.setColor(CUtl.color.colorHandler(player,destination.getColor()));
             // if errors were sent (invalid), return
@@ -915,7 +938,7 @@ public class Destination {
             // buttons after the destination
             CTxT buttons = CTxT.of(" ");
             // only show edit button if destination isn't global
-            if (!destination.isGlobal()) buttons.append(CUtl.CButton.dest.edit(1,"/dest saved edit "+cmdName)).append(" ");
+            if (!destination.isGlobal()) buttons.append(EDIT_BUTTON(1,"/dest saved edit "+cmdName)).append(" ");
             buttons.append(dest.setButtons("/dest set saved "+cmdName,
                     Dim.canConvert(player.getDimension(),destination.getDest().getDimension())));
 
@@ -1092,17 +1115,17 @@ public class Destination {
                     .append("\n   ");
             // SEND BUTTON
             if (Utl.checkEnabled.send(player)) {
-                msg.append(Destination.LANG.btn("send").btn(true).color(Assets.mainColors.send).cEvent(2,"/dest saved send "+cmdName+" ")
+                msg.append(social.send.LANG.btn().btn(true).color(Assets.mainColors.send).cEvent(2,"/dest saved send "+cmdName+" ")
                         .hEvent(CTxT.of("/dest saved send "+cmdName+" <player>").color(Assets.mainColors.send)
-                                .append("\n").append(Destination.LANG.hover("send.saved")))).append(" ");
+                                .append("\n").append(social.send.LANG.hover("saved")))).append(" ");
             }
             // SET & CONVERT BUTTON
             msg
                     .append(dest.setButtons("/dest set saved "+cmdName,
                             Dim.canConvert(player.getDimension(),destination.getDest().getDimension()))).append(" ")
                     .append("\n\n ")
-                    .append(CUtl.TBtn("delete").btn(true).color('c').cEvent(2,"/dest saved delete-r "+cmdName)
-                            .hEvent(CUtl.TBtn("delete.hover_dest").color('c'))).append(" ")
+                    .append(LANG.btn("delete").btn(true).color('c').cEvent(2,"/dest saved delete-r "+cmdName)
+                            .hEvent(LANG.hover("delete",LANG.btn("delete").color('c')))).append(" ")
                     //BACK
                     .append(CUtl.CButton.back("/dest saved "+ listPage.getPageOf(destination.getDest())))
                     .append(line);
@@ -1126,19 +1149,15 @@ public class Destination {
                         // BADGE
                         .append(entry.getBadge()).append(" ")
                         // EDIT
-                        .append(CUtl.CButton.dest.edit(1,"/dest saved edit " + cmdName)).append(" ")
+                        .append(EDIT_BUTTON(1,"/dest saved edit " + cmdName)).append(" ")
                         // SET & convert
                         .append(dest.setButtons("/dest set saved " + cmdName,
                                 Dim.canConvert(player.getDimension(), entry.getDimension())))
                         .append("\n");
             }
-            // make the add button
-            CTxT addBtn = CTxT.of("+").btn(true).color(Assets.mainColors.add).cEvent(2,"/dest add ").hEvent(
-                    CTxT.of(Assets.cmdUsage.destAdd).color(Assets.mainColors.add).append("\n")
-                            .append(Destination.LANG.hover("add",Destination.LANG.hover("add.2").color(Assets.mainColors.add))));
             // no saved
             if (listPage.getPage(pg).isEmpty()) {
-                msg.append(" ").append(LANG.ui("none")).append("\n ").append(LANG.ui("none.2",addBtn)).append("\n");
+                msg.append(" ").append(LANG.ui("none")).append("\n ").append(LANG.ui("none.2",ADD_BUTTON)).append("\n");
             }
             msg.append("\n ");
             // add global button if enabled
@@ -1146,7 +1165,7 @@ public class Destination {
                     .hEvent(LANG.hover("global").color(Assets.mainColors.global))
                     .cEvent(1,"/dest saved global"));
             // else add button
-            else msg.append(addBtn);
+            else msg.append(ADD_BUTTON);
             msg
                     // nav buttons
                     .append(" ").append(listPage.getNavButtons(pg,"/dest saved "))
@@ -1197,6 +1216,8 @@ public class Destination {
     public static class lastdeath {
         private static final int PER_PAGE = 4;
         public static final Lang LANG = new Lang("destination.lastdeath.");
+        public static CTxT BUTTON = LANG.btn().btn(true).color(Assets.mainColors.lastdeath).cEvent(1,"/dest lastdeath")
+                .hEvent(CTxT.of(Assets.cmdUsage.destLastdeath).color(Assets.mainColors.lastdeath).append("\n").append(LANG.hover()));
         public static void CMDExecutor(Player player, String[] args) {
             if (!Utl.checkEnabled.lastdeath(player)) return;
             if (args.length == 0) {
@@ -1236,7 +1257,7 @@ public class Destination {
             for (Loc loc: listPage.getPage(pg)) {
                 String dim = loc.getDimension();
                 msg.append(loc.getBadge()).append("\n  ")
-                        .append(CUtl.CButton.dest.add("/dest add "+Dim.getName(dim).toLowerCase()+"_death "+loc.getXYZ()+" "+dim+" "+Dim.getColor(dim).substring(1)))
+                        .append(saved.SAVE_BUTTON("/dest add \""+Dim.getName(dim).toLowerCase()+"_death\" "+loc.getXYZ()+" "+dim+" \""+Dim.getColor(dim)+"\""))
                         .append(" ").append(dest.setButtons("/dest set "+loc.getXYZ()+" "+loc.getDimension(),
                                 Dim.canConvert(player.getDimension(),dim)));
                 msg.append("\n ");
@@ -1265,6 +1286,8 @@ public class Destination {
         }
         public static class send {
             public static final Lang LANG = new Lang("destination.send.");
+            public static CTxT BUTTON = LANG.btn().btn(true).color(Assets.mainColors.send).cEvent(2,"/dest send ")
+                    .hEvent(CTxT.of(Assets.cmdUsage.destSend).color(Assets.mainColors.send).append("\n").append(LANG.hover()));
             public static void CMDExecutor(Player player, String[] args) {
                 // enabled check
                 if (!Utl.checkEnabled.send(player)) return;
@@ -1549,7 +1572,7 @@ public class Destination {
                 String colorCMD = loc.getColor()==null ? "" : "\""+loc.getColor()+"\"";
                 // ADD
                 if (Utl.checkEnabled.saving(player))
-                    txt.append(CUtl.CButton.dest.add("/dest saved add \""+loc.getName()+"\" "+loc.getXYZ()+" "+loc.getDimension()+colorCMD)).append(" ");
+                    txt.append(saved.SAVE_BUTTON("/dest saved add \""+loc.getName()+"\" "+loc.getXYZ()+" "+loc.getDimension()+colorCMD)).append(" ");
                 // SET & CONVERT
                 txt.append(dest.setButtons("/dest set "+loc.getXYZ()+" "+loc.getDimension(),
                         Dim.canConvert(player.getDimension(),loc.getDimension())));
@@ -1558,6 +1581,13 @@ public class Destination {
         }
         public static class track {
             public static final Lang LANG = new Lang("destination.track.");
+            public static CTxT BUTTON(boolean x) {
+                return CTxT.of("")
+                        .append(LANG.btn().btn(true).color(Assets.mainColors.track).cEvent(2,"/dest track set")
+                                .hEvent(CTxT.of(Assets.cmdUsage.destTrack).color(Assets.mainColors.track).append("\n").append(LANG.hover())))
+                        .append(CTxT.of(Assets.symbols.x).btn(true).color(x? 'c':'7').cEvent(x? 1:0,"/dest track clear")
+                                .hEvent(CTxT.of(Assets.cmdUsage.destTrackClear).color(x? 'c':'7').append("\n").append(LANG.hover("clear"))));
+            }
             public static void CMDExecutor(Player player, String[] args) {
                 if (!Utl.checkEnabled.track(player)) return;
                 //dest track
@@ -2272,27 +2302,28 @@ public class Destination {
             player.sendMessage(msg);
         }
     }
+    public static CTxT BUTTON = LANG.btn().btn(true).color(Assets.mainColors.dest).cEvent(1,"/dest").hEvent(
+                CTxT.of(Assets.cmdUsage.dest).color(Assets.mainColors.dest).append("\n").append(LANG.hover()));
     public static void UI(Player player) {
-        CTxT msg = CTxT.of(" ");
-        msg.append(lang("ui.commands").color(Assets.mainColors.dest)).append(CTxT.of("\n                                  ").strikethrough(true)).append("\n ");
+        CTxT msg = CTxT.of(" "), line = CTxT.of("\n                                  ").strikethrough(true);
+        msg.append(LANG.ui("commands").color(Assets.mainColors.dest)).append(line).append("\n ");
         // lmao this is a mess but is it the best way to do it? dunno
         boolean line1Free = false;
         boolean line2Free = !((boolean) player.getPData().getDEST().getSetting(Setting.features__lastdeath) && config.LastDeathSaving);
-        boolean trackBig = social.track.getTarget(player) != null;
         boolean sendThird = Utl.checkEnabled.send(player);
         //SAVED + ADD
         if (Utl.checkEnabled.saving(player)) {
-            msg.append(CUtl.CButton.dest.saved()).append(CUtl.CButton.dest.add());
+            msg.append(saved.BUTTON).append(saved.ADD_BUTTON);
             if (!line2Free) msg.append("        ");
             else msg.append("  ");
         } else line1Free = true;
         //SET + CLEAR
-        msg.append(CUtl.CButton.dest.set()).append(CUtl.CButton.dest.clear(player));
+        msg.append(dest.SET_BUTTON()).append(dest.CLEAR_BUTTON(player));
         if (line1Free) msg.append(" ");
         else msg.append("\n\n ");
         //LASTDEATH
         if (Utl.checkEnabled.lastdeath(player)) {
-            msg.append(CUtl.CButton.dest.lastdeath());
+            msg.append(lastdeath.BUTTON);
             if (line1Free) {
                 line1Free = false;
                 line2Free = true;
@@ -2307,29 +2338,27 @@ public class Destination {
         else msg.append("\n\n ");
         //SEND
         if (Utl.checkEnabled.send(player)) {
-            msg.append(CUtl.CButton.dest.send());
+            msg.append(social.send.BUTTON);
             if (line2Free && !line1Free) {
                 msg.append("\n\n ");
                 line2Free = false;
                 sendThird = false;
-            } else if (trackBig) msg.append(" ");
-            else msg.append("   ");
+            } else msg.append(" ");
         }
         //TRACK
         if (Utl.checkEnabled.track(player)) {
-            msg.append(CUtl.CButton.dest.track());
-            if (trackBig) msg.append(CUtl.CButton.dest.trackX());
+            msg.append(social.track.BUTTON(social.track.getTarget(player)!=null));
             if (line2Free && !line1Free) {
                 msg.append("\n\n ");
-            } else if (trackBig && line2Free) {
+            } else if (line2Free) {
                 if (Utl.checkEnabled.send(player)) msg.append(" ");
                 else msg.append("   ");
-            } else if (sendThird && trackBig) {
+            } else if (sendThird) {
                 msg.append(" ");
             } else msg.append("   ");
         }
         //back
-        msg.append(CUtl.CButton.back("/dhud")).append(CTxT.of("\n                                  ").strikethrough(true));
+        msg.append(CUtl.CButton.back("/dhud")).append(line);
         player.sendMessage(msg);
     }
 }

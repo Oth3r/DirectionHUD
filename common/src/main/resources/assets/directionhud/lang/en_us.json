@@ -6,8 +6,8 @@
   "msg.error": "ERROR:",
   "msg.reset": "Reset %s!",
 
-  "key.directionhud.on": "on",
-  "key.directionhud.off": "off",
+  "on": "on",
+  "off": "off",
 
   "error.command": "Command not recognized!",
   "error.args": "Invalid command arguments!",
@@ -24,33 +24,12 @@
 
 
 
-  "key.directionhud.button.off": "OFF",
-  "key.directionhud.button.on": "ON",
-  "key.directionhud.button.state.hover": "Click to turn %s.",
-  "key.directionhud.button.back": "BACK",
-  "key.directionhud.button.back.hover": "Click to go back to the previous screen.",
-  "key.directionhud.button.clear": "CLEAR",
-  "key.directionhud.button.delete": "DELETE",
-  "key.directionhud.button.delete.hover_dest": "Click to delete destination.",
-
-  "key.directionhud.button.dest": "DESTINATION",
-  "key.directionhud.button.dest.hover": "Click to show all destination commands.",
-
-
-  "key.directionhud.button.dest.edit": "EDIT",
-  "key.directionhud.button.dest.edit.hover": "Click to edit.",
-  "key.directionhud.button.dest.clear": "CLEAR",
-  "key.directionhud.button.dest.clear.hover": "Click to clear the current destination.",
-  "key.directionhud.button.dest.lastdeath": "LASTDEATH",
-  "key.directionhud.button.dest.lastdeath.hover": "Click to see all saved deaths.",
-  "key.directionhud.button.dest.track": "TRACK",
-  "key.directionhud.button.dest.track.hover": "Click to track a player's location.",
-  "key.directionhud.button.dest.track_clear.hover": "Click to clear the currently tracked player.",
-
-  "key.directionhud.button.autoclear_rad.hover": "Click to enter a new AutoClear radius.",
-  "key.directionhud.button.autoclear_rad.hover_2": "(Min = 1 | Max = 15)",
-
-
+  "button.off": "OFF",
+  "button.on": "ON",
+  "hover.state": "Click to turn %s.",
+  "button.back": "BACK",
+  "hover.back": "Click to go back to the previous screen.",
+  "button.clear": "CLEAR",
   "button.settings": "SETTINGS",
   "hover.settings": "Click to edit %s settings.",
   "button.accept": "ACCEPT",
@@ -137,7 +116,7 @@
 
 
   "hud": "HUD",
-  "hud.ui": "HUD Commands",
+  "hud.ui.commands": "HUD Commands",
   "hud.ui.default": "HUD Defaults",
   "hud.button": "HUD",
   "hud.hover": "Click to show main HUD commands.",
@@ -286,9 +265,10 @@
   "destination.error.already_at": "You are already at your destination!",
   "destination.error.invalid": "Invalid destination!",
 
-  "destination.button.send": "SEND",
-  "destination.hover.send": "Click to send a destination to a player.",
-  "destination.hover.send.saved": "Click to send the destination to a player.",
+
+  "destination.button": "DESTINATION",
+  "destination.hover": "Click to show all destination commands.",
+  "destination.hover.clear": "Click to clear the current destination.",
   "destination.button.set": "SET",
   "destination.hover.set": "Click to set the destination.",
   "destination.hover.set_self": "Click to enter a custom destination to set.",
@@ -320,7 +300,9 @@
   "destination.saved.ui.global.none": "No global destinations found!",
   "destination.saved.ui.none": "You don't have any destinations!",
   "destination.saved.ui.none.2": "Click %s to save a destination!",
-
+  "destination.saved.button.delete": "DELETE",
+  "destination.saved.hover.delete": "Click to %s destination.",
+  "destination.saved.button.edit": "EDIT",
   "destination.saved.button": "SAVED",
   "destination.saved.hover": "Click to view all saved destinations.",
   "destination.saved.hover.global": "Click to see global destinations.",
@@ -341,6 +323,9 @@
   "destination.saved.location": "location",
 
 
+  "destination.send.button": "SEND",
+  "destination.send.hover": "Click to send a destination to a player.",
+  "destination.send.hover.saved": "Click to send the destination to a player.",
   "destination.send.error.target_disabled": "%s isn't accepting coordinates at this time!",
   "destination.send.error.self": "You cant send coordinates to yourself!",
   "destination.send.msg.sent": "Sent %s the coordinates: %s",
@@ -350,6 +335,8 @@
 
   "destination.lastdeath.ui": "LastDeath",
   "destination.lastdeath.ui.no_deaths": "No recent deaths!",
+  "destination.lastdeath.button": "LASTDEATH",
+  "destination.lastdeath.hover": "Click to see all saved deaths.",
   "destination.lastdeath.msg.save": "Death saved: %s",
 
 
@@ -359,6 +346,10 @@
   "destination.track.error.cleared": "You aren't tracking anyone!",
   "destination.track.error.self": "You cant send coordinates to yourself!",
   "destination.track.error.none": "There's no tracking request for %s!",
+
+  "destination.track.button": "TRACK",
+  "destination.track.hover": "Click to set the tracker to a player.",
+  "destination.track.hover.clear": "Click to clear the tracker.",
 
   "destination.track.msg.cleared": "Tracker cleared: %s",
   "destination.track.msg.cleared.command": "You cleared the tracker!",

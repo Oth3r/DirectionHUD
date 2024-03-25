@@ -6,6 +6,7 @@ import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Helper.Enums;
 import one.oth3r.directionhud.common.utils.Helper.ListPage;
 import one.oth3r.directionhud.common.utils.Helper.Command.Suggester;
+import one.oth3r.directionhud.common.utils.Lang;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.common.utils.CUtl;
@@ -15,9 +16,7 @@ import one.oth3r.directionhud.utils.Utl;
 import java.util.*;
 
 public class DHUD {
-    private static CTxT lang(String key, Object... args) {
-        return CUtl.getLangEntry("dhud."+key, args);
-    }
+    public static final Lang LANG = new Lang("dhud.");
     public static void CMDExecutor(Player player, String[] args) {
         if (args.length == 0) {
             UI(player);
@@ -66,9 +65,9 @@ public class DHUD {
         }
         return suggester;
     }
-    public static CTxT RELOAD_BUTTON = lang("button.reload").btn(true).color(Assets.mainColors.reload)
+    public static CTxT RELOAD_BUTTON = LANG.btn("reload").btn(true).color(Assets.mainColors.reload)
             .cEvent(1,"/dhud reload")
-            .hEvent(CTxT.of(Assets.cmdUsage.reload).color(Assets.mainColors.reload).append("\n").append(lang("hover.reload")));
+            .hEvent(CTxT.of(Assets.cmdUsage.reload).color(Assets.mainColors.reload).append("\n").append(LANG.hover("reload")));
     /**
      * reloads DirectionHUD
      * @param player null if reloading from the console
@@ -80,17 +79,15 @@ public class DHUD {
             Events.playerSoftLeave(pl);
             Events.playerJoin(pl);
         }
-        if (player == null) DirectionHUD.LOGGER.info(lang("msg.reload").toString());
-        else player.sendMessage(CUtl.tag().append(lang("msg.reload").color('a')));
+        if (player == null) DirectionHUD.LOGGER.info(LANG.msg("reload").toString());
+        else player.sendMessage(CUtl.tag().append(LANG.msg("reload").color('a')));
     }
     public static class inbox {
         public static final int PER_PAGE = 3;
-        private static CTxT lang(String key, Object... args) {
-            return DHUD.lang("inbox."+key, args);
-        }
-        public static CTxT BUTTON = lang("button").btn(true).color(Assets.mainColors.inbox)
+        public static final Lang LANG = new Lang("dhud.inbox.");
+        public static CTxT BUTTON = LANG.btn().btn(true).color(Assets.mainColors.inbox)
                 .cEvent(1,"/dhud inbox")
-                .hEvent(CTxT.of(Assets.cmdUsage.inbox).color(Assets.mainColors.inbox).append("\n").append(lang("hover")));
+                .hEvent(CTxT.of(Assets.cmdUsage.inbox).color(Assets.mainColors.inbox).append("\n").append(LANG.hover()));
         public static void CMDExecutor(Player player, String[] args) {
             if (!config.social) return;
             // UI
@@ -273,7 +270,7 @@ public class DHUD {
             // remove the entry
             removeEntry(player,entry);
             if (playerBased) {
-                player.sendMessage(CUtl.tag().append(lang("msg.cleared",CTxT.of((String)entry.get("player_name")).color(CUtl.s()))));
+                player.sendMessage(CUtl.tag().append(LANG.msg("cleared",CTxT.of((String)entry.get("player_name")).color(CUtl.s()))));
                 UI(player,listPage.getPageOf(entry));
             }
         }
@@ -294,13 +291,13 @@ public class DHUD {
             }
             // make the TxTs that make things easier
             CTxT msg = CTxT.of(""),
-                    time = lang("ui.time",((Double)entry.get("expire")).intValue()).color('7'),
-                    from = lang("ui.from",CTxT.of(name).color(CUtl.s())),
-                    to = lang("ui.to",CTxT.of(name).color(CUtl.s()));
+                    time = LANG.ui("time",((Double)entry.get("expire")).intValue()).color('7'),
+                    from = LANG.ui("from",CTxT.of(name).color(CUtl.s())),
+                    to = LANG.ui("to",CTxT.of(name).color(CUtl.s()));
             // switch for the different type of entries
             switch (type) {
                 case track_request ->
-                        msg.append(lang("ui.track_request",time).color(CUtl.p())).append(" ")
+                        msg.append(LANG.ui("track_request",time).color(CUtl.p())).append(" ")
                             // to / from
                             .append("\n  ").append(from).append("\n   ")
                             // accept & deny buttons
@@ -311,7 +308,7 @@ public class DHUD {
                                     .hEvent(CUtl.hover("deny").color('c'))
                                     .cEvent(1,"/dest track deny-r "+name));
                 case track_pending ->
-                        msg.append(lang("ui.track_pending",time).color(CUtl.p())).append(" ")
+                        msg.append(LANG.ui("track_pending",time).color(CUtl.p())).append(" ")
                             // to / from
                             .append("\n  ").append(to).append("\n   ")
                             // cancel button
@@ -319,10 +316,10 @@ public class DHUD {
                                     .hEvent(CUtl.hover("cancel").color('c'))
                                     .cEvent(1, "/dest track cancel-r "+name));
                 case destination ->
-                        msg.append(lang("ui.destination",time).color(CUtl.p())).append(" ")
+                        msg.append(LANG.ui("destination",time).color(CUtl.p())).append(" ")
                             // x button
                             .append(CTxT.of(Assets.symbols.x).btn(true).color('c')
-                                    .hEvent(lang("hover.clear").color('c'))
+                                    .hEvent(LANG.hover("clear").color('c'))
                                     .cEvent(1,"/dhud inbox clear "+entry.get("id")))
                             // to / from
                             .append("\n  ").append(from).append("\n   ")
@@ -333,31 +330,27 @@ public class DHUD {
         }
         public static void UI(Player player, int pg) {
             Helper.ListPage<HashMap<String, Object>> listPage = new Helper.ListPage<>(player.getPData().getInbox(),PER_PAGE);
-            CTxT msg = CTxT.of(" ").append(lang("ui").color(Assets.mainColors.inbox)).append(CUtl.LINE_35).append("\n ");
+            CTxT msg = CTxT.of(" "), line = CTxT.of("\n                                   ").strikethrough(true);
+            msg.append(LANG.ui().color(Assets.mainColors.inbox)).append(line).append("\n ");
             for (HashMap<String, Object> index : listPage.getPage(pg)) {
                 msg.append(getEntryTxT(player,index)).append("\n ");
             }
             // no entries
-            if (listPage.getList().isEmpty()) msg.append("\n ").append(lang("ui.empty").color('7').italic(true)).append("\n");
+            if (listPage.getList().isEmpty()) msg.append("\n ").append(LANG.ui("empty").color('7').italic(true)).append("\n");
             // bottom row
             msg.append("\n ")
                     .append(listPage.getNavButtons(pg,"/dhud inbox ")).append(" ")
-                    .append(CUtl.CButton.back("/dhud")).append(CUtl.LINE_35);
+                    .append(CUtl.CButton.back("/dhud")).append(line);
             player.sendMessage(msg);
         }
     }
     public static class preset {
         private static final int PER_PAGE = 7;
         public static final String DEFAULT_UI_SETTINGS = "normal";
-        public static CTxT lang(String key, Object... args) {
-            return DHUD.lang("preset."+key, args);
-        }
-        public static CTxT error(String key, Object... args) {
-            return CUtl.error().append(lang("error."+key, args));
-        }
-        public static CTxT BUTTON = lang("button").btn(true).color(Assets.mainColors.presets)
+        public static final Lang LANG = new Lang("dhud.preset.");
+        public static CTxT BUTTON = LANG.btn().btn(true).color(Assets.mainColors.presets)
                 .cEvent(1,"/dhud preset")
-                .hEvent(CTxT.of("/dhud presets").color(Assets.mainColors.presets).append("\n").append(lang("hover")));
+                .hEvent(CTxT.of("/dhud presets").color(Assets.mainColors.presets).append("\n").append(LANG.hover()));
         public static void colorCMDExecutor(Player player, String[] args) {
             if (args.length != 5) return;
             // /dhud color (settings) (type) (subtype) (set/preset) (color/page)
@@ -482,20 +475,20 @@ public class DHUD {
             CTxT presetsButton = CTxT.of("")
                     .append(CTxT.of("+").btn(true).color('a')
                             .cEvent(2,String.format("/dhud preset save \"%s\" ",color))
-                            .hEvent(lang("hover.preset.plus",lang("hover.preset.plus_2").color(color))))
-                    .append(lang("button").color(Assets.mainColors.presets)
+                            .hEvent(LANG.hover("preset.plus",LANG.hover("preset.plus_2").color(color))))
+                    .append(LANG.btn().color(Assets.mainColors.presets)
                             .cEvent(1,String.format("/dhud color %s %s \"%s\" preset default",UISettings,type,subtype)).btn(true)
-                            .hEvent(lang("hover.preset.editor",lang("hover.preset.editor_2").color(Assets.mainColors.presets))));
-            CTxT customButton = lang("button.custom").btn(true).color(Assets.mainColors.custom)
+                            .hEvent(LANG.hover("preset.editor",LANG.hover("preset.editor_2").color(Assets.mainColors.presets))));
+            CTxT customButton = LANG.get("custom").btn(true).color(Assets.mainColors.custom)
                     .cEvent(2,String.format("/dhud color %s %s \"%s\" set ",UISettings,type,subtype))
-                    .hEvent(lang("hover.custom",lang("hover.custom.2").color(Assets.mainColors.custom)));
+                    .hEvent(LANG.hover("custom",LANG.hover("custom.2").color(Assets.mainColors.custom)));
             CTxT defaultSquare = CTxT.of(Assets.symbols.square).color(color).hEvent(CUtl.color.getBadge(color)),
-                    smallButton = lang("editor.step.button.small").color(CUtl.s()).cEvent(1,String.format(stepCMD,"small"))
-                            .hEvent(lang("editor.step.hover",lang("editor.step.button.small").color(CUtl.s()))).btn(true),
-                    normalButton = lang("editor.step.button.normal").color(CUtl.s()).cEvent(1,String.format(stepCMD,"normal"))
-                            .hEvent(lang("editor.step.hover",lang("editor.step.button.normal").color(CUtl.s()))).btn(true),
-                    bigButton = lang("editor.step.button.big").color(CUtl.s()).cEvent(1,String.format(stepCMD,"big"))
-                            .hEvent(lang("editor.step.hover",lang("editor.step.button.big").color(CUtl.s()))).btn(true);
+                    smallButton = LANG.get("editor.step.button.small").color(CUtl.s()).cEvent(1,String.format(stepCMD,"small"))
+                            .hEvent(LANG.get("editor.step.hover",LANG.get("editor.step.button.small").color(CUtl.s()))).btn(true),
+                    normalButton = LANG.get("editor.step.button.normal").color(CUtl.s()).cEvent(1,String.format(stepCMD,"normal"))
+                            .hEvent(LANG.get("editor.step.hover",LANG.get("editor.step.button.normal").color(CUtl.s()))).btn(true),
+                    bigButton = LANG.get("editor.step.button.big").color(CUtl.s()).cEvent(1,String.format(stepCMD,"big"))
+                            .hEvent(LANG.get("editor.step.hover",LANG.get("editor.step.button.big").color(CUtl.s()))).btn(true);
             // initialize the change amounts for each step size
             float[] changeAmounts = new float[3];
             if (UISettings == null || UISettings.equals("normal")) {
@@ -526,7 +519,7 @@ public class DHUD {
                     String editedColor = CUtl.color.editHSB(changeAmt,color,(plus%2==0)?changeAmounts[changeAmt]*-1:(changeAmounts[changeAmt]));
                     hsbList.get(plus).color(editedColor.equals(color)?Assets.mainColors.gray:editedColor);
                     if (!editedColor.equals(color)) {
-                        hsbList.get(plus).hEvent(lang("color.hover.set",CUtl.color.getBadge(editedColor)));
+                        hsbList.get(plus).hEvent(LANG.get("color.hover.set",CUtl.color.getBadge(editedColor)));
                         hsbList.get(plus).cEvent(1,String.format("/dhud color %s %s \"%s\" set \"%s\"",UISettings,type,subtype,editedColor));
                     }
                 }
@@ -535,9 +528,9 @@ public class DHUD {
             return CTxT.of(" ")
                     .append(presetsButton).append(" ").append(customButton).append("\n\n")
                     .append("  ")
-                    .append(hsbList.get(0)).append(" ").append(defaultSquare).append(" ").append(hsbList.get(1)).append(" ").append(lang("editor.hue")).append("\n  ")
-                    .append(hsbList.get(2)).append(" ").append(defaultSquare).append(" ").append(hsbList.get(3)).append(" ").append(lang("editor.saturation")).append("\n  ")
-                    .append(hsbList.get(4)).append(" ").append(defaultSquare).append(" ").append(hsbList.get(5)).append(" ").append(lang("editor.brightness")).append("\n\n ")
+                    .append(hsbList.get(0)).append(" ").append(defaultSquare).append(" ").append(hsbList.get(1)).append(" ").append(LANG.get("editor.hue")).append("\n  ")
+                    .append(hsbList.get(2)).append(" ").append(defaultSquare).append(" ").append(hsbList.get(3)).append(" ").append(LANG.get("editor.saturation")).append("\n  ")
+                    .append(hsbList.get(4)).append(" ").append(defaultSquare).append(" ").append(hsbList.get(5)).append(" ").append(LANG.get("editor.brightness")).append("\n\n ")
                     .append(smallButton).append(" ").append(normalButton).append(" ").append(bigButton);
         }
         /**
@@ -550,9 +543,9 @@ public class DHUD {
         public static void UI(Player player, String UISettings, Type type, String subtype, String page) {
             // top button initialization
             String clickCMD = String.format("/dhud color %s %s \"%s\" ",UISettings,type,subtype);
-            CTxT defaultBtn = lang("button.default").color(CUtl.s()).cEvent(1,clickCMD+"preset default").btn(true),
-                    minecraftBtn = lang("button.minecraft").color(CUtl.s()).cEvent(1,clickCMD+"preset minecraft").btn(true),
-                    customBtn = CTxT.of(" ").append(lang("button.custom").color(CUtl.s()).cEvent(1,clickCMD+"preset custom").btn(true)), // space at start for alignment
+            CTxT defaultBtn = LANG.btn("default").color(CUtl.s()).cEvent(1,clickCMD+"preset default").btn(true),
+                    minecraftBtn = LANG.btn("minecraft").color(CUtl.s()).cEvent(1,clickCMD+"preset minecraft").btn(true),
+                    customBtn = CTxT.of(" ").append(LANG.btn("custom").color(CUtl.s()).cEvent(1,clickCMD+"preset custom").btn(true)), // space at start for alignment
                     list = CTxT.of(""); // text for inside the UI
             // code for the button selector page, default and mc colors
             if (page.equals("default") || page.equals("minecraft")) {
@@ -585,10 +578,10 @@ public class DHUD {
                         String color = colors.get(colorIndex);
                         list.append(CTxT.of(Assets.symbols.square).btn(true).color(color)
                                 .cEvent(1,String.format(clickCMD+" set \"%s\"",color))
-                                .hEvent(lang("color.hover.set", CUtl.color.getBadge(color))));
+                                .hEvent(LANG.get("color.hover.set", CUtl.color.getBadge(color))));
                         colorIndex++;
                     }
-                    list.append(" ").append(lang("color."+s));
+                    list.append(" ").append(LANG.get("color."+s));
                 }
             } else {
                 // custom, just numbers for the pages instead of an identifier, easier that way trust me
@@ -599,7 +592,7 @@ public class DHUD {
                     String color = custom.getColor(preset), name = custom.getName(preset);
                     list.append("\n ").append(CTxT.of(Assets.symbols.square).color(color).btn(true)
                                     .cEvent(1,String.format(clickCMD+" set \"%s\"",color))
-                                    .hEvent(lang("color.hover.set",CUtl.color.getBadge(color))))
+                                    .hEvent(LANG.get("color.hover.set",CUtl.color.getBadge(color))))
                             .append(" ").append(CTxT.of(name).color(color));
                 }
                 // fill in the gaps if entries don't fill whole page (consistency)
@@ -617,7 +610,7 @@ public class DHUD {
                 default -> "/dhud";
             };
             // final building of the message
-            CTxT msg = CTxT.of(" ").append(lang("ui").color(Assets.mainColors.presets))
+            CTxT msg = CTxT.of(" ").append(LANG.ui().color(Assets.mainColors.presets))
                     .append(CTxT.of("\n                               \n").strikethrough(true))
                     .append(" ").append(defaultBtn).append(" ").append(minecraftBtn).append("\n").append(list)
                     .append("\n\n   ").append(customBtn).append("  ").append(CUtl.CButton.back(backCMD))
@@ -714,8 +707,8 @@ public class DHUD {
             public static void UI(Player player, int pg, CTxT aboveTxT) {
                 CTxT msg = aboveTxT==null?CTxT.of(" "):aboveTxT.append("\n "),
                         line = CTxT.of("\n                               ").strikethrough(true);
-                msg.append(lang("ui.custom").color(Assets.mainColors.presets)).append(line);
-                CTxT addBtn = CTxT.of("+").btn(true).color('a').cEvent(2,"/dhud preset save-r ").hEvent(lang("hover.save").color('a'));
+                msg.append(LANG.ui("custom").color(Assets.mainColors.presets)).append(line);
+                CTxT addBtn = CTxT.of("+").btn(true).color('a').cEvent(2,"/dhud preset save-r ").hEvent(LANG.hover("save").color('a'));
                 // disable if max saved colors reached
                 if (player.getPData().getColorPresets().size() >= config.MAXColorPresets) addBtn.color('7').cEvent(1,null).hEvent(null);
                 ListPage<String> listPage = new ListPage<>(player.getPData().getColorPresets(),PER_PAGE);
@@ -723,14 +716,14 @@ public class DHUD {
                     String color = getColor(preset), name = getName(preset);
                     msg.append("\n ").append(CTxT.of(Assets.symbols.x).color('c').btn(true)
                                     .cEvent(1,String.format("/dhud preset delete-r \"%s\"",name))
-                                    .hEvent(lang("hover.delete",getBadge(preset,true)).color('c')))
+                                    .hEvent(LANG.hover("delete",getBadge(preset,true)).color('c')))
                             .append(" ")
                             .append(CTxT.of(Assets.symbols.square).color(color).btn(true)
                                     .cEvent(1,String.format("/dhud preset colorui \"%s\" normal",name))
-                                    .hEvent(lang("hover.color",CUtl.color.getBadge(color))))
+                                    .hEvent(LANG.hover("color",CUtl.color.getBadge(color))))
                             .append(CTxT.of(name).color(color).btn(true)
                                     .cEvent(2,String.format("/dhud preset rename-r \"%s\" ",name))
-                                    .hEvent(lang("hover.rename",getBadge(preset,false))));
+                                    .hEvent(LANG.hover("rename",getBadge(preset,false))));
                 }
                 // fill in the gaps if entries don't fill whole page (consistency)
                 if (listPage.getPage(pg).size() != PER_PAGE) {
@@ -759,7 +752,7 @@ public class DHUD {
                 CTxT msg = CTxT.of("");
                 if (aboveTxT != null) msg.append(aboveTxT).append("\n");
 
-                msg.append(" ").append(lang("ui.color").color(currentColor))
+                msg.append(" ").append(LANG.ui("color").color(currentColor))
                         .append(line).append("\n")
                         .append(preset.colorEditor(currentColor,UISettings,Type.preset,name,"/dhud preset colorui \""+name+"\" %s"))
                         .append("\n\n           ").append(CUtl.CButton.back(String.format("/dhud preset \"%s\"",name))).append(line);
@@ -777,7 +770,7 @@ public class DHUD {
                 ArrayList<String> names = getNames(presets);
                 // remove the bad data
                 if (!names.contains(name)) {
-                    player.sendMessage(preset.error("dhud.preset"));
+                    player.sendMessage(preset.LANG.error("invalid"));
                     return;
                 }
                 // color fixer
@@ -788,7 +781,7 @@ public class DHUD {
                 presets.set(index,preset);
                 player.setPData().setColorPresets(presets);
                 if (Return) colorUI(player,UISettings,name,null);
-                else player.sendMessage(CUtl.tag().append(lang("msg.color",getBadge(oldPreset,false),CUtl.color.getBadge(color))));
+                else player.sendMessage(CUtl.tag().append(LANG.msg("color",getBadge(oldPreset,false),CUtl.color.getBadge(color))));
             }
             /**
              * saves a new preset
@@ -798,15 +791,15 @@ public class DHUD {
                 ArrayList<String> presets = player.getPData().getColorPresets();
                 // errors
                 if (getNames(presets).contains(name)) {
-                    player.sendMessage(error("duplicate"));
+                    player.sendMessage(LANG.error("duplicate"));
                     return;
                 }
                 if (name.length() > Helper.MAX_NAME) {
-                    player.sendMessage(CUtl.error("length",Helper.MAX_NAME));
+                    player.sendMessage(CUtl.LANG.error("length",Helper.MAX_NAME));
                     return;
                 }
                 if (presets.size() >= config.MAXColorPresets) {
-                    player.sendMessage(error("max"));
+                    player.sendMessage(LANG.error("max"));
                     return;
                 }
                 // fix the color
@@ -817,7 +810,7 @@ public class DHUD {
                 player.setPData().setColorPresets(presets);
                 // listPage for getting the page of the new entry when returning
                 ListPage<String> listPage = new ListPage<>(presets,PER_PAGE);
-                CTxT msg = CUtl.tag().append(lang("msg.save",getBadge(entry,true)));
+                CTxT msg = CUtl.tag().append(LANG.msg("save",getBadge(entry,true)));
                 if (Return) UI(player,listPage.getPageOf(presets.get(presets.size()-1)),msg);
                 else player.sendMessage(msg);
             }
@@ -830,15 +823,15 @@ public class DHUD {
                 ArrayList<String> names = getNames(presets);
                 // remove the bad data
                 if (!names.contains(name)) {
-                    player.sendMessage(error("invalid"));
+                    player.sendMessage(LANG.error("invalid"));
                     return;
                 }
                 if (names.contains(newName)) {
-                    player.sendMessage(error("duplicate"));
+                    player.sendMessage(LANG.error("duplicate"));
                     return;
                 }
                 if (newName.length() > Helper.MAX_NAME) {
-                    player.sendMessage(CUtl.error("length",Helper.MAX_NAME));
+                    player.sendMessage(CUtl.LANG.error("length",Helper.MAX_NAME));
                     return;
                 }
                 int index = names.indexOf(name);
@@ -846,7 +839,7 @@ public class DHUD {
                 presets.set(index,preset);
                 player.setPData().setColorPresets(presets);
                 // player formatting
-                CTxT msg = CUtl.tag().append(lang("msg.rename",getBadge(name+"|"+getColors(presets).get(index),false),getBadge(preset,false)));
+                CTxT msg = CUtl.tag().append(LANG.msg("rename",getBadge(name+"|"+getColors(presets).get(index),false),getBadge(preset,false)));
                 ListPage<String> listPage = new ListPage<>(names,PER_PAGE);
                 if (Return) UI(player,listPage.getPageOf(name),msg);
                 else player.sendMessage(msg);
@@ -860,7 +853,7 @@ public class DHUD {
                 ArrayList<String> names = getNames(presets);
                 // remove the bad data
                 if (!names.contains(name)) {
-                    player.sendMessage(error("invalid"));
+                    player.sendMessage(LANG.error("invalid"));
                     return;
                 }
                 String preset = presets.get(names.indexOf(name));
@@ -868,7 +861,7 @@ public class DHUD {
                 presets.remove(preset);
                 player.setPData().setColorPresets(presets);
                 // player formatting
-                CTxT msg = CUtl.tag().append(lang("msg.delete",getBadge(preset,true)));
+                CTxT msg = CUtl.tag().append(LANG.msg("delete",getBadge(preset,true)));
                 ListPage<String> listPage = new ListPage<>(names,PER_PAGE);
                 if (Return) UI(player,listPage.getPageOf(name),msg);
                 else player.sendMessage(msg);
@@ -879,16 +872,15 @@ public class DHUD {
      * the main directionHUD UI
      */
     public static void UI(Player player) {
-        CTxT line = CTxT.of("\n                             ").strikethrough(true);
-        CTxT msg = CTxT.of(" ")
-                .append(CTxT.of("DirectionHUD").color(CUtl.p())
+        CTxT msg = CTxT.of(" "), line = CTxT.of("\n                             ").strikethrough(true);
+        msg.append(CTxT.of("DirectionHUD").color(CUtl.p())
                         .hEvent(CTxT.of(DirectionHUD.VERSION+Assets.symbols.link).color(CUtl.s()))
                         .cEvent(3,"https://modrinth.com/mod/directionhud/changelog"))
                 .append(line).append("\n ");
         // hud
-        if (Utl.checkEnabled.hud(player)) msg.append(HUD.button()).append("  ");
+        if (Utl.checkEnabled.hud(player)) msg.append(HUD.BUTTON).append("  ");
         // dest
-        if (Utl.checkEnabled.destination(player)) msg.append(CUtl.CButton.DHUD.dest());
+        if (Utl.checkEnabled.destination(player)) msg.append(Destination.BUTTON);
         msg.append("\n\n ");
         // presets
         if (Utl.checkEnabled.customPresets(player)) msg.append(preset.BUTTON).append(" ");

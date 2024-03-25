@@ -18,7 +18,7 @@ public class Lang {
         return get("button."+key, args);
     }
     public CTxT btn() {
-        return CUtl.error().append(get("button"));
+        return get("button");
     }
     public CTxT hover(String key, Object... args) {
         return get("hover."+key, args);
@@ -34,5 +34,8 @@ public class Lang {
     }
     public CTxT msg(String key, Object... args) {
         return get("msg."+key, args);
+    }
+    public CTxT desc(String key, Object... args) {
+        return get("description."+key, args);
     }
 }
