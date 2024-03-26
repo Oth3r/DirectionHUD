@@ -325,7 +325,7 @@ public class config {
                 // I don't know why but oh well backwards compatibility
                 if (!DirectionHUD.isMod || version == 1.21f) {
                     try {
-                        dimensionRatios = gson.fromJson((String) properties.computeIfAbsent("dimension-ratios", a -> gson.toJson(defaults.dimensionRatios)), arrayListMap);
+                        dimensionRatios = Dim.fixRatios(Dim.loadLegacyRatios(gson.fromJson((String) properties.computeIfAbsent("dimension-ratios", a -> ""), arrayListMap)));
                     } catch (JsonSyntaxException ignored) {}
                 }
                 // update colors to new system

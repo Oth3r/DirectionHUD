@@ -460,8 +460,13 @@ public class Helper {
             return output;
         }
         public static ArrayList<HashMap<String,Double>> fixRatios(ArrayList<HashMap<String,Double>> list) {
-            // todo
-            return list;
+            ArrayList<HashMap<String,Double>> output = new ArrayList<>();
+            for (HashMap<String,Double> map : list) {
+                if (map == null) continue;
+                if (map.size() > 2) continue;
+                output.add(map);
+            }
+            return output;
         }
         public static ArrayList<HashMap<String,Double>> loadLegacyRatios(List<String> oldList) {
             ArrayList<HashMap<String,Double>> out = new ArrayList<>();
