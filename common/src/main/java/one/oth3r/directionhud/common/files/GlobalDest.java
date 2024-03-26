@@ -13,17 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GlobalDest {
-    private static final Loc versionEntry = new Loc(1,null,0,null,"1.0",null);
-
-    /**
-     * file destinations, including the versionEntry (use for detecting if a list is a global or not)
-     */
-    private static List<Loc> fileDestinations = new ArrayList<>();
-    public static List<Loc> getFileDestinations() {
-        // detached
-        return new ArrayList<>(fileDestinations);
-    }
-
+    private static final Float VERSION = 1.0f;
+    private static final Loc VERSION_ENTRY = new Loc(1,null,0,null,VERSION.toString(),null);
     /**
      * destination list for editing or iterating
      */
@@ -33,54 +24,47 @@ public class GlobalDest {
     }
     public static void setDestinations(List<Loc> destinations) {
         GlobalDest.destinations = new ArrayList<>(destinations);
-        // make sure the fileDestinations are also synced when setting the destination list
-        List<Loc> list = getDestinations();
-        list.add(0,versionEntry);
-        fileDestinations = list;
     }
     public static void clear() {
         destinations.clear();
-        fileDestinations.clear();
     }
     public static File getFile() {
         return new File(DirectionHUD.DATA_DIR+"global-dest.json");
     }
-    public static List<Loc> load() {
+    public static void load() {
         File file = getFile();
         // if no file, load it
         if (!file.exists()) mapToFile();
         try (FileReader reader = new FileReader(file)) {
             // get the data
-            ArrayList<String> data = new Gson().fromJson(reader,new TypeToken<ArrayList<String>>(){}.getType());
-            ArrayList<Loc> out = new ArrayList<>();
-            data.forEach(entry -> out.add(new Loc(entry)));
+            ArrayList<Loc> data = new Gson().fromJson(reader,new TypeToken<ArrayList<Loc>>(){}.getType());
 
+            float version = VERSION;
             // check for version (first entry)
-            if (!out.get(0).hasDestRequirements()) {
+            if (!data.isEmpty() && !data.get(0).hasDestRequirements() &&
+                    data.get(0).getName() != null) {
                 // get the version number from the version entry
-                float version = Float.parseFloat(out.get(0).getName());
-                // remove all invalid entries
-                out.removeIf(entry -> !entry.hasDestRequirements());
+                version = Float.parseFloat(data.get(0).getName());
             }
+            // remove all invalid entries even if version
+            data.removeIf(entry -> !entry.hasDestRequirements());
+            // run updater here
 
-            // copy the list and set to destinations
-            destinations = new ArrayList<>(out);
-            // add the current version to the end for the fileDestinations
-            out.add(0,versionEntry);
-            // set to fileDest list
-            fileDestinations = out;
+            // set the data to destinations list
+            destinations = data;
             // save in case of changes
             mapToFile();
         } catch (Exception e) {
             DirectionHUD.LOGGER.info("ERROR READING GLOBAL DEST FILE - PLEASE REPORT WITH THE ERROR LOG");
             DirectionHUD.LOGGER.info(e.getMessage());
         }
-        return destinations;
     }
     public static void mapToFile() {
         try (FileWriter writer = new FileWriter(getFile())) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            writer.write(gson.toJson(fileDestinations));
+            ArrayList<Loc> out = new ArrayList<>(destinations);
+            out.add(0, VERSION_ENTRY);
+            writer.write(gson.toJson(out));
         } catch (Exception e) {
             DirectionHUD.LOGGER.info("ERROR SAVING GLOBAL DEST FILE - PLEASE REPORT WITH THE ERROR LOG");
             DirectionHUD.LOGGER.info(e.getMessage());
@@ -106,9 +90,9 @@ public class GlobalDest {
                 // if valid add to list
                 if (dest.hasDestRequirements()) out.add(dest);
             });
-            // add the current version to the end
-            out.add(versionEntry);
             destinations = out;
+            // save the changes
+            mapToFile();
         } catch (Exception e) {
             DirectionHUD.LOGGER.info("ERROR READING GLOBAL DEST FILE - PLEASE REPORT WITH THE ERROR LOG");
             DirectionHUD.LOGGER.info(e.getMessage());

@@ -81,4 +81,10 @@ public class DirectionHUD implements ModInitializer {
 		//LOOP
 		ServerTickEvents.END_SERVER_TICK.register(minecraftServer -> minecraftServer.execute(LoopManager::tick));
 	}
+	public static void clear() {
+		playerManager = null;
+		server = null;
+		commandManager = null;
+		clientPlayers.clear();
+	}
 }

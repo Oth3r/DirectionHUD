@@ -1,6 +1,7 @@
 package one.oth3r.directionhud.common;
 
 import one.oth3r.directionhud.common.files.config;
+import one.oth3r.directionhud.utils.CTxT;
 
 public class Assets {
     public static class mainColors {
@@ -98,8 +99,22 @@ public class Assets {
         public static String AngleDisplay() {
             return fromEnum(HUD.Setting.ModuleAngleDisplay.values());
         }
+        public static String TrackRequestMode() {
+            return fromEnum(Destination.Setting.TrackingRequestMode.values());
+        }
         public static String colorPreset() {
             return "\"PresetName|#ffaacc\"";
+        }
+        public static CTxT dimensions() {
+            return CTxT.of("{\"")
+                    .append(CTxT.of("color").color('a')).append("\":\"").append(CTxT.of("#55ff55").color('a')).append("\",\"")
+                    .append(CTxT.of("name").color('b')).append("\":\"").append(CTxT.of("Overworld").color('b')).append("\",\"")
+                    .append(CTxT.of("dimension").color('d')).append("\":\"").append(CTxT.of("minecraft.overworld").color('d')).append("\"}");
+        }
+        public static CTxT dimension_ratios() {
+            return CTxT.of("{\"")
+                    .append(CTxT.of("minecraft.overworld").color('a')).append("\":\"").append(CTxT.of("1.0").color('a')).append("\",\"")
+                    .append(CTxT.of("minecraft.the_nether").color('b')).append("\":\"").append(CTxT.of("8.0").color('b')).append("\"}");
         }
     }
     public static class symbols {

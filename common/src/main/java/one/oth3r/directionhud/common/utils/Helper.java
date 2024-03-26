@@ -1,7 +1,6 @@
 package one.oth3r.directionhud.common.utils;
 
 import one.oth3r.directionhud.common.DHUD;
-import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
@@ -336,68 +335,58 @@ public class Helper {
         }
     }
     public static class Dim {
+        private static final String DIMENSION = "dimension";
         private static final String COLOR = "color";
         private static final String NAME = "name";
-        private static final HashMap<String,HashMap<String,String>> dimensions = new HashMap<>();
+        private static final List<HashMap<String,String>> dimensions = new ArrayList<>();
         private static final HashMap<Pair<String, String>, Double> conversionRatios = new HashMap<>();
-        /**
-         * adds a set of dimensions to the dimension list
-         * @param moreDimensions list of dimensions to add
-         */
-        public static void addDimensions(HashMap<String,HashMap<String,String>> moreDimensions) {
-            // add the dimensions
-            for (String dimension : moreDimensions.keySet())
-                dimensions.put(dimension,moreDimensions.get(dimension));
-        }
-        /**
-         * saves the current dimensions to the config
-         */
-        public static void saveDimensions() {
-            ArrayList<String> output = new ArrayList<>();
-            for (Map.Entry<String, HashMap<String, String>> entry : dimensions.entrySet()) {
-                String key = entry.getKey();
-                HashMap<String, String> data = entry.getValue();
-                output.add(key+"|"+data.get(NAME)+"|"+data.get(COLOR));
-            }
-            config.dimensions = output;
-            config.save();
-        }
         /**
          * returns all dimension names
          * @return list with dimension names
          */
         public static ArrayList<String> getAll() {
-            return new ArrayList<>(dimensions.keySet());
+            ArrayList<String> names = new ArrayList<>();
+            for (HashMap<String, String> dimension : dimensions)
+                names.add(dimension.get(DIMENSION));
+            return names;
         }
         /**
          * gets the formatted name of the dimension specified
-         * @param dimension the dimension
+         * @param dimName the dimension
          * @return the dimension's name
          */
-        public static String getName(String dimension) {
-            if (!dimensions.containsKey(dimension)) return "unknown";
-            HashMap<String,String> map = dimensions.get(dimension);
-            return map.get(NAME);
+        public static String getName(String dimName) {
+            return dimensions.stream()
+                    .filter(dimension -> dimension.get(DIMENSION).equals(dimName))
+                    .map(dimension -> dimension.get(NAME))
+                    .findFirst().orElse("unknown");
         }
         /**
          * gets the HEX color for the dimension specified
-         * @param dimension the dimension
+         * @param dimName the dimension
          * @return HEX color
          */
-        public static String getColor(String dimension) {
-            if (!dimensions.containsKey(dimension)) return "#FF0000";
-            return dimensions.get(dimension).get(COLOR);
+        public static String getColor(String dimName) {
+            return dimensions.stream()
+                    .filter(dimension -> dimension.get(DIMENSION).equals(dimName))
+                    .map(dimension -> dimension.get(COLOR))
+                    .findFirst().orElse("#FF0000");
         }
         /**
          * makes a one letter badge of the dimension, eg [O] for overworld
-         * @param dimension the dimension
+         * @param dimName the dimension
          * @return the badge
          */
-        public static CTxT getBadge(String dimension) {
-            if (!dimensions.containsKey(dimension)) return CTxT.of("X").btn(true).hEvent(CTxT.of("???"));
-            HashMap<String,String> dimMap = dimensions.get(dimension);
-            return CTxT.of(String.valueOf(dimMap.get(NAME).charAt(0)).toUpperCase()).btn(true)
-                    .color(dimMap.get(COLOR)).hEvent(CTxT.of(dimMap.get(NAME)).color(dimMap.get(COLOR)));
+        public static CTxT getBadge(String dimName) {
+            // find the entry
+            HashMap<String, String> entry = dimensions.stream()
+                    .filter(dimension -> dimension.get(DIMENSION).equals(dimName))
+                    .findFirst().orElse(new HashMap<>());
+            // if not found
+            if (entry.isEmpty()) return CTxT.of("X").btn(true).hEvent(CTxT.of("???"));
+            // make the badge
+            return CTxT.of(String.valueOf(entry.get(NAME).charAt(0)).toUpperCase()).btn(true)
+                    .color(entry.get(COLOR)).hEvent(CTxT.of(entry.get(NAME)).color(entry.get(COLOR)));
         }
         /**
          * checks if the two dimension's coordinates can be converted to each other
@@ -430,39 +419,79 @@ public class Helper {
          * checks if the dimension is in the list of dimensions
          * @return if the dimension exists in the list or not
          */
-        public static boolean checkValid(String dimension) {
-            return dimensions.containsKey(dimension);
+        public static boolean checkValid(String dimName) {
+            return dimensions.stream()
+                    .anyMatch(dimension -> dimension.get(DIMENSION).equals(dimName));
         }
         public static void load() {
-            loadConfigRatios();
-            loadConfigDimensions();
             Utl.dim.addMissing();
-            saveDimensions();
+            loadConfig();
+            loadConfigRatios();
         }
         private static void loadConfigRatios() {
             conversionRatios.clear();
-            for (String s : config.dimensionRatios) {
+
+        }
+        private static void loadConfig() {
+            dimensions.clear();
+            dimensions.addAll(config.dimensions);
+            conversionRatios.clear();
+            for (HashMap<String,Double> entry : config.dimensionRatios) {
+                String[] dims = entry.keySet().toArray(new String[0]);
+                double ratio = entry.get(dims[0]) / entry.get(dims[1]);
+                conversionRatios.put(new Pair<>(dims[0],dims[1]), ratio);
+            }
+        }
+
+        /**
+         * returns a dimension list that is fixed for error handling
+         * @param list the list to fix
+         * @return the fixed list
+         */
+        public static ArrayList<HashMap<String,String>> fixDimensions(ArrayList<HashMap<String,String>> list) {
+            ArrayList<HashMap<String,String>> output = new ArrayList<>();
+            for (HashMap<String,String> map : list) {
+                if (map == null) continue;
+                if (!map.containsKey(DIMENSION) || !map.containsKey(COLOR) || !map.containsKey(NAME)) continue;
+                if (map.get(NAME).length() > MAX_NAME) continue;
+                map.put(COLOR,CUtl.color.format(map.get(COLOR)));
+                output.add(map);
+            }
+            return output;
+        }
+        public static ArrayList<HashMap<String,Double>> fixRatios(ArrayList<HashMap<String,Double>> list) {
+            // todo
+            return list;
+        }
+        public static ArrayList<HashMap<String,Double>> loadLegacyRatios(List<String> oldList) {
+            ArrayList<HashMap<String,Double>> out = new ArrayList<>();
+            for (String s : oldList) {
                 String[] entries = s.split("\\|");
                 if (entries.length != 2) continue;
                 String[] entry1 = entries[0].split("="), entry2 = entries[1].split("=");
-                double ratio = Double.parseDouble(entry1[1]) / Double.parseDouble(entry2[1]);
-                conversionRatios.put(new Pair<>(entry1[0],entry2[0]), ratio);
+                HashMap<String,Double> entry = new HashMap<>();
+                entry.put(entry1[0],Double.parseDouble(entry1[1]));
+                entry.put(entry2[0],Double.parseDouble(entry2[1]));
+                out.add(entry);
             }
+            return out;
         }
-        private static void loadConfigDimensions() {
-            dimensions.clear();
+        public static ArrayList<HashMap<String,String>> loadLegacyDimensions(List<String> oldList) {
+            ArrayList<HashMap<String,String>> list = new ArrayList<>();
             // for all config dimensions
-            for (String entry : config.dimensions) {
+            for (String entry : oldList) {
                 String[] entries = entry.split("\\|");
                 // if not correct length
                 if (entries.length != 3) continue;
                 // filling data
                 HashMap<String,String> data = new HashMap<>();
+                data.put(DIMENSION,entries[0]);
                 data.put(NAME,entries[1]);
                 data.put(COLOR,entries[2]);
                 // add the dimension
-                dimensions.put(entries[0],data);
+                list.add(data);
             }
+            return list;
         }
     }
 }

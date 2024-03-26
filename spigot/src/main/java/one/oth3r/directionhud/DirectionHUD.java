@@ -78,4 +78,7 @@ public class DirectionHUD extends JavaPlugin implements PluginMessageListener {
             dplayer.sendPDataPackets();
         }
     }
+    public static void clear() {
+        clientPlayers.clear();
+    }
 }

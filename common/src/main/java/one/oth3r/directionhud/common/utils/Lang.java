@@ -38,4 +38,10 @@ public class Lang {
     public CTxT desc(String key, Object... args) {
         return get("description."+key, args);
     }
+    public CTxT config(String key, Object... args) {
+        return get("config."+key, args);
+    }
+    public CTxT config() {
+        return get("config");
+    }
 }

@@ -127,8 +127,14 @@ public class Utl {
         }
     }
     public static class dim {
-        public static final List<String> DEFAULT_DIMENSIONS = List.of("minecraft.overworld|Overworld|#55FF55","minecraft.the_nether|Nether|#e8342e","minecraft.the_end|End|#edffb0");
-        public static final List<String> DEFAULT_RATIOS = List.of("minecraft.overworld=1|minecraft.the_nether=8");
+        public static final List<HashMap<String, String>> DEFAULT_DIMENSIONS = List.of(
+                new HashMap<>() {{ put("dimension", "minecraft.overworld"); put("name", "Overworld"); put("color", "#55FF55"); }},
+                new HashMap<>() {{ put("dimension", "minecraft.the_nether"); put("name", "Nether"); put("color", "#e8342e"); }},
+                new HashMap<>() {{ put("dimension", "minecraft.the_end"); put("name", "End"); put("color", "#edffb0"); }}
+        );
+        public static final List<HashMap<String, Double>> DEFAULT_RATIOS = List.of(
+                new HashMap<>() {{ put("minecraft.overworld", 1.0); put("minecraft.the_nether", 8.0);}}
+        );
         /**
          * formats the un-formatted dimension received from the game
          * @param worldRegistryKey the worldRegistryKey
@@ -142,19 +148,23 @@ public class Utl {
          */
         public static void addMissing() {
             Random random = new Random();
-            HashMap<String,HashMap<String,String>> missing = new HashMap<>();
+            if (DirectionHUD.server == null) return;
             //ADD MISSING DIMS TO MAP
             for (ServerWorld world : DirectionHUD.server.getWorlds()) {
                 String currentDIM = format(world.getRegistryKey());
-                if (Dim.getAll().contains(currentDIM)) continue;
-                HashMap<String,String> map = new HashMap<>();
-                map.put("name",getFormattedDim(world));
+                // if already exist, continue
+                if (config.dimensions.stream()
+                        .anyMatch(dimension -> dimension.get("dimension").equals(currentDIM)) ) continue;
+                HashMap<String,String> entry = new HashMap<>();
+                // add the dimension name
+                entry.put("dimension",currentDIM);
+                // add the formatted name
+                entry.put("name",getFormattedDim(world));
                 //make a random color to spice things up
-                map.put("color",String.format("#%02x%02x%02x",
+                entry.put("color",String.format("#%02x%02x%02x",
                         random.nextInt(100,256),random.nextInt(100,256),random.nextInt(100,256)));
-                missing.put(currentDIM,map);
+                config.dimensions.add(entry);
             }
-            Dim.addDimensions(missing);
         }
         /**
          * tries to generate a formatted name for the dimension

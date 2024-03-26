@@ -15,10 +15,7 @@ import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class Utl {
     public static CTxT getTranslation(String key,Object... args) {
@@ -122,8 +119,14 @@ public class Utl {
         }
     }
     public static class dim {
-        public static final List<String> DEFAULT_DIMENSIONS = List.of("overworld|Overworld|#55FF55","nether|Nether|#e8342e","end|End|#edffb0");
-        public static final List<String> DEFAULT_RATIOS = List.of("overworld=1|nether=8");
+        public static final List<HashMap<String, String>> DEFAULT_DIMENSIONS = List.of(
+                new HashMap<>() {{ put("dimension", "overworld"); put("name", "Overworld"); put("color", "#55FF55"); }},
+                new HashMap<>() {{ put("dimension", "nether"); put("name", "Nether"); put("color", "#e8342e"); }},
+                new HashMap<>() {{ put("dimension", "end"); put("name", "End"); put("color", "#edffb0"); }}
+        );
+        public static final List<HashMap<String,Double>> DEFAULT_RATIOS = List.of(
+                new HashMap<>() {{ put("overworld", 1.0); put("nether", 8.0);}}
+        );
         /**
          * formats the un-formatted dimension received from the game
          * @param dimension the un-formatted dimension
@@ -140,21 +143,24 @@ public class Utl {
          */
         public static void addMissing() {
             Random random = new Random();
-            HashMap<String,HashMap<String,String>> missing = new HashMap<>();
             // ADD MISSING DIMENSIONS TO MAP
             String defaultWorld = Bukkit.getWorlds().get(0).getName();
             for (World world : Bukkit.getWorlds()) {
                 String currentDIM = format(world.getName());
-                if (Dim.getAll().contains(currentDIM) || currentDIM.equals(defaultWorld)) continue;
-                HashMap<String,String> map = new HashMap<>();
+                // if already exist or the default, continue
+                if (config.dimensions.stream()
+                        .anyMatch(dimension -> dimension.get("dimension").equals(currentDIM)) || currentDIM.equals(defaultWorld)) continue;
+                // make the entry
+                HashMap<String,String> entry = new HashMap<>();
+                // add the dimension name
+                entry.put("dimension",currentDIM);
                 // format the dimension name by capitalizing the first letter
-                map.put("name",currentDIM.substring(0,1).toUpperCase()+currentDIM.substring(1));
+                entry.put("name",currentDIM.substring(0,1).toUpperCase()+currentDIM.substring(1));
                 //make a random color to spice things up
-                map.put("color",String.format("#%02x%02x%02x",
+                entry.put("color",String.format("#%02x%02x%02x",
                         random.nextInt(100,256),random.nextInt(100,256),random.nextInt(100,256)));
-                missing.put(currentDIM,map);
+                config.dimensions.add(entry);
             }
-            Dim.addDimensions(missing);
         }
     }
 }
