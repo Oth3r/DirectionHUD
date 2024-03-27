@@ -269,13 +269,13 @@
   "destination.button.set": "SET",
   "destination.hover.set": "Click to set the destination.",
   "destination.hover.set_self": "Click to enter a custom destination to set.",
-  "destination.msg.set": "Set the destination to %s",
-  "destination.msg.set.info": "(AutoClear: %s, AutoConvert: %s)",
-  "destination.msg.set.converted": "(converted)",
-
   "destination.button.convert": "SET & CONVERT",
   "destination.hover.convert": "Click to set destination with converted coordinates.",
 
+
+  "destination.msg.set": "Set the destination to %s",
+  "destination.msg.set.info": "(AutoClear: %s, AutoConvert: %s)",
+  "destination.msg.set.converted": "(converted)",
 
   "destination.msg.cleared": "Destination cleared: %s",
   "destination.msg.cleared.commend": "You cleared the destination!",
