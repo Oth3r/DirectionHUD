@@ -52,18 +52,6 @@ public class CUtl {
             return LangReader.of(key, args).getTxT();
         }
     }
-    public static CTxT lang(String key, Object... args) {
-        return getLangEntry("key.directionhud."+key,args);
-    }
-    public static CTxT config(String key, Object... args) {
-        return getLangEntry("config."+key,args);
-    }
-    public static CTxT button(String key, Object... args) {
-        return getLangEntry("button."+key,args);
-    }
-    public static CTxT hover(String key, Object... args) {
-        return getLangEntry("hover."+key,args);
-    }
     public static String toggleColor(boolean button) {
         return button?"#55FF55":"#FF5555";
     }

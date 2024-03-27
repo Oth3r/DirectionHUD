@@ -819,7 +819,7 @@ public class HUD {
                         //ORDER
                         .append(CTxT.of(String.valueOf(listPage.getIndexOf(module)+1)).btn(true).color(CUtl.p())
                                 .cEvent(2,"/hud modules order-r "+module+" ")
-                                .hEvent(CUtl.hover("order").color(CUtl.p())))
+                                .hEvent(CUtl.LANG.hover("order").color(CUtl.p())))
                         //TOGGLE
                         .append(CTxT.of(Assets.symbols.toggle).btn(true).color(CUtl.p())
                                 .cEvent(1,"/hud modules toggle-r "+module)
@@ -833,8 +833,8 @@ public class HUD {
                 msg.append(getButtons(player,module));
             }
             //BOTTOM ROW
-            msg.append("\n\n ").append(CUtl.button("reset").btn(true).color('c').cEvent(1,"/hud modules reset-r")
-                            .hEvent(CUtl.hover("reset",CUtl.LANG.btn("all").color('c'),LANG.hover("reset_fill"))))
+            msg.append("\n\n ").append(CUtl.LANG.btn("reset").btn(true).color('c').cEvent(1,"/hud modules reset-r")
+                            .hEvent(CUtl.LANG.hover("reset",CUtl.LANG.btn("all").color('c'),LANG.hover("reset_fill"))))
                     .append(" ").append(listPage.getNavButtons(pg,"/hud modules ")).append(" ").append(CUtl.CButton.back("/hud"))
                     .append(line);
             player.sendMessage(msg);
@@ -868,10 +868,6 @@ public class HUD {
                 UI(player, null);
                 return;
             }
-            // COLOR EDITOR
-            if (args.length == 3 && args[0].equals("edit")) {
-                if (args[2].equals("primary") || args[2].equals("secondary")) changeUI(player, args[1], args[2], null);
-            }
             // if there is -r, remove it and enable returning
             boolean Return = args[0].contains("-r");
             args[0] = args[0].replace("-r","");
@@ -886,7 +882,10 @@ public class HUD {
             if (args.length < 2) return;
             if (args[0].equals("primary") || args[0].equals("secondary")) {
                 // color (type) edit (settings)
-                if (args[1].equals("edit")) changeUI(player, args.length==3?args[2]:"normal", args[0], null);
+                if (args[1].equals("edit")) {
+                    changeUI(player, args.length==3?args[2]:DHUD.preset.DEFAULT_UI_SETTINGS, args[0], null);
+                    return;
+                }
                 if (args.length < 3) return;
                 // color (type) set (color)
                 if (args[1].equals("set")) setColor(player,null,args[0],args[2],false);
@@ -1074,7 +1073,7 @@ public class HUD {
                     .cEvent(1,String.format("/hud color %s-r rainbow %s %s",type,(getEntry(player,typ).getRainbow()?"off":"on"),setting))
                     .hEvent(LANG.hover("toggle",CUtl.toggleTxT(!getEntry(player,typ).getRainbow()),LANG.get("rainbow").rainbow(true,15f,20f)));
             // build the message
-            msg.append(DHUD.preset.colorEditor(getEntry(player,typ).getColor(),setting,DHUD.preset.Type.hud,type,"/hud color edit %s "+type))
+            msg.append(DHUD.preset.colorEditor(getEntry(player,typ).getColor(),setting,DHUD.preset.Type.hud,type,"/hud color "+type+" edit %s"))
                     .append("\n\n ").append(boldButton).append(" ").append(italicsButton).append(" ").append(rgbButton)
                     .append("\n\n     ").append(reset).append(" ").append(CUtl.CButton.back("/hud color")).append(line);
             player.sendMessage(msg);
@@ -1107,8 +1106,8 @@ public class HUD {
          * @return the button created
          */
         public static CTxT button() {
-            return CUtl.button("settings").btn(true).color(Assets.mainColors.setting).cEvent(1,"/hud settings")
-                    .hEvent(CTxT.of(Assets.cmdUsage.hudSettings).color(Assets.mainColors.setting).append("\n").append(CUtl.hover("settings",CUtl.LANG.get("hud"))));
+            return CUtl.LANG.btn("settings").btn(true).color(Assets.mainColors.setting).cEvent(1,"/hud settings")
+                    .hEvent(CTxT.of(Assets.cmdUsage.hudSettings).color(Assets.mainColors.setting).append("\n").append(CUtl.LANG.hover("settings",CUtl.LANG.get("hud"))));
         }
         public static void CMDExecutor(Player player, String[] args) {
             //UI
@@ -1347,9 +1346,9 @@ public class HUD {
             CTxT msg = CTxT.of(Assets.symbols.x).btn(true).color('7');
             if (canBeReset(player,setting)) {
                 msg.color('c').cEvent(1, "/hud settings reset-r " + setting)
-                        .hEvent(CUtl.hover("reset",
+                        .hEvent(CUtl.LANG.hover("reset",
                                 LANG.get("category",
-                                        LANG.get("category."+(setting.toString().startsWith("bossbar")?"bossbar":"hud")),
+                                        LANG.get("category." + (setting.toString().startsWith("bossbar") ? "bossbar" : "hud")),
                                         LANG.get(setting.toString())).color('c'),
                                 CUtl.LANG.hover("reset.settings")));
             }
@@ -1431,7 +1430,7 @@ public class HUD {
                             .append("\n").append(LANG.get(Setting.bossbar__distance+".info.2").color('7')))).append(": ")
                     .append(getButtons(player, Setting.bossbar__distance))
                     .append("\n");
-            CTxT reset = CUtl.button("reset").btn(true).color('7');
+            CTxT reset = CUtl.LANG.btn("reset").btn(true).color('7');
             boolean resetOn = false;
             // see if a setting can be reset, then flip the switch
             for (Setting t: Setting.baseSettings()) {

@@ -301,19 +301,19 @@ public class DHUD {
                             // to / from
                             .append("\n  ").append(from).append("\n   ")
                             // accept & deny buttons
-                            .append(CUtl.button("accept").btn(true).color('a')
-                                    .hEvent(CUtl.hover("accept").color('a'))
+                            .append(CUtl.LANG.btn("accept").btn(true).color('a')
+                                    .hEvent(CUtl.LANG.hover("accept").color('a'))
                                     .cEvent(1,"/dest track accept-r "+name)).append(" ")
-                            .append(CUtl.button("deny").btn(true).color('c')
-                                    .hEvent(CUtl.hover("deny").color('c'))
+                            .append(CUtl.LANG.btn("deny").btn(true).color('c')
+                                    .hEvent(CUtl.LANG.hover("deny").color('c'))
                                     .cEvent(1,"/dest track deny-r "+name));
                 case track_pending ->
                         msg.append(LANG.ui("track_pending",time).color(CUtl.p())).append(" ")
                             // to / from
                             .append("\n  ").append(to).append("\n   ")
                             // cancel button
-                            .append(CUtl.button("cancel").btn(true).color('c')
-                                    .hEvent(CUtl.hover("cancel").color('c'))
+                            .append(CUtl.LANG.btn("cancel").btn(true).color('c')
+                                    .hEvent(CUtl.LANG.hover("cancel").color('c'))
                                     .cEvent(1, "/dest track cancel-r "+name));
                 case destination ->
                         msg.append(LANG.ui("destination",time).color(CUtl.p())).append(" ")
@@ -577,7 +577,7 @@ public class DHUD {
                     for (int i = 0; i < rowAmt;i++) {
                         String color = colors.get(colorIndex);
                         list.append(CTxT.of(Assets.symbols.square).btn(true).color(color)
-                                .cEvent(1,String.format(clickCMD+" set \"%s\"",color))
+                                .cEvent(1,String.format(clickCMD+"set \"%s\"",color))
                                 .hEvent(LANG.get("color.hover.set", CUtl.color.getBadge(color))));
                         colorIndex++;
                     }
@@ -591,7 +591,7 @@ public class DHUD {
                 for (String preset : listPage.getPage(pg)) {
                     String color = custom.getColor(preset), name = custom.getName(preset);
                     list.append("\n ").append(CTxT.of(Assets.symbols.square).color(color).btn(true)
-                                    .cEvent(1,String.format(clickCMD+" set \"%s\"",color))
+                                    .cEvent(1,String.format(clickCMD+"set \"%s\"",color))
                                     .hEvent(LANG.get("color.hover.set",CUtl.color.getBadge(color))))
                             .append(" ").append(CTxT.of(name).color(color));
                 }
