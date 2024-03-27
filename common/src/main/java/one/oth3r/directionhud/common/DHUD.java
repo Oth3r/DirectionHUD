@@ -479,7 +479,7 @@ public class DHUD {
                     .append(LANG.btn().color(Assets.mainColors.presets)
                             .cEvent(1,String.format("/dhud color %s %s \"%s\" preset default",UISettings,type,subtype)).btn(true)
                             .hEvent(LANG.hover("preset.editor",LANG.hover("preset.editor_2").color(Assets.mainColors.presets))));
-            CTxT customButton = LANG.get("custom").btn(true).color(Assets.mainColors.custom)
+            CTxT customButton = LANG.btn("custom").btn(true).color(Assets.mainColors.custom)
                     .cEvent(2,String.format("/dhud color %s %s \"%s\" set ",UISettings,type,subtype))
                     .hEvent(LANG.hover("custom",LANG.hover("custom.2").color(Assets.mainColors.custom)));
             CTxT defaultSquare = CTxT.of(Assets.symbols.square).color(color).hEvent(CUtl.color.getBadge(color)),
