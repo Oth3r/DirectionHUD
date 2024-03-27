@@ -168,11 +168,11 @@ public class Destination {
             Loc loc = player.getPData().getDEST().getDest();
             if (!loc.hasXYZ()) return new Loc();
             if ((boolean) player.getPData().getDEST().getSetting(Setting.ylevel)) loc.setY(player.getBlockY());
-            return loc;
+            return new Loc(loc);
         }
         public static boolean inAutoClearRadius(Player player, Loc loc) {
             if ((boolean) player.getPData().getDEST().getSetting(Setting.autoclear))
-                return Utl.vec.distance(new Loc(player).getVec(player),loc.getVec(player)) <= (double) player.getPData().getDEST().getSetting(Setting.autoclear_rad);
+                return Utl.vec.distance(new Loc(player).getVec(player),loc.getVec(player)) <= (int) player.getPData().getDEST().getSetting(Setting.autoclear_rad);
             else return false;
         }
         public static int getDist(Player player) {
@@ -205,7 +205,8 @@ public class Destination {
                 default -> "command"; case 2 -> "reached"; case 3 -> "dimension";
             }).append(" ");
             // add the set buttons
-            reasonTxT.append(setButtons("/dest set "+current,
+            reasonTxT.append(setButtons("/dest set "+current.getX()+" "+(current.getY()==null?"":current.getY()+" ")+current.getZ()+" "+
+                            (Dim.checkValid(current.getDimension())?current.getDimension():player.getDimension()),
                     // only convert if reason is switching & convertible
                     reason == 3 && Dim.canConvert(player.getDimension(),current.getDimension())
             ));
@@ -225,10 +226,10 @@ public class Destination {
          * @param setLoc the text for the location set
          */
         public static void setMSG(Player player, CTxT setLoc) {
-            player.sendMessage(CUtl.tag().append(LANG.msg("set",setLoc))
+            player.sendMessage(CUtl.tag().append(LANG.msg("set",setLoc)).append("\n ")
                     .append(LANG.msg("set.info",
                             CUtl.toggleTxT((boolean) player.getPData().getDEST().getSetting(Setting.autoclear)),
-                            CUtl.toggleTxT((boolean) player.getPData().getDEST().getSetting(Setting.autoconvert)))));
+                            CUtl.toggleTxT((boolean) player.getPData().getDEST().getSetting(Setting.autoconvert))).color('7').italic(true)));
         }
         /**
          * sets the destination with bad data checks and convert toggle
@@ -346,8 +347,6 @@ public class Destination {
             // /dest set x y z DIM (convert)
             if (args.length == 5)
                 playerSet(player,new Loc(Num.toInt(args[0]), Num.toInt(args[1]), Num.toInt(args[2]),args[3]),true);
-            player.sendMessage(CUtl.usage(Assets.cmdUsage.destSet));
-            return;
         }
         public static ArrayList<String> setCMDSuggester(Player player, int pos, String[] args) {
             String current = Suggester.getCurrent(args, pos);
@@ -484,8 +483,8 @@ public class Destination {
                         }
                     }
                 }
-                case "add" -> addCMDSuggester(player,pos-1, Helper.trimStart(args,1));
-                case "edit" -> editCMDSuggester(player, false,pos-1, Helper.trimStart(args,1));
+                case "add" -> suggester.addAll(addCMDSuggester(player,pos-1, Helper.trimStart(args,1)));
+                case "edit" -> suggester.addAll(editCMDSuggester(player, false,pos-1, Helper.trimStart(args,1)));
             }
             return suggester;
         }
@@ -627,7 +626,6 @@ public class Destination {
             return suggester;
         }
         public static void addCMDExecutor(Player player, String[] args, boolean global) {
-            System.out.println(Arrays.toString(args));
             if (!Utl.checkEnabled.saving(player)) return;
             //dest saved add <name>
             if (args.length == 1) {
@@ -788,14 +786,17 @@ public class Destination {
                 }
             }
             private void save() {
+                if (global) {
+                    // set the list to the edited list
+                    GlobalDest.setDestinations(list);
+                    // save changes to file
+                    GlobalDest.mapToFile();
+                } else player.setPData().getDEST().setSaved(list);
+            }
+            private void saveList() {
                 if (index >= 0) {
                     list.set(index, dest);
-                    if (global) {
-                        // set the list to the edited list
-                        GlobalDest.setDestinations(list);
-                        // save changes to file
-                        GlobalDest.mapToFile();
-                    } else player.setPData().getDEST().setSaved(list);
+                    save();
                 }
             }
             public boolean isValid() {
@@ -811,34 +812,47 @@ public class Destination {
                 return "\""+this.getName()+"\"";
             }
             public void setName(String name) {
-                name = name.replace(" ","");
+                // make sure the length is okay
                 if (name.length() > Helper.MAX_NAME) name = name.substring(0, Helper.MAX_NAME);
+                // set the name
                 dest.setName(name);
-                save();
+                saveList();
             }
             public void setDest(Loc loc) {
                 if (!loc.hasDestRequirements()) return;
                 this.dest = loc;
-                save();
+                saveList();
             }
             public String getColor() {
                 return dest.getColor();
             }
             public void setColor(String color) {
                 dest.setColor(CUtl.color.colorHandler(player,color,this.getColor()));
-                save();
+                saveList();
             }
             public int getOrder() {
                 return index+1;
             }
+
+            /**
+             * sets the order of the destination, has to already be added to the list
+             * @param order the new order, player format +1
+             */
             public void setOrder(int order) {
                 list.remove(dest);
+                // sub one because player entered order is one off
                 order--;
+                // make sure the order is not out of bounds
                 if (order < 0) order = 0;
                 if (order > list.size()) order = list.size();
+                // set the index
                 index = order;
+                // add the dest back if empty, setting throws an error
+                if (list.isEmpty()) list.add(dest);
+                // set the new order in the list
+                else list.set(index,dest);
+                // save the list
                 save();
-                index = list.indexOf(dest);
             }
             /**
              * adds the destination to the list of not already
@@ -846,7 +860,7 @@ public class Destination {
             public void add() {
                 if (!list.contains(dest)) {
                     list.add(dest);
-                    // update the index
+                    // update the index & save
                     index = list.indexOf(dest);
                     save();
                 }
@@ -1071,8 +1085,8 @@ public class Destination {
             String currentColor = destination.getColor();
 
             // build the message
-            CTxT msg = CTxT.of(" "), line = CTxT.of("\n                               \n").strikethrough(true);
-            msg.append(LANG.ui("color",name).color(currentColor)).append(line);
+            CTxT msg = CTxT.of(" "), line = CTxT.of("\n                               ").strikethrough(true);
+            msg.append(LANG.ui("color",name).color(currentColor)).append(line).append("\n");
             // get the command name of the destination
             String cmdName = destination.getCMDName();
             msg.append(DHUD.preset.colorEditor(currentColor,UISettings,DHUD.preset.Type.saved,name,"/dest saved edit colorui "+cmdName+" %s"))
@@ -1110,7 +1124,7 @@ public class Destination {
                     // location
                     .append("\n\n ").append(CTxT.of(Assets.symbols.pencil).btn(true).color(Assets.mainColors.edit)
                             .hEvent(LANG.hover("edit",LANG.get("location").color(Assets.mainColors.edit)))
-                            .cEvent(2, "/dest saved edit location "+cmdName+" "))
+                            .cEvent(2, "/dest saved edit-r location "+cmdName+" "))
                     .append(" ").append(CTxT.of(destination.getDest().getNamelessBadge()))
                     .append("\n   ");
             // SEND BUTTON

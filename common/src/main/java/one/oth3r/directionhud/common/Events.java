@@ -51,15 +51,15 @@ public class Events {
         if (Destination.dest.get(player).hasXYZ()) {
             Loc loc = Destination.dest.get(player);
             // don't clear if the dest's dim is the same as the new dim
-            if (toDIM.equals(Destination.dest.get(player).getDimension())) return;
-            if (Dim.canConvert(toDIM, Destination.dest.get(player).getDimension()) &&
+            if (toDIM.equals(loc.getDimension())) return;
+            if (Dim.canConvert(toDIM, loc.getDimension()) &&
                     (boolean) player.getPData().getDEST().getSetting(Destination.Setting.autoconvert)) {
                 //DEST AutoConvert logic
                 Loc cLoc = Destination.dest.get(player);
                 cLoc.convertTo(toDIM);
                 Destination.dest.set(player,cLoc);
-                player.sendMessage(CUtl.tag().append(CUtl.lang("dest.autoconvert.dest"))
-                        .append("\n ").append(CUtl.lang("dest.autoconvert.dest.info",loc.getBadge(),cLoc.getBadge()).italic(true).color('7')));
+                player.sendMessage(CUtl.tag().append(Destination.LANG.msg("autoconvert.destination",
+                        CTxT.of("\n ").append(Destination.LANG.msg("autoconvert.destination.2",loc.getBadge(),cLoc.getBadge())))));
             } else if ((boolean) player.getPData().getDEST().getSetting(Destination.Setting.autoclear)) {
                 // clear if autoclear is on
                 Destination.dest.clear(player, 3);
