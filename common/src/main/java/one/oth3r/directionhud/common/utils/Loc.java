@@ -2,17 +2,13 @@ package one.oth3r.directionhud.common.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import one.oth3r.directionhud.common.files.config;
-import one.oth3r.directionhud.common.utils.Helper.Dim;
-import one.oth3r.directionhud.common.utils.Helper.Num;
+import one.oth3r.directionhud.common.utils.Helper.*;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 
 public class Loc {
     private Integer x = null;
@@ -22,6 +18,15 @@ public class Loc {
     private String name = null;
     private String color = null;
     public Loc() {}
+
+    public Loc(Loc loc) {
+        x = loc.getX();
+        y = loc.getY();
+        z = loc.getZ();
+        dimension = loc.getDimension();
+        name = loc.getName();
+        color = loc.getColor();
+    }
 
     /**
      * creates Loc with x, y, z, dimension, name, & color
