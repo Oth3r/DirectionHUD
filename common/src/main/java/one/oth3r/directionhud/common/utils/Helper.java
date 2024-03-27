@@ -330,7 +330,7 @@ public class Helper {
             // build and return
             return CTxT.of("")
                     .append(left).append(" ")
-                    .append(CTxT.of(String.valueOf(page)).btn(true).color(CUtl.p()).cEvent(2,command).hEvent(CUtl.hover("page_set").color(CUtl.p())))
+                    .append(CTxT.of(String.valueOf(page)).btn(true).color(CUtl.p()).cEvent(2,command).hEvent(CUtl.LANG.hover("page_set").color(CUtl.p())))
                     .append(" ").append(right);
         }
     }
@@ -426,11 +426,6 @@ public class Helper {
         public static void load() {
             Utl.dim.addMissing();
             loadConfig();
-            loadConfigRatios();
-        }
-        private static void loadConfigRatios() {
-            conversionRatios.clear();
-
         }
         private static void loadConfig() {
             dimensions.clear();
