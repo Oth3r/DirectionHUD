@@ -278,7 +278,7 @@
   "destination.msg.set.converted": "(converted)",
 
   "destination.msg.cleared": "Destination cleared: %s",
-  "destination.msg.cleared.commend": "You cleared the destination!",
+  "destination.msg.cleared.command": "You cleared the destination!",
   "destination.msg.cleared.dimension": "You changed dimensions!",
   "destination.msg.cleared.reached": "You reached your destination!",
 
