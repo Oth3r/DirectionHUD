@@ -629,7 +629,7 @@ public class Destination {
             if (!Utl.checkEnabled.saving(player)) return;
             //dest saved add <name>
             if (args.length == 1) {
-                addButton(player,new Dest(player,new Loc(player,args[0]),global));
+                add(player,new Dest(player,new Loc(player,args[0]),global));
                 return;
             }
             if (!Num.inBetween(args.length, 2, 6)) {
@@ -646,47 +646,48 @@ public class Destination {
                 } else {
                     baseLoc.setColor(args[1]);
                 }
-                addButton(player,new Dest(player,baseLoc,global));
+                add(player,new Dest(player,baseLoc,global));
                 return;
             }
             //dest saved add <name> x z
             if (args.length == 3) {
-                addButton(player,new Dest(player,new Loc(Num.toInt(args[1]),null, Num.toInt(args[2]),playerDIM,args[0],null),global));
+                add(player,new Dest(player,new Loc(Num.toInt(args[1]),null, Num.toInt(args[2]),playerDIM,args[0],null),global));
                 return;
             }
             //dest saved add <name> x z color
             if (args.length == 4 && !Num.isInt(args[3]) && !Dim.checkValid(args[3])) {
-                addButton(player,new Dest(player,new Loc(Num.toInt(args[1]),null,Num.toInt(args[2]),playerDIM,args[0],args[3]),global));
+                add(player,new Dest(player,new Loc(Num.toInt(args[1]),null,Num.toInt(args[2]),playerDIM,args[0],args[3]),global));
                 return;
             }
             //dest saved add <name> x y DIM
             if (args.length == 4 && !Num.isInt(args[3])) {
-                addButton(player,new Dest(player,new Loc(Num.toInt(args[1]),null,Num.toInt(args[2]),args[3],args[0],null),false));
+                add(player,new Dest(player,new Loc(Num.toInt(args[1]),null,Num.toInt(args[2]),args[3],args[0],null),global));
                 return;
             }
             //dest saved add <name> x y z
             if (args.length == 4 && Num.isInt(args[3])) {
-                addButton(player,new Dest(player,new Loc(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),playerDIM,args[0],null),false));
+                add(player,new Dest(player,new Loc(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),playerDIM,args[0],null),global));
                 return;
             }
             //dest saved add <name> x y DIM color
             if (args.length == 5 && !Num.isInt(args[3])) {
-                addButton(player,new Dest(player,new Loc(Num.toInt(args[1]),null,Num.toInt(args[2]),args[3],args[0],args[4]),false));
+                add(player,new Dest(player,new Loc(Num.toInt(args[1]),null,Num.toInt(args[2]),args[3],args[0],args[4]),global));
                 return;
             }
             //dest saved add <name> x y z color
             if (args.length == 5 && !Dim.checkValid(args[4])) {
-                addButton(player,new Dest(player,new Loc(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),playerDIM,args[0],args[4]),false));
+                add(player,new Dest(player,new Loc(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),playerDIM,args[0],args[4]),global));
                 return;
             }
             //dest saved add <name> x y z DIM
             if (args.length == 5) {
-                addButton(player,new Dest(player,new Loc(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),args[4],args[0],null),false));
+                add(player,new Dest(player,new Loc(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),args[4],args[0],null),global));
                 return;
             }
             //dest saved add <name> x y z DIM color
             if (args.length == 6) {
-                addButton(player,new Dest(player,new Loc(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),args[4],args[0],args[5]),false));
+                System.out.println("color"+args[5]);
+                add(player,new Dest(player,new Loc(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),args[4],args[0],args[5]),global));
                 return;
             }
             player.sendMessage(CUtl.usage(Assets.cmdUsage.destAdd));
@@ -929,7 +930,7 @@ public class Destination {
          * saves a new destination
          * @param destination the destination to save
          */
-        public static void addButton(Player player, Dest destination) {
+        public static void add(Player player, Dest destination) {
             // format the color
             destination.setColor(CUtl.color.colorHandler(player,destination.getColor()));
             // if errors were sent (invalid), return

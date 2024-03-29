@@ -37,7 +37,7 @@ public class Loc {
         this.z = xzBounds(z);
         if (Dim.checkValid(dimension)) this.dimension = dimension;
         this.name = name;
-        this.color = CUtl.color.format(color);
+        this.color = color;
     }
 
     /**
