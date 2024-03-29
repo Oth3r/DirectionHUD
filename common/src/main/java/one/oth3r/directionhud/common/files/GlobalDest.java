@@ -55,8 +55,8 @@ public class GlobalDest {
             // save in case of changes
             mapToFile();
         } catch (Exception e) {
-            DirectionHUD.LOGGER.info("ERROR READING GLOBAL DEST FILE - PLEASE REPORT WITH THE ERROR LOG");
-            DirectionHUD.LOGGER.info(e.getMessage());
+            System.out.println("Global Destinations: cant load properly, loading legacy destinations...");
+            loadLegacy();
         }
     }
     public static void mapToFile() {
@@ -93,9 +93,10 @@ public class GlobalDest {
             destinations = out;
             // save the changes
             mapToFile();
+            System.out.println("Global Destinations: successfully loaded legacy destinations & migrated to new systems!");
         } catch (Exception e) {
             DirectionHUD.LOGGER.info("ERROR READING GLOBAL DEST FILE - PLEASE REPORT WITH THE ERROR LOG");
-            DirectionHUD.LOGGER.info(e.getMessage());
+            e.printStackTrace();
         }
     }
 }

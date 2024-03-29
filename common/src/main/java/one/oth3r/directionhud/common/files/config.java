@@ -296,8 +296,6 @@ public class config {
             dest.Lastdeath = Boolean.parseBoolean((String) properties.computeIfAbsent("dest.settings.features.lastdeath", a -> String.valueOf(dest.defaults.Lastdeath)));
             // CONFIG UPDATER, if the version is lower than the current, load from the old config
             if (version <= 1.5f) {
-                // update global destinations to the new system
-                GlobalDest.loadLegacy();
                 // update destinations to new system
                 try {
                     dimensions = Dim.fixDimensions(Dim.loadLegacyDimensions(gson.fromJson((String) properties.computeIfAbsent("dimensions", a -> ""), arrayListMap)));
