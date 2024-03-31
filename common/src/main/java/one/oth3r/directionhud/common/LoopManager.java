@@ -64,7 +64,7 @@ public class LoopManager {
         if (secondTick%2==0) {
             for (Player player : Utl.getPlayers()) {
                 // only update the speed if the module and hud is on
-                if (player.getPData().getHud().getModule(HUD.Module.speed) && (boolean) player.getPData().getHud().getSetting(HUD.Setting.state)) {
+                if ((boolean) player.getPData().getHud().getSetting(HUD.Setting.state) && player.getPData().getHud().getModule(HUD.Module.speed)) {
                     ArrayList<Double> pos = player.getVec();
                     ArrayList<Double> oldPos = (ArrayList<Double>) player.getPData().getDataMap().get("speed_data");
                     // replace with players current speed

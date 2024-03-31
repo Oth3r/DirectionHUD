@@ -90,7 +90,7 @@ public class PData {
     }
 
     public Map<String, Object> getDataMap() {
-        return new HashMap<>(dataMap);
+        return dataMap;
     }
 
     public void setDataMap(Map<String, Object> dataMap) {
