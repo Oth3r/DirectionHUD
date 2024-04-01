@@ -5,11 +5,14 @@
 
 DirectionHUD is a fully customizable Minecraft plugin that enhances the vanilla navigation experience.
 With the plugin, you can save coordinates, track other players, see death locations, all with full customization with the **/hud** and **/destination** commands.
+
 ## Help localize DirectionHUD on [Crowdin](https://crowdin.com/project/directionhud/)!
 ![overview](https://github.com/Oth3r/DirectionHUD/blob/master/media/showcase/overview.gif?raw=true)
 
 ***How do I set custom destinations?*** - You can use **/dest set <XYZ>** to set a destination, but the main commands for the mod are **/hud** and **/destination**, if you are stuck try one of them out!
+
 ## Check out my other Projects!
+[![Caligo badge](https://github.com/Oth3r/Caligo/blob/master/media/promo_badge.png?raw=true)](https://modrinth.com/mod/caligo)
 [![DirectionHUD badge](https://github.com/Oth3r/DirectionHUD/blob/master/media/mod-badge-port.png?raw=true)](https://modrinth.com/mod/directionhud)
 [![Sit! badge](https://github.com/Oth3r/Sit/blob/master/media/badge.png?raw=true)](https://modrinth.com/mod/sit!)
 
@@ -18,22 +21,6 @@ With the plugin, you can save coordinates, track other players, see death locati
 Toggle and customize HUD modules to your liking, while sorting them to be perfect for you.
 
 ![hud customization](https://github.com/Oth3r/DirectionHUD/blob/master/media/showcase/hud_modules.gif?raw=true)
-<details>
-<summary>HUD Modules</summary>
-
-|             |                                         |
-|-------------|-----------------------------------------|
-| Coordinates | Yooo mini F3 screen                     |
-| Speed       | 60..65..70 blocks per second!?          |
-| Angle       | I'll place the boat perfectly this time |
-| Weather     | 😳                                      |
-| Tracking    | Can't run can't hide...                 |
-| Distance    | It's bout 10,000 blocks away now        |
-| Time        | Its getting late isn't it?              |
-| Direction   | Go south west, the south west 🤦        |
-| Destination | Base coords go here                     |
-|             |                                         |
-</details>
 
 ### Saving Coordinates
 Tired of writing down base locations?
