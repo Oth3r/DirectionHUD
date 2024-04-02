@@ -5,23 +5,30 @@ import com.google.gson.annotations.SerializedName;
 import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.utils.Helper.*;
+import one.oth3r.directionhud.utils.Player;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class pd_hud {
+public class PD_hud {
+    public void setPlayer(Player player) {
+        this.player = player;
+        primary.setPlayer(player);
+        secondary.setPlayer(player);
+    }
+    private transient Player player;
     @SerializedName("module")
-    private pd_hud_module module = new pd_hud_module();
+    private PD_hud_module module = new PD_hud_module();
     @SerializedName("setting")
-    private pd_hud_setting setting = new pd_hud_setting();
+    private PD_hud_setting setting = new PD_hud_setting();
     @SerializedName("order")
     private List<String> order = Enums.toStringList(config.hud.Order);
     @SerializedName("primary")
-    private pd_hud_color primary = new pd_hud_color(config.hud.primary.Color,config.hud.primary.Bold,config.hud.primary.Italics,config.hud.primary.Rainbow);
+    private PD_hud_color primary = new PD_hud_color(player,config.hud.primary.Color,config.hud.primary.Bold,config.hud.primary.Italics,config.hud.primary.Rainbow);
     @SerializedName("secondary")
-    private pd_hud_color secondary = new pd_hud_color(config.hud.secondary.Color,config.hud.secondary.Bold,config.hud.secondary.Italics,config.hud.secondary.Rainbow);
+    private PD_hud_color secondary = new PD_hud_color(player,config.hud.secondary.Color,config.hud.secondary.Bold,config.hud.secondary.Italics,config.hud.secondary.Rainbow);
 
-    public pd_hud_module getModule() {
+    public PD_hud_module getModule() {
         return module;
     }
 
@@ -40,8 +47,9 @@ public class pd_hud {
         };
     }
 
-    public void setModule(pd_hud_module module) {
+    public void setModule(PD_hud_module module) {
         this.module = module;
+        player.getPData().save();
     }
 
     public void setModule(HUD.Module module, boolean state) {
@@ -56,28 +64,13 @@ public class pd_hud {
             case weather -> getModule().setWeather(state);
             case time -> getModule().setTime(state);
         }
+        player.getPData().save();
     }
 
-    public pd_hud_setting getSetting() {
+    public PD_hud_setting getSetting() {
         return setting;
     }
 
-    public void setSetting(HUD.Setting type, Object setting) {
-        switch (type) {
-            case type -> getSetting().setType(setting.toString());
-            case state -> getSetting().setState((Boolean) setting);
-            case bossbar__color -> getSetting().getBossbar().setColor(setting.toString());
-            case bossbar__distance -> getSetting().getBossbar().setDistance((Boolean) setting);
-            case bossbar__distance_max -> getSetting().getBossbar().setDistanceMax((int) setting);
-            case module__angle_display -> getSetting().getModule().setAngleDisplay(setting.toString());
-            case module__speed_3d -> getSetting().getModule().setSpeed3d((Boolean) setting);
-            case module__speed_pattern -> getSetting().getModule().setSpeedPattern((String) setting);
-            case module__tracking_hybrid -> getSetting().getModule().setTrackingHybrid((Boolean) setting);
-            case module__tracking_type -> getSetting().getModule().setTrackingType(setting.toString());
-            case module__tracking_target -> getSetting().getModule().setTrackingTarget(setting.toString());
-            case module__time_24hr -> getSetting().getModule().setTime24hr((Boolean) setting);
-        }
-    }
     public Object getSetting(HUD.Setting type) {
         return switch (type) {
             case type -> getSetting().getType();
@@ -96,8 +89,27 @@ public class pd_hud {
         };
     }
 
-    public void setSetting(pd_hud_setting setting) {
+    public void setSetting(HUD.Setting type, Object setting) {
+        switch (type) {
+            case type -> getSetting().setType(setting.toString());
+            case state -> getSetting().setState((Boolean) setting);
+            case bossbar__color -> getSetting().getBossbar().setColor(setting.toString());
+            case bossbar__distance -> getSetting().getBossbar().setDistance((Boolean) setting);
+            case bossbar__distance_max -> getSetting().getBossbar().setDistanceMax((int) setting);
+            case module__angle_display -> getSetting().getModule().setAngleDisplay(setting.toString());
+            case module__speed_3d -> getSetting().getModule().setSpeed3d((Boolean) setting);
+            case module__speed_pattern -> getSetting().getModule().setSpeedPattern((String) setting);
+            case module__tracking_hybrid -> getSetting().getModule().setTrackingHybrid((Boolean) setting);
+            case module__tracking_type -> getSetting().getModule().setTrackingType(setting.toString());
+            case module__tracking_target -> getSetting().getModule().setTrackingTarget(setting.toString());
+            case module__time_24hr -> getSetting().getModule().setTime24hr((Boolean) setting);
+        }
+        player.getPData().save();
+    }
+
+    public void setSetting(PD_hud_setting setting) {
         this.setting = setting;
+        player.getPData().save();
     }
 
     public ArrayList<HUD.Module> getOrder() {
@@ -108,21 +120,24 @@ public class pd_hud {
 
     public void setOrder(ArrayList<HUD.Module> order) {
         this.order = Enums.toStringList(order);
+        player.getPData().save();
     }
 
-    public pd_hud_color getPrimary() {
+    public PD_hud_color getPrimary() {
         return primary;
     }
 
-    public void setPrimary(pd_hud_color primary) {
+    public void setPrimary(PD_hud_color primary) {
         this.primary = primary;
+        player.getPData().save();
     }
 
-    public pd_hud_color getSecondary() {
+    public PD_hud_color getSecondary() {
         return secondary;
     }
 
-    public void setSecondary(pd_hud_color secondary) {
+    public void setSecondary(PD_hud_color secondary) {
         this.secondary = secondary;
+        player.getPData().save();
     }
 }

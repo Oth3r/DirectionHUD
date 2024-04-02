@@ -4,7 +4,7 @@ package one.oth3r.directionhud.common.files.playerdata.destination;
 import com.google.gson.annotations.SerializedName;
 import one.oth3r.directionhud.common.files.config;
 
-public class pd_destination_setting_particles {
+public class PD_destination_setting_particles {
     @SerializedName("dest")
     private Boolean dest = config.dest.particles.Dest;
     @SerializedName("dest_color")

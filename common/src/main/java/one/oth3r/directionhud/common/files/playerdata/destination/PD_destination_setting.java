@@ -4,7 +4,7 @@ package one.oth3r.directionhud.common.files.playerdata.destination;
 import com.google.gson.annotations.SerializedName;
 import one.oth3r.directionhud.common.files.config;
 
-public class pd_destination_setting {
+public class PD_destination_setting {
 
     @SerializedName("ylevel")
     private Boolean ylevel = config.dest.YLevel;
@@ -15,9 +15,9 @@ public class pd_destination_setting {
     @SerializedName("autoconvert")
     private Boolean autoconvert = config.dest.AutoConvert;
     @SerializedName("features")
-    private pd_destination_setting_features features = new pd_destination_setting_features();
+    private PD_destination_setting_features features = new PD_destination_setting_features();
     @SerializedName("particles")
-    private pd_destination_setting_particles particles = new pd_destination_setting_particles();
+    private PD_destination_setting_particles particles = new PD_destination_setting_particles();
 
     public Boolean getYlevel() {
         return ylevel;
@@ -35,11 +35,11 @@ public class pd_destination_setting {
         this.autoconvert = autoconvert;
     }
 
-    public pd_destination_setting_features getFeatures() {
+    public PD_destination_setting_features getFeatures() {
         return features;
     }
 
-    public void setFeatures(pd_destination_setting_features features) {
+    public void setFeatures(PD_destination_setting_features features) {
         this.features = features;
     }
 
@@ -59,11 +59,11 @@ public class pd_destination_setting {
         this.autoclearRad = autoclearRad;
     }
 
-    public pd_destination_setting_particles getParticles() {
+    public PD_destination_setting_particles getParticles() {
         return particles;
     }
 
-    public void setParticles(pd_destination_setting_particles particles) {
+    public void setParticles(PD_destination_setting_particles particles) {
         this.particles = particles;
     }
 

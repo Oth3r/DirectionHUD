@@ -164,7 +164,7 @@ public class DHUD {
                     iterator.remove();
                 }
             }
-            player.setPData().setInbox(inbox);
+            player.getPData().setInbox(inbox);
         }
         /**
          * searches all player entries for a matching key and value from a certain type
@@ -212,7 +212,7 @@ public class DHUD {
             entry.put("id",ID);
             entry.put("expire",time);
             inbox.add(0,entry);
-            target.setPData().setInbox(inbox);
+            target.getPData().setInbox(inbox);
             // create the track pending for the requester
             inbox = from.getPData().getInbox();
             entry = new HashMap<>();
@@ -222,7 +222,7 @@ public class DHUD {
             entry.put("id",ID);
             entry.put("expire",time);
             inbox.add(0,entry);
-            from.setPData().setInbox(inbox);
+            from.getPData().setInbox(inbox);
         }
         /**
          * adds a destination to the target player's inbox
@@ -244,7 +244,7 @@ public class DHUD {
             // add to the top of the list
             inbox.add(0,entry);
             // save the inbox
-            target.setPData().setInbox(inbox);
+            target.getPData().setInbox(inbox);
         }
         /**
          * removes the entry provided
@@ -254,7 +254,7 @@ public class DHUD {
             if (entry == null) return;
             ArrayList<HashMap<String, Object>> inbox = player.getPData().getInbox();
             inbox.remove(entry);
-            player.setPData().setInbox(inbox);
+            player.getPData().setInbox(inbox);
         }
         /**
          * delete an entry via ID
@@ -779,7 +779,7 @@ public class DHUD {
                 int index = names.indexOf(name);
                 String oldPreset = presets.get(index), preset = name+"|"+color;
                 presets.set(index,preset);
-                player.setPData().setColorPresets(presets);
+                player.getPData().setColorPresets(presets);
                 if (Return) colorUI(player,UISettings,name,null);
                 else player.sendMessage(CUtl.tag().append(LANG.msg("color",getBadge(oldPreset,false),CUtl.color.getBadge(color))));
             }
@@ -807,7 +807,7 @@ public class DHUD {
                 // add & save the preset
                 String entry = name+"|"+color;
                 presets.add(entry);
-                player.setPData().setColorPresets(presets);
+                player.getPData().setColorPresets(presets);
                 // listPage for getting the page of the new entry when returning
                 ListPage<String> listPage = new ListPage<>(presets,PER_PAGE);
                 CTxT msg = CUtl.tag().append(LANG.msg("save",getBadge(entry,true)));
@@ -837,7 +837,7 @@ public class DHUD {
                 int index = names.indexOf(name);
                 String preset = newName+"|"+getColors(presets).get(index);
                 presets.set(index,preset);
-                player.setPData().setColorPresets(presets);
+                player.getPData().setColorPresets(presets);
                 // player formatting
                 CTxT msg = CUtl.tag().append(LANG.msg("rename",getBadge(name+"|"+getColors(presets).get(index),false),getBadge(preset,false)));
                 ListPage<String> listPage = new ListPage<>(names,PER_PAGE);
@@ -859,7 +859,7 @@ public class DHUD {
                 String preset = presets.get(names.indexOf(name));
                 // remove the preset
                 presets.remove(preset);
-                player.setPData().setColorPresets(presets);
+                player.getPData().setColorPresets(presets);
                 // player formatting
                 CTxT msg = CUtl.tag().append(LANG.msg("delete",getBadge(preset,true)));
                 ListPage<String> listPage = new ListPage<>(names,PER_PAGE);

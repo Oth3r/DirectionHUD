@@ -106,14 +106,6 @@ public class Player extends PlayerTemplate {
     public PData getPData() {
         return PlayerData.getPData(this);
     }
-    /**
-     * returns the pData for setting, and adds the player to the list for pData saving
-     * @return pData
-     */
-    public PData setPData() {
-        LoopManager.addSavePlayer(this);
-        return getPData();
-    }
     public ServerPlayerEntity getPlayer() {
         return player;
     }

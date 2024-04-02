@@ -39,17 +39,16 @@ public abstract class PlayerTemplate {
     public abstract void displayBossBar(CTxT message);
     public abstract void removeBossBar();
     public abstract PData getPData();
-    public abstract PData setPData();
     public void updateHUD() {
         // if toggled off
-        if (!(boolean) this.setPData().getHud().getSetting(HUD.Setting.state)) {
+        if (!(boolean) this.getPData().getHud().getSetting(HUD.Setting.state)) {
             //if actionbar send empty to clear else remove bossbar
-            if (this.setPData().getHud().getSetting(HUD.Setting.type).equals(HUD.Setting.DisplayType.actionbar.toString()))
+            if (this.getPData().getHud().getSetting(HUD.Setting.type).equals(HUD.Setting.DisplayType.actionbar.toString()))
                 this.sendActionBar(CTxT.of(""));
             else this.removeBossBar();
         }
         // if actionbar make sure no bossbar
-        if (this.setPData().getHud().getSetting(HUD.Setting.type).equals(HUD.Setting.DisplayType.actionbar.toString())) {
+        if (this.getPData().getHud().getSetting(HUD.Setting.type).equals(HUD.Setting.DisplayType.actionbar.toString())) {
             this.removeBossBar();
         }
         // else clear the actionBar
@@ -63,7 +62,7 @@ public abstract class PlayerTemplate {
             if (this.getPData().getMsg("hud.enabled_but_off").isBlank()) {
                 this.getPData().setMsg("hud.enabled_but_off","true");
                 // if actionbar, clear once, if bossbar remove player
-                if ((HUD.Setting.DisplayType.get((String) this.setPData().getHud().getSetting(HUD.Setting.type)).equals(HUD.Setting.DisplayType.actionbar))) {
+                if ((HUD.Setting.DisplayType.get((String) this.getPData().getHud().getSetting(HUD.Setting.type)).equals(HUD.Setting.DisplayType.actionbar))) {
                     sendActionBar(CTxT.of(""));
                 } else removeBossBar();
             }
@@ -73,7 +72,7 @@ public abstract class PlayerTemplate {
             this.getPData().clearMsg("hud.enabled_but_off");
         }
         // if actionbar send actionbar, if bossbar update the bar
-        if ((HUD.Setting.DisplayType.get((String) this.setPData().getHud().getSetting(HUD.Setting.type)).equals(HUD.Setting.DisplayType.actionbar)))
+        if ((HUD.Setting.DisplayType.get((String) this.getPData().getHud().getSetting(HUD.Setting.type)).equals(HUD.Setting.DisplayType.actionbar)))
             sendActionBar(message);
         else displayBossBar(message);
     }

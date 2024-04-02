@@ -2,9 +2,10 @@
 package one.oth3r.directionhud.common.files.playerdata;
 
 import com.google.gson.annotations.SerializedName;
+import one.oth3r.directionhud.common.LoopManager;
 import one.oth3r.directionhud.common.files.config;
-import one.oth3r.directionhud.common.files.playerdata.destination.pd_destination;
-import one.oth3r.directionhud.common.files.playerdata.hud.pd_hud;
+import one.oth3r.directionhud.common.files.playerdata.destination.PD_destination;
+import one.oth3r.directionhud.common.files.playerdata.hud.PD_hud;
 import one.oth3r.directionhud.utils.Player;
 
 import java.util.ArrayList;
@@ -16,11 +17,11 @@ public class PData {
     @SerializedName("version")
     private Double version = 2.0;
     @SerializedName("hud")
-    private pd_hud hud = new pd_hud();
+    private PD_hud hud = new PD_hud();
     @SerializedName("name")
     private String name;
     @SerializedName("destination")
-    private pd_destination destination = new pd_destination();
+    private PD_destination destination = new PD_destination();
     @SerializedName("inbox")
     private List<HashMap<String,Object>> inbox = new ArrayList<>();
     @SerializedName("color_presets")
@@ -28,33 +29,38 @@ public class PData {
     @SerializedName("social_cooldown")
     private Double socialCooldown;
     private transient Map<String,Object> dataMap = new HashMap<>();
+    private transient Player player;
+
+    /**
+     * sets pData to be saved and sends the updated pData to the player client if needed
+     */
+    public void save() {
+        LoopManager.addSavePlayer(player);
+        player.sendPDataPackets();
+    }
+
+    public void setPlayer(Player player) {
+        this.player = player;
+        this.name = player.getName();
+        this.hud.setPlayer(player);
+        this.destination.setPlayer(player);
+        save();
+    }
 
     public PData(Player player) {
         this.name = player.getName();
     }
 
-    public pd_hud getHud() {
+    public PD_hud getHud() {
         return hud;
-    }
-
-    public void setHud(pd_hud hud) {
-        this.hud = hud;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(Player player) {
-        this.name = player.getName();
-    }
-
-    public pd_destination getDEST() {
+    public PD_destination getDEST() {
         return destination;
-    }
-
-    public void setDestination(pd_destination destination) {
-        this.destination = destination;
     }
 
     public Double getVersion() {
@@ -63,6 +69,7 @@ public class PData {
 
     public void setVersion(Double version) {
         this.version = version;
+        // dont need to save, something else will save
     }
 
     public ArrayList<HashMap<String,Object>> getInbox() {
@@ -71,6 +78,7 @@ public class PData {
 
     public void setInbox(List<HashMap<String,Object>> inbox) {
         this.inbox = inbox;
+        save();
     }
 
     public ArrayList<String> getColorPresets() {
@@ -79,6 +87,7 @@ public class PData {
 
     public void setColorPresets(List<String> colorPresets) {
         this.colorPresets = colorPresets;
+        save();
     }
 
     public Double getSocialCooldown() {
@@ -87,6 +96,7 @@ public class PData {
 
     public void setSocialCooldown(Double socialCooldown) {
         this.socialCooldown = socialCooldown;
+        save();
     }
 
     public Map<String, Object> getDataMap() {
@@ -95,6 +105,7 @@ public class PData {
 
     public void setDataMap(Map<String, Object> dataMap) {
         this.dataMap = dataMap;
+        // no saving for local
     }
 
     public ArrayList<String> getMsgKeys() {

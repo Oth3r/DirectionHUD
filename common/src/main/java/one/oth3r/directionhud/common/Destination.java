@@ -184,7 +184,7 @@ public class Destination {
          * clears the destination without notifying the player
          */
         public static void clear(Player player) {
-            player.setPData().getDEST().setDest(new Loc());
+            player.getPData().getDEST().setDest(new Loc());
         }
         /**
          * clears the destination with a message for the player
@@ -219,7 +219,7 @@ public class Destination {
          * sets the destination without notifying the player, still checks for autoclear instantly clearing or not
          */
         public static void set(Player player, Loc loc) {
-            if (!inAutoClearRadius(player, loc)) player.setPData().getDEST().setDest(loc);
+            if (!inAutoClearRadius(player, loc)) player.getPData().getDEST().setDest(loc);
         }
         /**
          * generates the set message for the player
@@ -792,7 +792,7 @@ public class Destination {
                     GlobalDest.setDestinations(list);
                     // save changes to file
                     GlobalDest.mapToFile();
-                } else player.setPData().getDEST().setSaved(list);
+                } else player.getPData().getDEST().setSaved(list);
             }
             private void saveList() {
                 if (index >= 0) {
@@ -1257,7 +1257,7 @@ public class Destination {
                 // WHILE more than max, remove the last entry (to deal with the size changing to be smaller in the future)
                 while (deaths.size() > config.LastDeathMAX) deaths.remove(deaths.size()-1);
             }
-            player.setPData().getDEST().setLastdeath(deaths);
+            player.getPData().getDEST().setLastdeath(deaths);
         }
 
         /**
@@ -1566,7 +1566,7 @@ public class Destination {
 
                 // LOGIC
                 // add the cooldown
-                player.setPData().setSocialCooldown(config.socialCooldown.doubleValue());
+                player.getPData().setSocialCooldown(config.socialCooldown.doubleValue());
 
                 player.sendMessage(CUtl.tag().append(LANG.msg("sent",CTxT.of(target.getName()).color(CUtl.s()),
                         CTxT.of("\n ").append(loc.getBadge()))));
@@ -1710,7 +1710,7 @@ public class Destination {
                 for (String key: player.getPData().getMsgKeys())
                     if (key.contains("tracking")) player.getPData().clearMsg(key);
                 // remove the target
-                player.setPData().getDEST().setTracking(null);
+                player.getPData().getDEST().setTracking(null);
             }
 
             /**
@@ -1720,8 +1720,8 @@ public class Destination {
              */
             public static void set(Player player, Player target) {
                 // if online, use UUID, if not use the target NAME
-                if (config.online) player.setPData().getDEST().setTracking(target.getUUID());
-                else player.setPData().getDEST().setTracking(target.getName());
+                if (config.online) player.getPData().getDEST().setTracking(target.getUUID());
+                else player.getPData().getDEST().setTracking(target.getName());
                 // get both players as CTxT
                 CTxT playerTxT = CTxT.of(player.getName()).color(CUtl.s()), targetTxT = CTxT.of(target.getName()).color(CUtl.s());
                 // send messages to both target and tracker
@@ -1763,7 +1763,7 @@ public class Destination {
                     return;
                 }
                 // add the cooldown
-                player.setPData().setSocialCooldown(config.socialCooldown.doubleValue());
+                player.getPData().setSocialCooldown(config.socialCooldown.doubleValue());
                 // target has instant tracking
                 if (Enums.get(player.getPData().getDEST().getSetting(Setting.features__track_request_mode),Setting.TrackingRequestMode.class)
                         .equals(Setting.TrackingRequestMode.instant)) {
@@ -2048,21 +2048,21 @@ public class Destination {
             // reset all
             if (setting.equals(Setting.none)) {
                 // reset every setting
-                for (Setting s : Setting.values()) player.setPData().getDEST().setSetting(s,getConfig(s));
+                for (Setting s : Setting.values()) player.getPData().getDEST().setSetting(s,getConfig(s));
             } else {
                 // else reset the selected setting
-                player.setPData().getDEST().setSetting(setting,getConfig(setting));
+                player.getPData().getDEST().setSetting(setting,getConfig(setting));
             }
             // reset every setting that has children
             // also reset autoclear RAD if autoclear
             if (setting.equals(Setting.autoclear))
-                player.setPData().getDEST().setSetting( Setting.autoclear_rad,getConfig(Setting.autoclear_rad));
+                player.getPData().getDEST().setSetting( Setting.autoclear_rad,getConfig(Setting.autoclear_rad));
             // resetting particle settings, reset the color
             if (Setting.particles().contains(setting))
-                player.setPData().getDEST().setSetting(Setting.get(setting+"_color"),getConfig(Setting.get(setting+"_color")));
+                player.getPData().getDEST().setSetting(Setting.get(setting+"_color"),getConfig(Setting.get(setting+"_color")));
             // reset track mode for track reset
             if (setting.equals(Setting.features__track))
-                player.setPData().getDEST().setSetting( Setting.features__track_request_mode,getConfig(Setting.features__track_request_mode));
+                player.getPData().getDEST().setSetting( Setting.features__track_request_mode,getConfig(Setting.features__track_request_mode));
 
             CTxT msg = CUtl.tag().append(CUtl.LANG.msg("reset",LANG.get(setting.toString()).color(CUtl.s())));
             if (setting.equals(Setting.none)) msg = CUtl.tag().append(LANG.msg("reset_all",CUtl.LANG.btn("all").color('c')));
@@ -2086,12 +2086,12 @@ public class Destination {
                     return;
                 }
                 int i = Math.max(Math.min(Num.toInt(state),15),1);
-                player.setPData().getDEST().setSetting(Setting.autoclear_rad,i);
+                player.getPData().getDEST().setSetting(Setting.autoclear_rad,i);
                 setTxT.append(CTxT.of(String.valueOf(i)).color((boolean) player.getPData().getDEST().getSetting(Setting.autoclear)?'a':'c'));
             }
             // req mode set
             if (setting.equals(Setting.features__track_request_mode)) {
-                player.setPData().getDEST().setSetting( setting, Enums.get(state,Setting.TrackingRequestMode.class));
+                player.getPData().getDEST().setSetting( setting, Enums.get(state,Setting.TrackingRequestMode.class));
                 setTxT.append(LANG.get(setting +"."+ Enums.get(state,Setting.TrackingRequestMode.class)).color(CUtl.s()));
             }
             // color set
@@ -2101,7 +2101,7 @@ public class Destination {
             }
             // if bool, boolean set
             if (Setting.bool().contains(setting)) {
-                player.setPData().getDEST().setSetting(setting,bool);
+                player.getPData().getDEST().setSetting(setting,bool);
                 setTxT.append(CUtl.toggleTxT(bool));
             }
             // message generator
@@ -2220,7 +2220,7 @@ public class Destination {
         public static void setParticleColor(Player player, String UISettings, Setting type, String color, boolean Return) {
             // format color
             color = CUtl.color.colorHandler(player,color,(String)player.getPData().getDEST().getSetting(type));
-            player.setPData().getDEST().setSetting(type,color);
+            player.getPData().getDEST().setSetting(type,color);
             if (Return) colorUI(player,UISettings,type);
         }
 

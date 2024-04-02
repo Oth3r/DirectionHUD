@@ -4,8 +4,8 @@ import one.oth3r.directionhud.common.Assets.symbols.arrows;
 import one.oth3r.directionhud.common.HUD.Setting.ModuleAngleDisplay;
 import one.oth3r.directionhud.common.HUD.Setting.ModuleTrackingTarget;
 import one.oth3r.directionhud.common.files.config;
-import one.oth3r.directionhud.common.files.playerdata.hud.pd_hud_color;
-import one.oth3r.directionhud.common.files.playerdata.hud.pd_hud_module;
+import one.oth3r.directionhud.common.files.playerdata.hud.PD_hud_color;
+import one.oth3r.directionhud.common.files.playerdata.hud.PD_hud_module;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Helper.Command.Suggester;
@@ -541,26 +541,26 @@ public class HUD {
             CTxT msg = CUtl.tag();
             if (module.equals(Module.unknown)) {
                 // reset order
-                player.setPData().getHud().setOrder(config.hud.Order);
+                player.getPData().getHud().setOrder(config.hud.Order);
                 // reset module settings
                 for (Setting s : Setting.moduleSettings())
-                    player.setPData().getHud().setSetting(s,settings.getConfig(s));
+                    player.getPData().getHud().setSetting(s,settings.getConfig(s));
                 // reset module states
-                player.setPData().getHud().setModule(new pd_hud_module());
+                player.getPData().getHud().setModule(new PD_hud_module());
                 msg.append(LANG.msg("reset_all", CUtl.LANG.btn("all").color('c')));
             } else {
                 // reset order
                 ArrayList<HUD.Module> order = player.getPData().getHud().getOrder();
                 order.remove(module);
                 order.add(getDefaultOrder().indexOf(module),module);
-                player.setPData().getHud().setOrder(order);
+                player.getPData().getHud().setOrder(order);
                 // reset settings dealing with the module being reset
                 for (Setting s : Setting.moduleSettings()) {
                     if (s.toString().startsWith("module."+module))
-                        player.setPData().getHud().setSetting(s, settings.getConfig(s));
+                        player.getPData().getHud().setSetting(s, settings.getConfig(s));
                 }
                 // reset state
-                player.setPData().getHud().setModule(module,getDefaultState(module));
+                player.getPData().getHud().setModule(module,getDefaultState(module));
                 // reset message
                 msg.append(LANG.msg("reset",CUtl.LANG.btn("reset").color('c'),CTxT.of(module.toString()).color(CUtl.s())));
             }
@@ -584,7 +584,7 @@ public class HUD {
             pos--;
             pos = Math.max(0,Math.min(pos,order.size()));
             order.add(pos,module);
-            player.setPData().getHud().setOrder(order);
+            player.getPData().getHud().setOrder(order);
 
             Helper.ListPage<Module> listPage = new Helper.ListPage<>(order,PER_PAGE);
             CTxT msg = CUtl.tag().append(LANG.msg("order",CTxT.of(module.toString()).color(CUtl.s()),CTxT.of(String.valueOf(pos+1)).color(CUtl.s())));
@@ -605,7 +605,7 @@ public class HUD {
             Helper.ListPage<Module> listPage = new Helper.ListPage<>(player.getPData().getHud().getOrder(),PER_PAGE);
             // if toggle null, flip current
             if (toggle == null) toggle = !player.getPData().getHud().getModule(module);
-            player.setPData().getHud().setModule(module,toggle);
+            player.getPData().getHud().setModule(module,toggle);
 
             CTxT msg = CUtl.tag().append(LANG.msg("toggle",CUtl.LANG.btn(toggle?"on":"off").color(toggle?'a':'c'),CTxT.of(module.toString()).color(CUtl.s())));
             if (Return) UI(player, msg, listPage.getPageOf(module));
@@ -935,16 +935,16 @@ public class HUD {
          * @param typ default HUD color type to get
          * @return the default PlayerData entry for the HUD color type
          */
-        public static pd_hud_color defaultEntry(int typ) {
-            if (typ==1) return new pd_hud_color(config.hud.primary.Color, config.hud.primary.Bold, config.hud.primary.Italics, config.hud.primary.Rainbow);
-            return new pd_hud_color(config.hud.secondary.Color, config.hud.secondary.Bold, config.hud.secondary.Italics, config.hud.secondary.Rainbow);
+        public static PD_hud_color defaultEntry(Player player, int typ) {
+            if (typ==1) return new PD_hud_color(player, config.hud.primary.Color, config.hud.primary.Bold, config.hud.primary.Italics, config.hud.primary.Rainbow);
+            return new PD_hud_color(player, config.hud.secondary.Color, config.hud.secondary.Bold, config.hud.secondary.Italics, config.hud.secondary.Rainbow);
         }
         /**
          * gets the color pData entry for the typ
          * @param typ the color typ
          * @return the color pData
          */
-        public static pd_hud_color getEntry(Player player, int typ) {
+        public static PD_hud_color getEntry(Player player, int typ) {
             if (typ==1) return player.getPData().getHud().getPrimary();
             else return player.getPData().getHud().getSecondary();
         }
@@ -953,9 +953,9 @@ public class HUD {
          * @param typ typ
          * @param entry entry to set
          */
-        public static void setEntry(Player player, int typ, pd_hud_color entry) {
-            if (typ==1) player.setPData().getHud().setPrimary(entry);
-            else player.setPData().getHud().setSecondary(entry);
+        public static void setEntry(Player player, int typ, PD_hud_color entry) {
+            if (typ==1) player.getPData().getHud().setPrimary(entry);
+            else player.getPData().getHud().setSecondary(entry);
         }
         /**
          * resets the specified color(s)
@@ -966,11 +966,11 @@ public class HUD {
         public static void reset(Player player, String UISettings, String type, boolean Return) {
             switch (type) {
                 case "all" -> {
-                    player.setPData().getHud().setPrimary(defaultEntry(1));
-                    player.setPData().getHud().setSecondary(defaultEntry(2));
+                    player.getPData().getHud().setPrimary(defaultEntry(player,1));
+                    player.getPData().getHud().setSecondary(defaultEntry(player,2));
                 }
-                case "primary" -> player.setPData().getHud().setPrimary(defaultEntry(1));
-                case "secondary" -> player.setPData().getHud().setSecondary(defaultEntry(2));
+                case "primary" -> player.getPData().getHud().setPrimary(defaultEntry(player,1));
+                case "secondary" -> player.getPData().getHud().setSecondary(defaultEntry(player,2));
                 default -> {
                     player.sendMessage(CUtl.error("args"));
                     return;
@@ -990,7 +990,7 @@ public class HUD {
          */
         public static void setColor(Player player, String UISettings, String type, String color, boolean Return) {
             int typ = type.equals("primary")?1:2;
-            pd_hud_color colorEntry = getEntry(player,typ);
+            PD_hud_color colorEntry = getEntry(player,typ);
             colorEntry.setColor(CUtl.color.colorHandler(player,color,config.hud.primary.Color));
             setEntry(player,typ,colorEntry);
 
@@ -1007,7 +1007,7 @@ public class HUD {
          */
         public static void setToggle(Player player, String UISettings, String colorType, ColorToggle colorToggle, boolean state, boolean Return) {
             int typ = colorType.equals("primary")?1:2;
-            pd_hud_color colorEntry = getEntry(player,typ);
+            PD_hud_color colorEntry = getEntry(player,typ);
             // edit the correct toggle
             switch (colorToggle) {
                 case bold -> colorEntry.setBold(state);
@@ -1225,14 +1225,14 @@ public class HUD {
             // reset all
             if (setting.equals(Setting.none)) {
                 // reset all main settings, excluding module settings
-                for (Setting s : Setting.baseSettings()) player.setPData().getHud().setSetting(s, getConfig(s));
+                for (Setting s : Setting.baseSettings()) player.getPData().getHud().setSetting(s, getConfig(s));
             } else {
                 // reset the selected setting
-                player.setPData().getHud().setSetting(setting,getConfig(setting));
+                player.getPData().getHud().setSetting(setting,getConfig(setting));
             }
             // if bossbar distance, reset max alongside it
             if (setting.equals(Setting.bossbar__distance))
-                player.setPData().getHud().setSetting(Setting.get(setting+"_max"),getConfig(Setting.get(setting+"_max")));
+                player.getPData().getHud().setSetting(Setting.get(setting+"_max"),getConfig(Setting.get(setting+"_max")));
             // update the HUD
             player.updateHUD();
             // make the reset message
@@ -1255,57 +1255,57 @@ public class HUD {
             CTxT setTxT = CTxT.of("");
             // ON/OFF simple on off toggle
             if (setting.equals(Setting.bossbar__distance) || setting.equals(Setting.state) || setting.equals(Setting.module__tracking_hybrid)) {
-                player.setPData().getHud().setSetting(setting,bool);
-                // if changing the state update the hud
-                if (setting.equals(Setting.state)) player.updateHUD();
+                player.getPData().getHud().setSetting(setting,bool);
                 setTxT.append(CUtl.toggleTxT(bool));
             }
             // ON/OFF with custom name for the states
             if (setting.equals(Setting.module__time_24hr) || setting.equals(Setting.module__speed_3d)) {
-                player.setPData().getHud().setSetting(setting,bool);
+                player.getPData().getHud().setSetting(setting,bool);
                 setTxT.append(LANG.get(setting+"."+(bool?"on":"off")).color(CUtl.s()));
             }
             // ---- CUSTOM HANDLING ----
             if (setting.equals(Setting.type)) {
                 Setting.DisplayType displayType = Setting.DisplayType.get(state);
-                player.setPData().getHud().setSetting(setting,displayType);
+                player.getPData().getHud().setSetting(setting,displayType);
                 setTxT.append(LANG.get(setting+"."+displayType).color(CUtl.s()));
-                player.updateHUD();
             }
             if (setting.equals(Setting.bossbar__color)) {
                 Setting.BarColor barColor = Setting.BarColor.get(state);
-                player.setPData().getHud().setSetting(setting,barColor);
+                player.getPData().getHud().setSetting(setting,barColor);
                 setTxT.append(LANG.get(setting+"."+barColor).color(Assets.barColor(barColor)));
             }
             if (setting.equals(Setting.bossbar__distance_max)) {
                 // make sure the number is greater than 0
                 int i = Math.max(Num.toInt(state),0);
-                player.setPData().getHud().setSetting(setting,i);
+                player.getPData().getHud().setSetting(setting,i);
                 setTxT.append(CTxT.of(String.valueOf(i)).color((boolean)player.getPData().getHud().getSetting(Setting.bossbar__distance)?'a':'c'));
             }
             if (setting.equals(Setting.module__tracking_target)) {
                 Setting.ModuleTrackingTarget moduleTrackingTarget = Setting.ModuleTrackingTarget.get(state);
-                player.setPData().getHud().setSetting(setting, moduleTrackingTarget);
+                player.getPData().getHud().setSetting(setting, moduleTrackingTarget);
                 setTxT.append(LANG.get(setting+"."+moduleTrackingTarget).color(CUtl.s()));
             }
             if (setting.equals(Setting.module__tracking_type)) {
                 Setting.ModuleTrackingType moduleTrackingType = Setting.ModuleTrackingType.get(state);
-                player.setPData().getHud().setSetting(setting, moduleTrackingType);
+                player.getPData().getHud().setSetting(setting, moduleTrackingType);
                 setTxT.append(LANG.get(setting+"."+moduleTrackingType).color(CUtl.s()));
             }
             if (setting.equals(Setting.module__speed_pattern)) {
                 // try to make the decimal format, if error don't do anything
                 try {
                     new DecimalFormat(state);
-                    player.setPData().getHud().setSetting(setting,state);
+                    player.getPData().getHud().setSetting(setting,state);
                 } catch (IllegalArgumentException ignored) {}
                 setTxT.append(CTxT.of(String.valueOf(player.getPData().getHud().getSetting(setting))).color(CUtl.s()));
             }
             if (setting.equals(Setting.module__angle_display)) {
                 ModuleAngleDisplay moduleAngleDisplay = Setting.ModuleAngleDisplay.get(state);
-                player.setPData().getHud().setSetting(setting, moduleAngleDisplay);
+                player.getPData().getHud().setSetting(setting, moduleAngleDisplay);
                 setTxT.append(LANG.get(setting+"."+moduleAngleDisplay).color(CUtl.s()));
             }
+            System.out.println("as");
+            // update the hud
+            player.updateHUD();
             // make the message
             CTxT msg = CUtl.tag(), typeTxT = LANG.get(setting.toString()).color(CUtl.s());
             String extra = "";

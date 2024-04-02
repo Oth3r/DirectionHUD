@@ -4,12 +4,16 @@ package one.oth3r.directionhud.common.files.playerdata.destination;
 import com.google.gson.annotations.SerializedName;
 import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.utils.Loc;
+import one.oth3r.directionhud.utils.Player;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class pd_destination {
-
+public class PD_destination {
+    public void setPlayer(Player player) {
+        this.player = player;
+    }
+    private transient Player player;
     @SerializedName("saved")
     private List<Loc> saved = new ArrayList<>();
     @SerializedName("dest")
@@ -19,7 +23,7 @@ public class pd_destination {
     @SerializedName("lastdeath")
     private List<Loc> lastdeath = new ArrayList<>();
     @SerializedName("setting")
-    private pd_destination_setting setting = new pd_destination_setting();
+    private PD_destination_setting setting = new PD_destination_setting();
 
     public List<Loc> getSaved() {
         return new ArrayList<>(saved);
@@ -27,6 +31,7 @@ public class pd_destination {
 
     public void setSaved(List<Loc> saved) {
         this.saved = saved;
+        player.getPData().save();
     }
 
     public List<Loc> getLastdeath() {
@@ -35,6 +40,7 @@ public class pd_destination {
 
     public void setLastdeath(List<Loc> lastdeath) {
         this.lastdeath = lastdeath;
+        player.getPData().save();
     }
 
     public Loc getDest() {
@@ -43,6 +49,7 @@ public class pd_destination {
 
     public void setDest(Loc dest) {
         this.dest = dest;
+        player.getPData().save();
     }
 
     public String getTracking() {
@@ -51,9 +58,10 @@ public class pd_destination {
 
     public void setTracking(String tracking) {
         this.tracking = tracking;
+        player.getPData().save();
     }
 
-    public pd_destination_setting getSetting() {
+    public PD_destination_setting getSetting() {
         return setting;
     }
 
@@ -94,9 +102,11 @@ public class pd_destination {
             case particles__tracking -> getSetting().getParticles().setTracking((Boolean) state);
             case particles__tracking_color -> getSetting().getParticles().setTrackingColor(state.toString());
         }
+        player.getPData().save();
     }
 
-    public void setSetting(pd_destination_setting setting) {
+    public void setSetting(PD_destination_setting setting) {
         this.setting = setting;
+        player.getPData().save();
     }
 }

@@ -4,7 +4,7 @@ package one.oth3r.directionhud.common.files.playerdata.destination;
 import com.google.gson.annotations.SerializedName;
 import one.oth3r.directionhud.common.files.config;
 
-public class pd_destination_setting_features {
+public class PD_destination_setting_features {
 
     @SerializedName("track_request_mode")
     private String trackRequestMode = config.dest.TrackingRequestMode;

@@ -4,7 +4,7 @@ package one.oth3r.directionhud.common.files.playerdata.hud;
 import com.google.gson.annotations.SerializedName;
 import one.oth3r.directionhud.common.files.config;
 
-public class pd_hud_module {
+public class PD_hud_module {
 
     @SerializedName("distance")
     private Boolean distance = config.hud.Distance;
