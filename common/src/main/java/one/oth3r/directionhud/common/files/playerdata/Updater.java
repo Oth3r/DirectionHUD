@@ -24,12 +24,13 @@ public class Updater {
             legacy.update(player);
             PlayerData.loadFromFile(player);
         } else {
-            update();
+            update(player);
             PlayerData.toFile(player);
         }
     }
-    private static void update() {
-
+    private static void update(Player player) {
+        PData pData = player.getPData();
+        pData.setPlayer(player);
     }
 
     public static class legacy {
