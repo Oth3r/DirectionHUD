@@ -1114,7 +1114,7 @@ public class HUD {
          */
         public static CTxT button() {
             return CUtl.button("settings").btn(true).color(Assets.mainColors.setting).cEvent(1,"/hud settings")
-                    .hEvent(CTxT.of(Assets.cmdUsage.hud).color(Assets.mainColors.setting).append("\n").append(CUtl.hover("settings",CUtl.lang("hud"))));
+                    .hEvent(CTxT.of(Assets.cmdUsage.hud).color(Assets.mainColors.setting).append("\n").append(CUtl.hover("settings",HUD.lang("button"))));
         }
         public static void CMDExecutor(Player player, String[] args) {
             //UI
