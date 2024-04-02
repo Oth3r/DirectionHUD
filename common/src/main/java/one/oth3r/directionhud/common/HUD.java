@@ -866,10 +866,6 @@ public class HUD {
                 UI(player, null);
                 return;
             }
-            // COLOR EDITOR
-            if (args.length == 3 && args[0].equals("edit")) {
-                if (args[2].equals("primary") || args[2].equals("secondary")) changeUI(player, args[1], args[2], null);
-            }
             // if there is -r, remove it and enable returning
             boolean Return = args[0].contains("-r");
             args[0] = args[0].replace("-r","");
@@ -884,7 +880,10 @@ public class HUD {
             if (args.length < 2) return;
             if (args[0].equals("primary") || args[0].equals("secondary")) {
                 // color (type) edit (settings)
-                if (args[1].equals("edit")) changeUI(player, args.length==3?args[2]:"normal", args[0], null);
+                if (args[1].equals("edit")) {
+                    changeUI(player, args.length==3?args[2]:"normal", args[0], null);
+                    return;
+                }
                 if (args.length < 3) return;
                 // color (type) set (color)
                 if (args[1].equals("set")) setColor(player,null,args[0],args[2],false);
