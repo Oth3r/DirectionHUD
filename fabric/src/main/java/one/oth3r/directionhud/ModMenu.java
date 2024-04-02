@@ -163,6 +163,8 @@ public class ModMenu implements ModMenuApi {
     }
     @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
+        // return null if YACL isn't installed to not throw an error
+        if (!yaclCheck()) return screen -> null;
         return parent -> YetAnotherConfigLib.createBuilder().save(config::save)
                 .title(CUtl.LANG.get("category.directionhud.all").b())
                 .build().generateScreen(parent);
@@ -457,5 +459,17 @@ public class ModMenu implements ModMenuApi {
 //                                .build())
 //                        .build())
 //                .build().generateScreen(parent);
+    }
+    /**
+     * check if YACL is installed by getting a class and seeing if it throws
+     * @return if YACL is installed
+     */
+    public static boolean yaclCheck() {
+        try {
+            Class.forName("dev.isxander.yacl3.platform.fabric.YACLPlatformImpl");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 }
