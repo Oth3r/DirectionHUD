@@ -217,14 +217,14 @@ public class config {
             ParticleLoop = Math.min(20, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("particle-loop", a -> String.valueOf(defaults.ParticleLoop)))));
             HUDLoop = Math.min(20, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("hud-loop", a -> String.valueOf(defaults.HUDLoop)))));
             // DIM
-            dimensions = new Gson().fromJson((String) properties.computeIfAbsent("dimensions", a -> gson.toJson(defaults.dimensions)), arrayListMap);
-            dimensionRatios = new Gson().fromJson((String) properties.computeIfAbsent("dimension-ratios", a -> gson.toJson(defaults.dimensionRatios)), arrayListMap);
+            dimensions = gson.fromJson((String) properties.computeIfAbsent("dimensions", a -> gson.toJson(defaults.dimensions)), arrayListMap);
+            dimensionRatios = gson.fromJson((String) properties.computeIfAbsent("dimension-ratios", a -> gson.toJson(defaults.dimensionRatios)), arrayListMap);
             // COLOR PRESETS
-            colorPresets = DHUD.preset.custom.validate(new Gson().fromJson((String) properties.computeIfAbsent("color-presets", a -> gson.toJson(defaults.colorPresets)), arrayListMap));
+            colorPresets = DHUD.preset.custom.validate(gson.fromJson((String) properties.computeIfAbsent("color-presets", a -> gson.toJson(defaults.colorPresets)), arrayListMap));
             MAXColorPresets = Integer.parseInt((String) properties.computeIfAbsent("max-color-presets", a -> String.valueOf(defaults.MAXColorPresets)));
             // PLAYER DEFAULTS
             // HUD
-            hud.Order = HUD.modules.fixOrder(new Gson().fromJson((String) properties.computeIfAbsent("hud.order", a -> gson.toJson(hud.defaults.Order)), moduleListMap));
+            hud.Order = HUD.modules.fixOrder(gson.fromJson((String) properties.computeIfAbsent("hud.order", a -> gson.toJson(hud.defaults.Order)), moduleListMap));
             // HUD MODULE STATES
             hud.Coordinates = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.coordinates", a -> String.valueOf(hud.defaults.Coordinates)));
             hud.Distance = Boolean.parseBoolean((String) properties.computeIfAbsent("hud.module.distance", a -> String.valueOf(hud.defaults.Distance)));
@@ -285,7 +285,7 @@ public class config {
             // CONFIG UPDATER, if the version is lower than the current, load from the old config
             if (version <= 1.4f) {
                 colorPresets = DHUD.preset.custom.updateTo1_7(
-                        new Gson().fromJson((String)properties.computeIfAbsent("color-presets",a->gson.toJson(new ArrayList<>())),arrayListMap));
+                        gson.fromJson((String)properties.computeIfAbsent("color-presets",a->gson.toJson(new ArrayList<>())),arrayListMap));
             }
             // everything before & 1.3
             if (version <= 1.3f) {
@@ -298,7 +298,7 @@ public class config {
             if (version <= 1.21f) {
                 // I don't know why but oh well backwards compatibility
                 if (!DirectionHUD.isMod || version == 1.21f)
-                    dimensionRatios = new Gson().fromJson((String) properties.computeIfAbsent("dimension-ratios", a -> gson.toJson(defaults.dimensionRatios)), arrayListMap);
+                    dimensionRatios = gson.fromJson((String) properties.computeIfAbsent("dimension-ratios", a -> gson.toJson(defaults.dimensionRatios)), arrayListMap);
                 // update colors to new system
                 hud.primary.Color = CUtl.color.updateOld((String) properties.computeIfAbsent("primary-color", a -> hud.defaults.primary.Color), hud.defaults.primary.Color);
                 hud.secondary.Color = CUtl.color.updateOld((String) properties.computeIfAbsent("secondary-color", a -> hud.defaults.secondary.Color), hud.defaults.secondary.Color);

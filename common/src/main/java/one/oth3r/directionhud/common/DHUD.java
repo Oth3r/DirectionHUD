@@ -483,7 +483,7 @@ public class DHUD {
                     .append(CTxT.of("+").btn(true).color('a')
                             .cEvent(2,String.format("/dhud preset save \"%s\" ",color))
                             .hEvent(lang("hover.preset.plus",lang("hover.preset.plus_2").color(color))))
-                    .append(lang("button.preset").color(Assets.mainColors.presets)
+                    .append(lang("button").color(Assets.mainColors.presets)
                             .cEvent(1,String.format("/dhud color %s %s \"%s\" preset default",UISettings,type,subtype)).btn(true)
                             .hEvent(lang("hover.preset.editor",lang("hover.preset.editor_2").color(Assets.mainColors.presets))));
             CTxT customButton = lang("button.custom").btn(true).color(Assets.mainColors.custom)
