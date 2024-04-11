@@ -372,8 +372,8 @@ public class config {
             e.printStackTrace();
         }
     }
+    public static final Lang LANG = new Lang("config.");
     public static void save() {
-        Lang LANG = new Lang("config.");
         try (var file = Files.newBufferedWriter(configFile().toPath(), StandardCharsets.UTF_8)) {
             Gson gson = new GsonBuilder().disableHtmlEscaping().create();
             file.write("# "+LANG.ui("main")+"\n");
