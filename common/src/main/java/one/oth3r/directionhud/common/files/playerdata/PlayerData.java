@@ -38,6 +38,8 @@ public class PlayerData {
     public static PData getPData(Player player) {
         if (getPlayerData().get(player) == null) {
             playerData.put(player,new PData(player));
+            // run the updater
+            Updater.run(player);
         }
         return playerData.get(player);
     }
@@ -46,7 +48,7 @@ public class PlayerData {
      * adds the player into the system (when they first join)
      */
     public static void addPlayer(Player player) {
-        loadFromFile(player);
+        loadFromFile(player,false);
         HashMap<String, Object> dataMapDefault = new HashMap<>();
         dataMapDefault.put("speed_data", player.getVec());
         dataMapDefault.put("speed", 0.0);
@@ -62,12 +64,12 @@ public class PlayerData {
         removePlayerData(player);
     }
 
-
     public static File getFile(Player player) {
         if (config.online) return new File(DirectionHUD.DATA_DIR+"playerdata/" +player.getUUID()+".json");
         else return new File(DirectionHUD.DATA_DIR+"playerdata/"+player.getName()+".json");
     }
-    public static void loadFromFile(Player player) {
+
+    public static void loadFromFile(Player player, boolean legacy) {
         File file = getFile(player);
         if (!file.exists()) toFile(player);
         try (FileReader reader = new FileReader(file)) {
@@ -75,8 +77,13 @@ public class PlayerData {
             playerData.put(player,gson.fromJson(reader, PData.class));
             Updater.run(player);
         } catch (Exception e) {
-            DirectionHUD.LOGGER.info("ERROR READING PLAYER DATA - PLEASE REPORT WITH THE ERROR LOG");
-            DirectionHUD.LOGGER.info(e.getMessage());
+            // if not loading from legacy, try before throwing an error
+            if (legacy) {
+                DirectionHUD.LOGGER.info("ERROR READING PLAYER DATA - PLEASE REPORT WITH THE ERROR LOG");
+                e.printStackTrace();
+            } else {
+                Updater.legacy.update(player);
+            }
         }
         // if it couldn't get from file just get from map (generates a new one if it doesn't exist)
         getPData(player);

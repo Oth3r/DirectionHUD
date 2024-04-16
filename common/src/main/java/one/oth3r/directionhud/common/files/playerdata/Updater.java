@@ -7,6 +7,7 @@ import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.DHUD;
 import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.files.config;
+import one.oth3r.directionhud.common.files.playerdata.hud.PD_hud_color;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Loc;
@@ -16,20 +17,16 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Updater {
+
+    /**
+     * runs the updater, only for v2.0+
+     */
     public static void run(Player player) {
-        double version = player.getPData().getVersion();
-        if (version < 2.0) {
-            legacy.update(player);
-            PlayerData.loadFromFile(player);
-        } else {
-            update(player);
-            PlayerData.toFile(player);
-        }
-    }
-    private static void update(Player player) {
         PData pData = player.getPData();
+        double version = pData.getVersion();
         pData.setPlayer(player);
     }
 
@@ -326,10 +323,40 @@ public class Updater {
                 base = saveLoad(player,base);
             }
             if (base.get("version").equals(1.72)) {
-                //todo
+                // clear the inbox
+                base.put("inbox", new ArrayList<>());
+
+                // update the HUD styles to the new system
+                Map<String,Object> hud = (Map<String, Object>) base.get("hud");
+                // get the old styles, split by the old delimiter
+                String[] primary = ((String) hud.get("primary")).split("-"), secondary = ((String) hud.get("secondary")).split("-");
+                // set to the new PD_hud_color system
+                hud.put("primary",new PD_hud_color(player,primary[0],primary[1].equals("true"),primary[2].equals("true"),primary[3].equals("true")));
+                hud.put("secondary",new PD_hud_color(player,secondary[0],secondary[1].equals("true"),secondary[2].equals("true"),secondary[3].equals("true")));
+
+                // update all destination Locs
+                Map<String,Object> dest = (Map<String, Object>) base.get("destination");
+                // update dest
+                dest.put("dest",new Loc(true,(String)dest.get("dest")));
+                // update lastdeath
+                ArrayList<String> lastdeath = (ArrayList<String>) dest.get("lastdeath");
+                ArrayList<Loc> newLastdeath = lastdeath.stream().map(string -> new Loc(true, string))
+                        .collect(Collectors.toCollection(ArrayList::new));
+                dest.put("lastdeath", newLastdeath);
+                // update saved
+                ArrayList<ArrayList<String>> saved = (ArrayList<ArrayList<String>>) dest.get("saved");
+                ArrayList<Loc> newSaved = saved.stream().map(entry -> {
+                    Loc loc = new Loc(true,entry.get(1));
+                    loc.setName(entry.get(0));
+                    loc.setColor(entry.get(2));
+                    return loc;
+                }).collect(Collectors.toCollection(ArrayList::new));
+                dest.put("saved",newSaved);
             }
             // save at the end
             mapToFile(player,base);
+            // load the prepared PlayerData
+            PlayerData.loadFromFile(player,true);
         }
     }
 
