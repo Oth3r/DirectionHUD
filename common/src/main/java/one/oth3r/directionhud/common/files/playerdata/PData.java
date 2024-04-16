@@ -16,10 +16,10 @@ import java.util.Map;
 public class PData {
     @SerializedName("version")
     private Double version = 2.0;
-    @SerializedName("hud")
-    private PD_hud hud = new PD_hud();
     @SerializedName("name")
     private String name;
+    @SerializedName("hud")
+    private PD_hud hud = new PD_hud();
     @SerializedName("destination")
     private PD_destination destination = new PD_destination();
     @SerializedName("inbox")
