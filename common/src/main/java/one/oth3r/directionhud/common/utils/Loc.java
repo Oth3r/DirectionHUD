@@ -19,6 +19,10 @@ public class Loc {
     private String color = null;
     public Loc() {}
 
+    /**
+     * copies a Loc from an existing Loc
+     * @param loc Loc to copy
+     */
     public Loc(Loc loc) {
         x = loc.getX();
         y = loc.getY();
@@ -75,14 +79,41 @@ public class Loc {
         this.x = xzBounds(x);
         this.z = xzBounds(z);
     }
-    //todo xyz fix (dont take xyz anymore)
-//        public Loc(String xyz) {
-//            parseXYZ(xyz);
-//        }
-//        public Loc(String xyz, String dimension) {
-//            parseXYZ(xyz);
-//            if (Dim.checkValid(dimension)) this.dimension = dimension;
-//        }
+
+    /**
+     * creates a Loc from legacy Loc string
+     * @param xyz
+     */
+    public Loc(boolean legacy, String xyz) {
+        if (xyz == null || xyz.equals("null")) return;
+        if (xyz.charAt(0)=='[' && xyz.charAt(xyz.length()-1)==']') {
+            String[] list = xyz.substring(1, xyz.length() - 1).split(", ");
+            if (list.length >= 3)  {
+                this.x = Helper.Num.toInt(list[0]);
+                if (list[1] != null && !list[1].equals("null")) this.y = Helper.Num.toInt(list[1]);
+                this.z = Helper.Num.toInt(list[2]);
+            }
+            if (list.length == 4) this.dimension = list[3];
+            return;
+        }
+        ArrayList<String> sp = new ArrayList<>(Arrays.asList(xyz.split(" ")));
+        if (sp.isEmpty()) return;
+        if (sp.size() == 1) {
+            this.x = 0;
+            this.z = 0;
+            return;
+        }
+        if (!Helper.Num.isInt(sp.get(0))) sp.set(0, "0");
+        if (!Helper.Num.isInt(sp.get(1))) sp.set(1, "0");
+        if (sp.size() == 3 && !Helper.Num.isNum(sp.get(2))) sp.set(2,"0");
+        this.x = xzBounds(Helper.Num.toInt(sp.get(0)));
+        if (sp.size() == 2) {
+            this.z = xzBounds(Helper.Num.toInt(sp.get(1)));
+            return;
+        }
+        this.y = yBounds(Helper.Num.toInt(sp.get(1)));
+        this.z = xzBounds(Helper.Num.toInt(sp.get(2)));
+    }
 
     /**
      * makes a Loc based on Loc.toString()
@@ -120,49 +151,19 @@ public class Loc {
         this.dimension = player.getDimension();
         this.name = name;
     }
+
     private Integer yBounds(Integer s) {
         if (s == null) return null;
         if (s > config.MAXy) return config.MAXy;
         return Math.max(s, config.MAXy*-1);
     }
+
     private Integer xzBounds(Integer s) {
         if (s == null) return null;
         if (s > config.MAXxz) return config.MAXxz;
         return Math.max(s, config.MAXxz*-1);
     }
-    public Loc(boolean legacy, String xyz) {
-        parseXYZ(xyz);
-    }
-    private void parseXYZ(String xyz) {
-        if (xyz == null || xyz.equals("null")) return;
-        if (xyz.charAt(0)=='[' && xyz.charAt(xyz.length()-1)==']') {
-            String[] list = xyz.substring(1, xyz.length() - 1).split(", ");
-            if (list.length >= 3)  {
-                this.x = Helper.Num.toInt(list[0]);
-                if (list[1] != null && !list[1].equals("null")) this.y = Helper.Num.toInt(list[1]);
-                this.z = Helper.Num.toInt(list[2]);
-            }
-            if (list.length == 4) this.dimension = list[3];
-            return;
-        }
-        ArrayList<String> sp = new ArrayList<>(Arrays.asList(xyz.split(" ")));
-        if (sp.size() == 0) return;
-        if (sp.size() == 1) {
-            this.x = 0;
-            this.z = 0;
-            return;
-        }
-        if (!Helper.Num.isInt(sp.get(0))) sp.set(0, "0");
-        if (!Helper.Num.isInt(sp.get(1))) sp.set(1, "0");
-        if (sp.size() == 3 && !Helper.Num.isNum(sp.get(2))) sp.set(2,"0");
-        this.x = xzBounds(Helper.Num.toInt(sp.get(0)));
-        if (sp.size() == 2) {
-            this.z = xzBounds(Helper.Num.toInt(sp.get(1)));
-            return;
-        }
-        this.y = yBounds(Helper.Num.toInt(sp.get(1)));
-        this.z = xzBounds(Helper.Num.toInt(sp.get(2)));
-    }
+
     public void convertTo(String toDimension) {
         String fromDimension = this.getDimension();
         if (fromDimension.equalsIgnoreCase(toDimension)) return;
@@ -172,23 +173,21 @@ public class Loc {
         this.setX((int) (this.getX()*ratio));
         this.setZ((int) (this.getZ()*ratio));
     }
+
     public boolean hasXYZ() {
         return this.getXYZ() != null;
     }
+
     public boolean hasDestRequirements() {
         return hasXYZ() && this.dimension != null && this.name != null && this.color != null;
     }
+
     public String getXYZ() {
         if (x == null || z == null) return null;
         if (y == null) return x+" "+z;
         return x+" "+y+" "+z;
     }
-    // todo deprecate
-    public String toArray() {
-        if (x == null || z == null) return "null";
-        if (this.dimension == null) return Arrays.toString(new String[]{this.x+"",this.y+"",this.z+""});
-        return Arrays.toString(new String[]{this.x+"",this.y+"",this.z+"",this.dimension});
-    }
+
     /**
      * displays a string version of the Loc, which is a HashMap
      */
@@ -197,6 +196,7 @@ public class Loc {
         Gson gson = new GsonBuilder().create();
         return gson.toJson(this);
     }
+
     // todo create a common Vec class please this sucks
     public ArrayList<Double> getVec(Player player) {
         ArrayList<Double> vector = new ArrayList<>();
@@ -209,6 +209,7 @@ public class Loc {
         }
         return vector;
     }
+
     /**
      * create a Loc badge
      * @return badge
