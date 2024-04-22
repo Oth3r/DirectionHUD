@@ -31,7 +31,7 @@ public class DirectionHUD implements ModInitializer {
 	public static final String SECONDARY = "#ffee35";
 	public static BossBarManager bossBarManager = new BossBarManager();
 	public static String DATA_DIR = "";
-	public static String CONFIG_DIR = FabricLoader.getInstance().getConfigDir().toFile()+"/";
+	public static String CONFIG_DIR = FabricLoader.getInstance().getConfigDir().toFile()+"/directionhud/";
 	public static final Logger LOGGER = LogManager.getLogger("DirectionHUD");
 	public static ArrayList<Player> clientPlayers = new ArrayList<>();
 	public static final String MOD_ID = "directionhud";

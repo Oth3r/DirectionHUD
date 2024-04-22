@@ -177,9 +177,15 @@ public class config {
     }
     public static void load() {
         if (!configFile().exists() || !configFile().canRead()) {
-            save();
-            load();
-            return;
+            // if moving config location failed / not plausible, save the file (make a new config) and try loading again
+            if (!moveConfigLocation()) {
+                DirectionHUD.LOGGER.info("Creating new DirectionHUD.properties");
+                save();
+                load();
+                return;
+            } else {
+                DirectionHUD.LOGGER.info("Moved DirectionHUD.properties to new `/directionhud` directory");
+            }
         }
         try (FileInputStream fileStream = new FileInputStream(configFile())) {
             Properties properties = new Properties();
@@ -196,6 +202,27 @@ public class config {
         if (globalDESTs) GlobalDest.load();
         save();
     }
+
+    /**
+     * tries to move the config file to the new config location for fabric
+     *  - moved since 1.7.0
+     */
+    public static boolean moveConfigLocation() {
+        // only for fabric versions
+        if (!DirectionHUD.isMod) return false;
+        // the file but back one directory
+        File file = new File(DirectionHUD.CONFIG_DIR.substring(0,DirectionHUD.CONFIG_DIR.length()-13)+"DirectionHUD.properties");
+        // if it doesnt exist, it wasn't there before
+        if (!file.exists()) return false;
+        // try moving the file, if not possible oh well
+        try {
+            return file.renameTo(configFile());
+        } catch (Exception ignored) {
+            DirectionHUD.LOGGER.info("CONFIG FILE MIGRATION FAILED. creating a new config file in the new config directory.");
+        }
+        return false;
+    }
+
     public static void loadVersion(Properties properties, float version) {
         try {
             Gson gson = new GsonBuilder().disableHtmlEscaping().create();
