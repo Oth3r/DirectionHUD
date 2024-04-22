@@ -6,9 +6,11 @@ import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.files.LangReader;
 import one.oth3r.directionhud.common.files.config;
+import one.oth3r.directionhud.common.files.dimension.Dimension;
+import one.oth3r.directionhud.common.files.dimension.DimensionEntry;
+import one.oth3r.directionhud.common.files.dimension.RatioEntry;
 import one.oth3r.directionhud.common.utils.CUtl;
-import one.oth3r.directionhud.common.utils.Helper.Dim;
-import one.oth3r.directionhud.common.utils.Helper.Num;
+import one.oth3r.directionhud.common.utils.Helper.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Particle;
@@ -118,15 +120,19 @@ public class Utl {
             return new Particle.DustOptions(Color.BLACK,1);
         }
     }
+
     public static class dim {
-        public static final List<HashMap<String, String>> DEFAULT_DIMENSIONS = List.of(
-                new HashMap<>() {{ put("dimension", "overworld"); put("name", "Overworld"); put("color", "#55FF55"); }},
-                new HashMap<>() {{ put("dimension", "nether"); put("name", "Nether"); put("color", "#e8342e"); }},
-                new HashMap<>() {{ put("dimension", "end"); put("name", "End"); put("color", "#edffb0"); }}
-        );
-        public static final List<HashMap<String,Double>> DEFAULT_RATIOS = List.of(
-                new HashMap<>() {{ put("overworld", 1.0); put("nether", 8.0);}}
-        );
+
+        public static final ArrayList<DimensionEntry> DEFAULT_DIMENSIONS = new ArrayList<>(Arrays.asList(
+                new DimensionEntry("overworld", "Overworld", "#55FF55"),
+                new DimensionEntry("nether", "Nether", "#e8342e"),
+                new DimensionEntry("end", "End", "#edffb0")
+        ));
+
+        public static final ArrayList<RatioEntry> DEFAULT_RATIOS = new ArrayList<>(List.of(
+                new RatioEntry(new Pair<>("overworld", 1.0), new Pair<>("nether", 8.0))
+        ));
+
         /**
          * formats the un-formatted dimension received from the game
          * @param dimension the un-formatted dimension
@@ -138,6 +144,7 @@ public class Utl {
             String[] split = dimension.split("_");
             return split[split.length-1];
         }
+
         /**
          * adds the dimensions that are loaded in game but aren't in the config yet
          */
@@ -145,21 +152,23 @@ public class Utl {
             Random random = new Random();
             // ADD MISSING DIMENSIONS TO MAP
             String defaultWorld = Bukkit.getWorlds().get(0).getName();
+            ArrayList<DimensionEntry> dimensions = Dimension.getDimensionSettings().getDimensions();
             for (World world : Bukkit.getWorlds()) {
                 String currentDIM = format(world.getName());
                 // if already exist or the default, continue
-                if (config.dimensions.stream()
-                        .anyMatch(dimension -> dimension.get("dimension").equals(currentDIM)) || currentDIM.equals(defaultWorld)) continue;
+                if (dimensions.stream()
+                        .anyMatch(dimension -> dimension.getId().equals(currentDIM)) || currentDIM.equals(defaultWorld)) continue;
                 // make the entry
-                HashMap<String,String> entry = new HashMap<>();
+                DimensionEntry entry = new DimensionEntry();
                 // add the dimension name
-                entry.put("dimension",currentDIM);
+                entry.setName(currentDIM);
                 // format the dimension name by capitalizing the first letter
-                entry.put("name",currentDIM.substring(0,1).toUpperCase()+currentDIM.substring(1));
+                entry.setName(currentDIM.substring(0,1).toUpperCase()+currentDIM.substring(1));
                 //make a random color to spice things up
-                entry.put("color",String.format("#%02x%02x%02x",
+                entry.setColor(String.format("#%02x%02x%02x",
                         random.nextInt(100,256),random.nextInt(100,256),random.nextInt(100,256)));
-                config.dimensions.add(entry);
+                // add the entry
+                dimensions.add(entry);
             }
         }
     }

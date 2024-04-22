@@ -3,7 +3,7 @@ package one.oth3r.directionhud.common.utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import one.oth3r.directionhud.common.files.config;
-import one.oth3r.directionhud.common.utils.Helper.*;
+import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 
@@ -39,7 +39,7 @@ public class Loc {
         this.x = xzBounds(x);
         this.y = yBounds(y);
         this.z = xzBounds(z);
-        if (Dim.checkValid(dimension)) this.dimension = dimension;
+        if (Dimension.checkValid(dimension)) this.dimension = dimension;
         this.name = name;
         this.color = color;
     }
@@ -51,7 +51,7 @@ public class Loc {
         this.x = xzBounds(x);
         this.y = yBounds(y);
         this.z = xzBounds(z);
-        if (Dim.checkValid(dimension)) this.dimension = dimension;
+        if (Dimension.checkValid(dimension)) this.dimension = dimension;
     }
 
     /**
@@ -69,7 +69,7 @@ public class Loc {
     public Loc(Integer x, Integer z, String dimension) {
         this.x = xzBounds(x);
         this.z = xzBounds(z);
-        if (Dim.checkValid(dimension)) this.dimension = dimension;
+        if (Dimension.checkValid(dimension)) this.dimension = dimension;
     }
 
     /**
@@ -167,8 +167,8 @@ public class Loc {
     public void convertTo(String toDimension) {
         String fromDimension = this.getDimension();
         if (fromDimension.equalsIgnoreCase(toDimension)) return;
-        if (!Dim.checkValid(toDimension)) return;
-        Double ratio = Dim.getRatio(fromDimension, toDimension);
+        if (!Dimension.checkValid(toDimension)) return;
+        Double ratio = Dimension.getRatio(fromDimension, toDimension);
         this.setDimension(toDimension);
         this.setX((int) (this.getX()*ratio));
         this.setZ((int) (this.getZ()*ratio));
@@ -217,7 +217,7 @@ public class Loc {
     public CTxT getBadge() {
         CTxT msg = CTxT.of("");
         // if there's a dimension, add a dimension badge to the start of the message
-        if (this.dimension != null) msg.append(Dim.getBadge(getDimension())).append(" ");
+        if (this.dimension != null) msg.append(Dimension.getBadge(getDimension())).append(" ");
         // if there's a name, make the badge the name, e.g. [O] name
         if (this.name != null) msg.append(CTxT.of(this.name).color(this.color==null?"#ffffff":this.color)
                 .hEvent(CTxT.of(getXYZ())));
@@ -233,7 +233,7 @@ public class Loc {
     public CTxT getNamelessBadge() {
         CTxT msg = CTxT.of("");
         // if there's a dimension, add a dimension badge to the start of the message
-        if (this.dimension != null) msg.append(Dim.getBadge(getDimension())).append(" ");
+        if (this.dimension != null) msg.append(Dimension.getBadge(getDimension())).append(" ");
         // if there's a name, make it the hover
         if (this.name != null) msg.append(CTxT.of(getXYZ())
                 .hEvent(CTxT.of(this.name).color(this.color==null?"#ffffff":this.color)));
@@ -273,7 +273,7 @@ public class Loc {
     }
 
     public void setDimension(String dimension) {
-        if (Dim.checkValid(dimension)) this.dimension = dimension;
+        if (Dimension.checkValid(dimension)) this.dimension = dimension;
     }
 
     public String getName() {

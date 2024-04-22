@@ -2,6 +2,7 @@ package one.oth3r.directionhud.common;
 
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.files.GlobalDest;
+import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.utils.CUtl;
@@ -9,7 +10,6 @@ import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
-import one.oth3r.directionhud.common.utils.Helper.Dim;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -52,7 +52,7 @@ public class Events {
             Loc loc = Destination.dest.get(player);
             // don't clear if the dest's dim is the same as the new dim
             if (toDIM.equals(loc.getDimension())) return;
-            if (Dim.canConvert(toDIM, loc.getDimension()) &&
+            if (Dimension.canConvert(toDIM, loc.getDimension()) &&
                     (boolean) player.getPData().getDEST().getSetting(Destination.Setting.autoconvert)) {
                 //DEST AutoConvert logic
                 Loc cLoc = Destination.dest.get(player);
@@ -72,7 +72,7 @@ public class Events {
         CTxT msg = CUtl.tag().append(Destination.lastdeath.LANG.msg("save",
                 death.getBadge()
                 .append(" ").append(Destination.dest.setButtons("/dest set "+death.getXYZ()+" "+death.getDimension(),
-                        Dim.canConvert(player.getSpawnDimension(),death.getDimension())))));
+                        Dimension.canConvert(player.getSpawnDimension(),death.getDimension())))));
         player.sendMessage(msg);
     }
 }

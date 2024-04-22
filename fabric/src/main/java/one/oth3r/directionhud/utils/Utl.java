@@ -13,16 +13,17 @@ import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.files.config;
+import one.oth3r.directionhud.common.files.dimension.Dimension;
+import one.oth3r.directionhud.common.files.dimension.DimensionEntry;
+import one.oth3r.directionhud.common.files.dimension.RatioEntry;
 import one.oth3r.directionhud.common.utils.CUtl;
-import one.oth3r.directionhud.common.utils.Helper.Dim;
+import one.oth3r.directionhud.common.utils.Helper.*;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Random;
 
 public class Utl {
     public static CTxT getTranslation(String key, Object... args) {
@@ -126,15 +127,19 @@ public class Utl {
             return new DustParticleEffect(new Vector3f(Vec3d.unpackRgb(Color.decode(CUtl.color.format(hex)).getRGB()).toVector3f()),5f);
         }
     }
+
     public static class dim {
-        public static final List<HashMap<String, String>> DEFAULT_DIMENSIONS = List.of(
-                new HashMap<>() {{ put("dimension", "minecraft.overworld"); put("name", "Overworld"); put("color", "#55FF55"); }},
-                new HashMap<>() {{ put("dimension", "minecraft.the_nether"); put("name", "Nether"); put("color", "#e8342e"); }},
-                new HashMap<>() {{ put("dimension", "minecraft.the_end"); put("name", "End"); put("color", "#edffb0"); }}
-        );
-        public static final List<HashMap<String, Double>> DEFAULT_RATIOS = List.of(
-                new HashMap<>() {{ put("minecraft.overworld", 1.0); put("minecraft.the_nether", 8.0);}}
-        );
+
+        public static ArrayList<DimensionEntry> DEFAULT_DIMENSIONS = new ArrayList<>(Arrays.asList(
+                new DimensionEntry("minecraft.overworld", "Overworld", "#55FF55"),
+                new DimensionEntry("minecraft.the_nether", "Nether", "#e8342e"),
+                new DimensionEntry("minecraft.the_end", "End", "#edffb0")
+        ));
+
+        public static ArrayList<RatioEntry> DEFAULT_RATIOS = new ArrayList<>(List.of(
+                new RatioEntry(new Pair<>("minecraft.overworld", 1.0), new Pair<>("minecraft.the_nether", 8.0))
+        ));
+
         /**
          * formats the un-formatted dimension received from the game
          * @param worldRegistryKey the worldRegistryKey
@@ -143,29 +148,33 @@ public class Utl {
         public static String format(RegistryKey<World> worldRegistryKey) {
             return worldRegistryKey.getValue().toString().replace(":",".");
         }
+
         /**
          * adds the dimensions that are loaded in game but aren't in the config yet
          */
         public static void addMissing() {
             Random random = new Random();
             if (DirectionHUD.server == null) return;
+            ArrayList<DimensionEntry> dimensions = Dimension.getDimensionSettings().getDimensions();
             //ADD MISSING DIMS TO MAP
             for (ServerWorld world : DirectionHUD.server.getWorlds()) {
                 String currentDIM = format(world.getRegistryKey());
                 // if already exist, continue
-                if (config.dimensions.stream()
-                        .anyMatch(dimension -> dimension.get("dimension").equals(currentDIM)) ) continue;
-                HashMap<String,String> entry = new HashMap<>();
+                if (dimensions.stream()
+                        .anyMatch(dimension -> dimension.getId().equals(currentDIM)) ) continue;
+                DimensionEntry entry = new DimensionEntry();
                 // add the dimension name
-                entry.put("dimension",currentDIM);
+                entry.setId(currentDIM);
                 // add the formatted name
-                entry.put("name",getFormattedDim(world));
+                entry.setName(getFormattedDim(world));
                 //make a random color to spice things up
-                entry.put("color",String.format("#%02x%02x%02x",
+                entry.setColor(String.format("#%02x%02x%02x",
                         random.nextInt(100,256),random.nextInt(100,256),random.nextInt(100,256)));
-                config.dimensions.add(entry);
+                // add the entry
+                dimensions.add(entry);
             }
         }
+
         /**
          * tries to generate a formatted name for the dimension
          * @param world the dimension world
@@ -179,7 +188,7 @@ public class Utl {
             formatted = formatted.replaceAll("_"," ");
             // remove 'the' "the nether" -> "nether"
             formatted = formatted.replaceFirst("the ","");
-            // captilize the first letter "nether" -> "Nether"
+            // captilize the key letter "nether" -> "Nether"
             formatted = formatted.substring(0,1).toUpperCase()+formatted.substring(1);
             return formatted;
         }

@@ -10,9 +10,9 @@ import one.oth3r.directionhud.common.DHUD;
 import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.Destination.Setting.*;
 import one.oth3r.directionhud.common.HUD;
+import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Lang;
-import one.oth3r.directionhud.utils.Utl;
 import one.oth3r.directionhud.common.utils.Helper.*;
 
 import java.io.File;
@@ -151,8 +151,6 @@ public class config {
         public static final boolean globalDESTs = false;
         public static final int MAXColorPresets = 14;
         public static final List<String> colorPresets = new ArrayList<>();
-        public static final List<HashMap<String,String>> dimensions = Utl.dim.DEFAULT_DIMENSIONS;
-        public static final List<HashMap<String,Double>> dimensionRatios = Utl.dim.DEFAULT_RATIOS;
     }
     public static String lang = defaults.lang;
     public static int MAXy = defaults.MAXy;
@@ -170,11 +168,11 @@ public class config {
     public static boolean globalDESTs = defaults.globalDESTs;
     public static int MAXColorPresets = defaults.MAXColorPresets;
     public static List<String> colorPresets = defaults.colorPresets;
-    public static List<HashMap<String,String>> dimensions = defaults.dimensions;
-    public static List<HashMap<String,Double>> dimensionRatios = defaults.dimensionRatios;
+
     public static File configFile() {
         return new File(DirectionHUD.CONFIG_DIR+"DirectionHUD.properties");
     }
+
     public static void load() {
         if (!configFile().exists() || !configFile().canRead()) {
             // if moving config location failed / not plausible, save the file (make a new config) and try loading again
@@ -197,8 +195,9 @@ public class config {
             DirectionHUD.LOGGER.info("ERROR READING CONFIG - PLEASE REPORT WITH THE ERROR LOG");
             e.printStackTrace();
         }
+
         LangReader.loadLanguageFile();
-        Dim.load();
+        Dimension.load();
         if (globalDESTs) GlobalDest.load();
         save();
     }
@@ -245,15 +244,6 @@ public class config {
             // LOOPS
             ParticleLoop = Math.min(20, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("particle-loop", a -> String.valueOf(defaults.ParticleLoop)))));
             HUDLoop = Math.min(20, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("hud-loop", a -> String.valueOf(defaults.HUDLoop)))));
-            // DIM
-            try {
-                dimensions = Dim.fixDimensions(gson.fromJson((String) properties.computeIfAbsent("dimensions", a -> gson.toJson(defaults.dimensions)),
-                        new TypeToken<ArrayList<HashMap<String,String>>>() {}.getType()));
-            } catch (JsonSyntaxException ignored) {}
-            try {
-                dimensionRatios = Dim.fixRatios(gson.fromJson((String) properties.computeIfAbsent("dimension-ratios", a -> gson.toJson(defaults.dimensionRatios)),
-                        new TypeToken<ArrayList<HashMap<String,Double>>>() {}.getType()));
-            } catch (JsonSyntaxException ignored) {}
             // COLOR PRESETS
             try {
                 colorPresets = DHUD.preset.custom.validate(gson.fromJson((String) properties.computeIfAbsent("color-presets", a -> gson.toJson(defaults.colorPresets)), arrayListMap));
@@ -325,12 +315,13 @@ public class config {
             if (version <= 1.5f) {
                 // update destinations to new system
                 try {
-                    dimensions = Dim.fixDimensions(Dim.loadLegacyDimensions(gson.fromJson((String) properties.computeIfAbsent("dimensions", a -> ""), arrayListMap)));
+                    Dimension.getDimensionSettings().setDimensions(Dimension.convertLegacyDimensions(gson.fromJson((String) properties.computeIfAbsent("dimensions", a -> ""), arrayListMap)));
                 } catch (JsonSyntaxException ignored) {}
                 // update ratios to new system
                 try {
-                    dimensionRatios = Dim.fixRatios(Dim.loadLegacyRatios(gson.fromJson((String) properties.computeIfAbsent("dimension-ratios", a -> ""), arrayListMap)));
+                    Dimension.getDimensionSettings().setRatios(Dimension.convertLegacyRatios(gson.fromJson((String) properties.computeIfAbsent("dimension-ratios", a -> ""), arrayListMap)));
                 } catch (JsonSyntaxException ignored) {}
+                Dimension.save();
             }
             if (version <= 1.4f) {
                 try {
@@ -347,12 +338,6 @@ public class config {
             }
             // everything before & 1.21
             if (version <= 1.21f) {
-                // I don't know why but oh well backwards compatibility
-                if (!DirectionHUD.isMod || version == 1.21f) {
-                    try {
-                        dimensionRatios = Dim.fixRatios(Dim.loadLegacyRatios(gson.fromJson((String) properties.computeIfAbsent("dimension-ratios", a -> ""), arrayListMap)));
-                    } catch (JsonSyntaxException ignored) {}
-                }
                 // update colors to new system
                 hud.primary.Color = CUtl.color.updateOld((String) properties.computeIfAbsent("primary-color", a -> hud.defaults.primary.Color), hud.defaults.primary.Color);
                 hud.secondary.Color = CUtl.color.updateOld((String) properties.computeIfAbsent("secondary-color", a -> hud.defaults.secondary.Color), hud.defaults.secondary.Color);
@@ -450,22 +435,6 @@ public class config {
             file.write("\n# "+LANG.desc("particle_loop"));
             file.write("\nparticle-loop=" + ParticleLoop);
 
-
-            // DIMENSIONS
-            file.write("\n\n# "+LANG.ui("dimension")+
-                    "\n# "+LANG.desc("dimension")+
-                    "\n# "+LANG.desc("example",Assets.configOptions.dimensions())+
-                    "\n# "+LANG.desc("dimension.3")+
-                    "\n# "+LANG.desc("dimension.4")+
-                    "\n# "+LANG.desc("dimension.5"));
-            file.write("\ndimensions="+gson.toJson(dimensions,
-                    new TypeToken<List<HashMap<String,String>>>() {}.getType()));
-            // DIMENSION RATIOS
-            file.write("\n\n# "+LANG.ui("dimension_ratio")+
-                    "\n# "+LANG.desc("dimension_ratio")+
-                    "\n# "+LANG.desc("example",Assets.configOptions.dimension_ratios())+
-                    "\n# "+LANG.desc("dimension_ratio.2"));
-            file.write("\ndimension-ratios="+gson.toJson(dimensionRatios));
 
             // COLOR PRESETS
             file.write("\n\n# "+DHUD.preset.LANG.config()+

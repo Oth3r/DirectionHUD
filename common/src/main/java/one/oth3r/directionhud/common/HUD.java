@@ -4,12 +4,12 @@ import one.oth3r.directionhud.common.Assets.symbols.arrows;
 import one.oth3r.directionhud.common.HUD.Setting.ModuleAngleDisplay;
 import one.oth3r.directionhud.common.HUD.Setting.ModuleTrackingTarget;
 import one.oth3r.directionhud.common.files.config;
+import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.playerdata.hud.PD_hud_color;
 import one.oth3r.directionhud.common.files.playerdata.hud.PD_hud_module;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Helper.Command.Suggester;
-import one.oth3r.directionhud.common.utils.Helper.Dim;
 import one.oth3r.directionhud.common.utils.Helper.Enums;
 import one.oth3r.directionhud.common.utils.Helper.Num;
 import one.oth3r.directionhud.common.utils.Lang;
@@ -356,7 +356,7 @@ public class HUD {
                         // not in the same dimension
                         if (!player.getDimension().equals(target.getDimension())) {
                             // can convert and autoconvert is on
-                            if (Dim.canConvert(player.getDimension(),target.getDimension()) && (boolean) player.getPData().getDEST().getSetting(Destination.Setting.autoconvert)) {
+                            if (Dimension.canConvert(player.getDimension(),target.getDimension()) && (boolean) player.getPData().getDEST().getSetting(Destination.Setting.autoconvert)) {
                                 plLoc.convertTo(player.getDimension());
                             } else plLoc = null;
                         }
@@ -375,7 +375,7 @@ public class HUD {
             if (pointLoc == null) return tracking;
             Setting.ModuleTrackingType trackingType = Setting.ModuleTrackingType.get(String.valueOf(player.getPData().getHud().getSetting(Setting.module__tracking_type)));
             boolean simple = trackingType.equals(Setting.ModuleTrackingType.simple);
-            tracking.add("/p["); // add the first bracket
+            tracking.add("/p["); // add the key bracket
             // pointer logic
             int x = pointLoc.getX()-player.getBlockX();
             int z = (pointLoc.getZ()-player.getBlockZ())*-1;

@@ -2,8 +2,8 @@ package one.oth3r.directionhud.common;
 
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.files.config;
+import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
-import one.oth3r.directionhud.common.utils.Helper.Dim;
 import one.oth3r.directionhud.common.utils.Helper.Enums;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.utils.Player;
@@ -117,7 +117,7 @@ public class LoopManager {
                 if (!target.getDimension().equals(player.getDimension())) {
                     sendParticles = false;
                     // if convertible and autoconvert is enabled, send the particles
-                    if (Dim.canConvert(player.getDimension(), target.getDimension()) &&
+                    if (Dimension.canConvert(player.getDimension(), target.getDimension()) &&
                             (boolean) player.getPData().getDEST().getSetting(Destination.Setting.autoconvert)) {
                         sendParticles = true;
                         // update the vec to the converted loc

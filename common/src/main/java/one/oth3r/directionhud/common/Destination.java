@@ -2,9 +2,9 @@ package one.oth3r.directionhud.common;
 
 import one.oth3r.directionhud.common.files.GlobalDest;
 import one.oth3r.directionhud.common.files.config;
+import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Helper.Command.Suggester;
-import one.oth3r.directionhud.common.utils.Helper.Dim;
 import one.oth3r.directionhud.common.utils.Helper.Num;
 import one.oth3r.directionhud.common.utils.Helper.ListPage;
 import one.oth3r.directionhud.common.utils.Helper.Enums;
@@ -203,9 +203,9 @@ public class Destination {
             }).append(" ");
             // add the set buttons
             reasonTxT.append(setButtons("/dest set "+current.getX()+" "+(current.getY()==null?"":current.getY()+" ")+current.getZ()+" "+
-                            (Dim.checkValid(current.getDimension())?current.getDimension():player.getDimension()),
+                            (Dimension.checkValid(current.getDimension())?current.getDimension():player.getDimension()),
                     // only convert if reason is switching & convertible
-                    reason == 3 && Dim.canConvert(player.getDimension(),current.getDimension())
+                    reason == 3 && Dimension.canConvert(player.getDimension(),current.getDimension())
             ));
             // clear the destination
             clear(player);
@@ -245,7 +245,7 @@ public class Destination {
             }
 
             CTxT convertTag = CTxT.of("");
-            if (convert && Dim.canConvert(player.getDimension(),loc.getDimension())) {
+            if (convert && Dimension.canConvert(player.getDimension(),loc.getDimension())) {
                 // fill the convert tag
                 convertTag.append(" ").append(LANG.msg("set.converted").color('7').italic(true).hEvent(loc.getBadge()));
                 // convert the loc
@@ -275,7 +275,7 @@ public class Destination {
             }
             CTxT convertTag = CTxT.of("");
             Loc loc = dest.getDest();
-            if (convert && Dim.canConvert(player.getDimension(),loc.getDimension())) {
+            if (convert && Dimension.canConvert(player.getDimension(),loc.getDimension())) {
                 // fill the convert tag
                 convertTag.append(" ").append(LANG.msg("set.converted").color('7').italic(true).hEvent(loc.getBadge()));
                 // convert the loc
@@ -638,7 +638,7 @@ public class Destination {
             //dest saved add <name> color
             //dest saved add <name> dim
             if (args.length == 2) {
-                if (Dim.checkValid(args[1])) {
+                if (Dimension.checkValid(args[1])) {
                     baseLoc.setDimension(args[1]);
                 } else {
                     baseLoc.setColor(args[1]);
@@ -652,7 +652,7 @@ public class Destination {
                 return;
             }
             //dest saved add <name> x z color
-            if (args.length == 4 && !Num.isInt(args[3]) && !Dim.checkValid(args[3])) {
+            if (args.length == 4 && !Num.isInt(args[3]) && !Dimension.checkValid(args[3])) {
                 add(player,new Dest(player,new Loc(Num.toInt(args[1]),null,Num.toInt(args[2]),playerDIM,args[0],args[3]),global));
                 return;
             }
@@ -672,7 +672,7 @@ public class Destination {
                 return;
             }
             //dest saved add <name> x y z color
-            if (args.length == 5 && !Dim.checkValid(args[4])) {
+            if (args.length == 5 && !Dimension.checkValid(args[4])) {
                 add(player,new Dest(player,new Loc(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),playerDIM,args[0],args[4]),global));
                 return;
             }
@@ -719,12 +719,12 @@ public class Destination {
                     suggester.addAll(Suggester.dims(current));
                     suggester.addAll(Suggester.colors(player,current));
                 }
-                if (Dim.checkValid(args[3]))
+                if (Dimension.checkValid(args[3]))
                     suggester.addAll(Suggester.colors(player,current));
             }
             // add <name> <x> (y) <z> (dim) ((color))
             if (pos == 5) {
-                if (Num.isInt(args[3]) && Dim.checkValid(args[4]))
+                if (Num.isInt(args[3]) && Dimension.checkValid(args[4]))
                     suggester.addAll(Suggester.colors(player,current));
             }
             return suggester;
@@ -952,7 +952,7 @@ public class Destination {
             // only show edit button if destination isn't global
             if (!destination.isGlobal()) buttons.append(EDIT_BUTTON(1,"/dest saved edit "+cmdName)).append(" ");
             buttons.append(dest.setButtons("/dest set saved "+cmdName,
-                    Dim.canConvert(player.getDimension(),destination.getDest().getDimension())));
+                    Dimension.canConvert(player.getDimension(),destination.getDest().getDimension())));
 
             player.sendMessage(CUtl.tag().append(LANG.msg("add",destination.getDest().getBadge().append(buttons))));
         }
@@ -1134,7 +1134,7 @@ public class Destination {
             // SET & CONVERT BUTTON
             msg
                     .append(dest.setButtons("/dest set saved "+cmdName,
-                            Dim.canConvert(player.getDimension(),destination.getDest().getDimension()))).append(" ")
+                            Dimension.canConvert(player.getDimension(),destination.getDest().getDimension()))).append(" ")
                     .append("\n\n ")
                     .append(LANG.btn("delete").btn(true).color('c').cEvent(2,"/dest saved delete-r "+cmdName)
                             .hEvent(LANG.hover("delete",LANG.btn("delete").color('c')))).append(" ")
@@ -1164,7 +1164,7 @@ public class Destination {
                         .append(EDIT_BUTTON(1,"/dest saved edit " + cmdName)).append(" ")
                         // SET & convert
                         .append(dest.setButtons("/dest set saved " + cmdName,
-                                Dim.canConvert(player.getDimension(), entry.getDimension())))
+                                Dimension.canConvert(player.getDimension(), entry.getDimension())))
                         .append("\n");
             }
             // no saved
@@ -1204,7 +1204,7 @@ public class Destination {
                         .append(entry.getBadge()).append(" ")
                         // SET & convert
                         .append(dest.setButtons("/dest set saved " + cmdName,
-                                Dim.canConvert(player.getDimension(), entry.getDimension())))
+                                Dimension.canConvert(player.getDimension(), entry.getDimension())))
                         .append("\n");
             }
             // no saved
@@ -1248,7 +1248,7 @@ public class Destination {
          */
         public static void add(Player player, Loc loc) {
             ArrayList<Loc> deaths = (ArrayList<Loc>) player.getPData().getDEST().getLastdeath();
-            if (Dim.checkValid(loc.getDimension())) {
+            if (Dimension.checkValid(loc.getDimension())) {
                 //add to the top of the list
                 deaths.add(0,loc);
                 // WHILE more than max, remove the last entry (to deal with the size changing to be smaller in the future)
@@ -1269,9 +1269,9 @@ public class Destination {
             for (Loc loc: listPage.getPage(pg)) {
                 String dim = loc.getDimension();
                 msg.append(loc.getBadge()).append("\n  ")
-                        .append(saved.SAVE_BUTTON("/dest add \""+Dim.getName(dim).toLowerCase()+"_death\" "+loc.getXYZ()+" "+dim+" \""+Dim.getColor(dim)+"\""))
+                        .append(saved.SAVE_BUTTON("/dest add \""+Dimension.getName(dim).toLowerCase()+"_death\" "+loc.getXYZ()+" "+dim+" \""+Dimension.getColor(dim)+"\""))
                         .append(" ").append(dest.setButtons("/dest set "+loc.getXYZ()+" "+loc.getDimension(),
-                                Dim.canConvert(player.getDimension(),dim)));
+                                Dimension.canConvert(player.getDimension(),dim)));
                 msg.append("\n ");
             }
             // if empty
@@ -1341,7 +1341,7 @@ public class Destination {
                 // send IGN x y (z, DIM, color)
                 if (args.length == 4) {
                     //DIM
-                    if (Dim.getAll().contains(args[3])) {
+                    if (Dimension.getAllIDs().contains(args[3])) {
                         logic(player, args[0], new Loc(Num.toInt(args[1]), Num.toInt(args[2]), args[3]));
                     }
                     // COLOR
@@ -1357,7 +1357,7 @@ public class Destination {
                 // send IGN NAME x y (z, color, DIM)
                 if (args.length == 5 && !Num.isInt(args[1])) {
                     // DIM
-                    if (Dim.getAll().contains(args[4])) {
+                    if (Dimension.getAllIDs().contains(args[4])) {
                         logic(player,args[0],new Loc(Num.toInt(args[2]),null,Num.toInt(args[3]),args[4],args[1],null));
                     }
                     // COLOR
@@ -1373,7 +1373,7 @@ public class Destination {
                 // send IGN x y z (DIM, color)
                 if (args.length == 5 && Num.isInt(args[3])) {
                     // DIM
-                    if (Dim.getAll().contains(args[4])) {
+                    if (Dimension.getAllIDs().contains(args[4])) {
                         logic(player,args[0],new Loc(Num.toInt(args[1]), Num.toInt(args[2]), Num.toInt(args[3]),args[4]));
                     }
                     // COLOR
@@ -1383,7 +1383,7 @@ public class Destination {
                     return;
                 }
                 // send IGN x y DIM color
-                if (args.length == 5 && Dim.getAll().contains(args[3])) {
+                if (args.length == 5 && Dimension.getAllIDs().contains(args[3])) {
                     logic(player,args[0],new Loc(Num.toInt(args[1]),null,Num.toInt(args[2]),args[3],null,args[4]));
                     return;
                 }
@@ -1392,7 +1392,7 @@ public class Destination {
                 if (args.length == 6 && !Num.isInt(args[1])) {
                     if (Num.isInt(args[4])) {
                         // DIM
-                        if (Dim.getAll().contains(args[5])) {
+                        if (Dimension.getAllIDs().contains(args[5])) {
                             logic(player,args[0],new Loc(Num.toInt(args[2]), Num.toInt(args[3]), Num.toInt(args[4]),args[5],args[1],null));
                         }
                         // COLOR
@@ -1406,7 +1406,7 @@ public class Destination {
                     return;
                 }
                 // send IGN x y z DIM color
-                if (args.length == 6 && Dim.getAll().contains(args[4])) {
+                if (args.length == 6 && Dimension.getAllIDs().contains(args[4])) {
                     logic(player,args[0],new Loc(Num.toInt(args[1]), Num.toInt(args[2]), Num.toInt(args[3]),args[4],null,args[5]));
                     return;
                 }
@@ -1482,7 +1482,7 @@ public class Destination {
                         suggester.addAll(Suggester.colors(player,current));
                     }
                     // ((color))
-                    else if (Dim.getAll().contains(args[3])) {
+                    else if (Dimension.getAllIDs().contains(args[3])) {
                         suggester.addAll(Suggester.colors(player,current));
                     }
                 }
@@ -1498,18 +1498,18 @@ public class Destination {
                             suggester.addAll(Suggester.colors(player,current));
                         }
                         // (color)
-                        else if (Dim.getAll().contains(args[4])) {
+                        else if (Dimension.getAllIDs().contains(args[4])) {
                             suggester.addAll(Suggester.colors(player,current));
                         }
                     }
                     // send <player> <x> (y) <z> (dimension) ((color))
-                    if (Num.isInt(args[1]) && Num.isInt(args[3]) && Dim.getAll().contains(args[4])){
+                    if (Num.isInt(args[1]) && Num.isInt(args[3]) && Dimension.getAllIDs().contains(args[4])){
                         suggester.addAll(Suggester.colors(player,current));
                     }
                 }
                 // send <player> (name) <x> (y) <z> (dimension) ((color))
                 if (pos == 6) {
-                    if (!Num.isInt(args[1]) && Num.isInt(args[4]) && Dim.getAll().contains(args[5])) {
+                    if (!Num.isInt(args[1]) && Num.isInt(args[4]) && Dimension.getAllIDs().contains(args[5])) {
                         suggester.addAll(Suggester.colors(player,current));
                     }
                 }
@@ -1556,7 +1556,7 @@ public class Destination {
                     return;
                 }
                 // invalid dimension
-                if (!Dim.checkValid(loc.getDimension())) {
+                if (!Dimension.checkValid(loc.getDimension())) {
                     player.sendMessage(CUtl.LANG.error("dimension"));
                     return;
                 }
@@ -1587,7 +1587,7 @@ public class Destination {
                     txt.append(saved.SAVE_BUTTON("/dest saved add \""+loc.getName()+"\" "+loc.getXYZ()+" "+loc.getDimension()+colorCMD)).append(" ");
                 // SET & CONVERT
                 txt.append(dest.setButtons("/dest set "+loc.getXYZ()+" "+loc.getDimension(),
-                        Dim.canConvert(player.getDimension(),loc.getDimension())));
+                        Dimension.canConvert(player.getDimension(),loc.getDimension())));
                 return txt;
             }
         }
@@ -1897,7 +1897,7 @@ public class Destination {
                         // send convert message to let player know the tracker was converted back to local dimension
                         player.sendMessage(CUtl.tag().append(Destination.LANG.msg("autoconvert.tracking",
                                 Destination.LANG.msg("autoconvert.tracking.2",
-                                                CTxT.of(Dim.getName(target.getDimension())).italic(true).color(Dim.getColor(target.getDimension()))))));
+                                                CTxT.of(Dimension.getName(target.getDimension())).italic(true).color(Dimension.getColor(target.getDimension()))))));
                         player.getPData().clearMsg("tracking.converted");
                     }
                     // if tracking was stopped before
@@ -1911,7 +1911,7 @@ public class Destination {
                 // ------- target isn't in the same dimension as the player -------
                 // if AUTOCONVERT IS ON AND CONVERTIBLE
                 if ((boolean) player.getPData().getDEST().getSetting(Destination.Setting.autoconvert) &&
-                        Dim.canConvert(player.getDimension(),target.getDimension())) {
+                        Dimension.canConvert(player.getDimension(),target.getDimension())) {
                     // send the tracking resumed message if tracking was disabled from dimension differences (autoconvert was enabled midway, ect.)
                     if (!player.getPData().getMsg("tracking.dimension").isBlank()) {
                         player.sendMessage(CUtl.tag().append(LANG.msg("resumed")));
@@ -1921,7 +1921,7 @@ public class Destination {
                     if (player.getPData().getMsg("tracking.converted").isBlank()) {
                         player.sendMessage(CUtl.tag().append(Destination.LANG.msg("autoconvert.tracking",
                                 Destination.LANG.msg("autoconvert.tracking.2",
-                                        CTxT.of(Dim.getName(target.getDimension())).italic(true).color(Dim.getColor(target.getDimension()))))));
+                                        CTxT.of(Dimension.getName(target.getDimension())).italic(true).color(Dimension.getColor(target.getDimension()))))));
                         // change the status on the convert message
                         player.getPData().setMsg("tracking.converted",target.getDimension());
                     }
@@ -1930,7 +1930,7 @@ public class Destination {
                     // send the dimension message
                     player.sendMessage(CUtl.tag().append(LANG.msg("target_dimension",
                             Destination.LANG.msg("autoconvert.tracking.2",
-                                            CTxT.of(Dim.getName(target.getDimension())).italic(true).color(Dim.getColor(target.getDimension()))))));
+                                            CTxT.of(Dimension.getName(target.getDimension())).italic(true).color(Dimension.getColor(target.getDimension()))))));
                     player.getPData().setMsg("tracking.dimension", "1");
                     // make sure the converted msg is reset
                     player.getPData().clearMsg("tracking.converted");
