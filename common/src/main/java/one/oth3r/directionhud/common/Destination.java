@@ -151,9 +151,6 @@ public class Destination {
         }
     }
     public static final Lang LANG = new Lang("destination.");
-    private static CTxT lang(String key, Object... args) {
-        return CUtl.getLangEntry("destination."+key, args);
-    }
     public static class dest {
         public static CTxT SET_BUTTON() {
             return LANG.btn("set").btn(true).color(Assets.mainColors.set).cEvent(2,"/dest set ").hEvent(
@@ -280,7 +277,7 @@ public class Destination {
             Loc loc = dest.getDest();
             if (convert && Dim.canConvert(player.getDimension(),loc.getDimension())) {
                 // fill the convert tag
-                convertTag.append(" ").append(lang("converted_badge").color('7').italic(true).hEvent(loc.getBadge()));
+                convertTag.append(" ").append(LANG.msg("set.converted").color('7').italic(true).hEvent(loc.getBadge()));
                 // convert the loc
                 loc.convertTo(player.getDimension());
             }
