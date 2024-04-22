@@ -248,35 +248,18 @@ public class Helper {
     public static String removeSpecial(String input) {
         return input.replaceAll("[\\\\|{}\\[\\]()]|[,;:'\\s]", "");
     }
-    public static class Pair<A, B> {
-        private final A first;
-        private final B second;
-        public Pair(A first, B second) {
-            this.first = first;
-            this.second = second;
-        }
+
+    public record Pair<A, B>(A key, B value) {
+
         public String toString() {
-            return "("+this.first+", "+this.second+")";
-        }
-        public Pair<B,A> getFlipped() {
-            return new Pair<>(second,first);
-        }
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
+                return "(" + this.key + ", " + this.value + ")";
             }
-            if (obj == null || getClass() != obj.getClass()) {
-                return false;
+
+        public Pair<B, A> getFlipped() {
+                return new Pair<>(value, key);
             }
-            Pair<?, ?> otherPair = (Pair<?, ?>) obj;
-            return Objects.equals(first, otherPair.first) && Objects.equals(second, otherPair.second);
-        }
-        @Override
-        public int hashCode() {
-            return Objects.hash(first, second);
-        }
     }
+
     public static class ListPage<T> {
         // helps separate lists into page sized chunks
         private final ArrayList<T> list;
