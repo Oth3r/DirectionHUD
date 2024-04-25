@@ -150,9 +150,9 @@ public class Assets {
         public static final String global = "\uD83E\uDDED";
     }
     public enum packets {
-        INITIALIZATION("initialize_v1.0"),
-        PLAYER_DATA("player_data_v1.0"),
-        HUD("hud_v1.0");
+        INITIALIZATION("initialize_v1.1"),
+        PLAYER_DATA("player_data_v1.1"),
+        HUD("hud_v1.1");
         private final String identifier;
         packets(String key) {
             this.identifier = key;
