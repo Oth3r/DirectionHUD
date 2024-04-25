@@ -115,6 +115,22 @@ public class Player extends PlayerTemplate {
     public String getDimension() {
         return Utl.dim.format(player.getWorld().getRegistryKey());
     }
+
+    @Override
+    public int getTimeOfDay() {
+        return (int) player.getWorld().getTimeOfDay() % 24000;
+    }
+
+    @Override
+    public boolean hasStorm() {
+        return player.getWorld().isRaining();
+    }
+
+    @Override
+    public boolean hasThunderstorm() {
+        return player.getWorld().isThundering();
+    }
+
     public String getSpawnDimension() {
         return Utl.dim.format(player.getSpawnPointDimension());
     }

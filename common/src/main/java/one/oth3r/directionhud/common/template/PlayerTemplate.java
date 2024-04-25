@@ -25,6 +25,23 @@ public abstract class PlayerTemplate {
     public abstract String getUUID();
     public abstract String getSpawnDimension();
     public abstract String getDimension();
+
+    /**
+     * gets the time of day in ticks, ranging from 0 to 23999
+     * @return the world time in ticks
+     */
+    public abstract int getTimeOfDay();
+
+    /**
+     * the storm status of a world
+     */
+    public abstract boolean hasStorm();
+
+    /**
+     * the thunderstorm status of a world
+     */
+    public abstract boolean hasThunderstorm();
+
     public abstract float getYaw();
     public abstract float getPitch();
     public abstract ArrayList<Double> getVec();

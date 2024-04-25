@@ -103,6 +103,22 @@ public class Player extends PlayerTemplate {
     public String getDimension() {
         return Utl.dim.format(player.getWorld().getName());
     }
+
+    @Override
+    public int getTimeOfDay() {
+        return (int) player.getWorld().getTime() % 24000;
+    }
+
+    @Override
+    public boolean hasStorm() {
+        return player.getWorld().hasStorm();
+    }
+
+    @Override
+    public boolean hasThunderstorm() {
+        return player.getWorld().isThundering();
+    }
+
     public float getYaw() {
         return player.getLocation().getYaw();
     }
