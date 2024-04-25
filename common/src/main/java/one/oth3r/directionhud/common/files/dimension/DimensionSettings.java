@@ -6,9 +6,9 @@ import com.google.gson.annotations.SerializedName;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.utils.Utl;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 
 public class DimensionSettings {
@@ -57,7 +57,7 @@ public class DimensionSettings {
             return new DimensionSettings();
         }
 
-        try (FileReader reader = new FileReader(file)) {
+        try (BufferedReader reader = Files.newBufferedReader(getFile().toPath(), StandardCharsets.UTF_8)) {
             Gson gson = new GsonBuilder().create();
             return gson.fromJson(reader, DimensionSettings.class);
         } catch (Exception e) {
@@ -67,7 +67,7 @@ public class DimensionSettings {
     }
 
     public static void put(DimensionSettings dimensionSettings) {
-        try (FileWriter writer = new FileWriter(getFile())) {
+        try (BufferedWriter writer = Files.newBufferedWriter(getFile().toPath(), StandardCharsets.UTF_8)) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             writer.write(gson.toJson(dimensionSettings));
         } catch (Exception e) {
