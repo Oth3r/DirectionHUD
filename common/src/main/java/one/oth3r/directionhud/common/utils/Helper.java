@@ -1,7 +1,7 @@
 package one.oth3r.directionhud.common.utils;
 
 import one.oth3r.directionhud.common.DHUD;
-import one.oth3r.directionhud.common.files.config;
+import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
@@ -155,8 +155,8 @@ public class Helper {
             public static ArrayList<String> dims(String current, boolean displayEmpty) {
                 ArrayList<String> list = new ArrayList<>();
                 if (!current.isEmpty() || displayEmpty) {
-                    if (current.isEmpty()) return Dim.getAll();
-                    for (String dim : Dim.getAll()) {
+                    if (current.isEmpty()) return Dimension.getAllIDs();
+                    for (String dim : Dimension.getAllIDs()) {
                         if (dim.contains(current)) list.add(dim);
                     }
                 }

@@ -79,8 +79,6 @@ public class LoopManager {
                 }
             }
         }
-        // update the time every five ticks
-        if (secondTick%5==0) Utl.setTime();
         // every 20 ticks
         if (secondTick >= 20) {
             secondTick = 0;

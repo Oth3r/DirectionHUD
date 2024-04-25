@@ -5,6 +5,8 @@ import one.oth3r.directionhud.common.HUD.Setting.ModuleAngleDisplay;
 import one.oth3r.directionhud.common.HUD.Setting.ModuleTrackingTarget;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
+import one.oth3r.directionhud.common.files.dimension.DimensionEntry.*;
+import one.oth3r.directionhud.common.files.dimension.DimensionEntry.Time.*;
 import one.oth3r.directionhud.common.files.playerdata.hud.PD_hud_color;
 import one.oth3r.directionhud.common.files.playerdata.hud.PD_hud_module;
 import one.oth3r.directionhud.common.utils.CUtl;
@@ -171,9 +173,6 @@ public class HUD {
             }
         }
     }
-    public static int minute;
-    public static int hour;
-    public static String weatherIcon = "?";
     public static final Lang LANG = new Lang("hud.");
     public static void CMDExecutor(Player player, String[] args) {
         if (!Utl.checkEnabled.hud(player)) return;
@@ -286,9 +285,8 @@ public class HUD {
                 distance.add("p]");
             }
             ArrayList<String> direction = getDirectionModule(player);
-            ArrayList<String> time = getTimeModule(!(boolean)player.getPData().getHud().getSetting(Setting.module__time_24hr));
-            ArrayList<String> weather = new ArrayList<>();
-            weather.add("p"+weatherIcon);
+            ArrayList<String> time = getTimeModule(player);
+            ArrayList<String> weather = getWeatherModule(player);
             HashMap<Module, ArrayList<String>> filledModules = new HashMap<>();
             filledModules.put(Module.coordinates, coordinates);
             filledModules.put(Module.distance, distance);
@@ -320,21 +318,69 @@ public class HUD {
             direction.add("p"+cardinal);
             return direction;
         }
+
+        public static ArrayList<String> getWeatherModule(Player player) {
+            ArrayList<String> weather = new ArrayList<>();
+            Time timeSettings = Dimension.getTimeSettings(player.getDimension());
+            Weather weatherSettings = timeSettings.getWeather();
+
+            // if not enabled, return
+            if (!timeSettings.getEnabled() || !weatherSettings.getEnabled()) return weather;
+
+            // get the variables
+            int timeTicks = player.getTimeOfDay();
+            Weather.NightTicks nightTicks = weatherSettings.getNightTicks();
+            Weather.Icons weatherIcons = weatherSettings.getIcons();
+            String extraIcons = "";
+            boolean night;
+
+            // get the extra icons and if It's night or not
+            if (player.hasThunderstorm()) {
+                extraIcons += weatherIcons.thunderstorm();
+                night = Num.inBetween(timeTicks,nightTicks.thunderstorm().startTick(),nightTicks.thunderstorm().endTick());
+            }
+            else if (player.hasStorm()) {
+                extraIcons += weatherIcons.storm();
+                night = Num.inBetween(timeTicks,nightTicks.storm().startTick(),nightTicks.storm().endTick());
+            }
+            else {
+                night = Num.inBetween(timeTicks,nightTicks.normal().startTick(),nightTicks.normal().endTick());
+            }
+            // build the module
+            weather.add("p"+(night?weatherIcons.night():weatherIcons.day())+extraIcons);
+            return weather;
+        }
+
         /**
          * @return the time module instructions
          */
-        public static ArrayList<String> getTimeModule(boolean t12hr) {
+        public static ArrayList<String> getTimeModule(Player player) {
             ArrayList<String> time = new ArrayList<>();
-            int hr = hour;
+            Time timeSettings = Dimension.getTimeSettings(player.getDimension());
+
+            // if not enabled, return
+            if (!timeSettings.getEnabled()) return time;
+
+            // assume that a day ANYWHERE is 24000 ticks (please dont make a mod that changes that)
+            int timeTicks = player.getTimeOfDay();
+
+            // (add 6 to account for the day starting at 6 am);
+            int hour = (timeTicks / 1000 + 6) % 24;
+            int minute = ((timeTicks % 1000) * 60 / 1000);
+
             // add 0 to the start, then set the string to the last two numbers to always have a 2-digit number
-            String min = "0" + minute;
+            String min = "0"+minute;
             min = min.substring(min.length()-2);
-            if (t12hr) {
+
+            if (!(boolean)player.getPData().getHud().getSetting(Setting.module__time_24hr)) {
+                int hr = hour % 12;
                 // if hr % 12 = 0, its 12 am/pm
-                hr = (hr%12==0) ? 12 : hr%12;
+                if (hr == 0) hr = 12;
+                // add to Arraylist
                 time.add("s"+hr+":"+min);
                 time.add("p "+(hour>=12?"PM":"AM"));
-            } else time.add("s"+hr+":"+min);
+            } else time.add("s"+hour+":"+min);
+
             return time;
         }
         public static ArrayList<String> getTrackingModule(Player player) {

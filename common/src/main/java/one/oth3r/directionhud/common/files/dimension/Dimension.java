@@ -1,5 +1,7 @@
 package one.oth3r.directionhud.common.files.dimension;
 
+import one.oth3r.directionhud.DirectionHUD;
+import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.utils.Helper.*;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Utl;
@@ -9,6 +11,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Dimension {
+    /**
+     * default time entry for the Overworld dimension
+     */
+    public static final DimensionEntry.Time OVERWORLD_TIME_ENTRY = new DimensionEntry.Time(
+            new DimensionEntry.Time.Weather(
+                    new DimensionEntry.Time.Weather.NightTicks(new DimensionEntry.Time.TimePair(12542,0),new DimensionEntry.Time.TimePair(12010,0),new DimensionEntry.Time.TimePair(0,24000)),
+                    new DimensionEntry.Time.Weather.Icons(Assets.symbols.sun,Assets.symbols.moon,Assets.symbols.rain,Assets.symbols.thunder)));
 
     private static DimensionSettings dimensionSettings = new DimensionSettings();
 
@@ -24,6 +33,18 @@ public class Dimension {
         return dimensionSettings.getDimensions().stream()
                 .map(DimensionEntry::getId)
                 .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    /**
+     * returns the time settings for the dimension
+     * @param id the dimension ID
+     * @return time settings for the dimension
+     */
+    public static DimensionEntry.Time getTimeSettings(String id) {
+        return dimensionSettings.getDimensions().stream()
+                .filter(dimension -> dimension.getId().equals(id))
+                .map(DimensionEntry::getTime)
+                .findFirst().orElse(null);
     }
 
     /**
@@ -149,12 +170,19 @@ public class Dimension {
             String[] entries = entry.split("\\|");
             // if not correct length
             if (entries.length != 3) continue;
+
             // filling data
-            DimensionEntry data = new DimensionEntry();
-            data.setId(entries[0]);
-            data.setName(entries[1]);
-            data.setColor(entries[2]);
-            // add the dimension
+            DimensionEntry data = new DimensionEntry(
+                    entries[0], entries[1], entries[2],
+                    // only enable time by default if DirectionHUD is a mod, because plugins have different times for different worlds.
+                    new DimensionEntry.Time(DirectionHUD.isMod)
+            );
+
+            // if overworld add overworld time settings
+            if (data.getId().contains("overworld")) {
+                data.setTime(OVERWORLD_TIME_ENTRY);
+            }
+            // add the dimension data
             list.add(data);
         }
         return list;

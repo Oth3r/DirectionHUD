@@ -9,12 +9,11 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.DirectionHUDClient;
-import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.Destination;
-import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.dimension.DimensionEntry;
+import one.oth3r.directionhud.common.files.dimension.DimensionEntry.*;
 import one.oth3r.directionhud.common.files.dimension.RatioEntry;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Helper.*;
@@ -35,21 +34,6 @@ public class Utl {
         else if (obj instanceof Text) txt.append((Text) obj);
         else txt.append(String.valueOf(obj));
         return txt;
-    }
-    public static void setTime() {
-        World world = DirectionHUD.server.getOverworld();
-        long timeTicks = world.getTimeOfDay();
-        HUD.hour = (int) ((timeTicks / 1000 + 6) % 24);
-        HUD.minute = (int) ((timeTicks % 1000) * 60 / 1000);
-        if (world.isRaining()) {
-            String str;
-            if (world.isNight()) str = Assets.symbols.moon;
-            else str = Assets.symbols.sun;
-            // can sleep during thunderstorm
-            if (world.isThundering()) HUD.weatherIcon = Assets.symbols.moon + Assets.symbols.thunder;
-            else HUD.weatherIcon = str + Assets.symbols.rain;
-        } else if (world.isNight()) HUD.weatherIcon = Assets.symbols.moon;
-        else HUD.weatherIcon = Assets.symbols.sun;
     }
     public static List<Player> getPlayers() {
         ArrayList<Player> array = new ArrayList<>();
@@ -131,9 +115,9 @@ public class Utl {
     public static class dim {
 
         public static ArrayList<DimensionEntry> DEFAULT_DIMENSIONS = new ArrayList<>(Arrays.asList(
-                new DimensionEntry("minecraft.overworld", "Overworld", "#55FF55"),
-                new DimensionEntry("minecraft.the_nether", "Nether", "#e8342e"),
-                new DimensionEntry("minecraft.the_end", "End", "#edffb0")
+                new DimensionEntry("minecraft.overworld", "Overworld", "#55FF55",Dimension.OVERWORLD_TIME_ENTRY),
+                new DimensionEntry("minecraft.the_nether", "Nether", "#e8342e", new Time(true)),
+                new DimensionEntry("minecraft.the_end", "End", "#edffb0", new Time(true))
         ));
 
         public static ArrayList<RatioEntry> DEFAULT_RATIOS = new ArrayList<>(List.of(
