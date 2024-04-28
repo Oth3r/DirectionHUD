@@ -5,6 +5,7 @@ import net.minecraft.util.Identifier;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.HUD;
+import one.oth3r.directionhud.common.utils.Helper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +29,7 @@ public class BossBarManager {
         BossBar bossBar = DirectionHUD.server.getBossBarManager().get(bossBars.get(player));
         assert bossBar != null;
         bossBar.setName(hud.b());
-        bossBar.setColor(BossBar.Color.byName(HUD.Setting.BarColor.get((String) player.getPData().getHud().getSetting(HUD.Setting.bossbar__color)).toString()));
+        bossBar.setColor(BossBar.Color.byName(Helper.Enums.get(player.getPData().getHud().getSetting(HUD.Setting.bossbar__color),HUD.Setting.BarColor.class).toString()));
         if (Destination.dest.get(player).hasXYZ() && (boolean) player.getPData().getHud().getSetting(HUD.Setting.bossbar__distance)) {
             int dist = Destination.dest.getDist(player);
             double progress = getProgress(dist,(int) player.getPData().getHud().getSetting(HUD.Setting.bossbar__distance_max));

@@ -16,13 +16,18 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class LangReader {
+
     private static final Map<String, String> languageMap = new HashMap<>();
+
     private final String translationKey;
+
     private final Object[] placeholders;
+
     public LangReader(String translationKey, Object... placeholders) {
         this.translationKey = translationKey;
         this.placeholders = placeholders;
     }
+
     public CTxT getTxT() {
         String translated = getLanguageValue(translationKey);
         if (placeholders != null && placeholders.length > 0) {
@@ -31,7 +36,7 @@ public class LangReader {
             String regex = "%\\d*\\$?[dfs]";
             Matcher anyMatch = Pattern.compile(regex).matcher(translated);
             Matcher endMatch = Pattern.compile(regex+"$").matcher(translated);
-            //Arraylist with all the %(#$)[dfs]
+            // Arraylist with all the %(#$)[dfs]
             ArrayList<String> matches = new ArrayList<>();
             while (anyMatch.find()) {
                 String match = anyMatch.group();
@@ -67,9 +72,11 @@ public class LangReader {
         }
         return CTxT.of(translated);
     }
+
     public static LangReader of(String translationKey, Object... placeholders) {
         return new LangReader(translationKey, placeholders);
     }
+
     public static void loadLanguageFile() {
         try {
             ClassLoader classLoader = DirectionHUD.class.getClassLoader();
@@ -87,6 +94,7 @@ public class LangReader {
             DirectionHUD.LOGGER.info(e.getMessage());
         }
     }
+
     public static String getLanguageValue(String key) {
         return languageMap.getOrDefault(key, key);
     }

@@ -4,11 +4,13 @@ import one.oth3r.directionhud.common.Assets.symbols.arrows;
 import one.oth3r.directionhud.common.HUD.Setting.ModuleAngleDisplay;
 import one.oth3r.directionhud.common.HUD.Setting.ModuleTrackingTarget;
 import one.oth3r.directionhud.common.files.config;
+import one.oth3r.directionhud.common.HUD.Setting.*;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.dimension.DimensionEntry.*;
 import one.oth3r.directionhud.common.files.dimension.DimensionEntry.Time.*;
-import one.oth3r.directionhud.common.files.playerdata.hud.PD_hud_color;
-import one.oth3r.directionhud.common.files.playerdata.hud.PD_hud_module;
+import one.oth3r.directionhud.common.files.playerdata.DefaultPData;
+import one.oth3r.directionhud.common.files.playerdata.PDHud;
+import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Helper.Command.Suggester;
@@ -96,7 +98,7 @@ public class HUD {
                 try {
                     return DisplayType.valueOf(s);
                 } catch (IllegalArgumentException e) {
-                    return DisplayType.valueOf(config.hud.defaults.DisplayType);
+                    return DisplayType.valueOf(PlayerData.DEFAULTS.getHud().getSetting().getType());
                 }
             }
         }
@@ -107,51 +109,20 @@ public class HUD {
             green,
             yellow,
             purple,
-            white;
-            public static BarColor get(String s) {
-                try {
-                    return BarColor.valueOf(s);
-                } catch (IllegalArgumentException e) {
-                    return BarColor.valueOf(config.hud.defaults.BarColor);
-                }
-            }
+            white
         }
         public enum ModuleTrackingTarget {
             player,
-            dest;
-            public static ModuleTrackingTarget get(String s) {
-                try {
-                    return ModuleTrackingTarget.valueOf(s);
-
-                } catch (IllegalArgumentException e) {
-                    return ModuleTrackingTarget.valueOf(config.hud.defaults.TrackingTarget);
-                }
-            }
+            dest
         }
         public enum ModuleTrackingType {
             simple,
-            compact;
-            public static ModuleTrackingType get(String s) {
-                try {
-                    return ModuleTrackingType.valueOf(s);
-
-                } catch (IllegalArgumentException e) {
-                    return ModuleTrackingType.valueOf(config.hud.defaults.TrackingType);
-                }
-            }
+            compact
         }
         public enum ModuleAngleDisplay {
             yaw,
             pitch,
-            both;
-            public static ModuleAngleDisplay get(String s) {
-                try {
-                    return ModuleAngleDisplay.valueOf(s);
-
-                } catch (IllegalArgumentException e) {
-                    return ModuleAngleDisplay.valueOf(config.hud.defaults.AngleDisplay);
-                }
-            }
+            both
         }
     }
     public enum Module {
@@ -419,7 +390,7 @@ public class HUD {
             }
             // check if there's a point set, otherwise return nothing
             if (pointLoc == null) return tracking;
-            Setting.ModuleTrackingType trackingType = Setting.ModuleTrackingType.get(String.valueOf(player.getPData().getHud().getSetting(Setting.module__tracking_type)));
+            Setting.ModuleTrackingType trackingType = Enums.get(String.valueOf(player.getPData().getHud().getSetting(Setting.module__tracking_type)),ModuleTrackingType.class);
             boolean simple = trackingType.equals(Setting.ModuleTrackingType.simple);
             tracking.add("/p["); // add the key bracket
             // pointer logic
@@ -474,7 +445,7 @@ public class HUD {
         public static ArrayList<String> getAngleModule(Player player) {
             ArrayList<String> angle = new ArrayList<>();
             DecimalFormat f = new DecimalFormat("0.0");
-            ModuleAngleDisplay playerType = ModuleAngleDisplay.get((String)player.getPData().getHud().getSetting(Setting.module__angle_display));
+            ModuleAngleDisplay playerType = Enums.get(player.getPData().getHud().getSetting(Setting.module__angle_display),ModuleAngleDisplay.class);
             if (playerType.equals(ModuleAngleDisplay.yaw) || playerType.equals(ModuleAngleDisplay.both)) {
                 angle.add("s"+f.format(player.getYaw()));
             }
@@ -564,19 +535,7 @@ public class HUD {
          * @return default state
          */
         public static boolean getDefaultState(Module module) {
-            boolean output = false;
-            switch (module) {
-                case coordinates -> output = config.hud.Coordinates;
-                case distance -> output = config.hud.Distance;
-                case tracking -> output = config.hud.Tracking;
-                case destination -> output = config.hud.Destination;
-                case direction -> output = config.hud.Direction;
-                case time -> output = config.hud.Time;
-                case weather -> output = config.hud.Weather;
-                case speed -> output = config.hud.Speed;
-                case angle -> output = config.hud.Angle;
-            }
-            return output;
+            return PlayerData.DEFAULTS.getHud().getModule(module);
         }
         /**
          * reset module(s) to their default config state
@@ -587,12 +546,12 @@ public class HUD {
             CTxT msg = CUtl.tag();
             if (module.equals(Module.unknown)) {
                 // reset order
-                player.getPData().getHud().setOrder(config.hud.Order);
+                player.getPData().getHud().setOrder(PlayerData.DEFAULTS.getHud().getOrder());
                 // reset module settings
                 for (Setting s : Setting.moduleSettings())
                     player.getPData().getHud().setSetting(s,settings.getConfig(s));
                 // reset module states
-                player.getPData().getHud().setModule(new PD_hud_module());
+                player.getPData().getHud().setModule(new PDHud.Modules());
                 msg.append(LANG.msg("reset_all", CUtl.LANG.btn("all").color('c')));
             } else {
                 // reset order
@@ -724,7 +683,7 @@ public class HUD {
                                 .append(settings.LANG.hover("set",settings.LANG.get(type.toString()),CUtl.toggleTxT(!state))))
                         .cEvent(1,"/hud settings set-m "+type+" "+(state?"off":"on")));
                 type = Setting.module__tracking_target;
-                Setting.ModuleTrackingTarget currentTarget = Setting.ModuleTrackingTarget.get((String) player.getPData().getHud().getSetting(type));
+                Setting.ModuleTrackingTarget currentTarget = Enums.get(player.getPData().getHud().getSetting(type),ModuleTrackingTarget.class);
                 Setting.ModuleTrackingTarget nextTarget = Enums.next(currentTarget,Setting.ModuleTrackingTarget.class);
                 button.append(settings.LANG.get(type+"."+currentTarget).btn(true).color(CUtl.s()).hEvent(CTxT.of("")
                                 .append(settings.LANG.get(type+".ui").color('e')).append("\n")
@@ -732,7 +691,7 @@ public class HUD {
                                 .append(settings.LANG.hover("set",settings.LANG.get(type.toString()),settings.LANG.get(type+"."+nextTarget).color(CUtl.s()))))
                         .cEvent(1,"/hud settings set-m "+type+" "+nextTarget));
                 type = Setting.module__tracking_type;
-                Setting.ModuleTrackingType currentType = Setting.ModuleTrackingType.get((String) player.getPData().getHud().getSetting(type));
+                Setting.ModuleTrackingType currentType = Enums.get(player.getPData().getHud().getSetting(type),ModuleTrackingType.class);
                 Setting.ModuleTrackingType nextType = Enums.next(currentType,Setting.ModuleTrackingType.class);
                 button.append(CTxT.of(currentType.equals(Setting.ModuleTrackingType.simple)?arrows.up:arrows.north).btn(true).color(CUtl.s()).hEvent(CTxT.of("")
                                 .append(settings.LANG.get(type+".ui").color('e')).append(" - ")
@@ -760,7 +719,7 @@ public class HUD {
             }
             if (module.equals(Module.angle)) {
                 Setting type = Setting.module__angle_display;
-                ModuleAngleDisplay currentType = ModuleAngleDisplay.get((String) player.getPData().getHud().getSetting(type));
+                ModuleAngleDisplay currentType = Enums.get(player.getPData().getHud().getSetting(type),ModuleAngleDisplay.class);
                 ModuleAngleDisplay nextType = Enums.next(currentType, ModuleAngleDisplay.class);
                 String buttonIcon = arrows.leftRight;
                 if (currentType.equals(ModuleAngleDisplay.both)) buttonIcon += arrows.upDown;
@@ -796,7 +755,7 @@ public class HUD {
             if (module.equals(Module.direction))
                 info.append(color.addColor(player,"N",1,15,20));
             if (module.equals(Module.tracking)) {
-                if (Setting.ModuleTrackingType.get((String) player.getPData().getHud().getSetting(Setting.module__tracking_type))
+                if (Enums.get(player.getPData().getHud().getSetting(Setting.module__tracking_type),ModuleTrackingType.class)
                         .equals(Setting.ModuleTrackingType.simple))
                     info.append(color.addColor(player,"[",1,15,20).strikethrough(true))
                             .append(color.addColor(player,"-"+ arrows.up+ arrows.right,2,35,20))
@@ -822,7 +781,7 @@ public class HUD {
                         .append(color.addColor(player," B/S",1,(speed.length()*20)+15,20));
             if (module.equals(Module.angle)) {
                 info.append(color.addColor(player,"-15.1",2,15,20));
-                if (ModuleAngleDisplay.get((String) player.getPData().getHud().getSetting(Setting.module__angle_display)).equals(ModuleAngleDisplay.both))
+                if (Enums.get(player.getPData().getHud().getSetting(Setting.module__angle_display),ModuleAngleDisplay.class).equals(ModuleAngleDisplay.both))
                     info.append(color.addColor(player,"/",1,135,20)).append(color.addColor(player,"55.1",2,155,20));
             }
             if (onlyExample.length == 0) info.append("\n").append(LANG.get("info."+module).color('7'));
@@ -840,10 +799,10 @@ public class HUD {
             boolean yellow = false;
             if (!Destination.dest.get(player).hasXYZ()) {
                 if (module.equals(Module.destination) || module.equals(Module.distance) || (module.equals(Module.tracking) &&
-                        Setting.ModuleTrackingTarget.get((String) player.getPData().getHud().getSetting(Setting.module__tracking_target)).equals(Setting.ModuleTrackingTarget.dest)))
+                        Enums.get(player.getPData().getHud().getSetting(Setting.module__tracking_target),ModuleTrackingTarget.class).equals(Setting.ModuleTrackingTarget.dest)))
                     yellow = true;
             }
-            if (module.equals(Module.tracking) && Destination.social.track.getTarget(player)==null && Setting.ModuleTrackingTarget.get((String) player.getPData().getHud().getSetting(Setting.module__tracking_target)).equals(Setting.ModuleTrackingTarget.player))
+            if (module.equals(Module.tracking) && Destination.social.track.getTarget(player)==null && Enums.get(player.getPData().getHud().getSetting(Setting.module__tracking_target),ModuleTrackingTarget.class).equals(Setting.ModuleTrackingTarget.player))
                 yellow = true;
             if (yellow) return "#fff419";
             return "#19ff21";
@@ -981,16 +940,20 @@ public class HUD {
          * @param typ default HUD color type to get
          * @return the default PlayerData entry for the HUD color type
          */
-        public static PD_hud_color defaultEntry(Player player, int typ) {
-            if (typ==1) return new PD_hud_color(player, config.hud.primary.Color, config.hud.primary.Bold, config.hud.primary.Italics, config.hud.primary.Rainbow);
-            return new PD_hud_color(player, config.hud.secondary.Color, config.hud.secondary.Bold, config.hud.secondary.Italics, config.hud.secondary.Rainbow);
+        public static PDHud.Color defaultEntry(Player player, int typ) {
+            PDHud.Color color;
+            if (typ==1) color = PlayerData.DEFAULTS.getHud().getPrimary();
+            else color = PlayerData.DEFAULTS.getHud().getSecondary();
+            // make sure the color is bound to the player
+            color.setPlayer(player);
+            return color;
         }
         /**
          * gets the color pData entry for the typ
          * @param typ the color typ
          * @return the color pData
          */
-        public static PD_hud_color getEntry(Player player, int typ) {
+        public static PDHud.Color getEntry(Player player, int typ) {
             if (typ==1) return player.getPData().getHud().getPrimary();
             else return player.getPData().getHud().getSecondary();
         }
@@ -999,7 +962,7 @@ public class HUD {
          * @param typ typ
          * @param entry entry to set
          */
-        public static void setEntry(Player player, int typ, PD_hud_color entry) {
+        public static void setEntry(Player player, int typ, PDHud.Color entry) {
             if (typ==1) player.getPData().getHud().setPrimary(entry);
             else player.getPData().getHud().setSecondary(entry);
         }
@@ -1036,8 +999,8 @@ public class HUD {
          */
         public static void setColor(Player player, String UISettings, String type, String color, boolean Return) {
             int typ = type.equals("primary")?1:2;
-            PD_hud_color colorEntry = getEntry(player,typ);
-            colorEntry.setColor(CUtl.color.colorHandler(player,color,config.hud.primary.Color));
+            PDHud.Color colorEntry = getEntry(player,typ);
+            colorEntry.setColor(CUtl.color.colorHandler(player,color,defaultEntry(player,typ).getColor()));
             setEntry(player,typ,colorEntry);
 
             if (Return) changeUI(player,UISettings,type,null);
@@ -1053,7 +1016,7 @@ public class HUD {
          */
         public static void setToggle(Player player, String UISettings, String colorType, ColorToggle colorToggle, boolean state, boolean Return) {
             int typ = colorType.equals("primary")?1:2;
-            PD_hud_color colorEntry = getEntry(player,typ);
+            PDHud.Color colorEntry = getEntry(player,typ);
             // edit the correct toggle
             switch (colorToggle) {
                 case bold -> colorEntry.setBold(state);
@@ -1243,22 +1206,7 @@ public class HUD {
          * @return the current config value for the setting
          */
         public static Object getConfig(Setting setting) {
-            Object output = false;
-            switch (setting) {
-                case state -> output = config.hud.State;
-                case type -> output = config.hud.DisplayType;
-                case bossbar__color -> output = config.hud.BarColor;
-                case bossbar__distance -> output = config.hud.BarShowDistance;
-                case bossbar__distance_max -> output = config.hud.ShowDistanceMAX;
-                case module__time_24hr -> output = config.hud.Time24HR;
-                case module__tracking_hybrid -> output = config.hud.TrackingHybrid;
-                case module__tracking_target -> output = config.hud.TrackingTarget;
-                case module__tracking_type -> output = config.hud.TrackingType;
-                case module__speed_3d -> output = config.hud.Speed3D;
-                case module__speed_pattern -> output = config.hud.SpeedPattern;
-                case module__angle_display -> output = config.hud.AngleDisplay;
-            }
-            return output;
+            return PlayerData.DEFAULTS.getHud().getSetting(setting);
         }
         /**
          * resets the setting to the config state
@@ -1316,7 +1264,7 @@ public class HUD {
                 setTxT.append(LANG.get(setting+"."+displayType).color(CUtl.s()));
             }
             if (setting.equals(Setting.bossbar__color)) {
-                Setting.BarColor barColor = Setting.BarColor.get(state);
+                BarColor barColor = Enums.get(state,BarColor.class);
                 player.getPData().getHud().setSetting(setting,barColor);
                 setTxT.append(LANG.get(setting+"."+barColor).color(Assets.barColor(barColor)));
             }
@@ -1327,12 +1275,12 @@ public class HUD {
                 setTxT.append(CTxT.of(String.valueOf(i)).color((boolean)player.getPData().getHud().getSetting(Setting.bossbar__distance)?'a':'c'));
             }
             if (setting.equals(Setting.module__tracking_target)) {
-                Setting.ModuleTrackingTarget moduleTrackingTarget = Setting.ModuleTrackingTarget.get(state);
+                ModuleTrackingTarget moduleTrackingTarget = Enums.get(state,ModuleTrackingTarget.class);
                 player.getPData().getHud().setSetting(setting, moduleTrackingTarget);
                 setTxT.append(LANG.get(setting+"."+moduleTrackingTarget).color(CUtl.s()));
             }
             if (setting.equals(Setting.module__tracking_type)) {
-                Setting.ModuleTrackingType moduleTrackingType = Setting.ModuleTrackingType.get(state);
+                ModuleTrackingType moduleTrackingType = Enums.get(state,ModuleTrackingType.class);
                 player.getPData().getHud().setSetting(setting, moduleTrackingType);
                 setTxT.append(LANG.get(setting+"."+moduleTrackingType).color(CUtl.s()));
             }
@@ -1345,7 +1293,7 @@ public class HUD {
                 setTxT.append(CTxT.of(String.valueOf(player.getPData().getHud().getSetting(setting))).color(CUtl.s()));
             }
             if (setting.equals(Setting.module__angle_display)) {
-                ModuleAngleDisplay moduleAngleDisplay = Setting.ModuleAngleDisplay.get(state);
+                ModuleAngleDisplay moduleAngleDisplay = Enums.get(state,ModuleAngleDisplay.class);
                 player.getPData().getHud().setSetting(setting, moduleAngleDisplay);
                 setTxT.append(LANG.get(setting+"."+moduleAngleDisplay).color(CUtl.s()));
             }

@@ -3,6 +3,7 @@ package one.oth3r.directionhud.common;
 import one.oth3r.directionhud.common.files.GlobalDest;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
+import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Helper.Command.Suggester;
 import one.oth3r.directionhud.common.utils.Helper.Num;
@@ -2017,24 +2018,7 @@ public class Destination {
          * @return the current config value for the setting
          */
         public static Object getConfig(Setting setting) {
-            Object output = false;
-            switch (setting) {
-                case autoclear -> output = config.dest.AutoClear;
-                case autoclear_rad -> output = config.dest.AutoClearRad;
-                case autoconvert -> output = config.dest.AutoConvert;
-                case ylevel -> output = config.dest.YLevel;
-                case particles__dest -> output = config.dest.particles.Dest;
-                case particles__dest_color -> output = config.dest.particles.DestColor;
-                case particles__line -> output = config.dest.particles.Line;
-                case particles__line_color -> output = config.dest.particles.LineColor;
-                case particles__tracking -> output = config.dest.particles.Tracking;
-                case particles__tracking_color -> output = config.dest.particles.TrackingColor;
-                case features__send -> output = config.dest.Send;
-                case features__track -> output = config.dest.Track;
-                case features__track_request_mode -> output = config.dest.TrackingRequestMode;
-                case features__lastdeath -> output = config.dest.Lastdeath;
-            }
-            return output;
+            return PlayerData.DEFAULTS.getDEST().getSetting(setting);
         }
         /**
          * resets the setting to the config state

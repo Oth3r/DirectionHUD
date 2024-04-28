@@ -7,15 +7,13 @@ import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.DHUD;
 import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.files.config;
-import one.oth3r.directionhud.common.files.playerdata.hud.PD_hud_color;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.utils.Player;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.*;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,8 +33,7 @@ public class Updater {
             mapUpdate(player,fileToMap(player));
         }
         private static Map<String, Object> fileToMap(Player player) {
-            File file = PlayerData.getFile(player);
-            try (FileReader reader = new FileReader(file)) {
+            try (BufferedReader reader = Files.newBufferedReader(PData.getPlayerFile(player).toPath())) {
                 Gson gson = new GsonBuilder().create();
                 return gson.fromJson(reader,new TypeToken<Map<String, Object>>() {}.getType());
             } catch (Exception e) {
@@ -46,7 +43,7 @@ public class Updater {
             return new HashMap<>();
         }
         private static void mapToFile(Player player, Map<String, Object> map) {
-            try (FileWriter writer = new FileWriter(PlayerData.getFile(player))){
+            try (BufferedWriter writer = Files.newBufferedWriter(PData.getPlayerFile(player).toPath())) {
                 Gson gson = new GsonBuilder().setPrettyPrinting().create();
                 writer.write(gson.toJson(map));
             } catch (Exception e) {
@@ -61,12 +58,16 @@ public class Updater {
         }
         @SuppressWarnings("unchecked")
         private static void mapUpdate(Player player, Map<String,Object> base) {
+            PDDestination DESTINATION = PlayerData.DEFAULTS.getDEST();
+            PDDestination.Settings DESTSETTINGS = DESTINATION.getSetting();
+            PDHud HUD_defaults = PlayerData.DEFAULTS.getHud();
+            PDHud.Settings HUDSETTINGS = HUD_defaults.getSetting();
             base.put("name", player.getName());
             if (base.get("version").equals(1.0)) {
                 base.put("version",1.1);
                 Map<String,Object> dest = (Map<String, Object>) base.get("destination");
                 Map<String,Object> dSet = (Map<String, Object>) dest.get("setting");
-                dSet.put("lastdeath", config.dest.Lastdeath);
+                dSet.put("lastdeath", DESTINATION.getLastdeath());
                 dest.put("setting",dSet);
                 base.put("destination",dest);
                 // reload the file after updating a version
@@ -195,9 +196,9 @@ public class Updater {
                 //ADD NEW PARTICLES & AUTOCONVERT
                 Map<String,Object> setting = (Map<String, Object>) dest.get("setting");
                 Map<String,Object> particles = (Map<String, Object>) setting.get("particles");
-                particles.put("tracking", config.dest.particles.Tracking);
-                particles.put("trackingcolor", config.dest.particles.TrackingColor);
-                setting.put("autoconvert", config.dest.AutoConvert);
+                particles.put("tracking", DESTSETTINGS.getParticles().getTracking());
+                particles.put("trackingcolor", DESTSETTINGS.getParticles().getTrackingColor());
+                setting.put("autoconvert", DESTSETTINGS.getAutoconvert());
                 setting.put("particles",particles);
                 dest.put("setting",setting);
                 base.put("destination",dest);
@@ -214,9 +215,9 @@ public class Updater {
                 //UPDATE DEST PARTICLE COLORS TO NEW SYSTEM
                 Map<String,Object> destSetting = (Map<String, Object>) dest.get("setting");
                 Map<String,Object> particles = (Map<String, Object>) destSetting.get("particles");
-                particles.put("dest_color", CUtl.color.updateOld((String) particles.get("destcolor"), config.dest.particles.DestColor));
-                particles.put("line_color",CUtl.color.updateOld((String) particles.get("linecolor"), config.dest.particles.LineColor));
-                particles.put("tracking_color",CUtl.color.updateOld((String) particles.get("trackingcolor"), config.dest.particles.TrackingColor));
+                particles.put("dest_color", CUtl.color.updateOld((String) particles.get("destcolor"), DESTSETTINGS.getParticles().getDestColor()));
+                particles.put("line_color",CUtl.color.updateOld((String) particles.get("linecolor"), DESTSETTINGS.getParticles().getLineColor()));
+                particles.put("tracking_color",CUtl.color.updateOld((String) particles.get("trackingcolor"), DESTSETTINGS.getParticles().getTrackingColor()));
                 particles.remove("destcolor");
                 particles.remove("linecolor");
                 particles.remove("trackingcolor");
@@ -227,7 +228,7 @@ public class Updater {
                 destFeatures.put("send",destSetting.get("send"));
                 destFeatures.put("track",destSetting.get("track"));
                 //ADD NEW DEST SETTING
-                destFeatures.put("track_request_mode", config.dest.TrackingRequestMode);
+                destFeatures.put("track_request_mode", DESTSETTINGS.getFeatures().getTrackRequestMode());
                 destFeatures.put("lastdeath",destSetting.get("lastdeath"));
                 destSetting.remove("send");
                 destSetting.remove("track");
@@ -244,19 +245,19 @@ public class Updater {
                 //UPDATE HUD COLORS TO NEW SYSTEM
                 Map<String,Object> hud = (Map<String, Object>) base.get("hud");
                 String[] primary = ((String) hud.get("primary")).split("-");
-                primary[0] = CUtl.color.updateOld(primary[0], config.hud.primary.Color);
+                primary[0] = CUtl.color.updateOld(primary[0], HUD_defaults.getPrimary().getColor());
                 hud.put("primary",String.join("-",primary));
                 String[] secondary = ((String) hud.get("secondary")).split("-");
-                secondary[0] = CUtl.color.updateOld(secondary[0], config.hud.secondary.Color);
+                secondary[0] = CUtl.color.updateOld(secondary[0], HUD_defaults.getSecondary().getColor());
                 hud.put("secondary",String.join("-",secondary));
                 //ADD NEW HUD SETTINGS
                 Map<String,Object> hudSetting = (Map<String, Object>) hud.get("setting");
-                hudSetting.put("type", config.hud.DisplayType);
-//                hudSetting.put("bossbar", PlayerData.defaults.hudBossBar()); //todo find
+                hudSetting.put("type", HUDSETTINGS.getType());
+                hudSetting.put("bossbar", HUDSETTINGS.getBossbar());
                 Map<String,Object> hudSettingModule = new HashMap<>();
                 hudSettingModule.put("time_24hr",hudSetting.get("time24h"));
                 hudSetting.put("time24h",null);
-                hudSettingModule.put("tracking_target", config.hud.TrackingTarget);
+                hudSettingModule.put("tracking_target", HUDSETTINGS.getModule().getTrackingTarget());
                 hudSetting.put("module",hudSettingModule);
                 hud.put("order", HUD.modules.fixOrder(Helper.Enums.toEnumList(new ArrayList<>(List.of(((String) hud.get("order")).split(" "))),HUD.Module.class)));
                 hud.put("setting",hudSetting);
@@ -287,17 +288,17 @@ public class Updater {
                 // new hud module settings
                 Map<String,Object> hudSetting = (Map<String, Object>) hud.get("setting");
                 Map<String,Object> hudModuleSetting = (Map<String, Object>) hudSetting.get("module");
-                hudModuleSetting.put("tracking_hybrid",config.hud.TrackingHybrid);
-                hudModuleSetting.put("tracking_type",config.hud.TrackingType);
-                hudModuleSetting.put("speed_pattern", config.hud.SpeedPattern);
-                hudModuleSetting.put("speed_3d", config.hud.Speed3D);
-                hudModuleSetting.put("angle_display", config.hud.AngleDisplay);
+                hudModuleSetting.put("tracking_hybrid", HUDSETTINGS.getModule().getTrackingHybrid());
+                hudModuleSetting.put("tracking_type", HUDSETTINGS.getModule().getTrackingType());
+                hudModuleSetting.put("speed_pattern", HUDSETTINGS.getModule().getSpeedPattern());
+                hudModuleSetting.put("speed_3d", HUDSETTINGS.getModule().getSpeed3d());
+                hudModuleSetting.put("angle_display", HUDSETTINGS.getModule().getAngleDisplay());
                 hudSetting.put("module",hudModuleSetting);
                 hud.put("setting",hudSetting);
                 // new hud modules
                 Map<String,Object> hudModule = (Map<String, Object>) hud.get("module");
-                hudModule.put("speed",config.hud.Speed);
-                hudModule.put("angle",config.hud.Angle);
+                hudModule.put("speed", HUD_defaults.getModule().getSpeed());
+                hudModule.put("angle", HUD_defaults.getModule().getAngle());
                 hud.put("module",hudModule);
                 base.put("hud",hud);
                 // new preset system
@@ -331,8 +332,8 @@ public class Updater {
                 // get the old styles, split by the old delimiter
                 String[] primary = ((String) hud.get("primary")).split("-"), secondary = ((String) hud.get("secondary")).split("-");
                 // set to the new PD_hud_color system
-                hud.put("primary",new PD_hud_color(player,primary[0],primary[1].equals("true"),primary[2].equals("true"),primary[3].equals("true")));
-                hud.put("secondary",new PD_hud_color(player,secondary[0],secondary[1].equals("true"),secondary[2].equals("true"),secondary[3].equals("true")));
+                hud.put("primary",new PDHud.Color(player,primary[0],primary[1].equals("true"),primary[2].equals("true"),primary[3].equals("true")));
+                hud.put("secondary",new PDHud.Color(player,secondary[0],secondary[1].equals("true"),secondary[2].equals("true"),secondary[3].equals("true")));
 
                 // update all destination Locs
                 Map<String,Object> dest = (Map<String, Object>) base.get("destination");
@@ -356,7 +357,7 @@ public class Updater {
             // save at the end
             mapToFile(player,base);
             // load the prepared PlayerData
-            PlayerData.loadFromFile(player,true);
+            PData.loadPlayer(player,true);
         }
     }
 

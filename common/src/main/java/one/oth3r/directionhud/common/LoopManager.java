@@ -3,6 +3,7 @@ package one.oth3r.directionhud.common;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
+import one.oth3r.directionhud.common.files.playerdata.PData;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.utils.Helper.Enums;
 import one.oth3r.directionhud.common.utils.Loc;
@@ -85,7 +86,7 @@ public class LoopManager {
             for (Player player :Utl.getPlayers()) secondLoop(player);
             // save all the files for the players in the savePlayers list
             for (Player player : new ArrayList<>(savePlayers)) {
-                PlayerData.toFile(player);
+                PData.savePlayer(player);
                 removeSavePlayer(player);
             }
         }
