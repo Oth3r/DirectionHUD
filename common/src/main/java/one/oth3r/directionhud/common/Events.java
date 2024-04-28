@@ -43,7 +43,7 @@ public class Events {
      * effectively reloads the player without deleting certain required maps (like clientPlayers)
      */
     public static void playerSoftLeave(Player player) {
-        DHUD.inbox.removeAllTracking(player);
+        DHud.inbox.removeAllTracking(player);
         PlayerData.removePlayer(player);
         DirectionHUD.bossBarManager.removePlayer(player);
     }

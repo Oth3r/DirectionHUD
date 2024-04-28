@@ -1,6 +1,6 @@
 package one.oth3r.directionhud.commands;
 
-import one.oth3r.directionhud.common.HUD;
+import one.oth3r.directionhud.common.Hud;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.utils.Player;
 import org.bukkit.command.Command;
@@ -9,7 +9,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class HUDCommand implements CommandExecutor, TabCompleter {
@@ -19,7 +18,7 @@ public class HUDCommand implements CommandExecutor, TabCompleter {
             return true;
         }
         Player player = Player.of(plr);
-        HUD.CMDExecutor(player, Helper.Command.quoteHandler(args));
+        Hud.CMDExecutor(player, Helper.Command.quoteHandler(args));
         return true;
     }
     @Override
@@ -31,6 +30,6 @@ public class HUDCommand implements CommandExecutor, TabCompleter {
         Player player = Player.of(plr);
         // fix args
         args = Helper.Command.quoteHandler(args);
-        return HUD.CMDSuggester(player,args.length,args);
+        return Hud.CMDSuggester(player,args.length,args);
     }
 }

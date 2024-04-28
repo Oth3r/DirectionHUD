@@ -10,8 +10,7 @@ import net.minecraft.util.math.Vec3d;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.PacketBuilder;
 import one.oth3r.directionhud.common.Assets;
-import one.oth3r.directionhud.common.HUD;
-import one.oth3r.directionhud.common.LoopManager;
+import one.oth3r.directionhud.common.Hud;
 import one.oth3r.directionhud.common.files.playerdata.PData;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.template.PlayerTemplate;
@@ -94,7 +93,7 @@ public class Player extends PlayerTemplate {
             packet.sendToPlayer(Assets.packets.PLAYER_DATA,player);
         }
     }
-    public void sendHUDPackets(HashMap<HUD.Module, ArrayList<String>> hudData) {
+    public void sendHUDPackets(HashMap<Hud.Module, ArrayList<String>> hudData) {
         // send the instructions to build the hud to the client
         Gson gson = new GsonBuilder().disableHtmlEscaping().create();
         PacketBuilder packet = new PacketBuilder(gson.toJson(hudData));

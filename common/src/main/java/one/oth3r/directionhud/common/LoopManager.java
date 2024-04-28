@@ -4,7 +4,6 @@ import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.playerdata.PData;
-import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.utils.Helper.Enums;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.utils.Player;
@@ -40,13 +39,13 @@ public class LoopManager {
         if (HUDTick >= config.HUDLoop) {
             HUDTick = 0;
             for (Player player : Utl.getPlayers()) {
-                if ((boolean) player.getPData().getHud().getSetting(HUD.Setting.state)) {
-                    HashMap<HUD.Module, ArrayList<String>> HUDData = HUD.build.getHUDInstructions(player);
+                if ((boolean) player.getPData().getHud().getSetting(Hud.Setting.state)) {
+                    HashMap<Hud.Module, ArrayList<String>> HUDData = Hud.build.getHUDInstructions(player);
                     // if the client has directionhud and the hud type is the actionBar send as a packet
                     if (DirectionHUD.clientPlayers.contains(player) &&
-                            Enums.get(player.getPData().getHud().getSetting(HUD.Setting.type),HUD.Setting.DisplayType.class).equals(HUD.Setting.DisplayType.actionbar))
+                            Enums.get(player.getPData().getHud().getSetting(Hud.Setting.type), Hud.Setting.DisplayType.class).equals(Hud.Setting.DisplayType.actionbar))
                         player.sendHUDPackets(HUDData);
-                    else player.displayHUD(HUD.build.compile(player,HUDData));
+                    else player.displayHUD(Hud.build.compile(player,HUDData));
                 }
                 // if player has DEST, AutoClear is on, and the distance is in the AutoClear range, clear
                 if (Destination.dest.get(player).hasXYZ() && (boolean) player.getPData().getDEST().getSetting(Destination.Setting.autoclear) &&
@@ -65,13 +64,13 @@ public class LoopManager {
         if (secondTick%2==0) {
             for (Player player : Utl.getPlayers()) {
                 // only update the speed if the module and hud is on
-                if ((boolean) player.getPData().getHud().getSetting(HUD.Setting.state) && player.getPData().getHud().getModule(HUD.Module.speed)) {
+                if ((boolean) player.getPData().getHud().getSetting(Hud.Setting.state) && player.getPData().getHud().getModule(Hud.Module.speed)) {
                     ArrayList<Double> pos = player.getVec();
                     ArrayList<Double> oldPos = (ArrayList<Double>) player.getPData().getDataMap().get("speed_data");
                     // replace with players current speed
                     player.getPData().getDataMap().put("speed_data", pos);
                     // only do x and y if 3d is off
-                    if (!(boolean) player.getPData().getHud().getSetting(HUD.Setting.module__speed_3d)) {
+                    if (!(boolean) player.getPData().getHud().getSetting(Hud.Setting.module__speed_3d)) {
                         pos.set(1,0.0);
                         oldPos.set(1,0.0);
                     }
@@ -131,7 +130,7 @@ public class LoopManager {
         }
     }
     private static void secondLoop(Player player) {
-        DHUD.inbox.tick(player);
+        DHud.inbox.tick(player);
         // count down the social cooldown
         Double timer = player.getPData().getSocialCooldown();
         if (timer != null) {

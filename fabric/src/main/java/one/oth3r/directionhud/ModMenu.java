@@ -4,21 +4,12 @@ import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.*;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
-import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.Destination;
-import one.oth3r.directionhud.common.HUD;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.utils.CUtl;
-import one.oth3r.directionhud.common.utils.Helper;
-import one.oth3r.directionhud.common.utils.Helper.Enums;
 import one.oth3r.directionhud.common.utils.Lang;
 import one.oth3r.directionhud.utils.CTxT;
-
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ModMenu implements ModMenuApi {
     private static final Lang LANG = CUtl.LANG;

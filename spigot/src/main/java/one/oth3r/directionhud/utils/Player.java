@@ -6,8 +6,7 @@ import net.md_5.bungee.api.ChatMessageType;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.PacketHelper;
 import one.oth3r.directionhud.common.Assets;
-import one.oth3r.directionhud.common.HUD;
-import one.oth3r.directionhud.common.LoopManager;
+import one.oth3r.directionhud.common.Hud;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.files.playerdata.PData;
 import one.oth3r.directionhud.common.utils.Loc;
@@ -80,7 +79,7 @@ public class Player extends PlayerTemplate {
             PacketHelper.sendPacket(this,Assets.packets.PLAYER_DATA,gson.toJson(this.getPData()));
         }
     }
-    public void sendHUDPackets(HashMap<HUD.Module, ArrayList<String>> hudData) {
+    public void sendHUDPackets(HashMap<Hud.Module, ArrayList<String>> hudData) {
         // send the instructions to build the hud to the client
         Gson gson = new GsonBuilder().disableHtmlEscaping().create();
         PacketHelper.sendPacket(this, Assets.packets.HUD, gson.toJson(hudData));

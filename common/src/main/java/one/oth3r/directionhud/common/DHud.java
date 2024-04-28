@@ -15,7 +15,7 @@ import one.oth3r.directionhud.utils.Utl;
 
 import java.util.*;
 
-public class DHUD {
+public class DHud {
     public static final Lang LANG = new Lang("dhud.");
     public static void CMDExecutor(Player player, String[] args) {
         if (args.length == 0) {
@@ -34,7 +34,7 @@ public class DHUD {
             }
             // hud and dest redirect
             case "dest", "destination" -> Destination.commandExecutor.logic(player,trimmedArgs);
-            case "hud" -> HUD.CMDExecutor(player,trimmedArgs);
+            case "hud" -> Hud.CMDExecutor(player,trimmedArgs);
             default -> player.sendMessage(CUtl.error("command"));
         }
     }
@@ -56,7 +56,7 @@ public class DHUD {
             int fixedPos = pos - 2;
             switch (command) {
                 case "dest","destination" -> suggester.addAll(Destination.commandSuggester.logic(player,fixedPos+1,trimmedArgs));
-                case "hud" -> suggester.addAll(HUD.CMDSuggester(player,fixedPos+1,trimmedArgs));
+                case "hud" -> suggester.addAll(Hud.CMDSuggester(player,fixedPos+1,trimmedArgs));
                 case "preset" -> suggester.addAll(preset.CMDSuggester(player,fixedPos,trimmedArgs));
                 case "color" -> {
                     if (fixedPos == 4) suggester.addAll(Suggester.colors(player,Suggester.getCurrent(trimmedArgs,fixedPos)));
@@ -158,7 +158,7 @@ public class DHUD {
                     if (!config.online) target = Player.of((String)entry.get("player_name"));
                     if (target != null) {
                         // search for the opposite type of the player and the id to match it in target inbox and remove
-                        removeEntry(target, one.oth3r.directionhud.common.DHUD.inbox.search(target, type,"id",entry.get("id")));
+                        removeEntry(target, DHud.inbox.search(target, type,"id",entry.get("id")));
                     }
                     //remove from player
                     iterator.remove();
@@ -446,7 +446,7 @@ public class DHUD {
             // /dhud color (settings) (type) (subtype) set (color)
             switch (type) {
                 case hud -> {
-                    HUD.color.setColor(player,UISettings,subtype,color,true);
+                    Hud.color.setColor(player,UISettings,subtype,color,true);
                 }
                 case dest -> {
                     Destination.settings.setParticleColor(player,UISettings,
@@ -878,7 +878,7 @@ public class DHUD {
                         .cEvent(3,"https://modrinth.com/mod/directionhud/changelog"))
                 .append(line).append("\n ");
         // hud
-        if (Utl.checkEnabled.hud(player)) msg.append(HUD.BUTTON).append("  ");
+        if (Utl.checkEnabled.hud(player)) msg.append(Hud.BUTTON).append("  ");
         // dest
         if (Utl.checkEnabled.destination(player)) msg.append(Destination.BUTTON);
         msg.append("\n\n ");

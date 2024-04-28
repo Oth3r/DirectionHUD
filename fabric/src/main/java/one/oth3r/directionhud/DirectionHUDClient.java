@@ -13,7 +13,7 @@ import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Text;
 import one.oth3r.directionhud.common.Assets;
-import one.oth3r.directionhud.common.HUD;
+import one.oth3r.directionhud.common.Hud;
 import one.oth3r.directionhud.common.LoopManager;
 import one.oth3r.directionhud.common.files.playerdata.PData;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
@@ -76,11 +76,11 @@ public class DirectionHUDClient implements ClientModInitializer {
             PacketBuilder packet = new PacketBuilder(buf.copy());
             assert client.player != null;
             client.execute(() -> {
-                Type hashMapToken = new TypeToken<HashMap<HUD.Module, ArrayList<String>>>() {}.getType();
+                Type hashMapToken = new TypeToken<HashMap<Hud.Module, ArrayList<String>>>() {}.getType();
                 Gson gson = new GsonBuilder().disableHtmlEscaping().create();
                 // if there is no actionbar override, build and send the HUD
                 if (overrideCd <= 0)
-                    client.player.sendMessage(HUD.build.compile(getClientPlayer(client),gson.fromJson(packet.getMessage(), hashMapToken)).b(),true);
+                    client.player.sendMessage(Hud.build.compile(getClientPlayer(client),gson.fromJson(packet.getMessage(), hashMapToken)).b(),true);
             });
         });
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {

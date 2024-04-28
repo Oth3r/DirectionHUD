@@ -1,14 +1,12 @@
 package one.oth3r.directionhud.common;
 
 import one.oth3r.directionhud.common.Assets.symbols.arrows;
-import one.oth3r.directionhud.common.HUD.Setting.ModuleAngleDisplay;
-import one.oth3r.directionhud.common.HUD.Setting.ModuleTrackingTarget;
-import one.oth3r.directionhud.common.files.config;
-import one.oth3r.directionhud.common.HUD.Setting.*;
+import one.oth3r.directionhud.common.Hud.Setting.ModuleAngleDisplay;
+import one.oth3r.directionhud.common.Hud.Setting.ModuleTrackingTarget;
+import one.oth3r.directionhud.common.Hud.Setting.*;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.dimension.DimensionEntry.*;
 import one.oth3r.directionhud.common.files.dimension.DimensionEntry.Time.*;
-import one.oth3r.directionhud.common.files.playerdata.DefaultPData;
 import one.oth3r.directionhud.common.files.playerdata.PDHud;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.utils.CUtl;
@@ -28,7 +26,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 
-public class HUD {
+public class Hud {
     public enum Setting {
         state,
         type,
@@ -555,7 +553,7 @@ public class HUD {
                 msg.append(LANG.msg("reset_all", CUtl.LANG.btn("all").color('c')));
             } else {
                 // reset order
-                ArrayList<HUD.Module> order = player.getPData().getHud().getOrder();
+                ArrayList<Hud.Module> order = player.getPData().getHud().getOrder();
                 order.remove(module);
                 order.add(getDefaultOrder().indexOf(module),module);
                 player.getPData().getHud().setOrder(order);
@@ -888,7 +886,7 @@ public class HUD {
             if (args[0].equals("primary") || args[0].equals("secondary")) {
                 // color (type) edit (settings)
                 if (args[1].equals("edit")) {
-                    changeUI(player, args.length==3?args[2]:DHUD.preset.DEFAULT_UI_SETTINGS, args[0], null);
+                    changeUI(player, args.length==3?args[2]: DHud.preset.DEFAULT_UI_SETTINGS, args[0], null);
                     return;
                 }
                 if (args.length < 3) return;
@@ -1082,7 +1080,7 @@ public class HUD {
                     .cEvent(1,String.format("/hud color %s-r rainbow %s %s",type,(getEntry(player,typ).getRainbow()?"off":"on"),setting))
                     .hEvent(LANG.hover("toggle",CUtl.toggleTxT(!getEntry(player,typ).getRainbow()),LANG.get("rainbow").rainbow(true,15f,20f)));
             // build the message
-            msg.append(DHUD.preset.colorEditor(getEntry(player,typ).getColor(),setting,DHUD.preset.Type.hud,type,"/hud color "+type+" edit %s"))
+            msg.append(DHud.preset.colorEditor(getEntry(player,typ).getColor(),setting, DHud.preset.Type.hud,type,"/hud color "+type+" edit %s"))
                     .append("\n\n ").append(boldButton).append(" ").append(italicsButton).append(" ").append(rgbButton)
                     .append("\n\n     ").append(reset).append(" ").append(CUtl.CButton.back("/hud color")).append(line);
             player.sendMessage(msg);

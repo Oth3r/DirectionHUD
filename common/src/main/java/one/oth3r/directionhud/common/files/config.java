@@ -5,11 +5,9 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import one.oth3r.directionhud.DirectionHUD;
-import one.oth3r.directionhud.common.Assets;
-import one.oth3r.directionhud.common.DHUD;
-import one.oth3r.directionhud.common.Destination;
+import one.oth3r.directionhud.common.DHud;
 import one.oth3r.directionhud.common.Destination.Setting.*;
-import one.oth3r.directionhud.common.HUD;
+import one.oth3r.directionhud.common.Hud;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.playerdata.*;
 import one.oth3r.directionhud.common.utils.CUtl;
@@ -128,7 +126,7 @@ public class config {
             Gson gson = new GsonBuilder().disableHtmlEscaping().create();
             // json maps
             Type arrayListMap = new TypeToken<ArrayList<String>>() {}.getType();
-            Type moduleListMap = new TypeToken<ArrayList<HUD.Module>>() {}.getType();
+            Type moduleListMap = new TypeToken<ArrayList<Hud.Module>>() {}.getType();
             // CONFIG
             MAXxz = Integer.parseInt((String) properties.computeIfAbsent("max-xz", a -> String.valueOf(defaults.MAXxz)));
             MAXy = Integer.parseInt((String) properties.computeIfAbsent("max-y", a -> String.valueOf(defaults.MAXy)));
@@ -147,7 +145,7 @@ public class config {
             HUDLoop = Math.min(20, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("hud-loop", a -> String.valueOf(defaults.HUDLoop)))));
             // COLOR PRESETS
             try {
-                colorPresets = DHUD.preset.custom.validate(gson.fromJson((String) properties.computeIfAbsent("color-presets", a -> gson.toJson(defaults.colorPresets)), arrayListMap));
+                colorPresets = DHud.preset.custom.validate(gson.fromJson((String) properties.computeIfAbsent("color-presets", a -> gson.toJson(defaults.colorPresets)), arrayListMap));
             } catch (JsonSyntaxException ignored) {}
             MAXColorPresets = Integer.parseInt((String) properties.computeIfAbsent("max-color-presets", a -> String.valueOf(defaults.MAXColorPresets)));
 
@@ -166,7 +164,7 @@ public class config {
                 // PLAYER DEFAULTS
                 // HUD
                 try {
-                    hud.setOrder(HUD.modules.fixOrder(gson.fromJson((String) properties.computeIfAbsent("hud.order", a -> gson.toJson(hud.getOrder())), moduleListMap)));
+                    hud.setOrder(Hud.modules.fixOrder(gson.fromJson((String) properties.computeIfAbsent("hud.order", a -> gson.toJson(hud.getOrder())), moduleListMap)));
                 } catch (JsonSyntaxException ignored) {}
 
                 // HUD MODULE STATES
@@ -182,8 +180,8 @@ public class config {
 
                 // HUD MODULE SETTINGS
                 hudSModule.setTrackingHybrid(Boolean.parseBoolean((String) properties.computeIfAbsent("hud.settings.module.tracking_hybrid", a -> String.valueOf(hudSModule.getTrackingHybrid()))));
-                hudSModule.setTrackingTarget(Enums.get(properties.computeIfAbsent("hud.settings.module.tracking_target", a -> hudSModule.getTrackingTarget()),HUD.Setting.ModuleTrackingTarget.class).toString());
-                hudSModule.setTrackingType(Enums.get(properties.computeIfAbsent("hud.settings.module.tracking_type", a -> hudSModule.getTrackingType()),HUD.Setting.ModuleTrackingType.class).toString());
+                hudSModule.setTrackingTarget(Enums.get(properties.computeIfAbsent("hud.settings.module.tracking_target", a -> hudSModule.getTrackingTarget()), Hud.Setting.ModuleTrackingTarget.class).toString());
+                hudSModule.setTrackingType(Enums.get(properties.computeIfAbsent("hud.settings.module.tracking_type", a -> hudSModule.getTrackingType()), Hud.Setting.ModuleTrackingType.class).toString());
                 hudSModule.setTime24hr(Boolean.parseBoolean((String) properties.computeIfAbsent("hud.settings.module.time_24hr", a -> String.valueOf(hudSModule.getTime24hr()))));
                 hudSModule.setSpeed3d(Boolean.parseBoolean((String) properties.computeIfAbsent("hud.settings.module.speed_3d", a -> String.valueOf(hudSModule.getSpeed3d()))));
                 String pattern = (String) properties.computeIfAbsent("hud.settings.module.speed_pattern", a -> hudSModule.getSpeedPattern());
@@ -191,7 +189,7 @@ public class config {
                     new DecimalFormat(pattern);
                     hudSModule.setSpeedPattern(pattern);
                 } catch (IllegalArgumentException ignored) {}
-                hudSModule.setAngleDisplay(Enums.get(properties.computeIfAbsent("hud.settings.module.angle_display", a -> hudSModule.getAngleDisplay()),HUD.Setting.ModuleAngleDisplay.class).toString());
+                hudSModule.setAngleDisplay(Enums.get(properties.computeIfAbsent("hud.settings.module.angle_display", a -> hudSModule.getAngleDisplay()), Hud.Setting.ModuleAngleDisplay.class).toString());
 
                 // HUD COLOR
                 hud.setPrimary(
@@ -213,8 +211,8 @@ public class config {
 
                 // HUD SETTINGS
                 hudSettings.setState(Boolean.parseBoolean((String) properties.computeIfAbsent("hud.settings.state", a -> String.valueOf(hudSettings.getState()))));
-                hudSettings.setType(HUD.Setting.DisplayType.get((String) properties.computeIfAbsent("hud.settings.type", a -> hudSettings.getType())).toString());
-                hudSBossbar.setColor(Enums.get(properties.computeIfAbsent("hud.settings.bossbar.color", a -> hudSBossbar.getColor()),HUD.Setting.BarColor.class).toString());
+                hudSettings.setType(Hud.Setting.DisplayType.get((String) properties.computeIfAbsent("hud.settings.type", a -> hudSettings.getType())).toString());
+                hudSBossbar.setColor(Enums.get(properties.computeIfAbsent("hud.settings.bossbar.color", a -> hudSBossbar.getColor()), Hud.Setting.BarColor.class).toString());
                 hudSBossbar.setDistance(Boolean.parseBoolean((String) properties.computeIfAbsent("hud.settings.bossbar.distance", a -> String.valueOf(hudSBossbar.getDistance()))));
                 hudSBossbar.setDistanceMax(Integer.parseInt((String) properties.computeIfAbsent("hud.settings.bossbar.distance_max", a -> String.valueOf(hudSBossbar.getDistanceMax()))));
                 // DEST SETTINGS
@@ -237,7 +235,7 @@ public class config {
             }
             if (version <= 1.4f) {
                 try {
-                    colorPresets = DHUD.preset.custom.updateTo1_7(
+                    colorPresets = DHud.preset.custom.updateTo1_7(
                             gson.fromJson((String)properties.computeIfAbsent("color-presets",a->gson.toJson(new ArrayList<>())),arrayListMap));
                 } catch (JsonSyntaxException ignored) {}
             }
@@ -259,9 +257,9 @@ public class config {
                 //HUD
                 hudSettings.setState(Boolean.parseBoolean((String) properties.computeIfAbsent("enabled", a -> String.valueOf(hudSettings.getState()))));
                 List<String> orderList = List.of(((String) properties.computeIfAbsent("order", a -> "")).split(" "));
-                ArrayList<HUD.Module> moduleArray = new ArrayList<>();
-                for (String entry : orderList) moduleArray.add(HUD.Module.get(entry));
-                hud.setOrder(HUD.modules.fixOrder(moduleArray));
+                ArrayList<Hud.Module> moduleArray = new ArrayList<>();
+                for (String entry : orderList) moduleArray.add(Hud.Module.get(entry));
+                hud.setOrder(Hud.modules.fixOrder(moduleArray));
                 hudSModule.setTime24hr(Boolean.parseBoolean((String) properties.computeIfAbsent("time24hr", a -> String.valueOf(hudSModule.getTime24hr()))));
                 hud.getPrimary().setBold(Boolean.parseBoolean((String) properties.computeIfAbsent("primary-bold", a -> String.valueOf(hud.getPrimary().getBold()))));
                 hud.getPrimary().setItalics(Boolean.parseBoolean((String) properties.computeIfAbsent("primary-italics", a -> String.valueOf(hud.getPrimary().getItalics()))));

@@ -9,7 +9,7 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import one.oth3r.directionhud.DirectionHUD;
-import one.oth3r.directionhud.common.DHUD;
+import one.oth3r.directionhud.common.DHud;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.utils.Player;
 
@@ -56,7 +56,7 @@ public class DHUDCommand {
         String[] args = context.getInput().split(" ");
         if (pos > args.length) return builder.buildFuture();
         args = Helper.trimStart(args,1);
-        for (String s : DHUD.CMDSuggester(player,pos,Helper.Command.quoteHandler(args))) builder.suggest(s);
+        for (String s : DHud.CMDSuggester(player,pos,Helper.Command.quoteHandler(args))) builder.suggest(s);
         return builder.buildFuture();
     }
     private static int command(ServerCommandSource source, String arg) {
@@ -77,13 +77,13 @@ public class DHUDCommand {
             args = arg.replaceFirst("(?i)d(irection)?hud ", "").split(" ");
         if (spe == null) {
             if (args[0].equalsIgnoreCase("reload") && DirectionHUD.server.isRemote())
-                DHUD.reload(null);
+                DHud.reload(null);
             return 1;
         }
         Player player = Player.of(spe);
         if (args[0].equalsIgnoreCase("dhud") || args[0].equalsIgnoreCase("directionhud"))
             args = new String[0];
-        DHUD.CMDExecutor(player,Helper.Command.quoteHandler(args));
+        DHud.CMDExecutor(player,Helper.Command.quoteHandler(args));
         return 1;
     }
 }

@@ -5,7 +5,7 @@ import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.Text;
 import one.oth3r.directionhud.DirectionHUDClient;
-import one.oth3r.directionhud.common.HUD;
+import one.oth3r.directionhud.common.Hud;
 import one.oth3r.directionhud.utils.Player;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -26,8 +26,8 @@ public class ActionBarMixin {
             if (client.player == null) return;
             Player player = DirectionHUDClient.getClientPlayer(client);
             // if on supported server and hud is on AND hud type is actionbar
-            if (DirectionHUDClient.onSupportedServer && (boolean) player.getPData().getHud().getSetting(HUD.Setting.state) &&
-                    player.getPData().getHud().getSetting(HUD.Setting.type).equals(HUD.Setting.DisplayType.actionbar.toString())) {
+            if (DirectionHUDClient.onSupportedServer && (boolean) player.getPData().getHud().getSetting(Hud.Setting.state) &&
+                    player.getPData().getHud().getSetting(Hud.Setting.type).equals(Hud.Setting.DisplayType.actionbar.toString())) {
                 DirectionHUDClient.override = message;
                 DirectionHUDClient.overrideCd = 40;
             }

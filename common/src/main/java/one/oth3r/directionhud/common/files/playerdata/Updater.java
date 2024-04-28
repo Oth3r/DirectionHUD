@@ -4,8 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import one.oth3r.directionhud.DirectionHUD;
-import one.oth3r.directionhud.common.DHUD;
-import one.oth3r.directionhud.common.HUD;
+import one.oth3r.directionhud.common.DHud;
+import one.oth3r.directionhud.common.Hud;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Helper;
@@ -259,7 +259,7 @@ public class Updater {
                 hudSetting.put("time24h",null);
                 hudSettingModule.put("tracking_target", HUDSETTINGS.getModule().getTrackingTarget());
                 hudSetting.put("module",hudSettingModule);
-                hud.put("order", HUD.modules.fixOrder(Helper.Enums.toEnumList(new ArrayList<>(List.of(((String) hud.get("order")).split(" "))),HUD.Module.class)));
+                hud.put("order", Hud.modules.fixOrder(Helper.Enums.toEnumList(new ArrayList<>(List.of(((String) hud.get("order")).split(" "))), Hud.Module.class)));
                 hud.put("setting",hudSetting);
                 base.put("destination",dest);
                 base.put("hud",hud);
@@ -302,7 +302,7 @@ public class Updater {
                 hud.put("module",hudModule);
                 base.put("hud",hud);
                 // new preset system
-                base.put("color_presets", DHUD.preset.custom.updateTo1_7((ArrayList<String>) base.get("color_presets")));
+                base.put("color_presets", DHud.preset.custom.updateTo1_7((ArrayList<String>) base.get("color_presets")));
                 // reload the file after updating a version
                 base = saveLoad(player,base);
             }
@@ -316,7 +316,7 @@ public class Updater {
                 base.put("version",1.72);
                 Map<String,Object> hud = (Map<String, Object>) base.get("hud");
                 // update the HUD order, forgot to do that in 1.7
-                hud.put("order",HUD.modules.fixOrder(Helper.Enums.toEnumList((ArrayList<String>) hud.get("order"),HUD.Module.class)));
+                hud.put("order", Hud.modules.fixOrder(Helper.Enums.toEnumList((ArrayList<String>) hud.get("order"), Hud.Module.class)));
                 base.put("hud",hud);
                 // remove the extra module tab found in the base from a broken past update
                 base.put("module",null);

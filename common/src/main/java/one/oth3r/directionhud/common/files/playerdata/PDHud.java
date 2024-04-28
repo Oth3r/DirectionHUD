@@ -3,7 +3,7 @@ package one.oth3r.directionhud.common.files.playerdata;
 
 import com.google.gson.annotations.SerializedName;
 import one.oth3r.directionhud.DirectionHUD;
-import one.oth3r.directionhud.common.HUD;
+import one.oth3r.directionhud.common.Hud;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.utils.Player;
 
@@ -29,7 +29,7 @@ public class PDHud {
     @SerializedName("setting")
     private Settings setting = new Settings();
     @SerializedName("order")
-    private ArrayList<HUD.Module> order = HUD.modules.getDefaultOrder();
+    private ArrayList<Hud.Module> order = Hud.modules.getDefaultOrder();
     @SerializedName("primary")
     private Color primary = new PDHud.Color(
             DirectionHUD.PRIMARY,false,false,false);
@@ -39,7 +39,7 @@ public class PDHud {
 
     public PDHud() {}
 
-    public PDHud(Modules module, Settings setting, ArrayList<HUD.Module> order, Color primary, Color secondary) {
+    public PDHud(Modules module, Settings setting, ArrayList<Hud.Module> order, Color primary, Color secondary) {
         this.module = module;
         this.setting = setting;
         this.order = order;
@@ -51,7 +51,7 @@ public class PDHud {
         return module;
     }
 
-    public boolean getModule(HUD.Module module) {
+    public boolean getModule(Hud.Module module) {
         return switch (module) {
             case destination -> getModule().getDestination();
             case time -> getModule().getTime();
@@ -71,7 +71,7 @@ public class PDHud {
         save();
     }
 
-    public void setModule(HUD.Module module, boolean state) {
+    public void setModule(Hud.Module module, boolean state) {
         switch (module) {
             case coordinates -> getModule().setCoordinates(state);
             case destination -> getModule().setDestination(state);
@@ -90,7 +90,7 @@ public class PDHud {
         return setting;
     }
 
-    public Object getSetting(HUD.Setting type) {
+    public Object getSetting(Hud.Setting type) {
         return switch (type) {
             case type -> getSetting().getType();
             case state -> getSetting().getState();
@@ -108,7 +108,7 @@ public class PDHud {
         };
     }
 
-    public void setSetting(HUD.Setting type, Object setting) {
+    public void setSetting(Hud.Setting type, Object setting) {
         switch (type) {
             case type -> getSetting().setType(setting.toString());
             case state -> getSetting().setState((Boolean) setting);
@@ -131,11 +131,11 @@ public class PDHud {
         save();
     }
 
-    public ArrayList<HUD.Module> getOrder() {
+    public ArrayList<Hud.Module> getOrder() {
         return order;
     }
 
-    public void setOrder(ArrayList<HUD.Module> order) {
+    public void setOrder(ArrayList<Hud.Module> order) {
         this.order = order;
         save();
     }
@@ -241,11 +241,11 @@ public class PDHud {
         @SerializedName("state")
         private Boolean state = true;
         @SerializedName("type")
-        private HUD.Setting.DisplayType type = HUD.Setting.DisplayType.actionbar;
+        private Hud.Setting.DisplayType type = Hud.Setting.DisplayType.actionbar;
 
         public Settings() {}
 
-        public Settings(Bossbar bossbar, Module module, Boolean state, HUD.Setting.DisplayType type) {
+        public Settings(Bossbar bossbar, Module module, Boolean state, Hud.Setting.DisplayType type) {
             this.bossbar = bossbar;
             this.module = module;
             this.state = state;
@@ -281,13 +281,13 @@ public class PDHud {
         }
 
         public void setType(String type) {
-            this.type = Helper.Enums.get(type, HUD.Setting.DisplayType.class);
+            this.type = Helper.Enums.get(type, Hud.Setting.DisplayType.class);
         }
 
         public static class Bossbar {
 
             @SerializedName("color")
-            private HUD.Setting.BarColor color = HUD.Setting.BarColor.white;
+            private Hud.Setting.BarColor color = Hud.Setting.BarColor.white;
             @SerializedName("distance")
             private Boolean distance = true;
             @SerializedName("distance_max")
@@ -295,7 +295,7 @@ public class PDHud {
 
             public Bossbar() {}
 
-            public Bossbar(HUD.Setting.BarColor color, Boolean distance, Integer distanceMax) {
+            public Bossbar(Hud.Setting.BarColor color, Boolean distance, Integer distanceMax) {
                 this.color = color;
                 this.distance = distance;
                 this.distanceMax = distanceMax;
@@ -306,7 +306,7 @@ public class PDHud {
             }
 
             public void setColor(String color) {
-                this.color = Helper.Enums.get(color,HUD.Setting.BarColor.class);
+                this.color = Helper.Enums.get(color, Hud.Setting.BarColor.class);
             }
 
             public Boolean getDistance() {
@@ -331,9 +331,9 @@ public class PDHud {
             @SerializedName("time_24hr")
             private Boolean time24hr = true;
             @SerializedName("tracking_type")
-            private HUD.Setting.ModuleTrackingType trackingType = HUD.Setting.ModuleTrackingType.simple;
+            private Hud.Setting.ModuleTrackingType trackingType = Hud.Setting.ModuleTrackingType.simple;
             @SerializedName("tracking_target")
-            private HUD.Setting.ModuleTrackingTarget trackingTarget = HUD.Setting.ModuleTrackingTarget.player;
+            private Hud.Setting.ModuleTrackingTarget trackingTarget = Hud.Setting.ModuleTrackingTarget.player;
             @SerializedName("tracking_hybrid")
             private Boolean trackingHybrid = true;
             @SerializedName("speed_3d")
@@ -341,11 +341,11 @@ public class PDHud {
             @SerializedName("speed_pattern")
             private String speedPattern = "0.00";
             @SerializedName("angle_display")
-            private HUD.Setting.ModuleAngleDisplay angleDisplay = HUD.Setting.ModuleAngleDisplay.both;
+            private Hud.Setting.ModuleAngleDisplay angleDisplay = Hud.Setting.ModuleAngleDisplay.both;
 
             public Module() {}
 
-            public Module(Boolean time24hr, HUD.Setting.ModuleTrackingType trackingType, HUD.Setting.ModuleTrackingTarget trackingTarget, Boolean trackingHybrid, Boolean speed3d, String speedPattern, HUD.Setting.ModuleAngleDisplay angleDisplay) {
+            public Module(Boolean time24hr, Hud.Setting.ModuleTrackingType trackingType, Hud.Setting.ModuleTrackingTarget trackingTarget, Boolean trackingHybrid, Boolean speed3d, String speedPattern, Hud.Setting.ModuleAngleDisplay angleDisplay) {
                 this.time24hr = time24hr;
                 this.trackingType = trackingType;
                 this.trackingTarget = trackingTarget;
@@ -368,7 +368,7 @@ public class PDHud {
             }
 
             public void setTrackingType(String trackingType) {
-                this.trackingType = Helper.Enums.get(trackingType,HUD.Setting.ModuleTrackingType.class);
+                this.trackingType = Helper.Enums.get(trackingType, Hud.Setting.ModuleTrackingType.class);
             }
 
             public String getTrackingTarget() {
@@ -376,7 +376,7 @@ public class PDHud {
             }
 
             public void setTrackingTarget(String trackingTarget) {
-                this.trackingTarget = Helper.Enums.get(trackingTarget,HUD.Setting.ModuleTrackingTarget.class);
+                this.trackingTarget = Helper.Enums.get(trackingTarget, Hud.Setting.ModuleTrackingTarget.class);
             }
 
             public String getSpeedPattern() {
@@ -392,7 +392,7 @@ public class PDHud {
             }
 
             public void setAngleDisplay(String angleDisplay) {
-                this.angleDisplay = Helper.Enums.get(angleDisplay,HUD.Setting.ModuleAngleDisplay.class);
+                this.angleDisplay = Helper.Enums.get(angleDisplay, Hud.Setting.ModuleAngleDisplay.class);
             }
 
             public Boolean getTrackingHybrid() {

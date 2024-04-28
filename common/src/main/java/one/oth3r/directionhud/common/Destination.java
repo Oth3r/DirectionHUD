@@ -546,11 +546,11 @@ public class Destination {
                     else player.sendMessage(Destination.LANG.error("invalid"));
                 }
                 case "color" -> {
-                    if (args.length == 3) setColor(player, new Dest(player,args[1],global),DHUD.preset.DEFAULT_UI_SETTINGS, args[2], Return);
+                    if (args.length == 3) setColor(player, new Dest(player,args[1],global), DHud.preset.DEFAULT_UI_SETTINGS, args[2], Return);
                     else player.sendMessage(Destination.LANG.error("invalid"));
                 }
                 case "colorui" -> {
-                    if (args.length == 2) colorUI(player,DHUD.preset.DEFAULT_UI_SETTINGS,args[1]);
+                    if (args.length == 2) colorUI(player, DHud.preset.DEFAULT_UI_SETTINGS,args[1]);
                     if (args.length == 3) colorUI(player,args[2],args[1]);
                 }
                 case "order" -> {
@@ -1088,7 +1088,7 @@ public class Destination {
             msg.append(LANG.ui("color",name).color(currentColor)).append(line).append("\n");
             // get the command name of the destination
             String cmdName = destination.getCMDName();
-            msg.append(DHUD.preset.colorEditor(currentColor,UISettings,DHUD.preset.Type.saved,name,"/dest saved edit colorui "+cmdName+" %s"))
+            msg.append(DHud.preset.colorEditor(currentColor,UISettings, DHud.preset.Type.saved,name,"/dest saved edit colorui "+cmdName+" %s"))
                     .append("\n\n           ").append(CUtl.CButton.back("/dest saved edit "+cmdName)).append(line);
             player.sendMessage(msg);
         }
@@ -1571,7 +1571,7 @@ public class Destination {
 
                 target.sendMessage(CUtl.tag().append(LANG.msg("sent_target",CTxT.of(player.getName()).color(CUtl.s()),getSendTxt(target,loc))));
 
-                DHUD.inbox.addDest(target,player,999,loc);
+                DHud.inbox.addDest(target,player,999,loc);
             }
 
             /**
@@ -1628,8 +1628,8 @@ public class Destination {
                 if (pos == 0) {
                     if (getTarget(player)!=null) suggester.add("clear");
                     suggester.add("set");
-                    if (DHUD.inbox.getAllType(player, DHUD.inbox.Type.track_pending)!=null) suggester.add("cancel");
-                    if (DHUD.inbox.getAllType(player, DHUD.inbox.Type.track_request)!=null) {
+                    if (DHud.inbox.getAllType(player, DHud.inbox.Type.track_pending)!=null) suggester.add("cancel");
+                    if (DHud.inbox.getAllType(player, DHud.inbox.Type.track_request)!=null) {
                         suggester.add("accept");
                         suggester.add("deny");
                     }
@@ -1641,7 +1641,7 @@ public class Destination {
                         // track accept/deny <target>
                         case "accept", "deny" -> {
                             // get all track requests
-                            ArrayList<HashMap<String,Object>> matches = DHUD.inbox.getAllType(player, DHUD.inbox.Type.track_request);
+                            ArrayList<HashMap<String,Object>> matches = DHud.inbox.getAllType(player, DHud.inbox.Type.track_request);
                             // if there are any display the names
                             if (matches != null) {
                                 for (HashMap<String, Object> entry : matches)
@@ -1650,7 +1650,7 @@ public class Destination {
                         }
                         case "cancel" -> {
                             // get all track pendings
-                            ArrayList<HashMap<String,Object>> matches = DHUD.inbox.getAllType(player, DHUD.inbox.Type.track_pending);
+                            ArrayList<HashMap<String,Object>> matches = DHud.inbox.getAllType(player, DHud.inbox.Type.track_pending);
                             // if there are any display the names
                             if (matches != null) {
                                 for (HashMap<String,Object> entry:matches)
@@ -1751,7 +1751,7 @@ public class Destination {
                     return;
                 }
                 // tracking request already pending
-                if (DHUD.inbox.search(player, DHUD.inbox.Type.track_pending,"player_name",target_string) != null) {
+                if (DHud.inbox.search(player, DHud.inbox.Type.track_pending,"player_name",target_string) != null) {
                     player.sendMessage(LANG.error("pending",targetTxT));
                     return;
                 }
@@ -1769,7 +1769,7 @@ public class Destination {
                     return;
                 }
                 // add the tracking to the inbox
-                DHUD.inbox.addTracking(target,player,300);
+                DHud.inbox.addTracking(target,player,300);
                 // send the messages
                 player.sendMessage(CUtl.tag().append(LANG.msg("request",targetTxT)).append("\n ")
                         .append(LANG.msg("expire",300).color('7').italic(true)));
@@ -1802,8 +1802,8 @@ public class Destination {
                 }
                 // get the entry from the player inbox
                 // tracK_request if accept or deny, track_pending if canceling
-                HashMap<String, Object> entry = DHUD.inbox.search(player, DHUD.inbox.Type.track_request,"player_name", tracker);
-                if (type.equals(ProcessType.cancel)) entry = DHUD.inbox.search(player, DHUD.inbox.Type.track_pending,"player_name", tracker);
+                HashMap<String, Object> entry = DHud.inbox.search(player, DHud.inbox.Type.track_request,"player_name", tracker);
+                if (type.equals(ProcessType.cancel)) entry = DHud.inbox.search(player, DHud.inbox.Type.track_pending,"player_name", tracker);
 
                 // entry doesn't exist
                 if (entry == null) {
@@ -1813,21 +1813,21 @@ public class Destination {
                 // get the ID
                 String ID = (String) entry.get("id");
                 // the IDs don't match - SYNC ERROR
-                if (DHUD.inbox.search(target, null,"id", ID) ==null) {
-                    DHUD.inbox.removeEntry(player,entry);
+                if (DHud.inbox.search(target, null,"id", ID) ==null) {
+                    DHud.inbox.removeEntry(player,entry);
                     player.sendMessage(CUtl.tag().append("SYNC ERROR - REPORT IT! (ID-MISMATCH)"));
                     return;
                 }
                 // if the target has tracking turned off - SYNC ERROR
                 if (!(boolean) player.getPData().getDEST().getSetting(Setting.features__track)) {
-                    DHUD.inbox.removeEntry(player,entry);
+                    DHud.inbox.removeEntry(player,entry);
                     player.sendMessage(CUtl.tag().append("SYNC ERROR - REPORT IT! (TARGET-TRACK-OFF)"));
                     return;
                 }
 
                 // remove from both inboxes
-                DHUD.inbox.delete(player,ID,false);
-                DHUD.inbox.delete(target,ID,false);
+                DHud.inbox.delete(player,ID,false);
+                DHud.inbox.delete(target,ID,false);
 
                 //different message based on the type
                 if (type.equals(ProcessType.accept)) {
@@ -2167,7 +2167,7 @@ public class Destination {
             if (Setting.particles().contains(setting)) {
                 String color = (String) player.getPData().getDEST().getSetting(Setting.get(setting+"_color"));
                 button.append(CTxT.of(Assets.symbols.pencil).btn(true).color(color)
-                        .cEvent(1,"/dest settings colorui "+setting+"_color "+DHUD.preset.DEFAULT_UI_SETTINGS)
+                        .cEvent(1,"/dest settings colorui "+setting+"_color "+ DHud.preset.DEFAULT_UI_SETTINGS)
                         .hEvent(LANG.hover("set.color",LANG.get(setting.toString()).color(color))));
             }
             return button;
@@ -2187,7 +2187,7 @@ public class Destination {
                             // get the base particle color name by removing _color
                             LANG.get(setting.toString().replace("_color","")+".ui")).color(currentColor))
                     .append(line).append("\n")
-                    .append(DHUD.preset.colorEditor(currentColor,UISettings, DHUD.preset.Type.dest,setting.toString(),"/dest settings colorui "+setting+" %s"))
+                    .append(DHud.preset.colorEditor(currentColor,UISettings, DHud.preset.Type.dest,setting.toString(),"/dest settings colorui "+setting+" %s"))
                     .append("\n\n           ").append(CUtl.CButton.back("/dest settings")).append(line);
             player.sendMessage(msg);
         }

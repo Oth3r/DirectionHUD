@@ -26,7 +26,7 @@ public class Assets {
         public static final String presets = "#2dedff";
         public static final String global = "#60a4fc";
     }
-    public static String barColor(HUD.Setting.BarColor color) {
+    public static String barColor(Hud.Setting.BarColor color) {
         StringBuilder output = new StringBuilder();
         switch (color) {
             case pink -> output.append("#ec00b8");
@@ -82,22 +82,22 @@ public class Assets {
             return output.substring(0,output.toString().length()-2); // remove the last ", "
         }
         public static String moduleOrder() {
-            return fromEnum(HUD.Module.values(), HUD.Module.unknown);
+            return fromEnum(Hud.Module.values(), Hud.Module.unknown);
         }
         public static String DisplayType() {
-            return fromEnum(HUD.Setting.DisplayType.values());
+            return fromEnum(Hud.Setting.DisplayType.values());
         }
         public static String BossBarColor() {
-            return fromEnum(HUD.Setting.BarColor.values());
+            return fromEnum(Hud.Setting.BarColor.values());
         }
         public static String TrackingTarget() {
-            return fromEnum(HUD.Setting.ModuleTrackingTarget.values());
+            return fromEnum(Hud.Setting.ModuleTrackingTarget.values());
         }
         public static String TrackingType() {
-            return fromEnum(HUD.Setting.ModuleTrackingType.values());
+            return fromEnum(Hud.Setting.ModuleTrackingType.values());
         }
         public static String AngleDisplay() {
-            return fromEnum(HUD.Setting.ModuleAngleDisplay.values());
+            return fromEnum(Hud.Setting.ModuleAngleDisplay.values());
         }
         public static String TrackRequestMode() {
             return fromEnum(Destination.Setting.TrackingRequestMode.values());
