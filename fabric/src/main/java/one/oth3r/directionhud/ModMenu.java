@@ -455,7 +455,7 @@ public class ModMenu implements ModMenuApi {
      */
     public static boolean yaclCheck() {
         try {
-            Class.forName("dev.isxander.yacl3.platform.fabric.YACLPlatformImpl");
+            Class.forName("dev.isxander.yacl3.platform.Env");
             return true;
         } catch (ClassNotFoundException e) {
             return false;
