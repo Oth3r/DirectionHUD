@@ -1,22 +1,16 @@
 package one.oth3r.directionhud;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.Version;
-import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.command.CommandManager;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.WorldSavePath;
 import one.oth3r.directionhud.commands.DHUDCommand;
 import one.oth3r.directionhud.commands.DestinationCommand;
@@ -30,9 +24,7 @@ import one.oth3r.directionhud.utils.Player;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class DirectionHUD implements ModInitializer {
 	public static final String PRIMARY = "#2993ff";
@@ -73,13 +65,13 @@ public class DirectionHUD implements ModInitializer {
 			Events.playerLeave(Player.of(handler.player));
 		});
 		//PACKETS
-		PayloadTypeRegistry.playC2S().register(Payloads.Initialization.ID, Payloads.Initialization.CODEC);
-		ServerPlayNetworking.registerGlobalReceiver(Payloads.Initialization.ID,((payload, context) -> server.execute(() -> {
-            Player player = Player.of(context.player());
-            DirectionHUD.LOGGER.info("Received initialization packet from "+player.getName());
-            DirectionHUD.clientPlayers.add(player);
-            player.sendSettingPackets();
-        })));
+		ServerPlayNetworking.registerGlobalReceiver(PacketBuilder.getIdentifier(Assets.packets.INITIALIZATION),
+				(server, player, handler, buf, responseSender) -> server.execute(() -> {
+					DirectionHUD.LOGGER.info("Received initialization packet from "+player.getName().getString());
+					Player dPlayer = Player.of(player);
+					DirectionHUD.clientPlayers.add(dPlayer);
+					dPlayer.sendSettingPackets();
+				}));
 		//COMMANDS
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
 			DHUDCommand.register(dispatcher);

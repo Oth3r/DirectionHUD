@@ -8,8 +8,6 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
@@ -28,6 +26,7 @@ import java.util.HashMap;
 public class DirectionHUDClient implements ClientModInitializer {
     public static boolean singleplayer = false;
     public static boolean onSupportedServer = false;
+    public static HashMap<String, Object> packetData = new HashMap<>();
     private static KeyBinding keyBinding;
     public static Text override = Text.of("");
     public static int overrideCd = 0;
@@ -62,42 +61,42 @@ public class DirectionHUDClient implements ClientModInitializer {
                 }
             }
         });
-        //PACKETS
-        PayloadTypeRegistry.playS2C().register(Payloads.Settings.ID, Payloads.Settings.CODEC);
-        // receiving setting packets from the server
-        ClientPlayNetworking.registerGlobalReceiver(Payloads.Settings.ID, (payload, context) -> {
-            MinecraftClient client = context.client();
+        ClientPlayNetworking.registerGlobalReceiver(PacketBuilder.getIdentifier(Assets.packets.SETTINGS), (client, handler, buf, responseSender) -> {
+            // receiving setting packets from the server, copy to not throw an error
+            PacketBuilder packet = new PacketBuilder(buf.copy());
+            assert client.player != null;
             client.execute(() -> {
                 Type hashMapToken = new TypeToken<HashMap<String, Object>>() {}.getType();
                 Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-                // if not single player store the payload in local playerdata (otherwise it doesn't need to be saved)
-                if (!client.isInSingleplayer()) PlayerData.playerMap.put(Player.of(),gson.fromJson(payload.value(), hashMapToken));
+                packetData = gson.fromJson(packet.getMessage(), hashMapToken);
+                if (!client.isInSingleplayer()) PlayerData.playerMap.put(Player.of(),packetData);
                 onSupportedServer = true;
             });
         });
-        PayloadTypeRegistry.playS2C().register(Payloads.HUD.ID, Payloads.HUD.CODEC);
-        // receiving HUD packets from the server
-        ClientPlayNetworking.registerGlobalReceiver(Payloads.HUD.ID, (payload, context) -> {
-            MinecraftClient client = context.client();
+        ClientPlayNetworking.registerGlobalReceiver(PacketBuilder.getIdentifier(Assets.packets.HUD), (client, handler, buf, responseSender) -> {
+            // receiving HUD packets from the server
+            PacketBuilder packet = new PacketBuilder(buf.copy());
+            assert client.player != null;
             client.execute(() -> {
                 Type hashMapToken = new TypeToken<HashMap<HUD.Module, ArrayList<String>>>() {}.getType();
                 Gson gson = new GsonBuilder().disableHtmlEscaping().create();
                 // if there is no actionbar override, build and send the HUD
-                if (overrideCd <= 0) {
-                    context.player().sendMessage(HUD.build.compile(getClientPlayer(client), gson.fromJson(payload.value(), hashMapToken)).b(), true);
-                }
+                if (overrideCd <= 0)
+                    client.player.sendMessage(HUD.build.compile(getClientPlayer(client),gson.fromJson(packet.getMessage(), hashMapToken)).b(),true);
             });
         });
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
             if (client.isInSingleplayer()) singleplayer = true;
             // send an initialization packet whenever joining a server
             client.execute(() -> {
-                ClientPlayNetworking.send(new Payloads.Initialization("Hello from DirectionHUD client!"));
+                PacketBuilder sPacket = new PacketBuilder("Hello from DirectionHUD client!");
+                sPacket.sendToServer(PacketBuilder.getIdentifier(Assets.packets.INITIALIZATION));
             });
         });
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
             singleplayer = false;
             onSupportedServer = false;
+            packetData = new HashMap<>();
             PlayerData.playerMap.clear();
         });
     }
