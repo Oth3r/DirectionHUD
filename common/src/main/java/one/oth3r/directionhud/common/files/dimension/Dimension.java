@@ -156,8 +156,9 @@ public class Dimension {
             if (entries.length != 2) continue;
             String[] entry1 = entries[0].split("="), entry2 = entries[1].split("=");
             RatioEntry entry = new RatioEntry();
-            entry.setDimension1(new Pair<>(entry1[0],Double.parseDouble(entry1[1])));
-            entry.setDimension2(new Pair<>(entry2[0],Double.parseDouble(entry2[1])));
+            // update to the new fabric system of dimensions too
+            entry.setDimension1(new Pair<>(Utl.dim.updateLegacy(entry1[0]),Double.parseDouble(entry1[1])));
+            entry.setDimension2(new Pair<>(Utl.dim.updateLegacy(entry2[0]),Double.parseDouble(entry2[1])));
             out.add(entry);
         }
         return out;
@@ -171,9 +172,9 @@ public class Dimension {
             // if not correct length
             if (entries.length != 3) continue;
 
-            // filling data
+            // filling data, update to the new fabric system of dimensions
             DimensionEntry data = new DimensionEntry(
-                    entries[0], entries[1], entries[2],
+                    Utl.dim.updateLegacy(entries[0]), entries[1], entries[2],
                     // only enable time by default if DirectionHUD is a mod, because plugins have different times for different worlds.
                     new DimensionEntry.Time(DirectionHUD.isMod)
             );

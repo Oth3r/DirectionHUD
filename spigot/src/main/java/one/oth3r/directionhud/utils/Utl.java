@@ -128,6 +128,13 @@ public class Utl {
         }
 
         /**
+         * fabric only, do nothing
+         */
+        public static String updateLegacy(String oldDimension) {
+            return oldDimension;
+        }
+
+        /**
          * adds the dimensions that are loaded in game but aren't in the config yet
          */
         public static void addMissing() {

@@ -130,7 +130,18 @@ public class Utl {
          * @return the formatted dimension string
          */
         public static String format(RegistryKey<World> worldRegistryKey) {
-            return worldRegistryKey.getValue().toString().replace(":",".");
+            return worldRegistryKey.getValue().toString();
+        }
+
+        /**
+         * FABRIC ONLY
+         * <p>
+         * reverts back dimensions from "minecraft.dim" to "minecraft:dim" to be more vanilla like
+         * @param oldDimension dimension to update
+         * @return updated dimension
+         */
+        public static String updateLegacy(String oldDimension) {
+            return oldDimension.replaceFirst("\\.",":");
         }
 
         /**

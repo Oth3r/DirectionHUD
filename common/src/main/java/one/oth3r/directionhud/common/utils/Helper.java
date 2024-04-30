@@ -149,14 +149,16 @@ public class Helper {
                     if (!entry.equals(player)) list.add(entry.getName());
                 return list;
             }
-            public static ArrayList<String> dims(String current) {
-                return dims(current,true);
-            }
+
+            /**
+             * suggests a list of dimensions
+             * @param displayEmpty if the list should show up if current is empty
+             */
             public static ArrayList<String> dims(String current, boolean displayEmpty) {
-                ArrayList<String> list = new ArrayList<>();
+                ArrayList<String> list = new ArrayList<>(), dimList = wrapQuotes(Dimension.getAllIDs());
                 if (!current.isEmpty() || displayEmpty) {
-                    if (current.isEmpty()) return Dimension.getAllIDs();
-                    for (String dim : Dimension.getAllIDs()) {
+                    if (current.isEmpty()) return dimList;
+                    for (String dim : dimList) {
                         if (dim.contains(current)) list.add(dim);
                     }
                 }

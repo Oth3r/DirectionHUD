@@ -11,6 +11,7 @@ import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.Utl;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -337,19 +338,31 @@ public class Updater {
 
                 // update all destination Locs
                 Map<String,Object> dest = (Map<String, Object>) base.get("destination");
+
+                Loc destination = new Loc(true,(String)dest.get("dest"));
+                // update dimension
+                destination.setDimension(Utl.dim.updateLegacy(destination.getDimension()));
                 // update dest
-                dest.put("dest",new Loc(true,(String)dest.get("dest")));
+                dest.put("dest",destination);
+
                 // update lastdeath
                 ArrayList<String> lastdeath = (ArrayList<String>) dest.get("lastdeath");
-                ArrayList<Loc> newLastdeath = lastdeath.stream().map(string -> new Loc(true, string))
-                        .collect(Collectors.toCollection(ArrayList::new));
+                ArrayList<Loc> newLastdeath = lastdeath.stream().map(string -> {
+                    Loc loc = new Loc(true, string);
+                    // update dimension
+                    loc.setDimension(Utl.dim.updateLegacy(loc.getDimension()));
+                    return loc;
+                        }).collect(Collectors.toCollection(ArrayList::new));
                 dest.put("lastdeath", newLastdeath);
+
                 // update saved
                 ArrayList<ArrayList<String>> saved = (ArrayList<ArrayList<String>>) dest.get("saved");
                 ArrayList<Loc> newSaved = saved.stream().map(entry -> {
                     Loc loc = new Loc(true,entry.get(1));
                     loc.setName(entry.get(0));
                     loc.setColor(entry.get(2));
+                    // update dimension
+                    loc.setDimension(Utl.dim.updateLegacy(loc.getDimension()));
                     return loc;
                 }).collect(Collectors.toCollection(ArrayList::new));
                 dest.put("saved",newSaved);
