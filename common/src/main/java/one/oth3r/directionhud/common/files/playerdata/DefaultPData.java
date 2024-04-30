@@ -148,18 +148,23 @@ public class DefaultPData {
         }
     }
 
+    public static final String DEFAULT_FILE_NAME = "default-playerdata.json";
+
     public static File getDefaultFile() {
-        return new File(DirectionHUD.CONFIG_DIR+"default-playerdata.json");
+        return new File(DirectionHUD.CONFIG_DIR + DEFAULT_FILE_NAME);
     }
 
     public static void loadDefaults() {
         File file = getDefaultFile();
-        if (!file.exists()) saveDefaults();
+        if (!file.exists()) {
+            DirectionHUD.LOGGER.info(String.format("Creating new `%s`",DEFAULT_FILE_NAME));
+            saveDefaults();
+        }
         try (BufferedReader reader = Files.newBufferedReader(file.toPath())) {
             Gson gson = new GsonBuilder().create();
             PlayerData.setDEFAULTS(gson.fromJson(reader, DefaultPData.class));
         } catch (Exception e) {
-            DirectionHUD.LOGGER.info("ERROR READING 'default-playerdata.json'");
+            DirectionHUD.LOGGER.info(String.format("ERROR LOADING '%s`",DEFAULT_FILE_NAME));
             e.printStackTrace();
         }
         saveDefaults();
@@ -171,7 +176,7 @@ public class DefaultPData {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             writer.write(gson.toJson(PlayerData.DEFAULTS));
         } catch (Exception e) {
-            DirectionHUD.LOGGER.info("ERROR WRITING 'default-playerdata.json'");
+            DirectionHUD.LOGGER.info(String.format("ERROR SAVING '%s`",DEFAULT_FILE_NAME));
             e.printStackTrace();
         }
     }

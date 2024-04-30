@@ -19,6 +19,7 @@ import java.io.FileInputStream;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.*;
 
@@ -65,7 +66,14 @@ public class config {
     }
 
     public static void load() {
-        if (!configFile().exists() || !configFile().canRead()) {
+        if (!configFile().exists()) {
+            // try to make the config directory
+            try {
+                Files.createDirectories(Paths.get(DirectionHUD.CONFIG_DIR));
+            } catch (Exception e) {
+                DirectionHUD.LOGGER.info("Failed to create config directory. Canceling all config loading...");
+                return;
+            }
             // if moving config location failed / not plausible, save the file (make a new config) and try loading again
             if (!moveConfigLocation()) {
                 DirectionHUD.LOGGER.info("Creating new DirectionHUD.properties");
