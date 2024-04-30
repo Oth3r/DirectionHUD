@@ -97,17 +97,7 @@ public class CUtl {
             if (string.charAt(0)=='#') return format(string);
             return format(defaultColor);
         }
-        public static boolean checkValid(String color, String current) {
-            //checks the validity of the color by seeing if it resets.
-            //if color isn't current color, test if its valid
-            if (!CUtl.color.format(color).equals(current)) {
-                //format the color and set default to current
-                color = CUtl.color.format(color, current);
-                //if color is current (it reset), it's not valid
-                return !color.equals(current);
-            }
-            return true;
-        }
+
         public static String format(String hex, String defaultColor) {
             if (hex == null) return format(defaultColor);
             if (hex.length() == 6) hex = "#"+hex;
@@ -119,12 +109,15 @@ public class CUtl {
             }
             return format(defaultColor);
         }
+
         public static String format(String hex) {
             return format(hex,"#ffffff");
         }
+
         public static CTxT getBadge(String hex) {
             return CTxT.of(Assets.symbols.square+" "+format(hex).toUpperCase()).color(hex);
         }
+
         public static float[] HSB(String hex) {
             Color color = Color.decode(format(hex));
             int r = color.getRed();
@@ -134,6 +127,7 @@ public class CUtl {
             Color.RGBtoHSB(r, g, b, hsb);
             return hsb;
         }
+
         public static int[] RGB(String hex) {
             Color color = Color.decode(format(hex));
             int[] i = new int[3];
@@ -142,18 +136,22 @@ public class CUtl {
             i[2] = color.getBlue();
             return i;
         }
+
         public static String HSBtoHEX(float[] hsb) {
             Color color = new Color(Color.HSBtoRGB(hsb[0],hsb[1],hsb[2]));
             return String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
         }
+
         public static String editHSB(int type, String hex, float change) {
             float[] hsb = HSB(hex);
             hsb[type] = Math.max(Math.min(hsb[type]+change,1),0);
             return HSBtoHEX(hsb);
         }
+
         public static String colorHandler(Player player, String color) {
             return colorHandler(player, color, "#ffffff");
         }
+
         public static String colorHandler(Player player, String color, String defaultColor) {
             //if color is preset, get the preset color
             if (color != null) {
