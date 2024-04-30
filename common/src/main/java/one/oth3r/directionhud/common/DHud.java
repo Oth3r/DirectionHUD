@@ -59,7 +59,7 @@ public class DHud {
                 case "hud" -> suggester.addAll(Hud.CMDSuggester(player,fixedPos+1,trimmedArgs));
                 case "preset" -> suggester.addAll(preset.CMDSuggester(player,fixedPos,trimmedArgs));
                 case "color" -> {
-                    if (fixedPos == 4) suggester.addAll(Suggester.colors(player,Suggester.getCurrent(trimmedArgs,fixedPos)));
+                    if (fixedPos == 4) suggester.addAll(Suggester.colors(player,Suggester.getCurrent(trimmedArgs,fixedPos),true));
                 }
             }
         }
@@ -412,12 +412,12 @@ public class DHud {
             // if -r is attached, remove it and continue with the suggester
             if (args[0].contains("-r")) args[0] = args[0].replace("-r", "");
             if (args[0].equals("save")) {
-                if (pos == 1) return Suggester.colors(player,Suggester.getCurrent(args,pos));
+                if (pos == 1) return Suggester.colors(player,Suggester.getCurrent(args,pos),true);
                 if (pos == 2) suggester.add("name");
             } else {
                 if (pos == 1) suggester.addAll(Suggester.wrapQuotes(custom.getNames(player.getPData().getColorPresets())));
                 else if (args[0].equals("rename")) suggester.add("name");
-                else if (args[0].equals("color")) return Suggester.colors(player,Suggester.getCurrent(args,pos));
+                else if (args[0].equals("color")) return Suggester.colors(player,Suggester.getCurrent(args,pos),true);
             }
             return suggester;
         }

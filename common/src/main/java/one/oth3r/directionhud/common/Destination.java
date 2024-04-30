@@ -141,7 +141,7 @@ public class Destination {
                     case "add" -> suggester.addAll(saved.addCMDSuggester(player,fixedPos,trimmedArgs));
                     case "settings" -> suggester.addAll(settings.CMDSuggester(player, fixedPos,trimmedArgs));
                     case "color" -> {
-                        if (fixedPos == 3 && trimmedArgs[0].equals("set")) suggester.addAll(Suggester.colors(player,Suggester.getCurrent(trimmedArgs,fixedPos)));
+                        if (fixedPos == 3 && trimmedArgs[0].equals("set")) suggester.addAll(Suggester.colors(player,Suggester.getCurrent(trimmedArgs,fixedPos),true));
                     }
                     case "set" -> suggester.addAll(dest.setCMDSuggester(player,fixedPos,trimmedArgs));
                     case "send" -> suggester.addAll(social.send.CMDSuggester(player,fixedPos,trimmedArgs));
@@ -371,14 +371,14 @@ public class Destination {
                 if (!Num.isInt(args[1])) {
                     suggester.add("convert");
                 } else {
-                    suggester.addAll(Suggester.dims(current));
+                    suggester.addAll(Suggester.dims(current,true));
                     suggester.addAll(Suggester.xyz(player,current,1));
                 }
             }
             // set <x> (y) <z> (dim)
             // set x z dim (convert)
             if (pos == 3) {
-                if (Num.isInt(args[2])) suggester.addAll(Suggester.dims(current));
+                if (Num.isInt(args[2])) suggester.addAll(Suggester.dims(current,true));
                 else suggester.add("convert");
             }
             // set x y z dim convert
@@ -599,7 +599,7 @@ public class Destination {
             if (args[0].equalsIgnoreCase("location")) {
                 if (pos == 2) {
                     suggester.addAll(Suggester.xyz(player,current,3));
-                    suggester.addAll(Suggester.dims(current));
+                    suggester.addAll(Suggester.dims(current,true));
                 }
                 if (pos == 3) suggester.addAll(Suggester.xyz(player,current,2));
                 if (pos == 4) {
@@ -607,7 +607,7 @@ public class Destination {
                     suggester.addAll(Suggester.dims(current,false));
                 }
                 if (pos == 5 && Num.isInt(args[4])) {
-                    suggester.addAll(Suggester.dims(current));
+                    suggester.addAll(Suggester.dims(current,true));
                 }
                 return suggester;
             }
@@ -617,7 +617,7 @@ public class Destination {
                     suggester.add(new Dest(player,args[1],global).getCMDName()); // current name to edit
                 }
                 if (args[0].equalsIgnoreCase("color"))
-                    suggester.addAll(Suggester.colors(player,current));
+                    suggester.addAll(Suggester.colors(player,current,true));
                 if (args[0].equalsIgnoreCase("order"))
                     suggester.add(String.valueOf(new Dest(player,args[1],global).getOrder())); //current order to edit
             }
@@ -717,16 +717,16 @@ public class Destination {
             // add <name> <x> (y) <z> ((dim) (color))
             if (pos == 4) {
                 if (Num.isInt(args[3])) {
-                    suggester.addAll(Suggester.dims(current));
-                    suggester.addAll(Suggester.colors(player,current));
+                    suggester.addAll(Suggester.dims(current,true));
+                    suggester.addAll(Suggester.colors(player,current,true));
                 }
                 if (Dimension.checkValid(args[3]))
-                    suggester.addAll(Suggester.colors(player,current));
+                    suggester.addAll(Suggester.colors(player,current,true));
             }
             // add <name> <x> (y) <z> (dim) ((color))
             if (pos == 5) {
                 if (Num.isInt(args[3]) && Dimension.checkValid(args[4]))
-                    suggester.addAll(Suggester.colors(player,current));
+                    suggester.addAll(Suggester.colors(player,current,true));
             }
             return suggester;
         }
@@ -1434,7 +1434,7 @@ public class Destination {
                 if (pos == 1) {
                     if (Utl.checkEnabled.saving(player)) suggester.add("saved");
                     suggester.addAll(Suggester.xyz(player,current,3));
-                    suggester.add(Suggester.name());
+                    suggester.add(Suggester.wrapQuotes("name"));
                 }
                 // send <player> <saved> (<name>)
                 // send <player> (name) (<x>)
@@ -1479,12 +1479,12 @@ public class Destination {
                     }
                     // ((dimension), (color))
                     if (Num.isInt(args[3])) {
-                        suggester.addAll(Suggester.dims(current));
-                        suggester.addAll(Suggester.colors(player,current));
+                        suggester.addAll(Suggester.dims(current,true));
+                        suggester.addAll(Suggester.colors(player,current,true));
                     }
                     // ((color))
                     else if (Dimension.getAllIDs().contains(args[3])) {
-                        suggester.addAll(Suggester.colors(player,current));
+                        suggester.addAll(Suggester.colors(player,current,true));
                     }
                 }
                 // send <player> (name) <x> (y) <z> ((dimension), (color))
@@ -1495,23 +1495,23 @@ public class Destination {
                     if (!Num.isInt(args[1])) {
                         // ((dimension), (color))
                         if (Num.isInt(args[4])) {
-                            suggester.addAll(Suggester.dims(current));
-                            suggester.addAll(Suggester.colors(player,current));
+                            suggester.addAll(Suggester.dims(current,true));
+                            suggester.addAll(Suggester.colors(player,current,true));
                         }
                         // (color)
                         else if (Dimension.getAllIDs().contains(args[4])) {
-                            suggester.addAll(Suggester.colors(player,current));
+                            suggester.addAll(Suggester.colors(player,current,true));
                         }
                     }
                     // send <player> <x> (y) <z> (dimension) ((color))
                     if (Num.isInt(args[1]) && Num.isInt(args[3]) && Dimension.getAllIDs().contains(args[4])){
-                        suggester.addAll(Suggester.colors(player,current));
+                        suggester.addAll(Suggester.colors(player,current,true));
                     }
                 }
                 // send <player> (name) <x> (y) <z> (dimension) ((color))
                 if (pos == 6) {
                     if (!Num.isInt(args[1]) && Num.isInt(args[4]) && Dimension.getAllIDs().contains(args[5])) {
-                        suggester.addAll(Suggester.colors(player,current));
+                        suggester.addAll(Suggester.colors(player,current,true));
                     }
                 }
                 return suggester;
@@ -2002,7 +2002,7 @@ public class Destination {
                 }
                 // color settings
                 if (Setting.colors().contains(setting))
-                    suggester.addAll(Suggester.colors(player,Suggester.getCurrent(args,pos)));
+                    suggester.addAll(Suggester.colors(player,Suggester.getCurrent(args,pos),true));
                 // tracking request
                 if (setting.equals(Setting.features__track_request_mode))
                     suggester.addAll(Enums.toStringList(Enums.toArrayList(TrackingRequestMode.values())));

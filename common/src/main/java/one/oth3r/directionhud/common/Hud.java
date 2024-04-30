@@ -924,7 +924,7 @@ public class Hud {
             }
             if (pos == 2) {
                 // (type) set (color)
-                if (args[1].equals("set")) return Suggester.colors(player,Suggester.getCurrent(args,pos));
+                if (args[1].equals("set")) return Suggester.colors(player,Suggester.getCurrent(args,pos),true);
                 else {
                     // (type) (subType) (on/off)
                     suggester.add("on");

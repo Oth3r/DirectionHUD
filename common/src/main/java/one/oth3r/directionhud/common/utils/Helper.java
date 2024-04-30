@@ -10,6 +10,7 @@ import java.util.*;
 
 public class Helper {
     public static final int MAX_NAME = 16;
+
     public static class Enums {
         public static <T extends Enum<T>> ArrayList<T> toArrayList(T[] array) {
             return new ArrayList<>(Arrays.asList(array));
@@ -58,7 +59,9 @@ public class Helper {
             return values[0];
         }
     }
+
     public static class Num {
+
         public static boolean isInt(String string) {
             try {
                 Integer.parseInt(string);
@@ -67,6 +70,7 @@ public class Helper {
             }
             return true;
         }
+
         public static Integer toInt(String s) {
             // return an int no matter what
             try {
@@ -79,6 +83,7 @@ public class Helper {
                 }
             }
         }
+
         public static boolean isNum(String s) {
             // checks if int or a double
             try {
@@ -93,37 +98,70 @@ public class Helper {
                 }
             }
         }
+
         public static boolean inBetween(double num, double min, double max) {
             // if min is greater than max, flip
             if (min > max) return num >= min || num <= max;
             return num >= min && num <= max;
         }
+
         public static double wSubtract(double num, double sub, double max) {
             // wrapped subtract
             double output = num - sub;
             if (output < 0) output = max - (output*-1);
             return output;
         }
+
         public static double wAdd(double num, double add, double max) {
             // wrapped add
             return (num+add)%max;
         }
+
     }
+
     public static class Command {
+
         public static class Suggester {
+
+            /**
+             * wraps a list of things in quotes
+             * @param list the list of things
+             * @return a list of strings with quotes around items
+             */
             public static <T>ArrayList<String> wrapQuotes(List<T> list) {
                 ArrayList<String> output = new ArrayList<>();
-                for (T s:list) {
-                    output.add("\""+s+"\"");
+                for (T entry:list) {
+                    output.add(wrapQuotes(entry));
                 }
                 return output;
             }
+
+            /**
+             * wraps an object with quotes
+             * @param obj object to wrap
+             * @return wrapped string
+             */
+            public static String wrapQuotes(Object obj) {
+                return "\""+obj+"\"";
+            }
+
+            /**
+             * gets the current typed string from the player
+             * @param args command args
+             * @param pos typing pos
+             */
             public static String getCurrent(String[] args, int pos) {
                 // if the length is the same as the pos, there's nothing currently being typed at that pos
                 // get the current typed message
                 if (args.length == pos+1) return args[pos];
                 return "";
             }
+
+            /**
+             * suggests the coordinates of the player
+             * @param current current typed string
+             * @param type amount of coordinates, 3 xyz, 2 z|yz, 1 z
+             */
             public static ArrayList<String> xyz(Player player, String current, int type) {
                 // type = 3: all 3, ect
                 ArrayList<String> list = new ArrayList<>();
@@ -134,16 +172,20 @@ public class Helper {
                 } else if (type == 2) {
                     list.add(String.valueOf(player.getBlockY()));
                     list.add(player.getBlockY()+" "+player.getBlockZ());
-                } else if (type == 1) list.add(String.valueOf(player.getBlockZ()));
+                } else if (type == 1) {
+                    list.add(String.valueOf(player.getBlockZ()));
+                }
                 // don't suggest if typing letters or different coordinates
                 if (current.isEmpty() || list.get(0).startsWith(current)) return list;
                 return new ArrayList<>();
             }
-            public static String name() {
-                return "\"name\"";
-            }
+
+            /**
+             * suggests player strings excluding the inputted player
+             * @param player player to exclude
+             */
             public static ArrayList<String> players(Player player) {
-                //get player strings excluding the inputted player
+
                 ArrayList<String> list = new ArrayList<>();
                 for (Player entry: Utl.getPlayers())
                     if (!entry.equals(player)) list.add(entry.getName());
@@ -164,9 +206,11 @@ public class Helper {
                 }
                 return list;
             }
-            public static ArrayList<String> colors(Player player, String current) {
-                return colors(player,current,true);
-            }
+
+            /**
+             * suggests a list of colors and player presets
+             * @param displayEmpty if the list displays when the current is empty or not
+             */
             public static ArrayList<String> colors(Player player, String current, boolean displayEmpty) {
                 ArrayList<String> list = new ArrayList<>();
                 ArrayList<String> presets = new ArrayList<>();
@@ -194,6 +238,7 @@ public class Helper {
                 return list;
             }
         }
+
         public static String[] quoteHandler(String[] args) {
             // put quoted items all in one arg
             boolean quote = false;
@@ -224,6 +269,10 @@ public class Helper {
             return output.toArray(arr);
         }
     }
+
+    /**
+     * creates a random ID
+     */
     public static String createID() {
         //spigot not having apache smh my head
         String CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -236,6 +285,11 @@ public class Helper {
         }
         return sb.toString();
     }
+
+    /**
+     * trims a String array
+     * @param numToRemove number to remove from the start
+     */
     public static String[] trimStart(String[] arr, int numToRemove) {
         if (numToRemove > arr.length) return new String[0];
         String[] result = new String[arr.length - numToRemove];
