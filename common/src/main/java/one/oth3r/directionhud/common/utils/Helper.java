@@ -198,7 +198,6 @@ public class Helper {
             ArrayList<String> output = new ArrayList<>();
             StringBuilder addBuffer = new StringBuilder();
             for (String s : args) {
-                s = removeSpecial(s); // remove all special characters
                 if (s.contains("\"")) {
                     int count = s.length() - s.replaceAll("\"","").length(); // count how many quotes there are
                     s = s.replace("\"",""); // remove the quote
@@ -240,13 +239,6 @@ public class Helper {
         String[] result = new String[arr.length - numToRemove];
         System.arraycopy(arr, numToRemove, result, 0, result.length);
         return result;
-    }
-    /**
-     * removes any special characters from the inputted string
-     * @return stripped string
-     */
-    public static String removeSpecial(String input) {
-        return input.replaceAll("[\\\\|{}\\[\\]()]|[,;:'\\s]", "");
     }
 
     public record Pair<A, B>(A key, B value) {
