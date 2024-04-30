@@ -19,7 +19,7 @@ public class Events {
         try {
             Files.createDirectories(Paths.get(DirectionHUD.DATA_DIR+"playerdata/"));
         } catch (Exception e) {
-            DirectionHUD.LOGGER.info("Failed to create playerdata directory:\n" + e.getMessage());
+            DirectionHUD.LOGGER.info("Failed to create playerdata directory.");
         }
         config.load();
         DirectionHUD.LOGGER.info("Started server!");
