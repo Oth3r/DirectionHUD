@@ -1,6 +1,7 @@
 package one.oth3r.directionhud.common.template;
 
 import one.oth3r.directionhud.common.Hud;
+import one.oth3r.directionhud.common.files.playerdata.CachedPData;
 import one.oth3r.directionhud.common.files.playerdata.PData;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Loc;
@@ -55,17 +56,20 @@ public abstract class PlayerTemplate {
     public abstract void sendActionBar(CTxT message);
     public abstract void displayBossBar(CTxT message);
     public abstract void removeBossBar();
+
     public abstract PData getPData();
+    public abstract CachedPData getPCache();
+
     public void updateHUD() {
         // if toggled off
-        if (!(boolean) this.getPData().getHud().getSetting(Hud.Setting.state)) {
+        if (!(boolean) this.getPCache().getHud().getSetting(Hud.Setting.state)) {
             //if actionbar send empty to clear else remove bossbar
-            if (this.getPData().getHud().getSetting(Hud.Setting.type).equals(Hud.Setting.DisplayType.actionbar.toString()))
+            if (this.getPCache().getHud().getSetting(Hud.Setting.type).equals(Hud.Setting.DisplayType.actionbar.toString()))
                 this.sendActionBar(CTxT.of(""));
             else this.removeBossBar();
         }
         // if actionbar make sure no bossbar
-        if (this.getPData().getHud().getSetting(Hud.Setting.type).equals(Hud.Setting.DisplayType.actionbar.toString())) {
+        if (this.getPCache().getHud().getSetting(Hud.Setting.type).equals(Hud.Setting.DisplayType.actionbar.toString())) {
             this.removeBossBar();
         }
         // else clear the actionBar
@@ -76,20 +80,20 @@ public abstract class PlayerTemplate {
     public void displayHUD(CTxT message) {
         if (message.toString().isEmpty()) {
             //if the HUD is enabled but there is no output, flip the tag
-            if (this.getPData().getMsg("hud.enabled_but_off").isBlank()) {
-                this.getPData().setMsg("hud.enabled_but_off","true");
+            if (this.getPCache().getMsg("hud.enabled_but_off") == 0) {
+                this.getPCache().setMsg("hud.enabled_but_off", 1);
                 // if actionbar, clear once, if bossbar remove player
-                if ((Hud.Setting.DisplayType.get((String) this.getPData().getHud().getSetting(Hud.Setting.type)).equals(Hud.Setting.DisplayType.actionbar))) {
+                if ((Hud.Setting.DisplayType.get((String) this.getPCache().getHud().getSetting(Hud.Setting.type)).equals(Hud.Setting.DisplayType.actionbar))) {
                     sendActionBar(CTxT.of(""));
                 } else removeBossBar();
             }
             return;
-        } else if (!this.getPData().getMsg("hud.enabled_but_off").isBlank()) {
+        } else if (this.getPCache().getMsg("hud.enabled_but_off") != 0) {
             // hud isn't blank but the blank tag was still enabled
-            this.getPData().clearMsg("hud.enabled_but_off");
+            this.getPCache().setMsg("hud.enabled_but_off", 0);
         }
         // if actionbar send actionbar, if bossbar update the bar
-        if ((Hud.Setting.DisplayType.get((String) this.getPData().getHud().getSetting(Hud.Setting.type)).equals(Hud.Setting.DisplayType.actionbar)))
+        if ((Hud.Setting.DisplayType.get((String) this.getPCache().getHud().getSetting(Hud.Setting.type)).equals(Hud.Setting.DisplayType.actionbar)))
             sendActionBar(message);
         else displayBossBar(message);
     }

@@ -120,7 +120,7 @@ public class config {
     }
 
     public static void loadVersion(Properties properties, float version) {
-        DefaultPData DEFAULTS = PlayerData.DEFAULTS;
+        DefaultPData DEFAULTS = PlayerData.getDefaults();
         PDDestination.Settings destSettings = DEFAULTS.getDEST().getSetting();
         PDDestination.Settings.Particles destSParticles = destSettings.getParticles();
         PDDestination.Settings.Features destSFeatures = destSettings.getFeatures();
@@ -304,6 +304,7 @@ public class config {
 
             if (version <= 1.5f) {
                 // save default when moving to the new defaults system
+                PlayerData.setDefaults(DEFAULTS);
                 DefaultPData.saveDefaults();
             }
         } catch (Exception e) {

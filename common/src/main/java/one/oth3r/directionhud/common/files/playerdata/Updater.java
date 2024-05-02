@@ -27,6 +27,7 @@ public class Updater {
         PData pData = player.getPData();
         double version = pData.getVersion();
         pData.setPlayer(player);
+        pData.save();
     }
 
     public static class legacy {
@@ -59,9 +60,9 @@ public class Updater {
         }
         @SuppressWarnings("unchecked")
         private static void mapUpdate(Player player, Map<String,Object> base) {
-            PDDestination DESTINATION = PlayerData.DEFAULTS.getDEST();
+            PDDestination DESTINATION = PlayerData.getDefaults().getDEST();
             PDDestination.Settings DESTSETTINGS = DESTINATION.getSetting();
-            PDHud HUD_defaults = PlayerData.DEFAULTS.getHud();
+            PDHud HUD_defaults = PlayerData.getDefaults().getHud();
             PDHud.Settings HUDSETTINGS = HUD_defaults.getSetting();
             base.put("name", player.getName());
             if (base.get("version").equals(1.0)) {

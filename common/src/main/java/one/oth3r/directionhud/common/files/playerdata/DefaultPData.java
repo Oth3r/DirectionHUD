@@ -5,8 +5,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 import one.oth3r.directionhud.DirectionHUD;
-import one.oth3r.directionhud.common.LoopManager;
-import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.utils.Player;
 
 import java.io.BufferedReader;
@@ -27,12 +25,12 @@ public class DefaultPData {
     private PDHud hud = new PDHud();
     @SerializedName("destination")
     private PDDestination destination = new PDDestination();
-    @SerializedName("inbox")
-    private List<HashMap<String,Object>> inbox = new ArrayList<>();
     @SerializedName("color_presets")
     private List<String> colorPresets = new ArrayList<>();
+    @SerializedName("inbox")
+    private ArrayList<HashMap<String,String>> inbox = new ArrayList<>();
     @SerializedName("social_cooldown")
-    private Double socialCooldown;
+    private Integer socialCooldown;
 
     private transient Player player;
 
@@ -40,7 +38,17 @@ public class DefaultPData {
      * sets pData to be saved and sends the updated pData to the player client if needed
      */
     public void save() {
-        LoopManager.addSavePlayer(player);
+        if (player == null) return;
+
+        // add to saving queue
+        PlayerData.Queue.addSavePlayer(player);
+
+        // update the cached variables
+        CachedPData cachedPData = PlayerData.getPCache(player);
+        inbox = cachedPData.getInbox();
+        socialCooldown = cachedPData.getSocialCooldown();
+        cachedPData.update(this);
+
         player.sendPDataPackets();
     }
 
@@ -49,17 +57,31 @@ public class DefaultPData {
         this.name = player.getName();
         this.hud.setPlayer(player);
         this.destination.setPlayer(player);
-        save();
+    }
+
+    public Player getPlayer() {
+        return player;
     }
 
     public DefaultPData() {}
 
+    public DefaultPData(DefaultPData defaultPData) {
+        version = defaultPData.version;
+        name = defaultPData.getName();
+        hud = defaultPData.getHud();
+        destination = defaultPData.getDEST();
+        colorPresets = defaultPData.getColorPresets();
+        inbox = defaultPData.getInbox();
+        socialCooldown = defaultPData.getSocialCooldown();
+        player = defaultPData.getPlayer();
+    }
+
     public DefaultPData(Player player) {
         this.name = player.getName();
-        this.colorPresets = PlayerData.DEFAULTS.getColorPresets();
-        this.inbox = PlayerData.DEFAULTS.getInbox();
-        this.destination = PlayerData.DEFAULTS.getDEST();
-        this.hud = PlayerData.DEFAULTS.getHud();
+        this.colorPresets = PlayerData.getDefaults().getColorPresets();
+        this.inbox = PlayerData.getDefaults().getInbox();
+        this.destination = PlayerData.getDefaults().getDEST();
+        this.hud = PlayerData.getDefaults().getHud();
         setPlayer(player);
     }
 
@@ -84,15 +106,6 @@ public class DefaultPData {
         // dont need to save, something else will save
     }
 
-    public ArrayList<HashMap<String,Object>> getInbox() {
-        return (ArrayList<HashMap<String, Object>>) inbox;
-    }
-
-    public void setInbox(List<HashMap<String,Object>> inbox) {
-        this.inbox = inbox;
-        save();
-    }
-
     public ArrayList<String> getColorPresets() {
         return (ArrayList<String>) colorPresets;
     }
@@ -102,51 +115,16 @@ public class DefaultPData {
         save();
     }
 
-    public Double getSocialCooldown() {
+    public ArrayList<HashMap<String,String>> getInbox() {
+        return inbox;
+    }
+
+    public Integer getSocialCooldown() {
         return socialCooldown;
     }
 
-    public void setSocialCooldown(Double socialCooldown) {
-        this.socialCooldown = socialCooldown;
-        save();
-    }
 
     // LOADING AND SAVING
-    public static File getPlayerFile(Player player) {
-        if (config.online) return new File(DirectionHUD.DATA_DIR+"playerdata/" +player.getUUID()+".json");
-        else return new File(DirectionHUD.DATA_DIR+"playerdata/"+player.getName()+".json");
-    }
-
-    public static void loadPlayer(Player player, boolean legacy) {
-        File file = getPlayerFile(player);
-        if (!file.exists()) savePlayer(player);
-        try (BufferedReader reader = Files.newBufferedReader(file.toPath())) {
-            Gson gson = new GsonBuilder().create();
-            PlayerData.setPlayerData(player,gson.fromJson(reader, PData.class));
-            Updater.run(player);
-        } catch (Exception e) {
-            // if not loading from legacy, try before throwing an error
-            if (legacy) {
-                // if it couldn't get from file just get from map (generates a new one if it doesn't exist)
-                PlayerData.getPData(player);
-                DirectionHUD.LOGGER.info("ERROR READING PLAYER DATA - PLEASE REPORT WITH THE ERROR LOG");
-                e.printStackTrace();
-            } else {
-                Updater.legacy.update(player);
-            }
-        }
-
-    }
-
-    public static void savePlayer(Player player) {
-        try (BufferedWriter writer = Files.newBufferedWriter(getPlayerFile(player).toPath())) {
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            writer.write(gson.toJson(PlayerData.getPData(player)));
-        } catch (Exception e) {
-            DirectionHUD.LOGGER.info("ERROR WRITING PLAYER DATA - PLEASE REPORT WITH THE ERROR LOG");
-            e.printStackTrace();
-        }
-    }
 
     public static final String DEFAULT_FILE_NAME = "default-playerdata.json";
 
@@ -162,7 +140,7 @@ public class DefaultPData {
         }
         try (BufferedReader reader = Files.newBufferedReader(file.toPath())) {
             Gson gson = new GsonBuilder().create();
-            PlayerData.setDEFAULTS(gson.fromJson(reader, DefaultPData.class));
+            PlayerData.setDefaults(gson.fromJson(reader, DefaultPData.class));
         } catch (Exception e) {
             DirectionHUD.LOGGER.info(String.format("ERROR LOADING '%s`",DEFAULT_FILE_NAME));
             e.printStackTrace();
@@ -174,7 +152,7 @@ public class DefaultPData {
     public static void saveDefaults() {
         try (BufferedWriter writer = Files.newBufferedWriter(getDefaultFile().toPath())) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            writer.write(gson.toJson(PlayerData.DEFAULTS));
+            writer.write(gson.toJson(PlayerData.getDefaults()));
         } catch (Exception e) {
             DirectionHUD.LOGGER.info(String.format("ERROR SAVING '%s`",DEFAULT_FILE_NAME));
             e.printStackTrace();

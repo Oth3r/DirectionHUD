@@ -77,7 +77,7 @@ public class Utl {
             return (boolean) player.getPData().getDEST().getSetting(Destination.Setting.features__send) && config.social && DirectionHUD.server.isRemote();
         }
         public static boolean track(Player player) {
-            return (boolean) player.getPData().getDEST().getSetting(Destination.Setting.features__track) && config.social && DirectionHUD.server.isRemote();
+            return player.getPCache().getDEST().getDestSettings().getFeatures().getTrack() && config.social && DirectionHUD.server.isRemote();
         }
     }
     public static class particle {
@@ -101,11 +101,11 @@ public class Utl {
             }
         }
         public static DustParticleEffect getParticle(String particleType, Player player) {
-            String hex = (String) player.getPData().getDEST().getSetting(Destination.Setting.particles__dest_color);
+            String hex = player.getPCache().getDEST().getDestSettings().getParticles().getDestColor();
             if (particleType.equals(DEST)) return new DustParticleEffect(new Vector3f(Vec3d.unpackRgb(Color.decode(CUtl.color.format(hex)).getRGB()).toVector3f()),3);
-            hex = (String) player.getPData().getDEST().getSetting(Destination.Setting.particles__line_color);
+            hex = player.getPCache().getDEST().getDestSettings().getParticles().getLineColor();
             if (particleType.equals(LINE)) return new DustParticleEffect(new Vector3f(Vec3d.unpackRgb(Color.decode(CUtl.color.format(hex)).getRGB()).toVector3f()),1);
-            hex = (String) player.getPData().getDEST().getSetting(Destination.Setting.particles__tracking_color);
+            hex = player.getPCache().getDEST().getDestSettings().getParticles().getTrackingColor();
             if (particleType.equals(TRACKING)) return new DustParticleEffect(new Vector3f(Vec3d.unpackRgb(Color.decode(CUtl.color.format(hex)).getRGB()).toVector3f()),0.5f);
             hex = "#000000";
             return new DustParticleEffect(new Vector3f(Vec3d.unpackRgb(Color.decode(CUtl.color.format(hex)).getRGB()).toVector3f()),5f);

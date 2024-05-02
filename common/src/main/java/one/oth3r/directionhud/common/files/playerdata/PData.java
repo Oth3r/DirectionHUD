@@ -1,48 +1,59 @@
 
 package one.oth3r.directionhud.common.files.playerdata;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import one.oth3r.directionhud.DirectionHUD;
+import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.utils.Player;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.nio.file.Files;
 
 public class PData extends DefaultPData {
-
-    private transient Map<String,Object> dataMap = new HashMap<>();
 
     public PData(Player player) {
         super(player);
     }
 
-    public Map<String, Object> getDataMap() {
-        return dataMap;
+    // LOADING AND SAVING
+    public static File getPlayerFile(Player player) {
+        if (config.online) return new File(DirectionHUD.DATA_DIR+"playerdata/" +player.getUUID()+".json");
+        else return new File(DirectionHUD.DATA_DIR+"playerdata/"+player.getName()+".json");
     }
 
-    public void setDataMap(Map<String, Object> dataMap) {
-        this.dataMap = dataMap;
-        // no saving for local
+    public static void loadPlayer(Player player, boolean checkLegacy) {
+        File file = getPlayerFile(player);
+        if (!file.exists()) {
+            DirectionHUD.LOGGER.info("Creating new playerdata file for "+player.getName());
+            PlayerData.setPlayerData(player, new PData(player));
+            savePlayer(player);
+        }
+        try (BufferedReader reader = Files.newBufferedReader(file.toPath())) {
+            Gson gson = new GsonBuilder().create();
+            PlayerData.setPlayerData(player,gson.fromJson(reader, PData.class));
+        } catch (Exception e) {
+            // if not checking legacy, throw an error
+            if (!checkLegacy) {
+                // if it couldn't get from file just get from map (generates a new one if it doesn't exist)
+                PlayerData.setPlayerData(player, new PData(player));
+                DirectionHUD.LOGGER.info("ERROR READING PLAYER DATA, RESETTING PLAYER! ERROR:");
+                e.printStackTrace();
+            } else {
+                Updater.legacy.update(player);
+            }
+        }
     }
 
-    public ArrayList<String> getMsgKeys() {
-        ArrayList<String> keys = new ArrayList<>();
-        for (String s: getDataMap().keySet())
-            if (s.startsWith("msg.")) keys.add(s);
-        return keys;
+    public static void savePlayer(Player player) {
+        try (BufferedWriter writer = Files.newBufferedWriter(getPlayerFile(player).toPath())) {
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            writer.write(gson.toJson(PlayerData.getPData(player)));
+        } catch (Exception e) {
+            DirectionHUD.LOGGER.info("ERROR WRITING PLAYER DATA - PLEASE REPORT WITH THE ERROR LOG");
+            e.printStackTrace();
+        }
     }
-
-    public String getMsg(String key) {
-        // casting to string gets rid of nulls, so if null return empty string
-        String value = String.valueOf(getDataMap().get("msg."+key));
-        return value.equals("null")?"":value;
-    }
-
-    public void setMsg(String key, String value) {
-        dataMap.put("msg."+key,value);
-    }
-
-    public void clearMsg(String key) {
-        dataMap.remove("msg."+key);
-    }
-
 }

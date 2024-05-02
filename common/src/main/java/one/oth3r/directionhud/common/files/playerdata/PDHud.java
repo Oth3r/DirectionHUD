@@ -39,12 +39,12 @@ public class PDHud {
 
     public PDHud() {}
 
-    public PDHud(Modules module, Settings setting, ArrayList<Hud.Module> order, Color primary, Color secondary) {
-        this.module = module;
-        this.setting = setting;
-        this.order = order;
-        this.primary = primary;
-        this.secondary = secondary;
+    public PDHud(PDHud hud) {
+        this.module = hud.module;
+        this.setting = hud.setting;
+        this.order = hud.order;
+        this.primary = new Color(hud.getPrimary());
+        this.secondary = new Color(hud.getSecondary());
     }
 
     public Modules getModule() {
@@ -180,6 +180,14 @@ public class PDHud {
         @SerializedName("rainbow")
         private Boolean rainbow;
 
+        public Color(Color color) {
+            this.color = color.color;
+            this.bold = color.bold;
+            this.italics = color.italics;
+            this.rainbow = color.rainbow;
+            this.player = color.player;
+        }
+
         public Color(Player player, String color, Boolean bold, Boolean italics, Boolean rainbow) {
             this.color = color;
             this.bold = bold;
@@ -245,11 +253,11 @@ public class PDHud {
 
         public Settings() {}
 
-        public Settings(Bossbar bossbar, Module module, Boolean state, Hud.Setting.DisplayType type) {
-            this.bossbar = bossbar;
-            this.module = module;
-            this.state = state;
-            this.type = type;
+        public Settings(Settings settings) {
+            this.bossbar = new Bossbar(settings.getBossbar());
+            this.module = new Module(settings.getModule());
+            this.state = settings.state;
+            this.type = settings.type;
         }
 
         public Bossbar getBossbar() {
@@ -295,10 +303,10 @@ public class PDHud {
 
             public Bossbar() {}
 
-            public Bossbar(Hud.Setting.BarColor color, Boolean distance, Integer distanceMax) {
-                this.color = color;
-                this.distance = distance;
-                this.distanceMax = distanceMax;
+            public Bossbar(Bossbar bossbar) {
+                this.color = bossbar.color;
+                this.distance = bossbar.distance;
+                this.distanceMax = bossbar.distanceMax;
             }
 
             public String getColor() {
@@ -345,14 +353,14 @@ public class PDHud {
 
             public Module() {}
 
-            public Module(Boolean time24hr, Hud.Setting.ModuleTrackingType trackingType, Hud.Setting.ModuleTrackingTarget trackingTarget, Boolean trackingHybrid, Boolean speed3d, String speedPattern, Hud.Setting.ModuleAngleDisplay angleDisplay) {
-                this.time24hr = time24hr;
-                this.trackingType = trackingType;
-                this.trackingTarget = trackingTarget;
-                this.trackingHybrid = trackingHybrid;
-                this.speed3d = speed3d;
-                this.speedPattern = speedPattern;
-                this.angleDisplay = angleDisplay;
+            public Module(Module module) {
+                this.time24hr = module.time24hr;
+                this.trackingType = module.trackingType;
+                this.trackingTarget = module.trackingTarget;
+                this.trackingHybrid = module.trackingHybrid;
+                this.speed3d = module.speed3d;
+                this.speedPattern = module.speedPattern;
+                this.angleDisplay = module.angleDisplay;
             }
 
             public Boolean getSpeed3d() {
@@ -437,16 +445,16 @@ public class PDHud {
 
         public Modules() {}
 
-        public Modules(Boolean coordinates, Boolean destination, Boolean distance, Boolean tracking, Boolean direction, Boolean weather, Boolean time, Boolean angle, Boolean speed) {
-            this.coordinates = coordinates;
-            this.destination = destination;
-            this.distance = distance;
-            this.tracking = tracking;
-            this.direction = direction;
-            this.weather = weather;
-            this.time = time;
-            this.angle = angle;
-            this.speed = speed;
+        public Modules(Modules modules) {
+            this.coordinates = modules.coordinates;
+            this.destination = modules.destination;
+            this.distance = modules.distance;
+            this.tracking = modules.tracking;
+            this.direction = modules.direction;
+            this.weather = modules.weather;
+            this.time = modules.time;
+            this.angle = modules.angle;
+            this.speed = modules.speed;
         }
 
         public Boolean getDistance() {

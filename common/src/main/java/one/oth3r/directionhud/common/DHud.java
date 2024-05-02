@@ -84,10 +84,13 @@ public class DHud {
     }
     public static class inbox {
         public static final int PER_PAGE = 3;
+
         public static final Lang LANG = new Lang("dhud.inbox.");
+
         public static CTxT BUTTON = LANG.btn().btn(true).color(Assets.mainColors.inbox)
                 .cEvent(1,"/dhud inbox")
                 .hEvent(CTxT.of(Assets.cmdUsage.inbox).color(Assets.mainColors.inbox).append("\n").append(LANG.hover()));
+
         public static void CMDExecutor(Player player, String[] args) {
             if (!config.social) return;
             // UI
@@ -103,6 +106,7 @@ public class DHud {
             }
             player.sendMessage(CUtl.usage(Assets.cmdUsage.inbox));
         }
+
         public enum Type {
             track_pending,
             track_request,
@@ -113,14 +117,14 @@ public class DHud {
          * counts down all expire clocks in the inbox
          */
         public static void tick(Player player) {
-            ArrayList<HashMap<String, Object>> inbox = player.getPData().getInbox();
+            ArrayList<HashMap<String, String>> inbox = player.getPCache().getInbox();
             // don't process anything if empty
             if (inbox.isEmpty()) return;
             // iterate over the arraylist, as we are editing it, cant use for loop
-            Iterator<HashMap<String, Object>> iterator = inbox.iterator();
+            Iterator<HashMap<String, String>> iterator = inbox.iterator();
             while (iterator.hasNext()) {
-                HashMap<String, Object> entry = iterator.next();
-                double expire = (double) entry.get("expire");
+                HashMap<String, String> entry = iterator.next();
+                int expire = Integer.parseInt(entry.get("expire"));
                 // tick the "expire" value
                 entry.put("expire", String.valueOf(expire-1));
                 // remove from inbox when expire is 0
@@ -136,26 +140,26 @@ public class DHud {
                 }
             }
             // save the inbox after the loop, but don't have to save the file
-            player.getPData().setInbox(inbox);
+            player.getPCache().setInbox(inbox);
         }
         /**
          * removes all entries to deal with tracking, because tracking entries doesn't save between sessions
          */
         public static void removeAllTracking(Player player) {
             // removes all pending and requests from the player and their targets
-            ArrayList<HashMap<String, Object>> inbox = player.getPData().getInbox();
+            ArrayList<HashMap<String, String>> inbox = player.getPCache().getInbox();
             // iterate over the arraylist, as we are editing it, cant use for loop
-            Iterator<HashMap<String, Object>> iterator = inbox.iterator();
+            Iterator<HashMap<String, String>> iterator = inbox.iterator();
             while (iterator.hasNext()) {
-                HashMap<String, Object> entry = iterator.next();
+                HashMap<String, String> entry = iterator.next();
                 // if pending or request, clear both from player and the target player (sync)
                 if (entry.get("type").equals(Type.track_pending.name()) || entry.get("type").equals(Type.track_request.name())) {
                     // get the second type to search for in the target player (the opposite type of the player)
                     Type type = entry.get("type").equals(Type.track_pending.name())?
                             Type.track_request : Type.track_pending;
                     // use name if online mode is off
-                    Player target = Player.of((String)entry.get("player_uuid"));
-                    if (!config.online) target = Player.of((String)entry.get("player_name"));
+                    Player target = Player.of(entry.get("player_uuid"));
+                    if (!config.online) target = Player.of(entry.get("player_name"));
                     if (target != null) {
                         // search for the opposite type of the player and the id to match it in target inbox and remove
                         removeEntry(target, DHud.inbox.search(target, type,"id",entry.get("id")));
@@ -164,8 +168,9 @@ public class DHud {
                     iterator.remove();
                 }
             }
-            player.getPData().setInbox(inbox);
+            player.getPCache().setInbox(inbox);
         }
+
         /**
          * searches all player entries for a matching key and value from a certain type
          * @param type null to search all types, otherwise only searches a certain type of entry
@@ -173,28 +178,30 @@ public class DHud {
          * @param value the value to match
          * @return the first entry that contains the key and value
          */
-        public static HashMap<String, Object> search(Player player, Type type, String key, Object value) {
-            ArrayList<HashMap<String, Object>> inbox = player.getPData().getInbox();
-            for (HashMap<String, Object> entry: inbox) {
+        public static HashMap<String, String> search(Player player, Type type, String key, String value) {
+            ArrayList<HashMap<String, String>> inbox = player.getPCache().getInbox();
+            for (HashMap<String, String> entry: inbox) {
                 // if the type isn't null, and it doesn't match, continue to the next entry
                 if (type!=null && !entry.get("type").equals(type.name())) continue;
                 if (entry.get(key).equals(value)) return entry;
             }
             return null;
         }
+
         /**
          * gets all the entries from a certain type
          * @param type the type of entry to search for
          * @return null if none found, the list of entries if there are any
          */
-        public static ArrayList<HashMap<String, Object>> getAllType(Player player, Type type) {
-            ArrayList<HashMap<String, Object>> inbox = player.getPData().getInbox();
-            ArrayList<HashMap<String, Object>> matches = new ArrayList<>();
-            for (HashMap<String, Object> entry: inbox)
+        public static ArrayList<HashMap<String, String>> getAllType(Player player, Type type) {
+            ArrayList<HashMap<String, String>> inbox = player.getPCache().getInbox();
+            ArrayList<HashMap<String, String>> matches = new ArrayList<>();
+            for (HashMap<String, String> entry: inbox)
                 if (entry.get("type").equals(type.name())) matches.add(0,entry);
             if (!matches.isEmpty()) return matches;
             return null;
         }
+
         /**
          * creates a tracking request and pending entry to both the sender and target
          * @param target the player that is going to get tracked
@@ -204,26 +211,27 @@ public class DHud {
         public static void addTracking(Player target, Player from, int time) {
             String ID = Helper.createID();
             // create the track request for the target
-            ArrayList<HashMap<String, Object>> inbox = target.getPData().getInbox();
-            HashMap<String, Object> entry = new HashMap<>();
-            entry.put("type", Type.track_request);
+            ArrayList<HashMap<String, String>> inbox = target.getPCache().getInbox();
+            HashMap<String, String> entry = new HashMap<>();
+            entry.put("type", Type.track_request.toString());
             entry.put("player_name",from.getName());
             entry.put("player_uuid",from.getUUID());
             entry.put("id",ID);
-            entry.put("expire",time);
+            entry.put("expire", String.valueOf(time));
             inbox.add(0,entry);
-            target.getPData().setInbox(inbox);
+            target.getPCache().setInbox(inbox);
             // create the track pending for the requester
-            inbox = from.getPData().getInbox();
+            inbox = from.getPCache().getInbox();
             entry = new HashMap<>();
-            entry.put("type", Type.track_pending);
+            entry.put("type", Type.track_pending.toString());
             entry.put("player_name",target.getName());
             entry.put("player_uuid",target.getUUID());
             entry.put("id",ID);
-            entry.put("expire",time);
+            entry.put("expire", String.valueOf(time));
             inbox.add(0,entry);
-            from.getPData().setInbox(inbox);
+            from.getPCache().setInbox(inbox);
         }
+
         /**
          * adds a destination to the target player's inbox
          * @param target target player
@@ -232,9 +240,10 @@ public class DHud {
          * @param loc the destination location
          */
         public static void addDest(Player target, Player from, int time, Loc loc) {
-            if (!loc.hasDestRequirements()) return;
-            ArrayList<HashMap<String, Object>> inbox = target.getPData().getInbox();
-            HashMap<String, Object> entry = new HashMap<>();
+            if (!loc.hasXYZ() || loc.getDimension() == null) return;
+
+            ArrayList<HashMap<String, String>> inbox = target.getPCache().getInbox();
+            HashMap<String, String> entry = new HashMap<>();
             entry.put("type", Type.destination.name());
             entry.put("player_name",from.getName());
             entry.put("player_uuid",from.getUUID());
@@ -243,55 +252,58 @@ public class DHud {
             entry.put("loc",loc.toString());
             // add to the top of the list
             inbox.add(0,entry);
-            // save the inbox
-            target.getPData().setInbox(inbox);
+            System.out.println("target inbox"+ inbox);
+            System.out.println("entry added" + entry);
         }
+
         /**
          * removes the entry provided
          * @param entry the entry to remove
          */
-        public static void removeEntry(Player player, HashMap<String, Object> entry) {
+        public static void removeEntry(Player player, HashMap<String, String> entry) {
             if (entry == null) return;
-            ArrayList<HashMap<String, Object>> inbox = player.getPData().getInbox();
+            ArrayList<HashMap<String, String>> inbox = player.getPCache().getInbox();
             inbox.remove(entry);
-            player.getPData().setInbox(inbox);
+            player.getPCache().setInbox(inbox);
         }
+
         /**
          * delete an entry via ID
          * @param ID the id of the entry to remove
          * @param playerBased if requested by the player, to send a message and return or not
          */
         public static void delete(Player player, String ID, boolean playerBased) {
-            Helper.ListPage<HashMap<String, Object>> listPage = new Helper.ListPage<>(player.getPData().getInbox(),PER_PAGE);
+            Helper.ListPage<HashMap<String, String>> listPage = new Helper.ListPage<>(player.getPCache().getInbox(),PER_PAGE);
             //delete via ID (command)
-            HashMap<String, Object> entry = search(player,null,"id",ID);
+            HashMap<String, String> entry = search(player,null,"id",ID);
             // stop if there's nothing to clear
             if (entry==null) return;
             // remove the entry
             removeEntry(player,entry);
             if (playerBased) {
-                player.sendMessage(CUtl.tag().append(LANG.msg("cleared",CTxT.of((String)entry.get("player_name")).color(CUtl.s()))));
+                player.sendMessage(CUtl.tag().append(LANG.msg("cleared",CTxT.of(entry.get("player_name")).color(CUtl.s()))));
                 UI(player,listPage.getPageOf(entry));
             }
         }
+
         /**
          * makes the TxT for the entry provided
          * @param entry entry data
          * @return the TxT created
          */
-        public static CTxT getEntryTxT(Player player, HashMap<String, Object> entry) {
+        public static CTxT getEntryTxT(Player player, HashMap<String, String> entry) {
             // get the entry type
             Type type = Enums.get(entry.get("type"),Type.class);
             // get the entry name
-            String name = (String)entry.get("player_name");
+            String name = entry.get("player_name");
             // get name from UUID if online mode is on
             if (config.online) {
-                Player player_uuid = Player.of((String)entry.get("player_uuid"));
+                Player player_uuid = Player.of(entry.get("player_uuid"));
                 if (player_uuid != null) name = player_uuid.getName();
             }
             // make the TxTs that make things easier
             CTxT msg = CTxT.of(""),
-                    time = LANG.ui("time",((Double)entry.get("expire")).intValue()).color('7'),
+                    time = LANG.ui("time",entry.get("expire")).color('7'),
                     from = LANG.ui("from",CTxT.of(name).color(CUtl.s())),
                     to = LANG.ui("to",CTxT.of(name).color(CUtl.s()));
             // switch for the different type of entries
@@ -324,15 +336,16 @@ public class DHud {
                             // to / from
                             .append("\n  ").append(from).append("\n   ")
                             // destination badge
-                            .append(Destination.social.send.getSendTxt(player,new Loc(entry.get("loc").toString())));
+                            .append(Destination.social.send.getSendTxt(player,new Loc(entry.get("loc"))));
             }
             return msg;
         }
+
         public static void UI(Player player, int pg) {
-            Helper.ListPage<HashMap<String, Object>> listPage = new Helper.ListPage<>(player.getPData().getInbox(),PER_PAGE);
+            Helper.ListPage<HashMap<String, String>> listPage = new Helper.ListPage<>(player.getPCache().getInbox(),PER_PAGE);
             CTxT msg = CTxT.of(" "), line = CTxT.of("\n                                   ").strikethrough(true);
             msg.append(LANG.ui().color(Assets.mainColors.inbox)).append(line).append("\n ");
-            for (HashMap<String, Object> index : listPage.getPage(pg)) {
+            for (HashMap<String, String> index : listPage.getPage(pg)) {
                 msg.append(getEntryTxT(player,index)).append("\n ");
             }
             // no entries

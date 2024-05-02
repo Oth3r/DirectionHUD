@@ -11,6 +11,7 @@ import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.PacketBuilder;
 import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.Hud;
+import one.oth3r.directionhud.common.files.playerdata.CachedPData;
 import one.oth3r.directionhud.common.files.playerdata.PData;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.template.PlayerTemplate;
@@ -85,6 +86,17 @@ public class Player extends PlayerTemplate {
     public void removeBossBar() {
         DirectionHUD.bossBarManager.removePlayer(this);
     }
+
+    @Override
+    public PData getPData() {
+        return PlayerData.getPData(this);
+    }
+
+    @Override
+    public CachedPData getPCache() {
+        return PlayerData.getPCache(this);
+    }
+
     @Override
     public void sendPDataPackets() {
         if (DirectionHUD.clientPlayers.contains(this)) {
@@ -101,9 +113,6 @@ public class Player extends PlayerTemplate {
     }
     public String getName() {
         return player.getName().getString();
-    }
-    public PData getPData() {
-        return PlayerData.getPData(this);
     }
     public ServerPlayerEntity getPlayer() {
         return player;

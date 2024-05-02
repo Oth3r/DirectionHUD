@@ -163,9 +163,10 @@ public class Destination {
                     CTxT.of(Assets.cmdUsage.destClear).color(o?'c':'7').append("\n").append(LANG.hover("clear")));
         }
         public static Loc get(Player player) {
-            Loc loc = player.getPData().getDEST().getDest();
+            // get from cache because called in a loop
+            Loc loc = player.getPCache().getDEST().getDestination();
             if (!loc.hasXYZ()) return new Loc();
-            if ((boolean) player.getPData().getDEST().getSetting(Setting.ylevel)) loc.setY(player.getBlockY());
+            if (player.getPCache().getDEST().getDestSettings().getYlevel()) loc.setY(player.getBlockY());
             return new Loc(loc);
         }
         public static boolean inAutoClearRadius(Player player, Loc loc) {
@@ -217,7 +218,10 @@ public class Destination {
          * sets the destination without notifying the player, still checks for autoclear instantly clearing or not
          */
         public static void set(Player player, Loc loc) {
-            if (!inAutoClearRadius(player, loc)) player.getPData().getDEST().setDest(loc);
+            if (!inAutoClearRadius(player, loc)) {
+                System.out.println("SET");
+                player.getPData().getDEST().setDest(loc);
+            }
         }
         /**
          * generates the set message for the player
@@ -1291,16 +1295,19 @@ public class Destination {
          * @return if there is a social cooldown or not
          */
         public static boolean cooldown(Player player) {
-            if (player.getPData().getSocialCooldown() != null) {
+            if (player.getPCache().getSocialCooldown() != null) {
                 player.sendMessage(CUtl.LANG.error("social.cooldown"));
                 return true;
             }
             return false;
         }
         public static class send {
+
             public static final Lang LANG = new Lang("destination.send.");
+
             public static CTxT BUTTON = LANG.btn().btn(true).color(Assets.mainColors.send).cEvent(2,"/dest send ")
                     .hEvent(CTxT.of(Assets.cmdUsage.destSend).color(Assets.mainColors.send).append("\n").append(LANG.hover()));
+
             public static void CMDExecutor(Player player, String[] args) {
                 // enabled check
                 if (!Utl.checkEnabled.send(player)) return;
@@ -1418,6 +1425,7 @@ public class Destination {
                 }
                 player.sendMessage(CUtl.usage(Assets.cmdUsage.destSend));
             }
+
             public static ArrayList<String> CMDSuggester(Player player, int pos, String[] args) {
                 String current = Suggester.getCurrent(args,pos);
                 ArrayList<String> suggester = new ArrayList<>();
@@ -1516,6 +1524,7 @@ public class Destination {
                 }
                 return suggester;
             }
+
             /**
              * the main logic for sending Locs between players
              * @param player the player sending the Loc
@@ -1542,12 +1551,9 @@ public class Destination {
                     return;
                 }
                 // LOC VALIDATION
-                // if no name, have the placeholder name for the player to change it later
-                if (loc.getName() == null) {
-                    loc.setName(LANG.get("default_save_name").toString());
-                }
                 // custom name too long
-                if (loc.getName().length() > Helper.MAX_NAME) {
+                if (loc.getName() != null &&
+                        loc.getName().length() > Helper.MAX_NAME) {
                     player.sendMessage(CUtl.LANG.error("length",Helper.MAX_NAME));
                     return;
                 }
@@ -1564,7 +1570,7 @@ public class Destination {
 
                 // LOGIC
                 // add the cooldown
-                player.getPData().setSocialCooldown(config.socialCooldown.doubleValue());
+                player.getPCache().setSocialCooldown(config.socialCooldown);
 
                 player.sendMessage(CUtl.tag().append(LANG.msg("sent",CTxT.of(target.getName()).color(CUtl.s()),
                         CTxT.of("\n ").append(loc.getBadge()))));
@@ -1582,10 +1588,14 @@ public class Destination {
             public static CTxT getSendTxt(Player player, Loc loc) {
                 CTxT txt = CTxT.of("").append(loc.getBadge()).append(" ");
                 // if color is null, empty string
-                String colorCMD = loc.getColor()==null ? "" : "\""+loc.getColor()+"\"";
+                String colorCMD = loc.getColor() == null ? "" : " \""+loc.getColor()+"\"";
+                // if no name, have the placeholder name for the player to change it later
+                String nameCMD = loc.getName() == null ? Suggester.wrapQuotes(LANG.get("default_save_name")) : Suggester.wrapQuotes(loc.getName());
+                // wrap the dimension in quotes
+                String dimCMD = Suggester.wrapQuotes(loc.getDimension());
                 // ADD
                 if (Utl.checkEnabled.saving(player))
-                    txt.append(saved.SAVE_BUTTON("/dest saved add \""+loc.getName()+"\" "+loc.getXYZ()+" "+loc.getDimension()+colorCMD)).append(" ");
+                    txt.append(saved.SAVE_BUTTON("/dest saved add "+ nameCMD +" "+loc.getXYZ()+" "+dimCMD+" "+colorCMD)).append(" ");
                 // SET & CONVERT
                 txt.append(dest.setButtons("/dest set "+loc.getXYZ()+" "+loc.getDimension(),
                         Dimension.canConvert(player.getDimension(),loc.getDimension())));
@@ -1641,20 +1651,20 @@ public class Destination {
                         // track accept/deny <target>
                         case "accept", "deny" -> {
                             // get all track requests
-                            ArrayList<HashMap<String,Object>> matches = DHud.inbox.getAllType(player, DHud.inbox.Type.track_request);
+                            ArrayList<HashMap<String,String>> matches = DHud.inbox.getAllType(player, DHud.inbox.Type.track_request);
                             // if there are any display the names
                             if (matches != null) {
-                                for (HashMap<String, Object> entry : matches)
-                                    suggester.add((String) entry.get("player_name"));
+                                for (HashMap<String, String> entry : matches)
+                                    suggester.add(entry.get("player_name"));
                             }
                         }
                         case "cancel" -> {
                             // get all track pendings
-                            ArrayList<HashMap<String,Object>> matches = DHud.inbox.getAllType(player, DHud.inbox.Type.track_pending);
+                            ArrayList<HashMap<String,String>> matches = DHud.inbox.getAllType(player, DHud.inbox.Type.track_pending);
                             // if there are any display the names
                             if (matches != null) {
-                                for (HashMap<String,Object> entry:matches)
-                                    suggester.add((String) entry.get("player_name"));
+                                for (HashMap<String,String> entry:matches)
+                                    suggester.add(entry.get("player_name"));
                             }
                         }
                     }
@@ -1675,7 +1685,8 @@ public class Destination {
              * @return the target, null if no one is being tracked
              */
             public static Player getTarget(Player player) {
-                String track = player.getPData().getDEST().getTracking();
+                // get from cache, called from loop
+                String track = player.getPCache().getDEST().getTracking();
                 if (track == null) return null;
                 return Player.of(track);
             }
@@ -1705,8 +1716,8 @@ public class Destination {
              */
             public static void clear(Player player) {
                 // clear everything to do with tracking in the msg data system
-                for (String key: player.getPData().getMsgKeys())
-                    if (key.contains("tracking")) player.getPData().clearMsg(key);
+                for (String key: player.getPCache().getMsgKeys())
+                    if (key.contains("tracking")) player.getPCache().setMsg(key,0);
                 // remove the target
                 player.getPData().getDEST().setTracking(null);
             }
@@ -1761,7 +1772,7 @@ public class Destination {
                     return;
                 }
                 // add the cooldown
-                player.getPData().setSocialCooldown(config.socialCooldown.doubleValue());
+                player.getPCache().setSocialCooldown(config.socialCooldown);
                 // target has instant tracking
                 if (Enums.get(player.getPData().getDEST().getSetting(Setting.features__track_request_mode),Setting.TrackingRequestMode.class)
                         .equals(Setting.TrackingRequestMode.instant)) {
@@ -1802,7 +1813,7 @@ public class Destination {
                 }
                 // get the entry from the player inbox
                 // tracK_request if accept or deny, track_pending if canceling
-                HashMap<String, Object> entry = DHud.inbox.search(player, DHud.inbox.Type.track_request,"player_name", tracker);
+                HashMap<String, String> entry = DHud.inbox.search(player, DHud.inbox.Type.track_request,"player_name", tracker);
                 if (type.equals(ProcessType.cancel)) entry = DHud.inbox.search(player, DHud.inbox.Type.track_pending,"player_name", tracker);
 
                 // entry doesn't exist
@@ -1811,7 +1822,7 @@ public class Destination {
                     return;
                 }
                 // get the ID
-                String ID = (String) entry.get("id");
+                String ID = entry.get("id");
                 // the IDs don't match - SYNC ERROR
                 if (DHud.inbox.search(target, null,"id", ID) ==null) {
                     DHud.inbox.removeEntry(player,entry);
@@ -1852,14 +1863,9 @@ public class Destination {
                 // tracking.dimension = not in same dimension & cant convert (trail cold)
                 // tracking.converted = tracker converted message
 
-                // if the server turned social off, clear w no msg
+                // if the server turned social off / player has tracking disabled
                 if (!Utl.checkEnabled.track(player)) {
-                    Destination.social.track.clear(player);
-                    return;
-                }
-                // player has tracking disabled
-                if (!(boolean) player.getPData().getDEST().getSetting(Destination.Setting.features__track)) {
-                    Destination.social.track.clear(player,2);
+                    Destination.social.track.clear(player, 2);
                     return;
                 }
                 Player target = Destination.social.track.getTarget(player);
@@ -1870,71 +1876,71 @@ public class Destination {
                 }
                 // if the target is null, means the player cant be found, probably offline
                 if (target == null) {
-                    if (player.getPData().getMsg("tracking.offline").isBlank()) {
+                    if (player.getPCache().getMsg("tracking.offline") == 0) {
                         // the offline message hasn't been sent
                         player.sendMessage(CUtl.tag().append(LANG.msg("target_offline")));
-                        player.getPData().setMsg("tracking.offline", "1");
+                        player.getPCache().setMsg("tracking.offline", 1);
                         // reset all other messages
-                        player.getPData().clearMsg("tracking.converted");
-                        player.getPData().clearMsg("tracking.dimension");
+                        player.getPCache().setMsg("tracking.converted",0);
+                        player.getPCache().setMsg("tracking.dimension",0);
                     }
                     return;
                 }
                 // target turned off tracking
-                if (!(boolean)player.getPData().getDEST().getSetting(Destination.Setting.features__track)) {
+                if (!Utl.checkEnabled.track(target)) {
                     Destination.social.track.clear(player,3);
                     return;
                 }
                 // ------- TRACKING IS ON -------
                 // if the offline message was sent, reset it and send the back message
-                if (!player.getPData().getMsg("tracking.offline").isBlank()) {
+                if (player.getPCache().getMsg("tracking.offline") != 0) {
                     player.sendMessage(CUtl.tag().append(LANG.msg("resumed"))); // tracking resumed msg
-                    player.getPData().clearMsg("tracking.offline");
+                    player.getPCache().setMsg("tracking.offline",0);
                 }
                 // target is in the same dimension as the player
                 if (target.getDimension().equals(player.getDimension())) {
                     // if convert message has been sent before
-                    if (!player.getPData().getMsg("tracking.converted").isBlank()) {
+                    if (player.getPCache().getMsg("tracking.converted") != 0) {
                         // send convert message to let player know the tracker was converted back to local dimension
                         player.sendMessage(CUtl.tag().append(Destination.LANG.msg("autoconvert.tracking",
                                 Destination.LANG.msg("autoconvert.tracking.2",
                                                 CTxT.of(Dimension.getName(target.getDimension())).italic(true).color(Dimension.getColor(target.getDimension()))))));
-                        player.getPData().clearMsg("tracking.converted");
+                        player.getPCache().setMsg("tracking.converted",0);
                     }
                     // if tracking was stopped before
-                    if (!player.getPData().getMsg("tracking.dimension").isBlank()) {
+                    if (player.getPCache().getMsg("tracking.dimension") != 0) {
                         /// send resume message to let player know the tracker was enabled again
                         player.sendMessage(CUtl.tag().append(LANG.msg("resumed")));
-                        player.getPData().clearMsg("tracking.dimension");
+                        player.getPCache().setMsg("tracking.dimension",0);
                     }
                     return;
                 }
                 // ------- target isn't in the same dimension as the player -------
                 // if AUTOCONVERT IS ON AND CONVERTIBLE
-                if ((boolean) player.getPData().getDEST().getSetting(Destination.Setting.autoconvert) &&
+                if (player.getPCache().getDEST().getDestSettings().getAutoconvert() &&
                         Dimension.canConvert(player.getDimension(),target.getDimension())) {
                     // send the tracking resumed message if tracking was disabled from dimension differences (autoconvert was enabled midway, ect.)
-                    if (!player.getPData().getMsg("tracking.dimension").isBlank()) {
+                    if (player.getPCache().getMsg("tracking.dimension") != 0) {
                         player.sendMessage(CUtl.tag().append(LANG.msg("resumed")));
-                        player.getPData().clearMsg("tracking.dimension");
+                        player.getPCache().setMsg("tracking.dimension",0);
                     }
                     // send the convert message if it hasn't been sent
-                    if (player.getPData().getMsg("tracking.converted").isBlank()) {
+                    if (player.getPCache().getMsg("tracking.converted") == 0) {
                         player.sendMessage(CUtl.tag().append(Destination.LANG.msg("autoconvert.tracking",
                                 Destination.LANG.msg("autoconvert.tracking.2",
                                         CTxT.of(Dimension.getName(target.getDimension())).italic(true).color(Dimension.getColor(target.getDimension()))))));
                         // change the status on the convert message
-                        player.getPData().setMsg("tracking.converted",target.getDimension());
+                        player.getPCache().setMsg("tracking.converted",1);
                     }
-                } else if (player.getPData().getMsg("tracking.dimension").isBlank()) {
+                } else if (player.getPCache().getMsg("tracking.dimension") == 0) {
                     // if not convertible or AutoConvert is off, & the dimension difference message hasn't been sent,
                     // send the dimension message
                     player.sendMessage(CUtl.tag().append(LANG.msg("target_dimension",
                             Destination.LANG.msg("autoconvert.tracking.2",
                                             CTxT.of(Dimension.getName(target.getDimension())).italic(true).color(Dimension.getColor(target.getDimension()))))));
-                    player.getPData().setMsg("tracking.dimension", "1");
+                    player.getPCache().setMsg("tracking.dimension", 1);
                     // make sure the converted msg is reset
-                    player.getPData().clearMsg("tracking.converted");
+                    player.getPCache().setMsg("tracking.converted", 0);
                 }
             }
         }
@@ -2018,7 +2024,7 @@ public class Destination {
          * @return the current config value for the setting
          */
         public static Object getConfig(Setting setting) {
-            return PlayerData.DEFAULTS.getDEST().getSetting(setting);
+            return PlayerData.getDefaults().getDEST().getSetting(setting);
         }
         /**
          * resets the setting to the config state

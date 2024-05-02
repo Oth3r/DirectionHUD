@@ -69,7 +69,7 @@ public class Utl {
             return (boolean)player.getPData().getDEST().getSetting(Destination.Setting.features__send) && config.social;
         }
         public static boolean track(Player player) {
-            return (boolean)player.getPData().getDEST().getSetting(Destination.Setting.features__track) && config.social;
+            return player.getPCache().getDEST().getDestSettings().getFeatures().getTrack() && config.social;
         }
     }
     public static class particle {

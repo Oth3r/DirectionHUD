@@ -7,6 +7,7 @@ import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.PacketHelper;
 import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.Hud;
+import one.oth3r.directionhud.common.files.playerdata.CachedPData;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.files.playerdata.PData;
 import one.oth3r.directionhud.common.utils.Loc;
@@ -87,9 +88,17 @@ public class Player extends PlayerTemplate {
     public String getName() {
         return player.getName();
     }
+
+    @Override
     public PData getPData() {
         return PlayerData.getPData(this);
     }
+
+    @Override
+    public CachedPData getPCache() {
+        return PlayerData.getPCache(this);
+    }
+
     public org.bukkit.entity.Player getPlayer() {
         return player;
     }

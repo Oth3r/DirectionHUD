@@ -3,7 +3,7 @@ package one.oth3r.directionhud.common;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
-import one.oth3r.directionhud.common.files.playerdata.PData;
+import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.utils.Helper.Enums;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.utils.Player;
@@ -13,23 +13,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class LoopManager {
-    /**
-     * anyone in the savePlayers list will have the playerData saved to file and removed from the list every second
-     */
-    private static final ArrayList<Player> savePlayers = new ArrayList<>();
-    public static void addSavePlayer(Player player) {
-        // only add if not already in
-        if (!savePlayers.contains(player)) savePlayers.add(player);
-    }
-    public static void removeSavePlayer(Player player) {
-        savePlayers.remove(player);
-    }
 
     public static int rainbowF;
     private static int secondTick;
     private static int HUDTick;
     private static int ParticleTick;
-    @SuppressWarnings("unchecked")
+
     public static void tick() {
         // tick the counters
         secondTick++;
@@ -39,19 +28,7 @@ public class LoopManager {
         if (HUDTick >= config.HUDLoop) {
             HUDTick = 0;
             for (Player player : Utl.getPlayers()) {
-                if ((boolean) player.getPData().getHud().getSetting(Hud.Setting.state)) {
-                    HashMap<Hud.Module, ArrayList<String>> HUDData = Hud.build.getHUDInstructions(player);
-                    // if the client has directionhud and the hud type is the actionBar send as a packet
-                    if (DirectionHUD.clientPlayers.contains(player) &&
-                            Enums.get(player.getPData().getHud().getSetting(Hud.Setting.type), Hud.Setting.DisplayType.class).equals(Hud.Setting.DisplayType.actionbar))
-                        player.sendHUDPackets(HUDData);
-                    else player.displayHUD(Hud.build.compile(player,HUDData));
-                }
-                // if player has DEST, AutoClear is on, and the distance is in the AutoClear range, clear
-                if (Destination.dest.get(player).hasXYZ() && (boolean) player.getPData().getDEST().getSetting(Destination.Setting.autoclear) &&
-                        Destination.dest.getDist(player) <= (int) player.getPData().getDEST().getSetting(Destination.Setting.autoclear_rad)) {
-                    Destination.dest.clear(player, 2);
-                }
+                HUDTickLogic(player);
             }
         }
         if (ParticleTick >= config.ParticleLoop) {
@@ -61,40 +38,60 @@ public class LoopManager {
         // reset the rainbow at 360
         if (rainbowF >= 360) rainbowF = 0;
         // tick every 2
-        if (secondTick%2==0) {
+        if (secondTick % 2 == 0) {
             for (Player player : Utl.getPlayers()) {
-                // only update the speed if the module and hud is on
-                if ((boolean) player.getPData().getHud().getSetting(Hud.Setting.state) && player.getPData().getHud().getModule(Hud.Module.speed)) {
-                    ArrayList<Double> pos = player.getVec();
-                    ArrayList<Double> oldPos = (ArrayList<Double>) player.getPData().getDataMap().get("speed_data");
-                    // replace with players current speed
-                    player.getPData().getDataMap().put("speed_data", pos);
-                    // only do x and y if 3d is off
-                    if (!(boolean) player.getPData().getHud().getSetting(Hud.Setting.module__speed_3d)) {
-                        pos.set(1,0.0);
-                        oldPos.set(1,0.0);
-                    }
-                    // update the speed
-                    player.getPData().getDataMap().put("speed", Utl.vec.distance(oldPos, pos) * 10);
-                }
+                speedUpdate(player);
             }
         }
         // every 20 ticks
         if (secondTick >= 20) {
             secondTick = 0;
             for (Player player :Utl.getPlayers()) secondLoop(player);
-            // save all the files for the players in the savePlayers list
-            for (Player player : new ArrayList<>(savePlayers)) {
-                PData.savePlayer(player);
-                removeSavePlayer(player);
-            }
+            // tick the playerdata queue
+            PlayerData.Queue.tick();
         }
     }
+    
+    private static void speedUpdate(Player player) {
+        // only update the speed if the module and hud is on
+        if ((boolean) player.getPCache().getHud().getSetting(Hud.Setting.state) && player.getPCache().getHud().getModule(Hud.Module.speed)) {
+            ArrayList<Double> pos = player.getVec();
+            ArrayList<Double> oldPos = player.getPCache().getSpeedData().getVec();
+            // replace with players current speed
+            player.getPCache().getSpeedData().setVec(pos);
+            // only do x and y if 3d is off
+            if (!(boolean) player.getPCache().getHud().getSetting(Hud.Setting.module__speed_3d)) {
+                pos.set(1,0.0);
+                oldPos.set(1,0.0);
+            }
+            // update the speed
+            player.getPCache().getSpeedData().setSpeed(Utl.vec.distance(oldPos, pos) * 10);
+        }
+    }
+
+    private static void HUDTickLogic(Player player) {
+        // if the HUD is enabled
+        if ((boolean) player.getPCache().getHud().getSetting(Hud.Setting.state)) {
+            HashMap<Hud.Module, ArrayList<String>> HUDData = Hud.build.getHUDInstructions(player);
+            // if the client has directionhud and the hud type is the actionBar, send as a packet
+            if (DirectionHUD.clientPlayers.contains(player) &&
+                    Enums.get(player.getPCache().getHud().getSetting(Hud.Setting.type), Hud.Setting.DisplayType.class).equals(Hud.Setting.DisplayType.actionbar))
+                player.sendHUDPackets(HUDData);
+            // if not do a normal display
+            else player.displayHUD(Hud.build.compile(player,HUDData));
+        }
+        // if player has a DEST, AutoClear is on, and the distance is in the AutoClear range, clear
+        if (Destination.dest.get(player).hasXYZ() && player.getPCache().getDEST().getDestSettings().getAutoclear() &&
+                Destination.dest.getDist(player) <= player.getPCache().getDEST().getDestSettings().getAutoclearRad()) {
+            Destination.dest.clear(player, 2);
+        }
+    }
+
     private static void particles(Player player) {
         // spawn all the particles
         if (Destination.dest.get(player).hasXYZ()) {
             // destination particles
-            if ((boolean) player.getPData().getDEST().getSetting(Destination.Setting.particles__dest)) {
+            if (player.getPCache().getDEST().getDestSettings().getParticles().getDest()) {
                 ArrayList<Double> destVec1 = Destination.dest.get(player).getVec(player);
                 ArrayList<Double> destVec2 = new ArrayList<>(destVec1);
                 destVec1.set(1,destVec1.get(1)+3);
@@ -102,11 +99,11 @@ public class LoopManager {
                 Utl.particle.spawnLine(player, destVec1, destVec2, Utl.particle.DEST);
             }
             // line particles
-            if ((boolean) player.getPData().getDEST().getSetting(Destination.Setting.particles__line))
+            if (player.getPCache().getDEST().getDestSettings().getParticles().getLine())
                 player.spawnParticleLine(Destination.dest.get(player).getVec(player),Utl.particle.LINE);
         }
         // track particles
-        if ((boolean) player.getPData().getDEST().getSetting(Destination.Setting.particles__tracking)) {
+        if (player.getPCache().getDEST().getDestSettings().getParticles().getTracking()) {
             // make sure there's a target
             Player target = Destination.social.track.getTarget(player);
             if (target != null) {
@@ -116,7 +113,7 @@ public class LoopManager {
                     sendParticles = false;
                     // if convertible and autoconvert is enabled, send the particles
                     if (Dimension.canConvert(player.getDimension(), target.getDimension()) &&
-                            (boolean) player.getPData().getDEST().getSetting(Destination.Setting.autoconvert)) {
+                            player.getPCache().getDEST().getDestSettings().getAutoconvert()) {
                         sendParticles = true;
                         // update the vec to the converted loc
                         Loc targetLoc = target.getLoc();
@@ -132,10 +129,10 @@ public class LoopManager {
     private static void secondLoop(Player player) {
         DHud.inbox.tick(player);
         // count down the social cooldown
-        Double timer = player.getPData().getSocialCooldown();
+        Integer timer = player.getPCache().getSocialCooldown();
         if (timer != null) {
-            player.getPData().setSocialCooldown(timer-1);
-            if (timer<=1) player.getPData().setSocialCooldown(null);
+            player.getPCache().setSocialCooldown(timer-1);
+            if (timer<=1) player.getPCache().setSocialCooldown(null);
         }
         // tracker message logic
         Destination.social.track.logic(player);

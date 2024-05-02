@@ -149,13 +149,13 @@ public class PDDestination {
 
         public Settings() {}
 
-        public Settings(Boolean ylevel, Boolean autoclear, Integer autoclearRad, Boolean autoconvert, Features features, Particles particles) {
-            this.ylevel = ylevel;
-            this.autoclear = autoclear;
-            this.autoclearRad = autoclearRad;
-            this.autoconvert = autoconvert;
-            this.features = features;
-            this.particles = particles;
+        public Settings(Settings settings) {
+            this.ylevel = settings.ylevel;
+            this.autoclear = settings.autoclear;
+            this.autoclearRad = settings.autoclearRad;
+            this.autoconvert = settings.autoconvert;
+            this.features = new Features(settings.features);
+            this.particles = new Particles(settings.particles);
         }
 
         public Boolean getYlevel() {
@@ -219,11 +219,11 @@ public class PDDestination {
 
             public Features() {}
 
-            public Features(Destination.Setting.TrackingRequestMode trackRequestMode, Boolean track, Boolean send, Boolean lastdeath) {
-                this.trackRequestMode = trackRequestMode;
-                this.track = track;
-                this.send = send;
-                this.lastdeath = lastdeath;
+            public Features(Features features) {
+                this.trackRequestMode = features.trackRequestMode;
+                this.track = features.track;
+                this.send = features.send;
+                this.lastdeath = features.lastdeath;
             }
 
             public String getTrackRequestMode() {
@@ -277,13 +277,13 @@ public class PDDestination {
 
             public Particles() {}
 
-            public Particles(Boolean dest, String destColor, Boolean line, String lineColor, Boolean tracking, String trackingColor) {
-                this.dest = dest;
-                this.destColor = destColor;
-                this.line = line;
-                this.lineColor = lineColor;
-                this.tracking = tracking;
-                this.trackingColor = trackingColor;
+            public Particles(Particles particles) {
+                this.dest = particles.dest;
+                this.destColor = particles.destColor;
+                this.line = particles.line;
+                this.lineColor = particles.lineColor;
+                this.tracking = particles.tracking;
+                this.trackingColor = particles.trackingColor;
             }
 
             public Boolean getLine() {
