@@ -123,11 +123,12 @@ public class Loc {
         if (loc.equals("null") || !loc.contains("{")) return;
         Gson gson = new Gson();
         Loc data = gson.fromJson(loc, Loc.class);
-        this.color = data.color;
         this.x = data.x;
-        this.name = data.name;
         this.y = data.y;
         this.z = data.z;
+        this.dimension = data.dimension;
+        this.name = data.name;
+        this.color = data.color;
     }
 
     /**
