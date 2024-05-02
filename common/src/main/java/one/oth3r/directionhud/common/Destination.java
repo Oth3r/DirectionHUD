@@ -284,7 +284,7 @@ public class Destination {
             }
             // check if already in autoclear radius (after converting)
             if (inAutoClearRadius(player,loc)) {
-                player.sendMessage(CUtl.error("dest.at"));
+                player.sendMessage(LANG.error("already_at"));
                 return;
             }
             set(player,loc);
