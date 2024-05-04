@@ -2,6 +2,7 @@ package one.oth3r.directionhud.common.files;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.SerializedName;
 import one.oth3r.directionhud.DirectionHUD;
 
 import java.io.BufferedReader;
@@ -11,13 +12,21 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class Config {
+    @SerializedName("version")
     private Float version = 1.6f;
+    @SerializedName("lang")
     private String lang = "en_us";
+    @SerializedName("location")
     private Location location = new Location();
+    @SerializedName("online-mode")
     private Boolean online = true;
+    @SerializedName("hud")
     private Hud hud = new Hud();
+    @SerializedName("destination")
     private Destination destination = new Destination();
+    @SerializedName("social")
     private Social social = new Social();
+    @SerializedName("max-color-presets")
     private Integer maxColorPresets = 14;
 
     public Config() {}
@@ -126,7 +135,9 @@ public class Config {
     }
 
     public static class Hud {
+        @SerializedName("editing")
         private Boolean editing = true;
+        @SerializedName("loop-ticks")
         private Integer loop = 1;
 
         public Hud() {}
@@ -154,11 +165,16 @@ public class Config {
     }
 
     public static class Destination {
+        @SerializedName("saving")
         private Boolean saving = true;
+        @SerializedName("max-saved")
         private Integer maxSaved = 50;
+        @SerializedName("global")
         private Boolean gloabal = true;
+        @SerializedName("lastdeath")
         private LastDeath lastDeath = new LastDeath();
-        private Integer particleLoop = 20;
+        @SerializedName("loop-ticks")
+        private Integer loop = 20;
 
         public Destination() {}
 
@@ -167,7 +183,7 @@ public class Config {
             this.maxSaved = destination.maxSaved;
             this.gloabal = destination.gloabal;
             this.lastDeath = new LastDeath(destination.lastDeath);
-            this.particleLoop = destination.particleLoop;
+            this.loop = destination.loop;
         }
 
         public Boolean getSaving() {
@@ -202,16 +218,18 @@ public class Config {
             this.lastDeath = lastDeath;
         }
 
-        public Integer getParticleLoop() {
-            return particleLoop;
+        public Integer getLoop() {
+            return loop;
         }
 
-        public void setParticleLoop(Integer particleLoop) {
-            this.particleLoop = particleLoop;
+        public void setLoop(Integer loop) {
+            this.loop = loop;
         }
 
         public static class LastDeath {
+            @SerializedName("saving")
             private Boolean saving = true;
+            @SerializedName("max-deaths")
             private Integer maxDeaths = 4;
 
             public LastDeath() {
@@ -241,7 +259,9 @@ public class Config {
     }
 
     public static class Location {
+        @SerializedName("max-y")
         private int maxY = 512;
+        @SerializedName("max-xz")
         private int maxXZ = 30000000;
 
         public Location(Location location) {
