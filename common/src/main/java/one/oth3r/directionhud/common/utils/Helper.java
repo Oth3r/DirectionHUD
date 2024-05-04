@@ -220,7 +220,7 @@ public class Helper {
                 // displaying logic, if not empty and not display empty or empty and display empty
                 if (!current.isEmpty() || displayEmpty) {
                     list.add("ffffff");
-                    if (!presets.isEmpty() && Utl.checkEnabled.customPresets(player)) {
+                    if (!presets.isEmpty() && checkEnabled(player).customPresets()) {
                         list.add("preset");
                         if (current.startsWith("pre")) {
                             list.addAll(presets);
@@ -268,6 +268,10 @@ public class Helper {
             String[] arr = new String[output.size()];
             return output.toArray(arr);
         }
+    }
+
+    public static Utl.CheckEnabled checkEnabled(Player player) {
+        return new Utl.CheckEnabled(player);
     }
 
     /**
