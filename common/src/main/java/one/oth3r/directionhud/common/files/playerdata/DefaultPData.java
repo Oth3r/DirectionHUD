@@ -135,18 +135,17 @@ public class DefaultPData {
     public static void loadDefaults() {
         File file = getDefaultFile();
         if (!file.exists()) {
-            DirectionHUD.LOGGER.info(String.format("Creating new `%s`",DEFAULT_FILE_NAME));
+            DirectionHUD.LOGGER.info(String.format("Creating new `%s`", DEFAULT_FILE_NAME));
             saveDefaults();
         }
         try (BufferedReader reader = Files.newBufferedReader(file.toPath())) {
             Gson gson = new GsonBuilder().create();
             PlayerData.setDefaults(gson.fromJson(reader, DefaultPData.class));
         } catch (Exception e) {
-            DirectionHUD.LOGGER.info(String.format("ERROR LOADING '%s`",DEFAULT_FILE_NAME));
+            DirectionHUD.LOGGER.info(String.format("ERROR LOADING '%s`", DEFAULT_FILE_NAME));
             e.printStackTrace();
         }
         saveDefaults();
-
     }
 
     public static void saveDefaults() {

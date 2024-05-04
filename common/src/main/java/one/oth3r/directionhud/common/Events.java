@@ -1,11 +1,12 @@
 package one.oth3r.directionhud.common;
 
 import one.oth3r.directionhud.DirectionHUD;
+import one.oth3r.directionhud.common.files.Data;
 import one.oth3r.directionhud.common.files.GlobalDest;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
-import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.utils.CUtl;
+import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
@@ -21,9 +22,10 @@ public class Events {
         } catch (Exception e) {
             DirectionHUD.LOGGER.info("Failed to create playerdata directory.");
         }
-        config.load();
+        Data.loadFiles(false);
         DirectionHUD.LOGGER.info("Started server!");
     }
+
     public static void serverEnd() {
         for (Player player: Utl.getPlayers()) playerLeave(player);
         // clear everything as serverEnd on client can just be exiting single-player
@@ -32,13 +34,16 @@ public class Events {
         DirectionHUD.clear();
         DirectionHUD.LOGGER.info("Safely shutdown!");
     }
+
     public static void playerJoin(Player player) {
         PlayerData.addPlayer(player);
     }
+
     public static void playerLeave(Player player) {
         playerSoftLeave(player);
         DirectionHUD.clientPlayers.remove(player);
     }
+
     /**
      * effectively reloads the player without deleting certain required maps (like clientPlayers)
      */
@@ -47,6 +52,7 @@ public class Events {
         PlayerData.removePlayer(player);
         DirectionHUD.bossBarManager.removePlayer(player);
     }
+
     public static void playerChangeWorld(Player player, String fromDIM, String toDIM) {
         if (Destination.dest.get(player).hasXYZ()) {
             Loc loc = Destination.dest.get(player);
@@ -66,8 +72,9 @@ public class Events {
             }
         }
     }
+
     public static void playerDeath(Player player, Loc death) {
-        if (!config.LastDeathSaving || !(boolean) player.getPData().getDEST().getSetting(Destination.Setting.features__lastdeath)) return;
+        if (!Helper.checkEnabled(player).lastdeath()) return;
         Destination.lastdeath.add(player, death);
         CTxT msg = CUtl.tag().append(Destination.lastdeath.LANG.msg("save",
                 death.getBadge()

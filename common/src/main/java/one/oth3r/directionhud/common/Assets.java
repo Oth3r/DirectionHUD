@@ -1,6 +1,6 @@
 package one.oth3r.directionhud.common;
 
-import one.oth3r.directionhud.common.files.config;
+import one.oth3r.directionhud.common.files.Data;
 import one.oth3r.directionhud.utils.CTxT;
 
 public class Assets {
@@ -46,10 +46,10 @@ public class Assets {
         public static final String hudSettings = "/hud settings";
         public static final String dest = "/dest | /destination";
         public static final String destAdd = "/dest (saved) add <name> (x) (y) (z) (dimension) (color)";
-        public static String destSet = "/dest set <x> (y) <z> (dimension) (convert) | /dest set "+(config.globalDESTs?"(saved, global)":"saved")+" <name> (convert)";
+        public static String destSet = "/dest set <x> (y) <z> (dimension) (convert) | /dest set "+(Data.getConfig().getDestination().getGloabal()?"(saved, global)":"saved")+" <name> (convert)";
         public static final String destLastdeath = "/dest lastdeath";
         public static final String destClear = "/dest clear";
-        public static String destSaved = "/dest saved (add, edit, delete, send"+(config.globalDESTs?", global)":")");
+        public static String destSaved = "/dest saved (add, edit, delete, send"+(Data.getConfig().getDestination().getGloabal()?", global)":")");
         public static final String destSettings = "/dest settings";
         public static final String destSend = "/dest send <IGN> saved <name> | /dest send <IGN> (name) (x) (y) (z) (dimension) (color)";
         public static final String destTrack = "/dest track (set, accept, deny, cancel) <IGN> | /dest track clear";
@@ -149,6 +149,7 @@ public class Assets {
         public static final String local = "\uD83D\uDCDA";
         public static final String global = "\uD83E\uDDED";
     }
+
     public enum packets {
         INITIALIZATION("initialize_v1.1"),
         PLAYER_DATA("player_data_v1.1"),
@@ -160,5 +161,13 @@ public class Assets {
         public String getIdentifier() {
             return identifier;
         }
+    }
+
+    /**
+     * Loaders that DirectionHUD supports
+     */
+    public enum LoaderType {
+        SPIGOT,
+        FABRIC
     }
 }

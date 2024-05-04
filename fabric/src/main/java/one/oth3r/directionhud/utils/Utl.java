@@ -9,12 +9,11 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.DirectionHUDClient;
-import one.oth3r.directionhud.common.Destination;
-import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.dimension.DimensionEntry;
 import one.oth3r.directionhud.common.files.dimension.DimensionEntry.*;
 import one.oth3r.directionhud.common.files.dimension.RatioEntry;
+import one.oth3r.directionhud.common.template.FeatureChecker;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Helper.*;
 import org.jetbrains.annotations.NotNull;
@@ -50,36 +49,33 @@ public class Utl {
             else return new Vec3d(0,0,0);
         }
     }
-    public static class checkEnabled {
-        //todo add a bool for singleplayer for perm checking
-        public static boolean customPresets(Player player) {
-            return config.MAXColorPresets > 0;
+
+    public static class CheckEnabled extends FeatureChecker {
+        public CheckEnabled(Player player) {
+            super(player);
         }
-        public static boolean destination(Player player) {
-            return true;
+
+        @Override
+        public boolean globalEditing() {
+            return super.global() && (player.getPlayer().hasPermissionLevel(2) || DirectionHUDClient.singleplayer);
         }
-        public static boolean hud(Player player) {
-            return config.HUDEditing;
+
+        @Override
+        public boolean send() {
+            return super.send() && DirectionHUD.server.isRemote();
         }
-        public static boolean reload(Player player) {
+
+        @Override
+        public boolean track() {
+            return super.track() && DirectionHUD.server.isRemote();
+        }
+
+        @Override
+        public boolean reload() {
             return player.getPlayer().hasPermissionLevel(2) || DirectionHUDClient.singleplayer;
         }
-        public static boolean global(Player player) {
-            return config.globalDESTs && (player.getPlayer().hasPermissionLevel(2) || DirectionHUDClient.singleplayer);
-        }
-        public static boolean saving(Player player) {
-            return config.DestSaving;
-        }
-        public static boolean lastdeath(Player player) {
-            return (boolean) player.getPData().getDEST().getSetting(Destination.Setting.features__lastdeath) && config.LastDeathSaving;
-        }
-        public static boolean send(Player player) {
-            return (boolean) player.getPData().getDEST().getSetting(Destination.Setting.features__send) && config.social && DirectionHUD.server.isRemote();
-        }
-        public static boolean track(Player player) {
-            return player.getPCache().getDEST().getDestSettings().getFeatures().getTrack() && config.social && DirectionHUD.server.isRemote();
-        }
     }
+
     public static class particle {
         public static final String LINE = "LINE";
         public static final String DEST = "DEST";

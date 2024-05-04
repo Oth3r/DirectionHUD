@@ -4,7 +4,8 @@ package one.oth3r.directionhud.common.files.playerdata;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import one.oth3r.directionhud.DirectionHUD;
-import one.oth3r.directionhud.common.files.config;
+import one.oth3r.directionhud.common.files.Data;
+import one.oth3r.directionhud.common.files.Updater;
 import one.oth3r.directionhud.utils.Player;
 
 import java.io.BufferedReader;
@@ -20,7 +21,7 @@ public class PData extends DefaultPData {
 
     // LOADING AND SAVING
     public static File getPlayerFile(Player player) {
-        if (config.online) return new File(DirectionHUD.DATA_DIR+"playerdata/" +player.getUUID()+".json");
+        if (Data.getConfig().getOnline()) return new File(DirectionHUD.DATA_DIR+"playerdata/" +player.getUUID()+".json");
         else return new File(DirectionHUD.DATA_DIR+"playerdata/"+player.getName()+".json");
     }
 
@@ -42,7 +43,7 @@ public class PData extends DefaultPData {
                 DirectionHUD.LOGGER.info("ERROR READING PLAYER DATA, RESETTING PLAYER! ERROR:");
                 e.printStackTrace();
             } else {
-                Updater.legacy.update(player);
+                Updater.PlayerFile.legacy.update(player);
             }
         }
     }

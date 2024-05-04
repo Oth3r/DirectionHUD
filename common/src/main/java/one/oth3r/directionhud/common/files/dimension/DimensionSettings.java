@@ -50,10 +50,10 @@ public class DimensionSettings {
         return new File(DirectionHUD.CONFIG_DIR+"dimension-settings.json");
     }
 
-    public static DimensionSettings get() {
+    public static DimensionSettings load() {
         File file = getFile();
         if (!file.exists()) {
-            DirectionHUD.LOGGER.info("Creating new dimension-settings.json");
+            DirectionHUD.LOGGER.info(String.format("Creating new '%s'",getFile().getName()));
             return new DimensionSettings();
         }
 
@@ -66,7 +66,7 @@ public class DimensionSettings {
         }
     }
 
-    public static void put(DimensionSettings dimensionSettings) {
+    public static void save(DimensionSettings dimensionSettings) {
         try (BufferedWriter writer = Files.newBufferedWriter(getFile().toPath(), StandardCharsets.UTF_8)) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             writer.write(gson.toJson(dimensionSettings));

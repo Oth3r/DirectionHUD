@@ -1,7 +1,7 @@
 package one.oth3r.directionhud.common;
 
+import one.oth3r.directionhud.common.files.Data;
 import one.oth3r.directionhud.common.files.GlobalDest;
-import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.utils.Helper;
@@ -95,7 +95,7 @@ public class Destination {
     }
     public static class commandExecutor {
         public static void logic(Player player, String[] args) {
-            if (!Utl.checkEnabled.destination(player)) return;
+            if (!Helper.checkEnabled(player).destination()) return;
             if (args.length == 0) {
                 UI(player);
                 return;
@@ -119,18 +119,18 @@ public class Destination {
     public static class commandSuggester {
         public static ArrayList<String> logic(Player player, int pos, String[] args) {
             ArrayList<String> suggester = new ArrayList<>();
-            if (!Utl.checkEnabled.destination(player)) return suggester;
+            if (!Helper.checkEnabled(player).destination()) return suggester;
             if (pos == 1) {
-                if (config.LastDeathSaving && (boolean) player.getPData().getDEST().getSetting(Setting.features__lastdeath)) suggester.add("lastdeath");
-                if (Utl.checkEnabled.saving(player)) {
+                if (Helper.checkEnabled(player).lastdeath()) suggester.add("lastdeath");
+                if (Helper.checkEnabled(player).saving()) {
                     suggester.add("add");
                     suggester.add("saved");
                 }
                 suggester.add("set");
                 if (dest.get(player).hasXYZ()) suggester.add("clear");
                 suggester.add("settings");
-                if (Utl.checkEnabled.send(player)) suggester.add("send");
-                if (Utl.checkEnabled.track(player)) suggester.add("track");
+                if (Helper.checkEnabled(player).send()) suggester.add("send");
+                if (Helper.checkEnabled(player).track()) suggester.add("track");
             }
             if (pos > 1) {
                 String command = args[0].toLowerCase();
@@ -318,14 +318,14 @@ public class Destination {
             // /dest set saved <name> (convert)
             if (args[0].equalsIgnoreCase("saved")) {
                 // check if saving is on
-                if (!Utl.checkEnabled.saving(player)) return;
+                if (!Helper.checkEnabled(player).saving()) return;
                 if (args.length == 2) setSaved(player, args[1], false, false);
                 if (args.length == 3 && args[2].equalsIgnoreCase("convert")) setSaved(player, args[1], false, true);
                 return;
             }
             // /dest set global <name> (convert)
             if (args[0].equalsIgnoreCase("global")) {
-                if (!config.globalDESTs) return;
+                if (!Helper.checkEnabled(player).global()) return;
                 if (args.length == 2) setSaved(player, args[1],true, false);
                 if (args.length == 3 && args[2].equalsIgnoreCase("convert")) setSaved(player, args[1],true, true);
                 return;
@@ -356,16 +356,16 @@ public class Destination {
             // set <saved> <name> (convert)
             // set <x> (y) <z> (dim) (convert)
             if (pos == 0) {
-                if (Utl.checkEnabled.saving(player)) suggester.add("saved");
-                if (config.globalDESTs) suggester.add("global");
+                if (Helper.checkEnabled(player).saving()) suggester.add("saved");
+                if (Helper.checkEnabled(player).global()) suggester.add("global");
                 suggester.addAll(Suggester.xyz(player,current,3));
                 return suggester;
             }
             // set <saved, global, x> ((name) (y))
             if (pos == 1) {
-                if (args[0].equalsIgnoreCase("saved") && Utl.checkEnabled.saving(player))
+                if (args[0].equalsIgnoreCase("saved") && Helper.checkEnabled(player).saving())
                     suggester.addAll(saved.getCMDNames(saved.getList(player)));
-                else if (args[0].equalsIgnoreCase("global") && config.globalDESTs)
+                else if (args[0].equalsIgnoreCase("global") && Helper.checkEnabled(player).global())
                     suggester.addAll(saved.getCMDNames(GlobalDest.getDestinations()));
                 else suggester.addAll(Suggester.xyz(player,current,2));
             }
@@ -413,7 +413,7 @@ public class Destination {
          */
         public static void CMDExecutor(Player player, String[] args) {
             // make sure saving is enabled
-            if (!Utl.checkEnabled.saving(player)) return;
+            if (!Helper.checkEnabled(player).saving()) return;
             // UI
             if (args.length == 0) {
                 UI(player, 1);
@@ -431,7 +431,7 @@ public class Destination {
 
             switch (args[0]) {
                 case "global" -> {
-                    if (!config.globalDESTs) return;
+                    if (!Helper.checkEnabled(player).global()) return;
                     globalCMDExecutor(player, Helper.trimStart(args,1));
                 }
                 case "edit" -> editCMDExecutor(player, Helper.trimStart(args, 1), false, Return);
@@ -454,7 +454,7 @@ public class Destination {
         }
         public static ArrayList<String> CMDSuggester(Player player, int pos, String[] args) {
             ArrayList<String> suggester = new ArrayList<>();
-            if (!Utl.checkEnabled.saving(player)) return suggester;
+            if (!Helper.checkEnabled(player).saving()) return suggester;
             // saved add
             // saved edit type name <arg>
             // saved send name <IGN>
@@ -463,7 +463,7 @@ public class Destination {
                 suggester.add("edit");
                 suggester.add("delete");
                 suggester.add("send");
-                if (config.globalDESTs) suggester.add("global");
+                if (Helper.checkEnabled(player).global()) suggester.add("global");
                 return suggester;
             }
             // if -r is attached, remove it and continue with the suggester
@@ -491,7 +491,7 @@ public class Destination {
             return suggester;
         }
         public static void globalCMDExecutor(Player player, String[] args) {
-            if (!Utl.checkEnabled.saving(player) || !config.globalDESTs) return;
+            if (!Helper.checkEnabled(player).saving() || !Helper.checkEnabled(player).global()) return;
             if (args.length == 0) {
                 globalUI(player, 1);
                 return;
@@ -501,7 +501,7 @@ public class Destination {
                 return;
             }
             // PERMS FOR EDITING
-            if (!Utl.checkEnabled.global(player)) return;
+            if (!Helper.checkEnabled(player).globalEditing()) return;
             switch (args[0]) {
                 case "edit" -> editCMDExecutor(player, Helper.trimStart(args,1),true,false);
                 case "delete" -> {
@@ -515,7 +515,7 @@ public class Destination {
         public static ArrayList<String> globalCMDSuggester(Player player, int pos, String[] args) {
             ArrayList<String> suggester = new ArrayList<>();
             // enabled check
-            if (!Utl.checkEnabled.global(player)) return suggester;
+            if (!Helper.checkEnabled(player).globalEditing()) return suggester;
             if (pos == 0) {
                 suggester.add("add");
                 suggester.add("edit");
@@ -628,7 +628,7 @@ public class Destination {
             return suggester;
         }
         public static void addCMDExecutor(Player player, String[] args, boolean global) {
-            if (!Utl.checkEnabled.saving(player)) return;
+            if (!Helper.checkEnabled(player).saving()) return;
             //dest saved add <name>
             if (args.length == 1) {
                 add(player,new Dest(player,new Loc(player,args[0]),global));
@@ -937,7 +937,7 @@ public class Destination {
             destination.setColor(CUtl.color.colorHandler(player,destination.getColor()));
             // if errors were sent (invalid), return
             if (destination.sendErrors()) return;
-            if (destination.getList().size() >= config.DestMAX) {
+            if (destination.getList().size() >= Data.getConfig().getDestination().getMaxSaved()) {
                 player.sendMessage(LANG.error("max"));
                 return;
             }
@@ -1131,7 +1131,7 @@ public class Destination {
                     .append(" ").append(CTxT.of(destination.getDest().getNamelessBadge()))
                     .append("\n   ");
             // SEND BUTTON
-            if (Utl.checkEnabled.send(player)) {
+            if (Helper.checkEnabled(player).send()) {
                 msg.append(social.send.LANG.btn().btn(true).color(Assets.mainColors.send).cEvent(2,"/dest saved send "+cmdName+" ")
                         .hEvent(CTxT.of("/dest saved send "+cmdName+" <player>").color(Assets.mainColors.send)
                                 .append("\n").append(social.send.LANG.hover("saved")))).append(" ");
@@ -1178,7 +1178,7 @@ public class Destination {
             }
             msg.append("\n ");
             // add global button if enabled
-            if (config.globalDESTs) msg.append(CTxT.of(Assets.symbols.global).btn(true).color(Assets.mainColors.global)
+            if (Helper.checkEnabled(player).global()) msg.append(CTxT.of(Assets.symbols.global).btn(true).color(Assets.mainColors.global)
                     .hEvent(LANG.hover("global").color(Assets.mainColors.global))
                     .cEvent(1,"/dest saved global"));
             // else add button
@@ -1236,7 +1236,7 @@ public class Destination {
         public static CTxT BUTTON = LANG.btn().btn(true).color(Assets.mainColors.lastdeath).cEvent(1,"/dest lastdeath")
                 .hEvent(CTxT.of(Assets.cmdUsage.destLastdeath).color(Assets.mainColors.lastdeath).append("\n").append(LANG.hover()));
         public static void CMDExecutor(Player player, String[] args) {
-            if (!Utl.checkEnabled.lastdeath(player)) return;
+            if (!Helper.checkEnabled(player).lastdeath()) return;
             if (args.length == 0) {
                 UI(player,1);
                 return;
@@ -1257,7 +1257,7 @@ public class Destination {
                 //add to the top of the list
                 deaths.add(0,loc);
                 // WHILE more than max, remove the last entry (to deal with the size changing to be smaller in the future)
-                while (deaths.size() > config.LastDeathMAX) deaths.remove(deaths.size()-1);
+                while (deaths.size() > Data.getConfig().getDestination().getLastDeath().getMaxDeaths()) deaths.remove(deaths.size()-1);
             }
             player.getPData().getDEST().setLastdeath(deaths);
         }
@@ -1310,7 +1310,7 @@ public class Destination {
 
             public static void CMDExecutor(Player player, String[] args) {
                 // enabled check
-                if (!Utl.checkEnabled.send(player)) return;
+                if (!Helper.checkEnabled(player).send()) return;
                 // send <IGN>
                 if (args.length == 1) {
                     logic(player,args[0],player.getLoc());
@@ -1324,7 +1324,7 @@ public class Destination {
 
                 if (args[1].equalsIgnoreCase("saved")) {
                     // check if enabled
-                    if (!Utl.checkEnabled.saving(player)) return;
+                    if (!Helper.checkEnabled(player).saving()) return;
                     // send <IGN> saved <name>
                     if (args.length == 3) {
                         // get the dest and the loc from the dest
@@ -1430,7 +1430,7 @@ public class Destination {
                 String current = Suggester.getCurrent(args,pos);
                 ArrayList<String> suggester = new ArrayList<>();
                 // enabled check
-                if (!Utl.checkEnabled.send(player)) return suggester;
+                if (!Helper.checkEnabled(player).send()) return suggester;
                 // send <player> <saved> <name>
                 // send <player> (name) <x> (y) <z> (dimension) (color)
 
@@ -1440,7 +1440,7 @@ public class Destination {
                 }
                 // send <player> (<saved>, (name), <x>)
                 if (pos == 1) {
-                    if (Utl.checkEnabled.saving(player)) suggester.add("saved");
+                    if (Helper.checkEnabled(player).saving()) suggester.add("saved");
                     suggester.addAll(Suggester.xyz(player,current,3));
                     suggester.add(Suggester.wrapQuotes("name"));
                 }
@@ -1449,7 +1449,7 @@ public class Destination {
                 // send <player> <x> ((y))
                 if (pos == 2) {
                     // send <player> <saved> (<name>)
-                    if (args[1].equalsIgnoreCase("saved") && Utl.checkEnabled.saving(player)) {
+                    if (args[1].equalsIgnoreCase("saved") && Helper.checkEnabled(player).saving()) {
                         suggester.addAll(saved.getCMDNames(saved.getList(player)));
                     }
                     // send <player> (name) (<x>)
@@ -1546,7 +1546,7 @@ public class Destination {
                     return;
                 }
                 // target doesn't have sending enabled
-                if (!Utl.checkEnabled.send(target)) {
+                if (!Helper.checkEnabled(player).send()) {
                     player.sendMessage(LANG.error("target_disabled",CTxT.of(target.getName()).color(CUtl.s())));
                     return;
                 }
@@ -1570,7 +1570,7 @@ public class Destination {
 
                 // LOGIC
                 // add the cooldown
-                player.getPCache().setSocialCooldown(config.socialCooldown);
+                player.getPCache().setSocialCooldown(Data.getConfig().getSocial().getCooldown());
 
                 player.sendMessage(CUtl.tag().append(LANG.msg("sent",CTxT.of(target.getName()).color(CUtl.s()),
                         CTxT.of("\n ").append(loc.getBadge()))));
@@ -1594,7 +1594,7 @@ public class Destination {
                 // wrap the dimension in quotes
                 String dimCMD = Suggester.wrapQuotes(loc.getDimension());
                 // ADD
-                if (Utl.checkEnabled.saving(player))
+                if (Helper.checkEnabled(player).saving())
                     txt.append(saved.SAVE_BUTTON("/dest saved add "+ nameCMD +" "+loc.getXYZ()+" "+dimCMD+" "+colorCMD)).append(" ");
                 // SET & CONVERT
                 txt.append(dest.setButtons("/dest set "+loc.getXYZ()+" "+loc.getDimension(),
@@ -1612,7 +1612,7 @@ public class Destination {
                                 .hEvent(CTxT.of(Assets.cmdUsage.destTrackClear).color(x? 'c':'7').append("\n").append(LANG.hover("clear"))));
             }
             public static void CMDExecutor(Player player, String[] args) {
-                if (!Utl.checkEnabled.track(player)) return;
+                if (!Helper.checkEnabled(player).track()) return;
                 //dest track
                 if (args.length == 1 && args[0].equalsIgnoreCase("clear")) {
                     clear(player, 1);
@@ -1729,7 +1729,7 @@ public class Destination {
              */
             public static void set(Player player, Player target) {
                 // if online, use UUID, if not use the target NAME
-                if (config.online) player.getPData().getDEST().setTracking(target.getUUID());
+                if (Data.getConfig().getOnline()) player.getPData().getDEST().setTracking(target.getUUID());
                 else player.getPData().getDEST().setTracking(target.getName());
                 // get both players as CTxT
                 CTxT playerTxT = CTxT.of(player.getName()).color(CUtl.s()), targetTxT = CTxT.of(target.getName()).color(CUtl.s());
@@ -1772,7 +1772,7 @@ public class Destination {
                     return;
                 }
                 // add the cooldown
-                player.getPCache().setSocialCooldown(config.socialCooldown);
+                player.getPCache().setSocialCooldown(Data.getConfig().getSocial().getCooldown());
                 // target has instant tracking
                 if (Enums.get(player.getPData().getDEST().getSetting(Setting.features__track_request_mode),Setting.TrackingRequestMode.class)
                         .equals(Setting.TrackingRequestMode.instant)) {
@@ -1864,7 +1864,7 @@ public class Destination {
                 // tracking.converted = tracker converted message
 
                 // if the server turned social off / player has tracking disabled
-                if (!Utl.checkEnabled.track(player)) {
+                if (!Helper.checkEnabled(player).track()) {
                     Destination.social.track.clear(player, 2);
                     return;
                 }
@@ -1887,7 +1887,7 @@ public class Destination {
                     return;
                 }
                 // target turned off tracking
-                if (!Utl.checkEnabled.track(target)) {
+                if (!Helper.checkEnabled(player).track()) {
                     Destination.social.track.clear(player,3);
                     return;
                 }
@@ -2260,10 +2260,10 @@ public class Destination {
                             .append(LANG.get(Setting.particles__tracking+".info").color('7'))))
                     .append(": ").append(getButtons(player, Setting.particles__tracking)).append("\n ");
             // only show if needed
-            if (config.social || config.LastDeathSaving) {
+            if (Data.getConfig().getSocial().getEnabled() || Data.getConfig().getDestination().getLastDeath().getSaving()) {
                 //FEATURES
                 msg.append(LANG.ui("category.features").color(CUtl.p())).append(":\n  ");
-                if (config.social) {
+                if (Data.getConfig().getSocial().getEnabled()) {
                     msg     //SEND
                             .append(resetBtn(player, Setting.features__send)).append(" ")
                             .append(LANG.get(Setting.features__send+".ui").hEvent(LANG.get(Setting.features__send+".ui").append("\n")
@@ -2277,7 +2277,7 @@ public class Destination {
                                     .append(LANG.get(Setting.features__track_request_mode+".info").color('7'))))
                             .append(": ").append(getButtons(player, Setting.features__track)).append("\n  ");
                 }
-                if (config.LastDeathSaving) {
+                if (Data.getConfig().getDestination().getLastDeath().getSaving()) {
                     msg     //LASTDEATH
                             .append(resetBtn(player, Setting.features__lastdeath)).append(" ")
                             .append(LANG.get(Setting.features__lastdeath.toString()).hEvent(LANG.get(Setting.features__lastdeath.toString()).append("\n")
@@ -2292,9 +2292,9 @@ public class Destination {
                 // if reset is on quit the loop
                 if (resetOn) break;
                 // if lastdeath is off in the config, skip
-                if (!config.LastDeathSaving && t.equals(Setting.features__lastdeath)) continue;
+                if (!Data.getConfig().getDestination().getLastDeath().getSaving() && t.equals(Setting.features__lastdeath)) continue;
                 // if social is off in the config, skip
-                if (!config.social && (t.equals(Setting.features__send) || t.equals(Setting.features__track))) continue;
+                if (!Data.getConfig().getSocial().getEnabled() && (t.equals(Setting.features__send) || t.equals(Setting.features__track))) continue;
                 resetOn = canBeReset(player,t);
             }
             if (resetOn) reset.color('c').cEvent(1,"/dest settings reset-r all")
@@ -2311,10 +2311,10 @@ public class Destination {
         msg.append(LANG.ui("commands").color(Assets.mainColors.dest)).append(line).append("\n ");
         // lmao this is a mess but is it the best way to do it? dunno
         boolean line1Free = false;
-        boolean line2Free = !((boolean) player.getPData().getDEST().getSetting(Setting.features__lastdeath) && config.LastDeathSaving);
-        boolean sendThird = Utl.checkEnabled.send(player);
+        boolean line2Free = !Helper.checkEnabled(player).lastdeath();
+        boolean sendThird = Helper.checkEnabled(player).send();
         //SAVED + ADD
-        if (Utl.checkEnabled.saving(player)) {
+        if (Helper.checkEnabled(player).saving()) {
             msg.append(saved.BUTTON).append(saved.ADD_BUTTON);
             if (!line2Free) msg.append("        ");
             else msg.append("  ");
@@ -2324,7 +2324,7 @@ public class Destination {
         if (line1Free) msg.append(" ");
         else msg.append("\n\n ");
         //LASTDEATH
-        if (Utl.checkEnabled.lastdeath(player)) {
+        if (Helper.checkEnabled(player).lastdeath()) {
             msg.append(lastdeath.BUTTON);
             if (line1Free) {
                 line1Free = false;
@@ -2339,7 +2339,7 @@ public class Destination {
         } else if (line2Free) msg.append("  ");
         else msg.append("\n\n ");
         //SEND
-        if (Utl.checkEnabled.send(player)) {
+        if (Helper.checkEnabled(player).send()) {
             msg.append(social.send.BUTTON);
             if (line2Free && !line1Free) {
                 msg.append("\n\n ");
@@ -2348,12 +2348,12 @@ public class Destination {
             } else msg.append(" ");
         }
         //TRACK
-        if (Utl.checkEnabled.track(player)) {
+        if (Helper.checkEnabled(player).track()) {
             msg.append(social.track.BUTTON(social.track.getTarget(player)!=null));
             if (line2Free && !line1Free) {
                 msg.append("\n\n ");
             } else if (line2Free) {
-                if (Utl.checkEnabled.send(player)) msg.append(" ");
+                if (Helper.checkEnabled(player).send()) msg.append(" ");
                 else msg.append("   ");
             } else if (sendThird) {
                 msg.append(" ");

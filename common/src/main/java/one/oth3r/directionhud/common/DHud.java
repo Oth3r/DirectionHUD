@@ -1,7 +1,7 @@
 package one.oth3r.directionhud.common;
 
-import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.DirectionHUD;
+import one.oth3r.directionhud.common.files.Data;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Helper.Enums;
 import one.oth3r.directionhud.common.utils.Helper.ListPage;
@@ -17,6 +17,7 @@ import java.util.*;
 
 public class DHud {
     public static final Lang LANG = new Lang("dhud.");
+
     public static void CMDExecutor(Player player, String[] args) {
         if (args.length == 0) {
             UI(player);
@@ -30,7 +31,7 @@ public class DHud {
             case "presets", "preset" -> preset.CMDExecutor(player,trimmedArgs);
             case "reload" -> {
                 // make sure the player can reload
-                if (Utl.checkEnabled.reload(player)) reload(player);
+                if (Helper.checkEnabled(player).reload()) reload(player);
             }
             // hud and dest redirect
             case "dest", "destination" -> Destination.commandExecutor.logic(player,trimmedArgs);
@@ -38,15 +39,16 @@ public class DHud {
             default -> player.sendMessage(CUtl.error("command"));
         }
     }
+
     public static ArrayList<String> CMDSuggester(Player player, int pos, String[] args) {
         ArrayList<String> suggester = new ArrayList<>();
-        if (!Utl.checkEnabled.hud(player)) return suggester;
+        if (!Helper.checkEnabled(player).hud()) return suggester;
         if (pos == 1) {
-            if (config.social) suggester.add("inbox");
-            if (Utl.checkEnabled.reload(player)) suggester.add("reload");
-            if (Utl.checkEnabled.destination(player)) suggester.add("dest");
-            if (Utl.checkEnabled.hud(player)) suggester.add("hud");
-            if (Utl.checkEnabled.customPresets(player)) suggester.add("preset");
+            if (Data.getConfig().getSocial().getEnabled()) suggester.add("inbox");
+            if (Helper.checkEnabled(player).reload()) suggester.add("reload");
+            if (Helper.checkEnabled(player).destination()) suggester.add("dest");
+            if (Helper.checkEnabled(player).hud()) suggester.add("hud");
+            if (Helper.checkEnabled(player).customPresets()) suggester.add("preset");
         }
         if (pos > 1) {
             String command = args[0].toLowerCase();
@@ -65,15 +67,17 @@ public class DHud {
         }
         return suggester;
     }
+
     public static CTxT RELOAD_BUTTON = LANG.btn("reload").btn(true).color(Assets.mainColors.reload)
             .cEvent(1,"/dhud reload")
             .hEvent(CTxT.of(Assets.cmdUsage.reload).color(Assets.mainColors.reload).append("\n").append(LANG.hover("reload")));
+
     /**
      * reloads DirectionHUD
      * @param player null if reloading from the console
      */
     public static void reload(Player player) {
-        config.load();
+        Data.loadFiles(false);
         // fully reload the players
         for (Player pl: Utl.getPlayers()) {
             Events.playerSoftLeave(pl);
@@ -82,6 +86,7 @@ public class DHud {
         if (player == null) DirectionHUD.LOGGER.info(LANG.msg("reload").toString());
         else player.sendMessage(CUtl.tag().append(LANG.msg("reload").color('a')));
     }
+
     public static class inbox {
         public static final int PER_PAGE = 3;
 
@@ -92,7 +97,7 @@ public class DHud {
                 .hEvent(CTxT.of(Assets.cmdUsage.inbox).color(Assets.mainColors.inbox).append("\n").append(LANG.hover()));
 
         public static void CMDExecutor(Player player, String[] args) {
-            if (!config.social) return;
+            if (!Data.getConfig().getSocial().getEnabled()) return;
             // UI
             if (args.length <= 1) {
                 if (args.length == 0) UI(player,1);
@@ -132,7 +137,7 @@ public class DHud {
                     iterator.remove();
                     // send expire messages if pending expired
                     if (entry.get("type").equals(Type.track_pending.name())) {
-                        Player target = Player.of((String) entry.get("player_name"));
+                        Player target = Player.of(entry.get("player_name"));
                         if (target==null) continue;
                         target.sendMessage(CUtl.tag().append(Destination.social.track.LANG.msg("expired.target", player.getHighlightedName())));
                         player.sendMessage(CUtl.tag().append(Destination.social.track.LANG.msg("expired",target.getHighlightedName())));
@@ -159,7 +164,7 @@ public class DHud {
                             Type.track_request : Type.track_pending;
                     // use name if online mode is off
                     Player target = Player.of(entry.get("player_uuid"));
-                    if (!config.online) target = Player.of(entry.get("player_name"));
+                    if (!Data.getConfig().getOnline()) target = Player.of(entry.get("player_name"));
                     if (target != null) {
                         // search for the opposite type of the player and the id to match it in target inbox and remove
                         removeEntry(target, DHud.inbox.search(target, type,"id",entry.get("id")));
@@ -297,7 +302,7 @@ public class DHud {
             // get the entry name
             String name = entry.get("player_name");
             // get name from UUID if online mode is on
-            if (config.online) {
+            if (Data.getConfig().getOnline()) {
                 Player player_uuid = Player.of(entry.get("player_uuid"));
                 if (player_uuid != null) name = player_uuid.getName();
             }
@@ -374,7 +379,7 @@ public class DHud {
             }
         }
         public static void CMDExecutor(Player player, String[] args) {
-            if (!Utl.checkEnabled.customPresets(player)) return;
+            if (!Helper.checkEnabled(player).customPresets()) return;
             if (args.length <= 1) {
                 // preset ui
                 if (args.length == 0) custom.UI(player,1,null);
@@ -408,7 +413,7 @@ public class DHud {
         }
         public static ArrayList<String> CMDSuggester(Player player, int pos, String[] args) {
             ArrayList<String> suggester = new ArrayList<>();
-            if (!Utl.checkEnabled.customPresets(player)) return suggester;
+            if (!Helper.checkEnabled(player).customPresets()) return suggester;
             /*
                preset rename (name) (newName)
                preset save (color) (name)
@@ -723,7 +728,7 @@ public class DHud {
                 msg.append(LANG.ui("custom").color(Assets.mainColors.presets)).append(line);
                 CTxT addBtn = CTxT.of("+").btn(true).color('a').cEvent(2,"/dhud preset save-r ").hEvent(LANG.hover("save").color('a'));
                 // disable if max saved colors reached
-                if (player.getPData().getColorPresets().size() >= config.MAXColorPresets) addBtn.color('7').cEvent(1,null).hEvent(null);
+                if (player.getPData().getColorPresets().size() >= Data.getConfig().getMaxColorPresets()) addBtn.color('7').cEvent(1,null).hEvent(null);
                 ListPage<String> listPage = new ListPage<>(player.getPData().getColorPresets(),PER_PAGE);
                 for (String preset : listPage.getPage(pg)) {
                     String color = getColor(preset), name = getName(preset);
@@ -811,7 +816,7 @@ public class DHud {
                     player.sendMessage(CUtl.LANG.error("length",Helper.MAX_NAME));
                     return;
                 }
-                if (presets.size() >= config.MAXColorPresets) {
+                if (presets.size() >= Data.getConfig().getMaxColorPresets()) {
                     player.sendMessage(LANG.error("max"));
                     return;
                 }
@@ -891,16 +896,16 @@ public class DHud {
                         .cEvent(3,"https://modrinth.com/mod/directionhud/changelog"))
                 .append(line).append("\n ");
         // hud
-        if (Utl.checkEnabled.hud(player)) msg.append(Hud.BUTTON).append("  ");
+        if (Helper.checkEnabled(player).hud()) msg.append(Hud.BUTTON).append("  ");
         // dest
-        if (Utl.checkEnabled.destination(player)) msg.append(Destination.BUTTON);
+        if (Helper.checkEnabled(player).destination()) msg.append(Destination.BUTTON);
         msg.append("\n\n ");
         // presets
-        if (Utl.checkEnabled.customPresets(player)) msg.append(preset.BUTTON).append(" ");
+        if (Helper.checkEnabled(player).customPresets()) msg.append(preset.BUTTON).append(" ");
         // inbox
-        if (config.social) msg.append(inbox.BUTTON);
+        if (Data.getConfig().getSocial().getEnabled()) msg.append(inbox.BUTTON);
         // reload (if enabled)
-        if (Utl.checkEnabled.reload(player)) msg.append("\n\n ").append(RELOAD_BUTTON);
+        if (Helper.checkEnabled(player).reload()) msg.append("\n\n ").append(RELOAD_BUTTON);
         msg.append(line);
         player.sendMessage(msg);
     }

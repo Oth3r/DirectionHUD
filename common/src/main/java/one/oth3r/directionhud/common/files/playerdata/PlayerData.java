@@ -1,5 +1,6 @@
 package one.oth3r.directionhud.common.files.playerdata;
 
+import one.oth3r.directionhud.common.files.Updater;
 import one.oth3r.directionhud.utils.Player;
 
 import java.util.ArrayList;
@@ -137,7 +138,7 @@ public class PlayerData {
      */
     public static void addPlayer(Player player) {
         PData.loadPlayer(player,false);
-        Updater.run(player);
+        Updater.PlayerFile.run(player);
     }
 
     /**

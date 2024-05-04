@@ -2,7 +2,7 @@ package one.oth3r.directionhud.common.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import one.oth3r.directionhud.common.files.config;
+import one.oth3r.directionhud.common.files.Data;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
@@ -155,14 +155,14 @@ public class Loc {
 
     private Integer yBounds(Integer s) {
         if (s == null) return null;
-        if (s > config.MAXy) return config.MAXy;
-        return Math.max(s, config.MAXy*-1);
+        if (s > Data.getConfig().getLocation().getMaxY()) return Data.getConfig().getLocation().getMaxY();
+        return Math.max(s, Data.getConfig().getLocation().getMaxY()*-1);
     }
 
     private Integer xzBounds(Integer s) {
         if (s == null) return null;
-        if (s > config.MAXxz) return config.MAXxz;
-        return Math.max(s, config.MAXxz*-1);
+        if (s > Data.getConfig().getLocation().getMaxXZ()) return Data.getConfig().getLocation().getMaxXZ();
+        return Math.max(s, Data.getConfig().getLocation().getMaxXZ()*-1);
     }
 
     public void convertTo(String toDimension) {

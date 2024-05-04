@@ -80,10 +80,10 @@ public class LangReader {
     public static void loadLanguageFile() {
         try {
             ClassLoader classLoader = DirectionHUD.class.getClassLoader();
-            InputStream inputStream = classLoader.getResourceAsStream("assets/directionhud/lang/"+ config.lang+".json");
+            InputStream inputStream = classLoader.getResourceAsStream("assets/directionhud/lang/"+Data.getConfig().getLang()+".json");
+            // if it cant read, try with the english file
             if (inputStream == null) {
-                inputStream = classLoader.getResourceAsStream("assets/directionhud/lang/"+ config.defaults.lang+".json");
-                config.lang = config.defaults.lang;
+                inputStream = classLoader.getResourceAsStream("assets/directionhud/lang/en_us.json");
             }
             if (inputStream == null) throw new IllegalArgumentException("CANT LOAD THE LANGUAGE FILE. DIRECTIONHUD WILL BREAK.");
             Type type = new TypeToken<Map<String, String>>(){}.getType();

@@ -136,7 +136,7 @@ public class Dimension {
      * loads the dimensionSettings from the file, adds any missing dimensions, and saves
      */
     public static void load() {
-        dimensionSettings = DimensionSettings.get();
+        dimensionSettings = DimensionSettings.load();
         Utl.dim.addMissing();
         save();
     }
@@ -145,7 +145,7 @@ public class Dimension {
      * saves the current dimensionSettings to file
      */
     public static void save() {
-        DimensionSettings.put(dimensionSettings);
+        DimensionSettings.save(dimensionSettings);
     }
 
     // converts the old system of saving dimension settings to the new system

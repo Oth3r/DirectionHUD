@@ -144,7 +144,7 @@ public class Hud {
     }
     public static final Lang LANG = new Lang("hud.");
     public static void CMDExecutor(Player player, String[] args) {
-        if (!Utl.checkEnabled.hud(player)) return;
+        if (!Helper.checkEnabled(player).hud()) return;
         if (args.length == 0) {
             UI(player,null);
             return;
@@ -161,7 +161,7 @@ public class Hud {
     }
     public static ArrayList<String> CMDSuggester(Player player, int pos, String[] args) {
         ArrayList<String> suggester = new ArrayList<>();
-        if (!Utl.checkEnabled.hud(player)) return suggester;
+        if (!Helper.checkEnabled(player).hud()) return suggester;
         if (pos == 1) {
             suggester.add("modules");
             suggester.add("color");

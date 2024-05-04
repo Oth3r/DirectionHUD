@@ -18,7 +18,8 @@ import one.oth3r.directionhud.commands.HUDCommand;
 import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.Events;
 import one.oth3r.directionhud.common.LoopManager;
-import one.oth3r.directionhud.common.files.config;
+import one.oth3r.directionhud.common.files.Config;
+import one.oth3r.directionhud.common.files.Data;
 import one.oth3r.directionhud.utils.BossBarManager;
 import one.oth3r.directionhud.utils.Player;
 import org.apache.logging.log4j.LogManager;
@@ -43,7 +44,7 @@ public class DirectionHUD implements ModInitializer {
 	public static CommandManager commandManager;
 	@Override
 	public void onInitialize() {
-		config.load();
+		Data.loadFiles(true);
 		//START
 		ServerLifecycleEvents.SERVER_STARTED.register(s -> {
 			DirectionHUD.playerManager = s.getPlayerManager();

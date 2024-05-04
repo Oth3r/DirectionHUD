@@ -1,7 +1,7 @@
 package one.oth3r.directionhud.common;
 
 import one.oth3r.directionhud.DirectionHUD;
-import one.oth3r.directionhud.common.files.config;
+import one.oth3r.directionhud.common.files.Data;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.utils.Helper.Enums;
@@ -25,13 +25,13 @@ public class LoopManager {
         rainbowF += 10;
         HUDTick++;
         ParticleTick++;
-        if (HUDTick >= config.HUDLoop) {
+        if (HUDTick >= Data.getConfig().getHud().getLoop()) {
             HUDTick = 0;
             for (Player player : Utl.getPlayers()) {
                 HUDTickLogic(player);
             }
         }
-        if (ParticleTick >= config.ParticleLoop) {
+        if (ParticleTick >= Data.getConfig().getDestination().getParticleLoop()) {
             ParticleTick = 0;
             for (Player player :Utl.getPlayers()) particles(player);
         }
