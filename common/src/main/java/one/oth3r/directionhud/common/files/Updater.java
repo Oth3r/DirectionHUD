@@ -445,7 +445,7 @@ public class Updater {
                     config.getSocial().setEnabled(Boolean.parseBoolean((String) properties.computeIfAbsent("social-commands", a -> String.valueOf(config.getSocial().getEnabled()))));
                     config.getSocial().setCooldown(Integer.parseInt((String) properties.computeIfAbsent("social-cooldown", a -> String.valueOf(config.getSocial().getCooldown()))));
                     // LOOPS
-                    config.getDestination().setParticleLoop(Math.min(20, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("particle-loop", a -> String.valueOf(config.getDestination().getParticleLoop()))))));
+                    config.getDestination().setLoop(Math.min(20, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("particle-loop", a -> String.valueOf(config.getDestination().getLoop()))))));
                     config.getHud().setLoop(Math.min(20, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("hud-loop", a -> String.valueOf(config.getHud().getLoop()))))));
                     // COLOR PRESETS
                     try {

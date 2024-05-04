@@ -31,7 +31,7 @@ public class LoopManager {
                 HUDTickLogic(player);
             }
         }
-        if (ParticleTick >= Data.getConfig().getDestination().getParticleLoop()) {
+        if (ParticleTick >= Data.getConfig().getDestination().getLoop()) {
             ParticleTick = 0;
             for (Player player :Utl.getPlayers()) particles(player);
         }
