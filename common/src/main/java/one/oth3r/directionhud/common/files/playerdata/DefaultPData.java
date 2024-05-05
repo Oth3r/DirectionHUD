@@ -6,6 +6,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.common.utils.Helper.*;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -13,7 +14,6 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class DefaultPData {
 
@@ -26,7 +26,7 @@ public class DefaultPData {
     @SerializedName("destination")
     private PDDestination destination = new PDDestination();
     @SerializedName("color_presets")
-    private List<String> colorPresets = new ArrayList<>();
+    private ArrayList<ColorPreset> colorPresets = new ArrayList<>();
     @SerializedName("inbox")
     private ArrayList<HashMap<String,String>> inbox = new ArrayList<>();
     @SerializedName("social_cooldown")
@@ -106,14 +106,16 @@ public class DefaultPData {
         // dont need to save, something else will save
     }
 
-    public ArrayList<String> getColorPresets() {
-        return (ArrayList<String>) colorPresets;
+    public ArrayList<ColorPreset> getColorPresets() {
+        return colorPresets;
     }
 
-    public void setColorPresets(List<String> colorPresets) {
+    public void setColorPresets(ArrayList<ColorPreset> colorPresets) {
         this.colorPresets = colorPresets;
         save();
     }
+
+    // CACHE ITEMS (write in cache)
 
     public ArrayList<HashMap<String,String>> getInbox() {
         return inbox;
@@ -157,5 +159,4 @@ public class DefaultPData {
             e.printStackTrace();
         }
     }
-
 }

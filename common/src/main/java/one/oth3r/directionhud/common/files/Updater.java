@@ -37,9 +37,16 @@ public class Updater {
         }
 
         public static class legacy {
+            /**
+             * runs the playerdata legacy updater
+             */
             public static void update(Player player) {
                 mapUpdate(player,fileToMap(player));
             }
+
+            /**
+             * converts the playerdata file to a Map
+             */
             private static Map<String, Object> fileToMap(Player player) {
                 try (BufferedReader reader = Files.newBufferedReader(PData.getPlayerFile(player).toPath())) {
                     Gson gson = new GsonBuilder().create();
@@ -50,6 +57,10 @@ public class Updater {
                 }
                 return new HashMap<>();
             }
+
+            /**
+             * writes a plyerdata Map to file
+             */
             private static void mapToFile(Player player, Map<String, Object> map) {
                 try (BufferedWriter writer = Files.newBufferedWriter(PData.getPlayerFile(player).toPath())) {
                     Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -59,11 +70,19 @@ public class Updater {
                     DirectionHUD.LOGGER.info(e.getMessage());
                 }
             }
+
+            /**
+             * saves the Map to file and loads it again, resetting custom types
+             */
             private static Map<String, Object> saveLoad(Player player, Map<String, Object> map) {
                 // saves the current map and sends back an updated map
                 mapToFile(player,map);
                 return fileToMap(player);
             }
+
+            /**
+             * updates the player data Map to be able to be read by the new Object system
+             */
             @SuppressWarnings("unchecked")
             private static void mapUpdate(Player player, Map<String,Object> base) {
                 PDDestination DESTINATION = PlayerData.getDefaults().getDEST();
@@ -332,6 +351,11 @@ public class Updater {
                     base = saveLoad(player,base);
                 }
                 if (base.get("version").equals(1.72)) {
+                    base.put("version",2.0);
+
+                    // update color presets to record system
+                    base.put("color_presets", DHud.preset.custom.updateTo2_0((ArrayList<String>) base.get("color_presets")));
+
                     // clear the inbox
                     base.put("inbox", new ArrayList<>());
 
@@ -449,7 +473,7 @@ public class Updater {
                     config.getHud().setLoop(Math.min(20, Math.max(1, Integer.parseInt((String) properties.computeIfAbsent("hud-loop", a -> String.valueOf(config.getHud().getLoop()))))));
                     // COLOR PRESETS
                     try {
-                        DEFAULTS.setColorPresets(DHud.preset.custom.validate(gson.fromJson((String) properties.computeIfAbsent("color-presets", a -> gson.toJson(DEFAULTS.getColorPresets())), arrayListMap)));
+                        DEFAULTS.setColorPresets(DHud.preset.custom.updateTo2_0(gson.fromJson((String) properties.computeIfAbsent("color-presets", a -> gson.toJson(DEFAULTS.getColorPresets())), arrayListMap)));
                     } catch (JsonSyntaxException ignored) {}
                     config.setMaxColorPresets(Integer.parseInt((String) properties.computeIfAbsent("max-color-presets", a -> String.valueOf(config.getMaxColorPresets()))));
 
@@ -538,8 +562,8 @@ public class Updater {
                     // CONFIG UPDATER, if the version is lower than the current, load from the old config
                     if (version <= 1.4f) {
                         try {
-                            DEFAULTS.setColorPresets(DHud.preset.custom.updateTo1_7(
-                                    gson.fromJson((String)properties.computeIfAbsent("color-presets",a->gson.toJson(new ArrayList<>())),arrayListMap)));
+                            DEFAULTS.setColorPresets(DHud.preset.custom.updateTo2_0(DHud.preset.custom.updateTo1_7(
+                                    gson.fromJson((String)properties.computeIfAbsent("color-presets",a->gson.toJson(new ArrayList<>())),arrayListMap))));
                         } catch (JsonSyntaxException ignored) {}
                     }
                     // everything before & 1.3

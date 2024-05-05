@@ -31,8 +31,9 @@ public class Events {
         // clear everything as serverEnd on client can just be exiting single-player
         GlobalDest.clear();
         PlayerData.clearPlayerData();
+        PlayerData.clearPlayerCache();
         DirectionHUD.clear();
-        DirectionHUD.LOGGER.info("Safely shutdown!");
+        DirectionHUD.LOGGER.info("Safely shutdown DirectionHUD server!");
     }
 
     public static void playerJoin(Player player) {

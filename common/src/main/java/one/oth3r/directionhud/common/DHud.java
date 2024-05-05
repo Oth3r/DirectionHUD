@@ -4,7 +4,7 @@ import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.files.Data;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Helper.Enums;
-import one.oth3r.directionhud.common.utils.Helper.ListPage;
+import one.oth3r.directionhud.common.utils.Helper.*;
 import one.oth3r.directionhud.common.utils.Helper.Command.Suggester;
 import one.oth3r.directionhud.common.utils.Lang;
 import one.oth3r.directionhud.common.utils.Loc;
@@ -14,6 +14,7 @@ import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class DHud {
     public static final Lang LANG = new Lang("dhud.");
@@ -387,12 +388,12 @@ public class DHud {
                 else if (Helper.Num.isNum(args[0])) custom.UI(player,Helper.Num.toInt(args[0]),null);
                     // via preset name
                 else {
-                    ArrayList<String> presets = player.getPData().getColorPresets();
-                    ListPage<String> listPage = new ListPage<>(presets, PER_PAGE);
+                    ArrayList<ColorPreset> presets = player.getPData().getColorPresets();
+                    ListPage<ColorPreset> listPage = new ListPage<>(presets, PER_PAGE);
+                    ArrayList<String> presetNames = custom.getNames(presets);
                     // check if the preset is valid, then get the page for that preset
-                    if (custom.getNames(presets).contains(args[0])) {
-                        String preset = args[0] +"|"+ custom.getColors(presets).get(custom.getNames(presets).indexOf(args[0]));
-                        custom.UI(player, listPage.getPageOf(preset), null);
+                    if (presetNames.contains(args[0])) {
+                        custom.UI(player, listPage.getPageOf(presets.get(presetNames.indexOf(args[0]))), null);
                     }
                 }
                 return;
@@ -604,10 +605,10 @@ public class DHud {
             } else {
                 // custom, just numbers for the pages instead of an identifier, easier that way trust me
                 int pg = Helper.Num.toInt(page);
-                ListPage<String> listPage = new ListPage<>(player.getPData().getColorPresets(),7);
+                ListPage<ColorPreset> listPage = new ListPage<>(player.getPData().getColorPresets(),7);
                 customBtn = listPage.getNavButtons(pg,clickCMD+"preset ");
-                for (String preset : listPage.getPage(pg)) {
-                    String color = custom.getColor(preset), name = custom.getName(preset);
+                for (ColorPreset preset : listPage.getPage(pg)) {
+                    String color = preset.color(), name = preset.name();
                     list.append("\n ").append(CTxT.of(Assets.symbols.square).color(color).btn(true)
                                     .cEvent(1,String.format(clickCMD+"set \"%s\"",color))
                                     .hEvent(LANG.get("color.hover.set",CUtl.color.getBadge(color))))
@@ -641,6 +642,8 @@ public class DHud {
         public static class custom {
             /**
              * update from the old preset system to the new one (1.7)
+             * <p>
+             * - adds names to each preset entry
              * @param oldList the old list to update
              * @return the updated list
              */
@@ -653,70 +656,58 @@ public class DHud {
                 }
                 return list;
             }
+
             /**
-             * validate the config entry, making sure it works without throwing errors
+             * validate the config entry, making sure it works without throwing errors & updates to the 2.0 record preset system
              * @param list the current preset list
-             * @return the fixed (or validated list)
+             * @return the updated list
              */
-            public static ArrayList<String> validate(ArrayList<String> list) {
-                ArrayList<String> output = new ArrayList<>();
+            public static ArrayList<ColorPreset> updateTo2_0(ArrayList<String> list) {
+                ArrayList<ColorPreset> output = new ArrayList<>();
                 for (String preset: list) {
-                    String name = getName(preset), color = getColor(preset);
-                    // if name too long, remove
-                    if (name.length() > Helper.MAX_NAME) break;
                     // if not formatted properly, remove
                     if (!preset.contains("|#")) break;
+                    String name = preset.substring(0, preset.lastIndexOf("|#"));
+                    String color = preset.substring(preset.lastIndexOf("|#")+1);
+
+                    // if name too long, remove
+                    if (name.length() > Helper.MAX_NAME) break;
+
                     // if color is invalid, remove
                     if (!color.equals("#ffffff") && CUtl.color.format(color).equals("#ffffff")) break;
-                    output.add(preset);
+                    output.add(new ColorPreset(name, color));
                 }
                 return output;
             }
+
             /**
              * gets the color badge of the preset
              * @param preset the preset to make the badge
              * @param square if there should be a square with the color or not
              * @return the badge
              */
-            public static CTxT getBadge(String preset, boolean square) {
-                return CTxT.of((square?Assets.symbols.square+" ":"")+getName(preset)).color(getColor(preset));
+            public static CTxT getBadge(ColorPreset preset, boolean square) {
+                return CTxT.of((square?Assets.symbols.square+" ":"")+preset.name()).color(preset.color());
             }
-            /**
-             * gets the name from the whole preset entry
-             * @param preset the preset entry
-             * @return the name of the preset
-             */
-            public static String getName(String preset) {
-                return preset.substring(0, preset.lastIndexOf("|#"));
-            }
+
             /**
              * gets the list of all preset names
              * @param presets the list with all presets
              * @return the list of all preset names
              */
-            public static ArrayList<String> getNames(ArrayList<String> presets) {
-                ArrayList<String> out = new ArrayList<>();
-                for (String preset : presets) out.add(getName(preset));
-                return out;
+            public static ArrayList<String> getNames(ArrayList<ColorPreset> presets) {
+                return presets.stream().map(ColorPreset::name).collect(Collectors.toCollection(ArrayList::new));
             }
-            /**
-             * gets the color from the whole preset entry
-             * @param preset the preset entry
-             * @return the color of the preset
-             */
-            public static String getColor(String preset) {
-                return preset.substring(preset.lastIndexOf("|#")+1);
-            }
+
             /**
              * gets the list of all preset colors
              * @param presets the list with all presets
              * @return the list of all preset colors
              */
-            public static ArrayList<String> getColors(ArrayList<String> presets) {
-                ArrayList<String> out = new ArrayList<>();
-                for (String preset : presets) out.add(getColor(preset));
-                return out;
+            public static ArrayList<String> getColors(ArrayList<ColorPreset> presets) {
+                return presets.stream().map(ColorPreset::color).collect(Collectors.toCollection(ArrayList::new));
             }
+
             /**
              * the custom presets UI
              * @param pg the page of the custom presets to display
@@ -729,20 +720,26 @@ public class DHud {
                 CTxT addBtn = CTxT.of("+").btn(true).color('a').cEvent(2,"/dhud preset save-r ").hEvent(LANG.hover("save").color('a'));
                 // disable if max saved colors reached
                 if (player.getPData().getColorPresets().size() >= Data.getConfig().getMaxColorPresets()) addBtn.color('7').cEvent(1,null).hEvent(null);
-                ListPage<String> listPage = new ListPage<>(player.getPData().getColorPresets(),PER_PAGE);
-                for (String preset : listPage.getPage(pg)) {
-                    String color = getColor(preset), name = getName(preset);
-                    msg.append("\n ").append(CTxT.of(Assets.symbols.x).color('c').btn(true)
+                ListPage<ColorPreset> listPage = new ListPage<>(player.getPData().getColorPresets(),PER_PAGE);
+
+                for (ColorPreset preset : listPage.getPage(pg)) {
+                    String color = preset.color(), name = preset.name();
+                    msg.append("\n ")
+                            // X BUTTON
+                            .append(CTxT.of(Assets.symbols.x).color('c').btn(true)
                                     .cEvent(1,String.format("/dhud preset delete-r \"%s\"",name))
                                     .hEvent(LANG.hover("delete",getBadge(preset,true)).color('c')))
                             .append(" ")
+                            // COLOR
                             .append(CTxT.of(Assets.symbols.square).color(color).btn(true)
                                     .cEvent(1,String.format("/dhud preset colorui \"%s\" normal",name))
                                     .hEvent(LANG.hover("color",CUtl.color.getBadge(color))))
+                            // NAME
                             .append(CTxT.of(name).color(color).btn(true)
                                     .cEvent(2,String.format("/dhud preset rename-r \"%s\" ",name))
                                     .hEvent(LANG.hover("rename",getBadge(preset,false))));
                 }
+
                 // fill in the gaps if entries don't fill whole page (consistency)
                 if (listPage.getPage(pg).size() != PER_PAGE) {
                     for (int i = listPage.getPage(pg).size(); i < PER_PAGE; i++)
@@ -755,6 +752,7 @@ public class DHud {
                         .append(line);
                 player.sendMessage(msg);
             }
+
             /**
              * the UI for changing a preset color
              * @param UISettings the ui settings
@@ -762,7 +760,7 @@ public class DHud {
              * @param aboveTxT the TxT above the UI
              */
             public static void colorUI(Player player, String UISettings, String name, CTxT aboveTxT) {
-                ArrayList<String> presets = player.getPData().getColorPresets();
+                ArrayList<ColorPreset> presets = player.getPData().getColorPresets();
                 ArrayList<String> names = getNames(presets);
                 if (!names.contains(name)) return;
                 String currentColor = getColors(presets).get(names.indexOf(name));
@@ -776,6 +774,7 @@ public class DHud {
                         .append("\n\n           ").append(CUtl.CButton.back(String.format("/dhud preset \"%s\"",name))).append(line);
                 player.sendMessage(msg);
             }
+
             /**
              * sets the color of the selected preset
              * @param UISettings the ui settings
@@ -784,7 +783,7 @@ public class DHud {
              * @param Return whether to return to the UI or not
              */
             public static void setColor(Player player, String UISettings, String name, String color, boolean Return) {
-                ArrayList<String> presets = player.getPData().getColorPresets();
+                ArrayList<ColorPreset> presets = player.getPData().getColorPresets();
                 ArrayList<String> names = getNames(presets);
                 // remove the bad data
                 if (!names.contains(name)) {
@@ -795,18 +794,19 @@ public class DHud {
                 color = CUtl.color.colorHandler(player,color);
                 // find the pos of the current preset and replace with the new color
                 int index = names.indexOf(name);
-                String oldPreset = presets.get(index), preset = name+"|"+color;
+                ColorPreset oldPreset = presets.get(index), preset = new ColorPreset(name,color);
                 presets.set(index,preset);
                 player.getPData().setColorPresets(presets);
                 if (Return) colorUI(player,UISettings,name,null);
                 else player.sendMessage(CUtl.tag().append(LANG.msg("color",getBadge(oldPreset,false),CUtl.color.getBadge(color))));
             }
+
             /**
              * saves a new preset
              * @param Return displays the UI or not
              */
             public static void save(Player player, String name, String color, boolean Return) {
-                ArrayList<String> presets = player.getPData().getColorPresets();
+                ArrayList<ColorPreset> presets = player.getPData().getColorPresets();
                 // errors
                 if (getNames(presets).contains(name)) {
                     player.sendMessage(LANG.error("duplicate"));
@@ -823,21 +823,22 @@ public class DHud {
                 // fix the color
                 color = CUtl.color.colorHandler(player,color);
                 // add & save the preset
-                String entry = name+"|"+color;
+                ColorPreset entry = new ColorPreset(name,color);
                 presets.add(entry);
                 player.getPData().setColorPresets(presets);
                 // listPage for getting the page of the new entry when returning
-                ListPage<String> listPage = new ListPage<>(presets,PER_PAGE);
+                ListPage<ColorPreset> listPage = new ListPage<>(presets,PER_PAGE);
                 CTxT msg = CUtl.tag().append(LANG.msg("save",getBadge(entry,true)));
                 if (Return) UI(player,listPage.getPageOf(presets.get(presets.size()-1)),msg);
                 else player.sendMessage(msg);
             }
+
             /**
              * renames an existing preset
              * @param Return displays the UI or not
              */
             public static void rename(Player player, String name, String newName, boolean Return) {
-                ArrayList<String> presets = player.getPData().getColorPresets();
+                ArrayList<ColorPreset> presets = player.getPData().getColorPresets();
                 ArrayList<String> names = getNames(presets);
                 // remove the bad data
                 if (!names.contains(name)) {
@@ -853,39 +854,41 @@ public class DHud {
                     return;
                 }
                 int index = names.indexOf(name);
-                String preset = newName+"|"+getColors(presets).get(index);
-                presets.set(index,preset);
+                ColorPreset oldEntry = presets.get(index), newEntry = new ColorPreset(newName,oldEntry.color());
+                presets.set(index,newEntry);
                 player.getPData().setColorPresets(presets);
                 // player formatting
-                CTxT msg = CUtl.tag().append(LANG.msg("rename",getBadge(name+"|"+getColors(presets).get(index),false),getBadge(preset,false)));
+                CTxT msg = CUtl.tag().append(LANG.msg("rename",getBadge(oldEntry,false),getBadge(newEntry,false)));
                 ListPage<String> listPage = new ListPage<>(names,PER_PAGE);
                 if (Return) UI(player,listPage.getPageOf(name),msg);
                 else player.sendMessage(msg);
             }
+
             /**
              * deletes an existing preset
              * @param Return displays the UI or not
              */
             public static void delete(Player player, String name, boolean Return) {
-                ArrayList<String> presets = player.getPData().getColorPresets();
+                ArrayList<ColorPreset> presets = player.getPData().getColorPresets();
                 ArrayList<String> names = getNames(presets);
                 // remove the bad data
                 if (!names.contains(name)) {
                     player.sendMessage(LANG.error("invalid"));
                     return;
                 }
-                String preset = presets.get(names.indexOf(name));
+                ColorPreset entry = presets.get(names.indexOf(name));
                 // remove the preset
-                presets.remove(preset);
+                presets.remove(entry);
                 player.getPData().setColorPresets(presets);
                 // player formatting
-                CTxT msg = CUtl.tag().append(LANG.msg("delete",getBadge(preset,true)));
+                CTxT msg = CUtl.tag().append(LANG.msg("delete",getBadge(entry,true)));
                 ListPage<String> listPage = new ListPage<>(names,PER_PAGE);
                 if (Return) UI(player,listPage.getPageOf(name),msg);
                 else player.sendMessage(msg);
             }
         }
     }
+
     /**
      * the main directionHUD UI
      */

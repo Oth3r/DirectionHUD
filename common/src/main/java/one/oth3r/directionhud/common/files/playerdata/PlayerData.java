@@ -70,7 +70,7 @@ public class PlayerData {
      * clears everything inside the playerCache map
      */
     public static void clearPlayerCache() {
-        playerData.clear();
+        playerCache.clear();
     }
 
     public static void setPlayerCache(Player player, CachedPData pCache) {
@@ -78,7 +78,7 @@ public class PlayerData {
     }
 
     public static void removePlayerCache(Player player) {
-        playerData.remove(player);
+        playerCache.remove(player);
     }
 
     /**
@@ -138,6 +138,7 @@ public class PlayerData {
      */
     public static void addPlayer(Player player) {
         PData.loadPlayer(player,false);
+        // run the updater
         Updater.PlayerFile.run(player);
     }
 

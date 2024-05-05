@@ -2,8 +2,8 @@ package one.oth3r.directionhud.common.utils;
 
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.Assets;
-import one.oth3r.directionhud.common.DHud;
 import one.oth3r.directionhud.common.files.LangReader;
+import one.oth3r.directionhud.common.utils.Helper.*;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
@@ -158,9 +158,9 @@ public class CUtl {
                 if (color.contains("preset-")) {
                     String name = color.split("-")[1];
                     // find the right preset and get the color
-                    for (String preset : player.getPData().getColorPresets()) {
-                        if (DHud.preset.custom.getName(preset).equals(name)) {
-                            color = DHud.preset.custom.getColor(preset);
+                    for (ColorPreset preset : player.getPData().getColorPresets()) {
+                        if (preset.name().equals(name)) {
+                            color = preset.color();
                             break;
                         }
                     }

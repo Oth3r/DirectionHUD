@@ -312,6 +312,13 @@ public class Helper {
             }
     }
 
+    public record ColorPreset(String name, String color) {
+
+        public String toString() {
+            return "(" + this.name + ": " + this.color + ")";
+        }
+    }
+
     public static class ListPage<T> {
         // helps separate lists into page sized chunks
         private final ArrayList<T> list;
