@@ -35,7 +35,7 @@ public class PDHud {
             DirectionHUD.PRIMARY,false,false,false);
     @SerializedName("secondary")
     private Color secondary = new PDHud.Color(
-            DirectionHUD.SECONDARY,false,false,false);
+            "#ffffff",false,false,false);
 
     public PDHud() {}
 
