@@ -35,14 +35,14 @@ public class ConfigScreen extends Screen {
                     Util.getOperatingSystem().open(Config.getFile());
                 })
                 .dimensions(width / 2-100, 10, 200, 20)
-                .tooltip(Tooltip.of(Text.literal("Tooltip of button1")))
+                .tooltip(Tooltip.of(LANG.get("tooltip.file").b()))
                 .build());
         // dimension settings file
         addDrawableChild(ButtonWidget.builder(Text.literal(DimensionSettings.getFile().getName()), button -> {
                     Util.getOperatingSystem().open(DimensionSettings.getFile());
                 })
                 .dimensions(width / 2-100, 35, 200, 20)
-                .tooltip(Tooltip.of(Text.literal("Tooltip of button2")))
+                .tooltip(Tooltip.of(LANG.get("tooltip.file").b()))
                 .build());
         // default pData file
         addDrawableChild(
@@ -50,33 +50,25 @@ public class ConfigScreen extends Screen {
                     Util.getOperatingSystem().open(DefaultPData.getDefaultFile());
                 })
                 .dimensions(width / 2-100, 60, 200, 20)
-                .tooltip(Tooltip.of(Text.literal("Tooltip of button3")))
+                .tooltip(Tooltip.of(LANG.get("tooltip.file").b()))
                 .build());
         // open folder button
         addDrawableChild(
-                ButtonWidget.builder(Text.literal("Open Folder"), button -> {
+                ButtonWidget.builder(LANG.btn("folder").b(), button -> {
                             Util.getOperatingSystem().open(Paths.get(DirectionHUD.CONFIG_DIR).toUri());
                         })
                         .dimensions(width / 2-100, 85, 200, 20)
-                        .tooltip(Tooltip.of(Text.literal("Tooltip of button3")))
+                        .tooltip(Tooltip.of(LANG.get("tooltip.folder").b()))
                         .build());
 
         // open folder button
         addDrawableChild(
-                ButtonWidget.builder(Text.literal("Load Changes"), button -> {
-                            Data.loadFiles(false);
-                        })
-                        .dimensions(width / 2 -98-2, height-30, 98, 20)
-                        .tooltip(Tooltip.of(Text.literal("Tooltip of button3")))
-                        .build());
-        // open folder button
-        addDrawableChild(
-                ButtonWidget.builder(Text.literal("Back"), button -> {
+                ButtonWidget.builder(LANG.btn("save").b(), button -> {
                             client.setScreen(PARENT);
                             Data.loadFiles(false);
                         })
-                        .dimensions(width / 2 +2, height-30, 98, 20)
-                        .tooltip(Tooltip.of(Text.literal("Tooltip of button3")))
+                        .dimensions(width / 2-100, height-30, 200, 20)
+                        .tooltip(Tooltip.of(LANG.get("tooltip.save").b()))
                         .build());
     }
 
