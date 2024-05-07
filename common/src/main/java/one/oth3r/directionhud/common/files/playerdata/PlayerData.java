@@ -5,7 +5,9 @@ import one.oth3r.directionhud.utils.Player;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class PlayerData {
 
@@ -15,7 +17,7 @@ public class PlayerData {
          */
         private static final ArrayList<Player> SAVE = new ArrayList<>();
 
-        private static final HashMap<Player, Integer> EXPIRE = new HashMap<>();
+        private static final ConcurrentHashMap<Player, Integer> EXPIRE = new ConcurrentHashMap<>();
 
         public static void addSavePlayer(Player player) {
             if (!SAVE.contains(player)) SAVE.add(player);
@@ -30,16 +32,22 @@ public class PlayerData {
          */
         public static void tick() {
             // save everyone in the list and remove
-            for (Player player : new ArrayList<>(SAVE)) {
+            // use an iterator to not cause any issues
+            Iterator<Player> iterator = SAVE.iterator();
+            while (iterator.hasNext()) {
+                Player player = iterator.next();
                 PData.savePlayer(player);
-                SAVE.remove(player);
+                iterator.remove();
             }
             // tick everyone in the expire map, and remove the pData for the expired people
-            for (Player player : new ArrayList<>(EXPIRE.keySet())) {
+            // use an iterator to not cause any issues
+            iterator = EXPIRE.keySet().iterator();
+            while (iterator.hasNext()) {
+                Player player = iterator.next();
                 EXPIRE.put(player, EXPIRE.get(player)-1);
                 if (EXPIRE.get(player) < 1) {
                     removePlayerData(player);
-                    EXPIRE.remove(player);
+                    iterator.remove();
                 }
             }
         }
