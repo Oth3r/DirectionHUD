@@ -8,7 +8,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import one.oth3r.directionhud.DirectionHUD;
-import one.oth3r.directionhud.DirectionHUDClient;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.dimension.DimensionEntry;
 import one.oth3r.directionhud.common.files.dimension.DimensionEntry.*;
@@ -57,7 +56,7 @@ public class Utl {
 
         @Override
         public boolean globalEditing() {
-            return super.globalEditing() && (player.getPlayer().hasPermissionLevel(2) || DirectionHUDClient.singleplayer);
+            return super.globalEditing() && (player.getPlayer().hasPermissionLevel(2) || DirectionHUD.singleplayer);
         }
 
         @Override
@@ -72,7 +71,7 @@ public class Utl {
 
         @Override
         public boolean reload() {
-            return player.getPlayer().hasPermissionLevel(2) || DirectionHUDClient.singleplayer;
+            return player.getPlayer().hasPermissionLevel(2) || DirectionHUD.singleplayer;
         }
     }
 

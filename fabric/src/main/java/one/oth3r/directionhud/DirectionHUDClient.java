@@ -25,11 +25,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class DirectionHUDClient implements ClientModInitializer {
-    public static boolean singleplayer = false;
     public static boolean onSupportedServer = false;
     private static KeyBinding keyBinding;
+
     public static Text override = Text.of("");
     public static int overrideCd = 0;
+
     @Override
     public void onInitializeClient() {
         DirectionHUD.isClient = true;
@@ -95,7 +96,7 @@ public class DirectionHUDClient implements ClientModInitializer {
         });
 
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
-            if (client.isInSingleplayer()) singleplayer = true;
+            if (client.isInSingleplayer()) DirectionHUD.singleplayer = true;
             // send an initialization packet whenever joining a server
             client.execute(() -> {
                 PacketBuilder sPacket = new PacketBuilder("Hello from DirectionHUD client!");
@@ -104,7 +105,7 @@ public class DirectionHUDClient implements ClientModInitializer {
         });
 
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
-            singleplayer = false;
+            DirectionHUD.singleplayer = false;
             onSupportedServer = false;
             if (client.player == null) return;
 

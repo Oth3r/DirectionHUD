@@ -18,7 +18,6 @@ import one.oth3r.directionhud.commands.HUDCommand;
 import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.Events;
 import one.oth3r.directionhud.common.LoopManager;
-import one.oth3r.directionhud.common.files.Config;
 import one.oth3r.directionhud.common.files.Data;
 import one.oth3r.directionhud.utils.BossBarManager;
 import one.oth3r.directionhud.utils.Player;
@@ -39,6 +38,7 @@ public class DirectionHUD implements ModInitializer {
 	public static final Version VERSION = FabricLoader.getInstance().getModContainer(MOD_ID).orElseThrow().getMetadata().getVersion();
 	public static boolean isClient = false;
 	public static final boolean isMod = true;
+	public static boolean singleplayer = false;
 
 	public static PlayerManager playerManager;
 	public static MinecraftServer server;
