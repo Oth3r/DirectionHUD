@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -41,16 +40,24 @@ public class Player extends PlayerTemplate {
         return Objects.equals(player, other.player);
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(player);
+    }
+
     public Player() {
         player = null;
         serverPlayer = null;
         client = false;
     }
 
-    public Player(ClientPlayerEntity playerEntity) {
+    /**
+     * load a client player entity for client work
+     */
+    public Player(PlayerEntity playerEntity, boolean cpl) {
         player = playerEntity;
         serverPlayer = null;
-        client = true;
+        client = cpl;
     }
 
     public Player(ServerPlayerEntity serverPlayerEntity) {
