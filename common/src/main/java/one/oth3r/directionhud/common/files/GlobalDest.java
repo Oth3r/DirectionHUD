@@ -15,23 +15,30 @@ import java.util.List;
 
 public class GlobalDest {
     private static final Float VERSION = 1.0f;
+
     private static final Dest VERSION_ENTRY = new Dest(1,null,0,null,VERSION.toString(),null);
+
     /**
      * destination list for editing or iterating
      */
     private static ArrayList<Dest> destinations = new ArrayList<>();
+
     public static ArrayList<Dest> getDestinations() {
         return new ArrayList<>(destinations);
     }
+
     public static void setDestinations(List<Dest> destinations) {
         GlobalDest.destinations = new ArrayList<>(destinations);
     }
+
     public static void clear() {
         destinations.clear();
     }
+
     public static File getFile() {
         return new File(DirectionHUD.DATA_DIR+"global-dest.json");
     }
+
     public static void load() {
         File file = getFile();
         // if no file, load it
@@ -60,6 +67,7 @@ public class GlobalDest {
             loadLegacy();
         }
     }
+
     public static void mapToFile() {
         try (FileWriter writer = new FileWriter(getFile())) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
