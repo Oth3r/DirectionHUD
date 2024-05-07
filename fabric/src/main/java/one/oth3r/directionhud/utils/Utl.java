@@ -57,7 +57,7 @@ public class Utl {
 
         @Override
         public boolean globalEditing() {
-            return super.global() && (player.getPlayer().hasPermissionLevel(2) || DirectionHUDClient.singleplayer);
+            return super.globalEditing() && (player.getPlayer().hasPermissionLevel(2) || DirectionHUDClient.singleplayer);
         }
 
         @Override

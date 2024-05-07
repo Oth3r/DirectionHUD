@@ -29,7 +29,9 @@ public abstract class FeatureChecker {
         return Data.getConfig().getDestination().getGloabal();
     }
 
-    public abstract boolean globalEditing();
+    public boolean globalEditing() {
+        return global() && saving();
+    };
 
     public boolean saving() {
         return Data.getConfig().getDestination().getSaving();

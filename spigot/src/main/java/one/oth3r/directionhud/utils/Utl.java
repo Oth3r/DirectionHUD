@@ -57,7 +57,7 @@ public class Utl {
 
         @Override
         public boolean globalEditing() {
-            return super.global() && player.getPlayer().hasPermission("directionhud.destination.global-saving");
+            return super.globalEditing() && player.getPlayer().hasPermission("directionhud.destination.global-saving");
         }
 
         @Override
