@@ -37,7 +37,7 @@ public class Utl {
     public static List<Player> getPlayers() {
         ArrayList<Player> array = new ArrayList<>();
         for (ServerPlayerEntity p : DirectionHUD.server.getPlayerManager().getPlayerList())
-            array.add(Player.of(p));
+            array.add(new Player(p));
         return array;
     }
     public static class vec {

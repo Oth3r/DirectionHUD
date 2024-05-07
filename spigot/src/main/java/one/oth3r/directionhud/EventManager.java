@@ -13,21 +13,21 @@ import org.bukkit.event.player.PlayerQuitEvent;
 public class EventManager implements Listener {
     @EventHandler
     public static void playerJoin(PlayerJoinEvent event) {
-        Events.playerJoin(Player.of(event.getPlayer()));
+        Events.playerJoin(new Player(event.getPlayer()));
     }
     @EventHandler
     public static void playerQuit(PlayerQuitEvent event) {
-        Events.playerLeave(Player.of(event.getPlayer()));
-        DirectionHUD.clientPlayers.remove(Player.of(event.getPlayer()));
+        Events.playerLeave(new Player(event.getPlayer()));
+        DirectionHUD.clientPlayers.remove(new Player(event.getPlayer()));
     }
     @EventHandler
     public static void switchWorld(PlayerChangedWorldEvent event) {
-        Player player = Player.of(event.getPlayer());
+        Player player = new Player(event.getPlayer());
         Events.playerChangeWorld(player,Utl.dim.format(event.getFrom().getName()),player.getDimension());
     }
     @EventHandler
     public static void playerDeath(PlayerDeathEvent event) {
-        Player player = Player.of(event.getEntity());
+        Player player = new Player(event.getEntity());
         Events.playerDeath(player,player.getLoc());
     }
 }

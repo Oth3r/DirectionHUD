@@ -72,10 +72,10 @@ public class DirectionHUD extends JavaPlugin implements PluginMessageListener {
     public void onPluginMessageReceived(String channel, org.bukkit.entity.Player player, byte[] message) {
         if (channel.equals(PacketHelper.getChannel(Assets.packets.INITIALIZATION))) {
             // if the client has directionhud, add them to the list & send the data packets
-            DirectionHUD.LOGGER.info("Received initialization packet from "+player.getName());
-            Player dplayer = Player.of(player);
-            clientPlayers.add(dplayer);
-            dplayer.sendPDataPackets();
+            DirectionHUD.LOGGER.info("Received initialization packet from "+player.getName()+", connecting to client.");
+            Player dPlayer = new Player(player);
+            clientPlayers.add(dPlayer);
+            dPlayer.sendPDataPackets();
         }
     }
     public static void clear() {

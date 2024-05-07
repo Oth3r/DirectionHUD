@@ -18,7 +18,7 @@ public class DestinationCommand implements CommandExecutor, TabCompleter {
         if (!(sender instanceof org.bukkit.entity.Player plr)) {
             return true;
         }
-        Player player = Player.of(plr);
+        Player player = new Player(plr);
         assert player != null;
         Destination.commandExecutor.logic(player, Helper.Command.quoteHandler(args));
         return true;
@@ -29,7 +29,7 @@ public class DestinationCommand implements CommandExecutor, TabCompleter {
         if (!(sender instanceof org.bukkit.entity.Player plr)) {
             return new ArrayList<>();
         }
-        Player player = Player.of(plr);
+        Player player = new Player(plr);
         // fix args
         args = Helper.Command.quoteHandler(args);
         return Destination.commandSuggester.logic(player,args.length,args);

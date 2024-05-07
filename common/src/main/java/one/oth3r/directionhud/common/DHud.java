@@ -135,8 +135,8 @@ public class DHud {
                     iterator.remove();
                     // send expire messages if pending expired
                     if (entry.get("type").equals(Type.track_pending.name())) {
-                        Player target = Player.of(entry.get("player_name"));
-                        if (target==null) continue;
+                        Player target = new Player(entry.get("player_name"));
+                        if (!target.isValid()) continue;
                         target.sendMessage(CUtl.tag().append(Destination.social.track.LANG.msg("expired.target", player.getHighlightedName())));
                         player.sendMessage(CUtl.tag().append(Destination.social.track.LANG.msg("expired",target.getHighlightedName())));
                     }
@@ -161,9 +161,9 @@ public class DHud {
                     Type type = entry.get("type").equals(Type.track_pending.name())?
                             Type.track_request : Type.track_pending;
                     // use name if online mode is off
-                    Player target = Player.of(entry.get("player_uuid"));
-                    if (!Data.getConfig().getOnline()) target = Player.of(entry.get("player_name"));
-                    if (target != null) {
+                    Player target = new Player(entry.get("player_uuid"));
+                    if (!Data.getConfig().getOnline()) target = new Player(entry.get("player_name"));
+                    if (target.isValid()) {
                         // search for the opposite type of the player and the id to match it in target inbox and remove
                         removeEntry(target, DHud.inbox.search(target, type,"id",entry.get("id")));
                     }
@@ -299,8 +299,8 @@ public class DHud {
             String name = entry.get("player_name");
             // get name from UUID if online mode is on
             if (Data.getConfig().getOnline()) {
-                Player player_uuid = Player.of(entry.get("player_uuid"));
-                if (player_uuid != null) name = player_uuid.getName();
+                Player player_uuid = new Player(entry.get("player_uuid"));
+                if (player_uuid.isValid()) name = player_uuid.getName();
             }
             // make the TxTs that make things easier
             CTxT msg = CTxT.of(""),

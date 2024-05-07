@@ -3,10 +3,10 @@ package one.oth3r.directionhud.utils;
 import net.md_5.bungee.api.chat.TextComponent;
 import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.files.LangReader;
-import one.oth3r.directionhud.common.files.config;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.dimension.DimensionEntry;
 import one.oth3r.directionhud.common.files.dimension.RatioEntry;
+import one.oth3r.directionhud.common.template.FeatureChecker;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Helper.*;
 import org.bukkit.Bukkit;
@@ -31,7 +31,7 @@ public class Utl {
     public static List<Player> getPlayers() {
         ArrayList<Player> array = new ArrayList<>();
         for (org.bukkit.entity.Player p : Bukkit.getOnlinePlayers())
-            array.add(Player.of(p));
+            array.add(new Player(p));
         return array;
     }
     public static class vec {

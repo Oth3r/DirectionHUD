@@ -17,7 +17,7 @@ public class HUDCommand implements CommandExecutor, TabCompleter {
         if (!(sender instanceof org.bukkit.entity.Player plr)) {
             return true;
         }
-        Player player = Player.of(plr);
+        Player player = new Player(plr);
         Hud.CMDExecutor(player, Helper.Command.quoteHandler(args));
         return true;
     }
@@ -27,7 +27,7 @@ public class HUDCommand implements CommandExecutor, TabCompleter {
         if (!(sender instanceof org.bukkit.entity.Player plr)) {
             return new ArrayList<>();
         }
-        Player player = Player.of(plr);
+        Player player = new Player(plr);
         // fix args
         args = Helper.Command.quoteHandler(args);
         return Hud.CMDSuggester(player,args.length,args);

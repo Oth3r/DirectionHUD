@@ -1535,11 +1535,11 @@ public class Destination {
              */
             public static void logic(Player player, String targetPlayer, Dest dest) {
                 // get the target player from string
-                Player target = Player.of(targetPlayer);
+                Player target = new Player(targetPlayer);
                 // remove bad data
                 // cooldown check
                 if (cooldown(player)) return;
-                if (target == null) {
+                if (!target.isValid()) {
                     player.sendMessage(CUtl.LANG.error("player", CTxT.of(targetPlayer).color(CUtl.s())));
                     return;
                 }
@@ -1638,7 +1638,7 @@ public class Destination {
                 ArrayList<String> suggester = new ArrayList<>();
                 // track (clear*|set|cancel*|accept*|deny*)
                 if (pos == 0) {
-                    if (getTarget(player)!=null) suggester.add("clear");
+                    if (getTarget(player).isValid()) suggester.add("clear");
                     suggester.add("set");
                     if (DHud.inbox.getAllType(player, DHud.inbox.Type.track_pending)!=null) suggester.add("cancel");
                     if (DHud.inbox.getAllType(player, DHud.inbox.Type.track_request)!=null) {
@@ -1684,13 +1684,13 @@ public class Destination {
 
             /**
              * returns the current tracking target
-             * @return the target, null if no one is being tracked
+             * @return the target
              */
             public static Player getTarget(Player player) {
                 // get from cache, called from loop
                 String track = player.getPCache().getDEST().getTracking();
-                if (track == null) return null;
-                return Player.of(track);
+                if (track == null) return new Player();
+                return new Player(track);
             }
 
             /**
@@ -1699,7 +1699,7 @@ public class Destination {
              */
             public static void clear(Player player, int reason) {
                 // nothing to clear
-                if (getTarget(player) == null) {
+                if (!getTarget(player).isValid()) {
                     player.sendMessage(LANG.error("cleared"));
                     return;
                 }
@@ -1746,10 +1746,10 @@ public class Destination {
              * @param target_string the target (as a string)
              */
             public static void initialize(Player player, String target_string) {
-                Player target = Player.of(target_string);
+                Player target = new Player(target_string);
                 // cooldown check
                 if (cooldown(player)) return;
-                if (target == null) {
+                if (!target.isValid()) {
                     player.sendMessage(CUtl.LANG.error("player", CTxT.of(target_string).color(CUtl.s())));
                     return;
                 }
@@ -1769,7 +1769,7 @@ public class Destination {
                     return;
                 }
                 // already tracking the target
-                if (getTarget(player) != null && Objects.equals(getTarget(player), target)) {
+                if (getTarget(player).isValid() && Objects.equals(getTarget(player), target)) {
                     player.sendMessage(LANG.error("already_tracking",targetTxT));
                     return;
                 }
@@ -1803,9 +1803,9 @@ public class Destination {
             public static void process(Player player, String tracker, ProcessType type, boolean Return) {
                 // processing both accepting and denying @ same time because the code is so similar
                 // removing bad data woo
-                Player target = Player.of(tracker);
+                Player target = new Player(tracker);
                 // if player in questions is null
-                if (target == null) {
+                if (!target.isValid()) {
                     player.sendMessage(CUtl.LANG.error("player",CTxT.of(tracker).color(CUtl.s())));
                     return;
                 }
@@ -1859,7 +1859,7 @@ public class Destination {
              */
             public static void logic(Player player) {
                 // if there isn't an entry in the tracking
-                if (getTarget(player) == null) return;
+                if (!getTarget(player).isValid()) return;
                 // INFO (null if not sent, not if otherwise)
                 // tracking.offline = target offline
                 // tracking.dimension = not in same dimension & cant convert (trail cold)
@@ -1872,12 +1872,12 @@ public class Destination {
                 }
                 Player target = Destination.social.track.getTarget(player);
                 // clear if tracking oneself, dunno how its possible, but it happened before
-                if (target == player) {
+                if (target.equals(player)) {
                     Destination.social.track.clear(player);
                     return;
                 }
                 // if the target is null, means the player cant be found, probably offline
-                if (target == null) {
+                if (!target.isValid()) {
                     if (player.getPCache().getMsg("tracking.offline") == 0) {
                         // the offline message hasn't been sent
                         player.sendMessage(CUtl.tag().append(LANG.msg("target_offline")));
@@ -2351,7 +2351,7 @@ public class Destination {
         }
         //TRACK
         if (Helper.checkEnabled(player).track()) {
-            msg.append(social.track.BUTTON(social.track.getTarget(player)!=null));
+            msg.append(social.track.BUTTON(social.track.getTarget(player).isValid()));
             if (line2Free && !line1Free) {
                 msg.append("\n\n ");
             } else if (line2Free) {

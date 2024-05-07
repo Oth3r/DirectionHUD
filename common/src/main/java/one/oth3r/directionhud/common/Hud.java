@@ -205,7 +205,7 @@ public class Hud {
                     // else player tracking type and no player tracked, remove
                     if (player.getPCache().getHud().getSetting(Setting.module__tracking_target).equals(Setting.ModuleTrackingTarget.dest.toString())) {
                         if (!Destination.dest.get(player).hasXYZ()) continue;
-                    } else if (Destination.social.track.getTarget(player) == null) continue;
+                    } else if (!Destination.social.track.getTarget(player).isValid()) continue;
                 }
                 for (String str : moduleInstructions.get(module)) {
                     String string = str.substring(1);
@@ -366,7 +366,7 @@ public class Hud {
                 if (player.getPCache().getDEST().getTracking() != null) {
                     Player target = Destination.social.track.getTarget(player);
                     // make sure the player is real
-                    if (!(target == null)) {
+                    if (!target.isValid()) {
                         Loc plLoc = new Loc(target);
                         // not in the same dimension
                         if (!player.getDimension().equals(target.getDimension())) {
@@ -801,7 +801,7 @@ public class Hud {
                         Enums.get(player.getPCache().getHud().getSetting(Setting.module__tracking_target),ModuleTrackingTarget.class).equals(Setting.ModuleTrackingTarget.dest)))
                     yellow = true;
             }
-            if (module.equals(Module.tracking) && Destination.social.track.getTarget(player)==null && Enums.get(player.getPCache().getHud().getSetting(Setting.module__tracking_target),ModuleTrackingTarget.class).equals(Setting.ModuleTrackingTarget.player))
+            if (module.equals(Module.tracking) && !Destination.social.track.getTarget(player).isValid() && Enums.get(player.getPCache().getHud().getSetting(Setting.module__tracking_target),ModuleTrackingTarget.class).equals(Setting.ModuleTrackingTarget.player))
                 yellow = true;
             if (yellow) return "#fff419";
             return "#19ff21";

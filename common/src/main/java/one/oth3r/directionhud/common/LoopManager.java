@@ -106,7 +106,7 @@ public class LoopManager {
         if (player.getPCache().getDEST().getDestSettings().getParticles().getTracking()) {
             // make sure there's a target
             Player target = Destination.social.track.getTarget(player);
-            if (target != null) {
+            if (target.isValid()) {
                 boolean sendParticles = true;
                 ArrayList<Double> targetVec = target.getVec();
                 if (!target.getDimension().equals(player.getDimension())) {

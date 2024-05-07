@@ -52,7 +52,7 @@ public class DHUDCommand {
                 .executes((context2) -> command(context2.getSource(), context2.getInput())));
     }
     public static CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder, int pos) {
-        Player player = Player.of(Objects.requireNonNull(context.getSource().getPlayer()));
+        Player player = new Player(Objects.requireNonNull(context.getSource().getPlayer()));
         String[] args = context.getInput().split(" ");
         if (pos > args.length) return builder.buildFuture();
         args = Helper.trimStart(args,1);
@@ -80,7 +80,7 @@ public class DHUDCommand {
                 DHud.reload(null);
             return 1;
         }
-        Player player = Player.of(spe);
+        Player player = new Player(spe);
         if (args[0].equalsIgnoreCase("dhud") || args[0].equalsIgnoreCase("directionhud"))
             args = new String[0];
         DHud.CMDExecutor(player,Helper.Command.quoteHandler(args));

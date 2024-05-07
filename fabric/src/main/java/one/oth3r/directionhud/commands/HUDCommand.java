@@ -47,7 +47,7 @@ public class HUDCommand {
                                                                                 .executes((context2) -> command(context2.getSource(), context2.getInput())))))))))));
     }
     public static CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder, int pos) {
-        Player player = Player.of(Objects.requireNonNull(context.getSource().getPlayer()));
+        Player player = new Player(Objects.requireNonNull(context.getSource().getPlayer()));
         String[] args = context.getInput().split(" ");
         if (pos > args.length) return builder.buildFuture();
         args = Helper.trimStart(args,1);
@@ -57,7 +57,7 @@ public class HUDCommand {
     private static int command(ServerCommandSource source, String arg) {
         ServerPlayerEntity spe = source.getPlayer();
         if (spe == null) return 1;
-        Player player = Player.of(spe);
+        Player player = new Player(spe);
         String[] args;
         //trims the words before the text
         //find the index of the word

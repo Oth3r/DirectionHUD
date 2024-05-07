@@ -15,6 +15,7 @@ public abstract class PlayerTemplate {
     public String toString() {
         return "DirectionHUD Player: "+getName();
     }
+    public abstract boolean isValid();
     public abstract String getName();
     /**
      * makes a CTxT with the players name in the secondary color

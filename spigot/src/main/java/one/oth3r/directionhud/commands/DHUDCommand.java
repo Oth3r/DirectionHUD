@@ -20,7 +20,7 @@ public class DHUDCommand implements CommandExecutor, TabCompleter {
             }
             return true;
         }
-        Player player = Player.of(plr);
+        Player player = new Player(plr);
         DHud.CMDExecutor(player, Helper.Command.quoteHandler(args));
         return true;
     }
@@ -30,7 +30,7 @@ public class DHUDCommand implements CommandExecutor, TabCompleter {
         if (!(sender instanceof org.bukkit.entity.Player plr)) {
             return new ArrayList<>();
         }
-        Player player = Player.of(plr);
+        Player player = new Player(plr);
         // fix args
         args = Helper.Command.quoteHandler(args);
         return DHud.CMDSuggester(player,args.length,args);

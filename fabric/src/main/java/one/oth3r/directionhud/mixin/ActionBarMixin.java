@@ -24,7 +24,7 @@ public class ActionBarMixin {
         // if the click event has the ModRinth link, it's a directionhud actionbar
         if (click == null || !click.getValue().equals("https://modrinth.com/mod/directionhud")) {
             if (client.player == null) return;
-            Player player = DirectionHUDClient.getClientPlayer(client);
+            Player player = new Player(client.player);
             // if on supported server and hud is on AND hud type is actionbar
             if (DirectionHUDClient.onSupportedServer && (boolean) player.getPData().getHud().getSetting(Hud.Setting.state) &&
                     player.getPData().getHud().getSetting(Hud.Setting.type).equals(Hud.Setting.DisplayType.actionbar.toString())) {

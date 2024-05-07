@@ -39,13 +39,15 @@ public class DirectionHUD implements ModInitializer {
 	public static final Version VERSION = FabricLoader.getInstance().getModContainer(MOD_ID).orElseThrow().getMetadata().getVersion();
 	public static boolean isClient = false;
 	public static final boolean isMod = true;
+
 	public static PlayerManager playerManager;
 	public static MinecraftServer server;
 	public static CommandManager commandManager;
+
 	@Override
 	public void onInitialize() {
 		Data.loadFiles(true);
-		//START
+		// SERVER START/STOP
 		ServerLifecycleEvents.SERVER_STARTED.register(s -> {
 			DirectionHUD.playerManager = s.getPlayerManager();
 			DirectionHUD.server = s;
@@ -55,31 +57,29 @@ public class DirectionHUD implements ModInitializer {
 			Events.serverStart();
 		});
 		//STOP
-		ServerLifecycleEvents.SERVER_STOPPING.register(s -> {
-			Events.serverEnd();
-		});
-		//PLAYER
-		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-			Events.playerJoin(Player.of(handler.player));
-		});
-		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
-			Events.playerLeave(Player.of(handler.player));
-		});
+		ServerLifecycleEvents.SERVER_STOPPING.register(s -> Events.serverEnd());
+
+		// PLAYER CONNECTIONS
+		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> Events.playerJoin(new Player(handler.player)));
+		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> Events.playerLeave(new Player(handler.player)));
+
 		//PACKETS
 		ServerPlayNetworking.registerGlobalReceiver(PacketBuilder.getIdentifier(Assets.packets.INITIALIZATION),
 				(server, player, handler, buf, responseSender) -> server.execute(() -> {
-					DirectionHUD.LOGGER.info("Received initialization packet from "+player.getName().getString());
-					Player dPlayer = Player.of(player);
+					Player dPlayer = new Player(player);
+					DirectionHUD.LOGGER.info("Received initialization packet from "+dPlayer.getName()+", connecting to client.");
 					DirectionHUD.clientPlayers.add(dPlayer);
 					dPlayer.sendPDataPackets();
 				}));
-		//COMMANDS
+
+		// COMMAND REGISTRATION
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
 			DHUDCommand.register(dispatcher);
 			HUDCommand.register(dispatcher);
 			DestinationCommand.register(dispatcher);
 		});
-		//LOOP
+
+		// LOOP
 		ServerTickEvents.END_SERVER_TICK.register(minecraftServer -> minecraftServer.execute(LoopManager::tick));
 	}
 	public static void clear() {

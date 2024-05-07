@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Vec3d;
@@ -16,8 +18,6 @@ import one.oth3r.directionhud.common.files.playerdata.PData;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.template.PlayerTemplate;
 import one.oth3r.directionhud.common.utils.Loc;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,7 +25,10 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class Player extends PlayerTemplate {
-    private ServerPlayerEntity player;
+    private final PlayerEntity player;
+    private final ServerPlayerEntity serverPlayer;
+    private final boolean client;
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -37,30 +40,37 @@ public class Player extends PlayerTemplate {
         Player other = (Player) obj;
         return Objects.equals(player, other.player);
     }
+
+    public Player() {
+        player = null;
+        serverPlayer = null;
+        client = false;
+    }
+
+    public Player(ClientPlayerEntity playerEntity) {
+        player = playerEntity;
+        serverPlayer = null;
+        client = true;
+    }
+
+    public Player(ServerPlayerEntity serverPlayerEntity) {
+        player = serverPlayerEntity;
+        serverPlayer = serverPlayerEntity;
+        client = false;
+    }
+
+    public Player(String identifier) {
+        if (identifier.contains("-")) serverPlayer = DirectionHUD.server.getPlayerManager().getPlayer(UUID.fromString(identifier));
+        else serverPlayer = DirectionHUD.server.getPlayerManager().getPlayer(identifier);
+        player = serverPlayer;
+        client = false;
+    }
+
     @Override
-    public int hashCode() {
-        return Objects.hash(player);
+    public boolean isValid() {
+        return serverPlayer != null;
     }
-    public Player() {}
-    public static Player of() {
-        // creates a player object with a null inside for client use
-        Player instance = new Player();
-        instance.player = null;
-        return instance;
-    }
-    public static Player of(@NotNull ServerPlayerEntity player) {
-        Player instance = new Player();
-        instance.player = player;
-        return instance;
-    }
-    @Nullable
-    public static Player of(String identifier) {
-        Player instance = new Player();
-        if (identifier.contains("-")) instance.player = DirectionHUD.server.getPlayerManager().getPlayer(UUID.fromString(identifier));
-        else instance.player = DirectionHUD.server.getPlayerManager().getPlayer(identifier);
-        if (instance.player == null) return null;
-        return instance;
-    }
+
     public void performCommand(String cmd) {
         try {
             ParseResults<ServerCommandSource> parse =
@@ -71,9 +81,13 @@ public class Player extends PlayerTemplate {
             DirectionHUD.LOGGER.info(e.getMessage());
         }
     }
+
+    @Override
     public void sendMessage(CTxT message) {
         player.sendMessage(message.b());
     }
+
+    @Override
     public void sendActionBar(CTxT message) {
         player.sendMessage(message.b(),true);
     }
@@ -82,6 +96,7 @@ public class Player extends PlayerTemplate {
     public void displayBossBar(CTxT message) {
         DirectionHUD.bossBarManager.display(this,message);
     }
+
     @Override
     public void removeBossBar() {
         DirectionHUD.bossBarManager.removePlayer(this);
@@ -99,27 +114,37 @@ public class Player extends PlayerTemplate {
 
     @Override
     public void sendPDataPackets() {
-        if (DirectionHUD.clientPlayers.contains(this)) {
+        if (DirectionHUD.clientPlayers.contains(this) && !client) {
             Gson gson = new GsonBuilder().disableHtmlEscaping().create();
             PacketBuilder packet = new PacketBuilder(gson.toJson(getPData()));
-            packet.sendToPlayer(Assets.packets.PLAYER_DATA,player);
+            packet.sendToPlayer(Assets.packets.PLAYER_DATA,serverPlayer);
         }
     }
+
+    @Override
     public void sendHUDPackets(HashMap<Hud.Module, ArrayList<String>> hudData) {
+        if (client) return;
         // send the instructions to build the hud to the client
         Gson gson = new GsonBuilder().disableHtmlEscaping().create();
         PacketBuilder packet = new PacketBuilder(gson.toJson(hudData));
-        packet.sendToPlayer(Assets.packets.HUD,player);
+        packet.sendToPlayer(Assets.packets.HUD,serverPlayer);
     }
+
+    @Override
     public String getName() {
         return player.getName().getString();
     }
+
     public ServerPlayerEntity getPlayer() {
-        return player;
+        return serverPlayer;
     }
+
+    @Override
     public String getUUID() {
         return player.getUuidAsString();
     }
+
+    @Override
     public String getDimension() {
         return Utl.dim.format(player.getWorld().getRegistryKey());
     }
@@ -139,15 +164,23 @@ public class Player extends PlayerTemplate {
         return player.getWorld().isThundering();
     }
 
+    @Override
     public String getSpawnDimension() {
-        return Utl.dim.format(player.getSpawnPointDimension());
+        if (client) return null;
+        return Utl.dim.format(serverPlayer.getSpawnPointDimension());
     }
+
+    @Override
     public float getYaw() {
         return player.getYaw();
     }
+
+    @Override
     public float getPitch() {
         return player.getPitch();
     }
+
+    @Override
     public ArrayList<Double> getVec() {
         ArrayList<Double> vec = new ArrayList<>();
         vec.add(player.getX());
@@ -155,23 +188,32 @@ public class Player extends PlayerTemplate {
         vec.add(player.getZ());
         return vec;
     }
+    @Override
     public Loc getLoc() {
         if (player == null) return new Loc();
         else return new Loc(this);
     }
+
+    @Override
     public int getBlockX() {
         return player.getBlockX();
     }
+
+    @Override
     public int getBlockY() {
         return player.getBlockY();
     }
+
+    @Override
     public int getBlockZ() {
         return player.getBlockZ();
     }
+
     public void spawnParticle(String particleType, Vec3d vec) {
-        player.getServerWorld().spawnParticles(player,Utl.particle.getParticle(particleType,this),
+        serverPlayer.getServerWorld().spawnParticles(serverPlayer,Utl.particle.getParticle(particleType,this),
                 true,vec.getX(),vec.getY(),vec.getZ(),1,0,0,0,1);
     }
+
     public void spawnParticleLine(ArrayList<Double> end, String particleType) {
         Vec3d endVec = Utl.vec.convertTo(end);
         Vec3d pVec = player.getPos().add(0, 1, 0);
