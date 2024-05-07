@@ -70,11 +70,11 @@ public class DirectionHUDClient implements ClientModInitializer {
                 Gson gson = new GsonBuilder().disableHtmlEscaping().create();
                 // if the client isn't in single player, load the file stuff from the packet
                 if (!client.isInSingleplayer()) {
-                    Player player = new Player(client.player);
+                    Player player = new Player(client.player,true);
                     PData pData = gson.fromJson(packet.getMessage(), PData.class);
 
                     PlayerData.setPlayerData(player,pData);
-                    PlayerData.setPlayerCache(new Player(client.player),new CachedPData(pData));
+                    PlayerData.setPlayerCache(player,new CachedPData(pData));
                 }
                 onSupportedServer = true;
             });
@@ -89,7 +89,7 @@ public class DirectionHUDClient implements ClientModInitializer {
                 Gson gson = new GsonBuilder().disableHtmlEscaping().create();
                 // if there is no actionbar override, build and send the HUD
                 if (overrideCd <= 0) {
-                    client.player.sendMessage(Hud.build.compile(new Player(client.player), gson.fromJson(packet.getMessage(), hashMapToken)).b(), true);
+                    client.player.sendMessage(Hud.build.compile(new Player(client.player,true), gson.fromJson(packet.getMessage(), hashMapToken)).b(), true);
                 }
             });
         });
@@ -108,7 +108,7 @@ public class DirectionHUDClient implements ClientModInitializer {
             onSupportedServer = false;
             if (client.player == null) return;
 
-            Player player = new Player(client.player);
+            Player player = new Player(client.player,true);
             PlayerData.removePlayerData(player);
             PlayerData.removePlayerCache(player);
         });
