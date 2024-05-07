@@ -40,8 +40,8 @@ public class PDHud {
     public PDHud() {}
 
     public PDHud(PDHud hud) {
-        this.module = hud.module;
-        this.setting = hud.setting;
+        this.module = new Modules(hud.module);
+        this.setting = new Settings(hud.setting);
         this.order = hud.order;
         this.primary = new Color(hud.getPrimary());
         this.secondary = new Color(hud.getSecondary());
