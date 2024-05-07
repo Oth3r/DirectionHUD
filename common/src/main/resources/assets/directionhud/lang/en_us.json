@@ -301,6 +301,7 @@
   "destination.saved.hover.delete": "Click to %s destination.",
   "destination.saved.button.edit": "EDIT",
   "destination.saved.button": "SAVED",
+  "destination.saved.button.global": "GLOBAL",
   "destination.saved.hover": "Click to view all saved destinations.",
   "destination.saved.hover.global": "Click to see global destinations.",
   "destination.saved.hover.local": "Click to see local destinations.",

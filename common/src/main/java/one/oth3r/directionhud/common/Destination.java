@@ -105,6 +105,7 @@ public class Destination {
                 case "clear" -> dest.clear(player, 1);
                 case "saved" -> saved.CMDExecutor(player, trimmedArgs);
                 case "add" -> saved.addCMDExecutor(player, trimmedArgs, false);
+                case "global" -> saved.globalCMDExecutor(player,trimmedArgs);
                 case "lastdeath" -> lastdeath.CMDExecutor(player, trimmedArgs);
                 case "settings" -> settings.CMDExecutor(player, trimmedArgs);
                 case "send" -> social.send.CMDExecutor(player, trimmedArgs);
@@ -123,6 +124,8 @@ public class Destination {
                 if (Helper.checkEnabled(player).saving()) {
                     suggester.add("add");
                     suggester.add("saved");
+                } else if (Helper.checkEnabled(player).global()){
+                    suggester.add("global");
                 }
                 suggester.add("set");
                 if (dest.get(player).hasXYZ()) suggester.add("clear");
@@ -137,6 +140,7 @@ public class Destination {
                 switch (command) {
                     case "saved" -> suggester.addAll(saved.CMDSuggester(player,fixedPos,trimmedArgs));
                     case "add" -> suggester.addAll(saved.addCMDSuggester(player,fixedPos,trimmedArgs));
+                    case "global" -> suggester.addAll(saved.globalCMDSuggester(player,fixedPos,trimmedArgs));
                     case "settings" -> suggester.addAll(settings.CMDSuggester(player, fixedPos,trimmedArgs));
                     case "color" -> {
                         if (fixedPos == 3 && trimmedArgs[0].equals("set")) suggester.addAll(Suggester.colors(player,Suggester.getCurrent(trimmedArgs,fixedPos),true));
@@ -391,12 +395,19 @@ public class Destination {
     }
     public static class saved {
         private static final int PER_PAGE = 7;
+
         public static final Lang LANG = new Lang("destination.saved.");
+
         public static CTxT BUTTON = LANG.btn().btn(true).color(Assets.mainColors.saved).cEvent(1,"/dest saved")
                 .hEvent(CTxT.of(Assets.cmdUsage.destSaved).color(Assets.mainColors.saved).append("\n").append(LANG.hover()));
+
+        public static CTxT GLOBAL_BUTTON = LANG.btn("global").btn(true).color(Assets.mainColors.global).cEvent(1,"/dest global")
+                .hEvent(CTxT.of(Assets.cmdUsage.destSaved).color(Assets.mainColors.global).append("\n").append(LANG.hover()));
+
         public static CTxT ADD_BUTTON = CTxT.of("+").btn(true).color(Assets.mainColors.add).cEvent(2,"/dest add ")
                 .hEvent(CTxT.of(Assets.cmdUsage.destAdd).color(Assets.mainColors.add).append("\n")
                         .append(LANG.hover("add",LANG.hover("add.2").color(Assets.mainColors.add))));
+
         public static CTxT SAVE_BUTTON(String cmd) {
             return CTxT.of("+").btn(true).color(Assets.mainColors.add).cEvent(2,cmd)
                     .hEvent(LANG.hover("save",LANG.hover("save.2").color(Assets.mainColors.add)));
@@ -405,6 +416,7 @@ public class Destination {
             return CTxT.of(Assets.symbols.pencil).btn(true).color(Assets.mainColors.edit).cEvent(click,cmd)
                     .hEvent(LANG.hover("edit",CUtl.LANG.get("destination")).color(Assets.mainColors.edit)).color(Assets.mainColors.edit);
         }
+
         /*
         all command executors and suggesters for SAVED
          */
@@ -487,8 +499,9 @@ public class Destination {
             }
             return suggester;
         }
+
         public static void globalCMDExecutor(Player player, String[] args) {
-            if (!Helper.checkEnabled(player).saving() || !Helper.checkEnabled(player).global()) return;
+            if (!Helper.checkEnabled(player).global()) return;
             if (args.length == 0) {
                 globalUI(player, 1);
                 return;
@@ -533,6 +546,7 @@ public class Destination {
             }
             return suggester;
         }
+
         public static void editCMDExecutor(Player player, String[] args, boolean global, boolean Return) {
             if (args.length == 0) return;
             // edit (name)
@@ -624,6 +638,7 @@ public class Destination {
             }
             return suggester;
         }
+
         public static void addCMDExecutor(Player player, String[] args, boolean global) {
             if (!Helper.checkEnabled(player).saving()) return;
             //dest saved add <name>
@@ -1206,7 +1221,7 @@ public class Destination {
                         //BADGE
                         .append(entry.getBadge()).append(" ")
                         // SET & convert
-                        .append(dest.setButtons("/dest set saved " + cmdName,
+                        .append(dest.setButtons("/dest set global " + cmdName,
                                 Dimension.canConvert(player.getDimension(), entry.getDimension())))
                         .append("\n");
             }
@@ -1228,6 +1243,7 @@ public class Destination {
             player.sendMessage(msg);
         }
     }
+
     public static class lastdeath {
         private static final int PER_PAGE = 4;
 
@@ -1291,6 +1307,7 @@ public class Destination {
             player.sendMessage(msg);
         }
     }
+
     public static class social {
         /**
          * returns if there is a social cooldown for the player or not, and if there is send an error message
@@ -1947,6 +1964,7 @@ public class Destination {
             }
         }
     }
+
     public static class settings {
         public static final Lang LANG = new Lang("destination.setting.");
         /**
@@ -2306,8 +2324,13 @@ public class Destination {
             player.sendMessage(msg);
         }
     }
+
     public static CTxT BUTTON = LANG.btn().btn(true).color(Assets.mainColors.dest).cEvent(1,"/dest").hEvent(
                 CTxT.of(Assets.cmdUsage.dest).color(Assets.mainColors.dest).append("\n").append(LANG.hover()));
+
+    /**
+     * main chatUI for the destination
+     */
     public static void UI(Player player) {
         CTxT msg = CTxT.of(" "), line = CTxT.of("\n                                  ").strikethrough(true);
         msg.append(LANG.ui("commands").color(Assets.mainColors.dest)).append(line).append("\n ");
@@ -2316,8 +2339,16 @@ public class Destination {
         boolean line2Free = !Helper.checkEnabled(player).lastdeath();
         boolean sendThird = Helper.checkEnabled(player).send();
         //SAVED + ADD
-        if (Helper.checkEnabled(player).saving()) {
-            msg.append(saved.BUTTON).append(saved.ADD_BUTTON);
+        if (Helper.checkEnabled(player).saving() || Helper.checkEnabled(player).global()) {
+            // if saving is on saving button
+            if (Helper.checkEnabled(player).saving()) {
+                msg.append(saved.BUTTON).append(saved.ADD_BUTTON);
+            }
+            // if not and global is on global button
+            else if (Helper.checkEnabled(player).global()) {
+                msg.append(saved.GLOBAL_BUTTON).append("  ");
+            }
+
             if (!line2Free) msg.append("        ");
             else msg.append("  ");
         } else line1Free = true;
