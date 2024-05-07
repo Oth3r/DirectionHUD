@@ -5,6 +5,7 @@ import com.google.gson.annotations.SerializedName;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.Destination;
+import one.oth3r.directionhud.common.utils.Dest;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.utils.Player;
@@ -26,7 +27,7 @@ public class PDDestination {
     private transient Player player;
 
     @SerializedName("saved")
-    private List<Loc> saved = new ArrayList<>();
+    private ArrayList<Dest> saved = new ArrayList<>();
     @SerializedName("dest")
     private Loc dest = new Loc();
     @SerializedName("tracking")
@@ -38,7 +39,7 @@ public class PDDestination {
 
     public PDDestination() {}
 
-    public PDDestination(List<Loc> saved, Loc dest, String tracking, List<Loc> lastdeath, Settings setting) {
+    public PDDestination(ArrayList<Dest> saved, Loc dest, String tracking, List<Loc> lastdeath, Settings setting) {
         this.saved = saved;
         this.dest = dest;
         this.tracking = tracking;
@@ -46,11 +47,11 @@ public class PDDestination {
         this.setting = setting;
     }
 
-    public List<Loc> getSaved() {
+    public ArrayList<Dest> getSaved() {
         return new ArrayList<>(saved);
     }
 
-    public void setSaved(List<Loc> saved) {
+    public void setSaved(ArrayList<Dest> saved) {
         this.saved = saved;
         save();
     }

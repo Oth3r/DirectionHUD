@@ -4,20 +4,18 @@ import one.oth3r.directionhud.common.files.Data;
 import one.oth3r.directionhud.common.files.GlobalDest;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
-import one.oth3r.directionhud.common.utils.Helper;
+import one.oth3r.directionhud.common.utils.*;
 import one.oth3r.directionhud.common.utils.Helper.Command.Suggester;
 import one.oth3r.directionhud.common.utils.Helper.Num;
 import one.oth3r.directionhud.common.utils.Helper.ListPage;
 import one.oth3r.directionhud.common.utils.Helper.Enums;
-import one.oth3r.directionhud.common.utils.Lang;
-import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.utils.CTxT;
-import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
 import one.oth3r.directionhud.common.Destination.Setting.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Destination {
     public enum Setting {
@@ -272,27 +270,26 @@ public class Destination {
          * @param convert to convert to the players destination or not
          */
         public static void setSaved(Player player, String name, boolean global, boolean convert) {
-            saved.Dest dest = new saved.Dest(player,name,global);
+            saved.DestEntry destination = new saved.DestEntry(player,name,global);
             // handle bad data
-            if (!dest.isValid()) {
+            if (!destination.hasDestRequirements()) {
                 player.sendMessage(CUtl.error("dest.invalid"));
                 return;
             }
             CTxT convertTag = CTxT.of("");
-            Loc loc = dest.getDest();
-            if (convert && Dimension.canConvert(player.getDimension(),loc.getDimension())) {
+            if (convert && Dimension.canConvert(player.getDimension(),destination.getDimension())) {
                 // fill the convert tag
-                convertTag.append(" ").append(LANG.msg("set.converted").color('7').italic(true).hEvent(loc.getBadge()));
+                convertTag.append(" ").append(LANG.msg("set.converted").color('7').italic(true).hEvent(destination.getBadge()));
                 // convert the loc
-                loc.convertTo(player.getDimension());
+                destination.convertTo(player.getDimension());
             }
             // check if already in autoclear radius (after converting)
-            if (inAutoClearRadius(player,loc)) {
+            if (inAutoClearRadius(player,destination)) {
                 player.sendMessage(LANG.error("already_at"));
                 return;
             }
-            set(player,loc);
-            setMSG(player,loc.getBadge().append(convertTag));
+            set(player,destination);
+            setMSG(player,destination.getBadge().append(convertTag));
         }
         /**
          * creates the set buttons for the destination
@@ -439,14 +436,14 @@ public class Destination {
                     if (args.length == 2) player.sendMessage(CUtl.LANG.error("args"));
                     if (args.length == 3) {
                         // dest saved send (name)
-                        Dest dest = new Dest(player, args[1], false);
-                        if (dest.isValid()) social.send.logic(player,args[2],dest.getDest());
+                        Dest dest = new DestEntry(player, args[1], false);
+                        if (dest.hasDestRequirements()) social.send.logic(player,args[2],dest);
                         else player.sendMessage(Destination.LANG.error("invalid"));
                     }
                 }
                 case "delete" -> {
                     if (args.length == 1) player.sendMessage(CUtl.LANG.error("args"));
-                    if (args.length == 2) delete(Return,player,new Dest(player, args[1], false));
+                    if (args.length == 2) delete(Return,player,new DestEntry(player, args[1], false));
                 }
                 case "add" -> addCMDExecutor(player, Helper.trimStart(args,1), false);
                 default -> player.sendMessage(CUtl.usage(Assets.cmdUsage.destSaved));
@@ -506,7 +503,7 @@ public class Destination {
                 case "edit" -> editCMDExecutor(player, Helper.trimStart(args,1),true,false);
                 case "delete" -> {
                     if (args.length == 1) player.sendMessage(CUtl.LANG.error("args"));
-                    if (args.length == 2) delete(false,player,new Dest(player, args[1], true));
+                    if (args.length == 2) delete(false,player,new DestEntry(player, args[1], true));
                 }
                 case "add" -> addCMDExecutor(player, Helper.trimStart(args,1), true);
                 default -> player.sendMessage(CUtl.usage(Assets.cmdUsage.destSaved));
@@ -540,17 +537,17 @@ public class Destination {
             if (args.length == 0) return;
             // edit (name)
             if (args.length == 1) {
-                editUI(player,new Dest(player, args[0], global));
+                editUI(player,new DestEntry(player, args[0], global));
                 return;
             }
             // edit (type) (args)
             switch (args[0]) {
                 case "name" -> {
-                    if (args.length == 3) editName(Return, player, new Dest(player,args[1],global), args[2]);
+                    if (args.length == 3) editName(Return, player, new DestEntry(player,args[1],global), args[2]);
                     else player.sendMessage(Destination.LANG.error("invalid"));
                 }
                 case "color" -> {
-                    if (args.length == 3) setColor(player, new Dest(player,args[1],global), DHud.preset.DEFAULT_UI_SETTINGS, args[2], Return);
+                    if (args.length == 3) setColor(player, new DestEntry(player,args[1],global), DHud.preset.DEFAULT_UI_SETTINGS, args[2], Return);
                     else player.sendMessage(Destination.LANG.error("invalid"));
                 }
                 case "colorui" -> {
@@ -558,7 +555,7 @@ public class Destination {
                     if (args.length == 3) colorUI(player,args[2],args[1]);
                 }
                 case "order" -> {
-                    if (args.length == 3) editOrder(Return, player, new Dest(player,args[1],global), args[2]);
+                    if (args.length == 3) editOrder(Return, player, new DestEntry(player,args[1],global), args[2]);
                     else player.sendMessage(Destination.LANG.error("invalid"));
                 }
                 case "location" -> {
@@ -567,21 +564,21 @@ public class Destination {
                     if (args.length == 3 && !Num.isInt(args[2])) {
                         Loc loc = new Loc();
                         loc.setDimension(args[2]);
-                        editLocation(Return,player,new Dest(player,args[1],global),loc);
+                        editLocation(Return,player,new DestEntry(player,args[1],global),loc);
                     }
                     // location x z
-                    if (args.length == 4) editLocation(Return,player,new Dest(player,args[1],global),
+                    if (args.length == 4) editLocation(Return,player,new DestEntry(player,args[1],global),
                             new Loc(Num.toInt(args[2]), Num.toInt(args[3])));
                     if (args.length == 5) {
                         // location x, y, z
-                        if (Num.isInt(args[4])) editLocation(true,player,new Dest(player,args[1],global),
+                        if (Num.isInt(args[4])) editLocation(true,player,new DestEntry(player,args[1],global),
                                 new Loc(Num.toInt(args[2]), Num.toInt(args[3]), Num.toInt(args[4])));
                         // location x, z, dim)
-                        else editLocation(Return,player,new Dest(player,args[1],global),
+                        else editLocation(Return,player,new DestEntry(player,args[1],global),
                                 new Loc(Num.toInt(args[2]), Num.toInt(args[3]), args[4]));
                     }
                     // location x, y, z, dim
-                    if (args.length == 6) editLocation(Return,player,new Dest(player,args[1],global),
+                    if (args.length == 6) editLocation(Return,player,new DestEntry(player,args[1],global),
                             new Loc(Num.toInt(args[2]), Num.toInt(args[3]), Num.toInt(args[4]),args[5]));
                 }
             }
@@ -618,12 +615,12 @@ public class Destination {
             if (pos == 2) {
                 if (args[0].equalsIgnoreCase("name")) {
                     suggester.add("\"name\"");
-                    suggester.add(new Dest(player,args[1],global).getCMDName()); // current name to edit
+                    suggester.add(new DestEntry(player,args[1],global).getCMDName()); // current name to edit
                 }
                 if (args[0].equalsIgnoreCase("color"))
                     suggester.addAll(Suggester.colors(player,current,true));
                 if (args[0].equalsIgnoreCase("order"))
-                    suggester.add(String.valueOf(new Dest(player,args[1],global).getOrder())); //current order to edit
+                    suggester.add(String.valueOf(new DestEntry(player,args[1],global).getOrder())); //current order to edit
             }
             return suggester;
         }
@@ -631,65 +628,65 @@ public class Destination {
             if (!Helper.checkEnabled(player).saving()) return;
             //dest saved add <name>
             if (args.length == 1) {
-                add(player,new Dest(player,new Loc(player,args[0]),global));
+                add(player,new DestEntry(player,new Dest(player,args[0],Assets.DEFAULT_COLOR),global));
                 return;
             }
             if (!Num.inBetween(args.length, 2, 6)) {
                 player.sendMessage(CUtl.usage(Assets.cmdUsage.destAdd));
                 return;
             }
-            Loc baseLoc = new Loc(player,args[0]);
+            Dest baseDest = new Dest(player,args[0],Assets.DEFAULT_COLOR);
             String playerDIM = player.getDimension();
             //dest saved add <name> color
             //dest saved add <name> dim
             if (args.length == 2) {
                 if (Dimension.checkValid(args[1])) {
-                    baseLoc.setDimension(args[1]);
+                    baseDest.setDimension(args[1]);
                 } else {
-                    baseLoc.setColor(args[1]);
+                    baseDest.setColor(args[1]);
                 }
-                add(player,new Dest(player,baseLoc,global));
+                add(player,new DestEntry(player,baseDest,global));
                 return;
             }
             //dest saved add <name> x z
             if (args.length == 3) {
-                add(player,new Dest(player,new Loc(Num.toInt(args[1]),null, Num.toInt(args[2]),playerDIM,args[0],null),global));
+                add(player,new DestEntry(player,new Dest(Num.toInt(args[1]),null, Num.toInt(args[2]),playerDIM,args[0],Assets.DEFAULT_COLOR),global));
                 return;
             }
             //dest saved add <name> x z color
             if (args.length == 4 && !Num.isInt(args[3]) && !Dimension.checkValid(args[3])) {
-                add(player,new Dest(player,new Loc(Num.toInt(args[1]),null,Num.toInt(args[2]),playerDIM,args[0],args[3]),global));
+                add(player,new DestEntry(player,new Dest(Num.toInt(args[1]),null,Num.toInt(args[2]),playerDIM,args[0],args[3]),global));
                 return;
             }
             //dest saved add <name> x y DIM
             if (args.length == 4 && !Num.isInt(args[3])) {
-                add(player,new Dest(player,new Loc(Num.toInt(args[1]),null,Num.toInt(args[2]),args[3],args[0],null),global));
+                add(player,new DestEntry(player,new Dest(Num.toInt(args[1]),null,Num.toInt(args[2]),args[3],args[0],Assets.DEFAULT_COLOR),global));
                 return;
             }
             //dest saved add <name> x y z
             if (args.length == 4 && Num.isInt(args[3])) {
-                add(player,new Dest(player,new Loc(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),playerDIM,args[0],null),global));
+                add(player,new DestEntry(player,new Dest(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),playerDIM,args[0],Assets.DEFAULT_COLOR),global));
                 return;
             }
             //dest saved add <name> x y DIM color
             if (args.length == 5 && !Num.isInt(args[3])) {
-                add(player,new Dest(player,new Loc(Num.toInt(args[1]),null,Num.toInt(args[2]),args[3],args[0],args[4]),global));
+                add(player,new DestEntry(player,new Dest(Num.toInt(args[1]),null,Num.toInt(args[2]),args[3],args[0],args[4]),global));
                 return;
             }
             //dest saved add <name> x y z color
             if (args.length == 5 && !Dimension.checkValid(args[4])) {
-                add(player,new Dest(player,new Loc(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),playerDIM,args[0],args[4]),global));
+                add(player,new DestEntry(player,new Dest(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),playerDIM,args[0],args[4]),global));
                 return;
             }
             //dest saved add <name> x y z DIM
             if (args.length == 5) {
-                add(player,new Dest(player,new Loc(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),args[4],args[0],null),global));
+                add(player,new DestEntry(player,new Dest(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),args[4],args[0],Assets.DEFAULT_COLOR),global));
                 return;
             }
             //dest saved add <name> x y z DIM color
             if (args.length == 6) {
                 System.out.println("color"+args[5]);
-                add(player,new Dest(player,new Loc(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),args[4],args[0],args[5]),global));
+                add(player,new DestEntry(player,new Dest(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),args[4],args[0],args[5]),global));
                 return;
             }
             player.sendMessage(CUtl.usage(Assets.cmdUsage.destAdd));
@@ -738,30 +735,25 @@ public class Destination {
         /**
          * destination helper
          */
-        public static class Dest {
+        public static class DestEntry extends Dest {
             // dest helper
-            private final List<Loc> list;
-            private Loc dest;
-            private final Player player;
-            private Integer index;
+            private transient final ArrayList<Dest> list;
+            private transient final Player player;
+            private transient Integer index;
             // figure out what type of destination it is on creation
-            public final boolean global;
+            public transient final boolean global;
 
             /**
              * Dest from dest and list for dest
-             * @param destEntry the destination
+             * @param dest the destination
              * @param global weather it's a global destination or not
              */
-            public Dest(Player player, Loc destEntry, boolean global) {
+            public DestEntry(Player player, Dest dest, boolean global) {
+                super(dest);
                 // global dest list handling
                 this.global = global;
-                if (global) {
-                    this.list = GlobalDest.getDestinations();
-                } else {
-                    this.list = saved.getList(player);
-                }
-                this.dest = destEntry;
-                this.index = list.indexOf(destEntry);
+                this.list = getListType(player, global);
+                this.index = list.indexOf(this);
                 this.player = player;
             }
 
@@ -770,24 +762,44 @@ public class Destination {
              * @param name name of the dest
              * @param global weather it's a global destination or not
              */
-            public Dest(Player player, String name, boolean global) {
+            public DestEntry(Player player, String name, boolean global) {
+                super();
                 // global dest list handling
                 this.global = global;
-                if (global) {
-                    this.list = GlobalDest.getDestinations();
-                } else {
-                    this.list = saved.getList(player);
-                }
+                this.list = getListType(player, global);
                 this.player = player;
                 // search for the destination using the name provided
-                for (Loc entry: this.list) {
+                for (Dest entry: this.list) {
                     if (entry.getName().equals(name)) {
-                        this.dest = entry;
+                        setDest(entry);
                         this.index = list.indexOf(entry);
                         break;
                     }
                 }
             }
+
+            /**
+             * get the dest list depending on the global state
+             */
+            private static ArrayList<Dest> getListType(Player player, boolean global) {
+                return global ? GlobalDest.getDestinations() : saved.getList(player);
+            }
+
+            /**
+             * sets the destination
+             */
+            public void setDest(Dest dest) {
+                setX(dest.getX());
+                setY(dest.getY());
+                setZ(dest.getZ());
+                setDimension(dest.getDimension());
+                setName(dest.getName());
+                setColor(dest.getColor());
+            }
+
+            /**
+             * saves changes from the List to file
+             */
             private void save() {
                 if (global) {
                     // set the list to the edited list
@@ -796,43 +808,48 @@ public class Destination {
                     GlobalDest.mapToFile();
                 } else player.getPData().getDEST().setSaved(list);
             }
-            private void saveList() {
+
+            /**
+             * updates the destination list and saves to file
+             */
+            public void update() {
                 if (index >= 0) {
-                    list.set(index, dest);
+                    list.set(index, this);
                     save();
                 }
             }
-            public boolean isValid() {
-                return this.dest != null;
+
+            /**
+             * adds the destination to the list and saves to file if not already
+             */
+            public void add() {
+                if (!list.contains(this)) {
+                    list.add(this);
+                    // update the index & save
+                    index = list.indexOf(this);
+                    save();
+                }
             }
-            public Loc getDest() {
-                return dest;
+
+            /**
+             * removes the destination from the list and saves to file
+             */
+            public void remove() {
+                list.remove(this);
+                save();
             }
-            public String getName() {
-                return this.dest.getName();
+
+            public ArrayList<Dest> getList() {
+                return list;
             }
+
+            /**
+             * get name formatted for commands (wrapped in quotes)
+             */
             public String getCMDName() {
-                return "\""+this.getName()+"\"";
+                return Suggester.wrapQuotes(getName());
             }
-            public void setName(String name) {
-                // make sure the length is okay
-                if (name.length() > Helper.MAX_NAME) name = name.substring(0, Helper.MAX_NAME);
-                // set the name
-                dest.setName(name);
-                saveList();
-            }
-            public void setDest(Loc loc) {
-                if (!loc.hasDestRequirements()) return;
-                this.dest = loc;
-                saveList();
-            }
-            public String getColor() {
-                return dest.getColor();
-            }
-            public void setColor(String color) {
-                dest.setColor(CUtl.color.colorHandler(player,color,this.getColor()));
-                saveList();
-            }
+
             public int getOrder() {
                 return index+1;
             }
@@ -842,7 +859,7 @@ public class Destination {
              * @param order the new order, player format +1
              */
             public void setOrder(int order) {
-                list.remove(dest);
+                list.remove(this);
                 // sub one because player entered order is one off
                 order--;
                 // make sure the order is not out of bounds
@@ -851,33 +868,13 @@ public class Destination {
                 // set the index
                 index = order;
                 // add the dest back if empty, setting throws an error
-                if (list.isEmpty()) list.add(dest);
+                if (list.isEmpty()) list.add(this);
                 // set the new order in the list
-                else list.set(index,dest);
+                else list.set(index,this);
                 // save the list
-                save();
+                update();
             }
-            /**
-             * adds the destination to the list of not already
-             */
-            public void add() {
-                if (!list.contains(dest)) {
-                    list.add(dest);
-                    // update the index & save
-                    index = list.indexOf(dest);
-                    save();
-                }
-            }
-            /**
-             * removes the destination from the list
-             */
-            public void remove() {
-                list.remove(dest);
-                save();
-            }
-            public List<Loc> getList() {
-                return list;
-            }
+
             public boolean isGlobal() {
                 return global;
             }
@@ -887,9 +884,9 @@ public class Destination {
              * @return if errors were sent or not
              */
             public boolean sendErrors() {
-                if (this.isValid() && this.dest.hasDestRequirements()) {
+                if (this.hasDestRequirements()) {
                     // if valid but name is too long
-                    if (this.dest.getName().length() > Helper.MAX_NAME) {
+                    if (this.getName().length() > Helper.MAX_NAME) {
                         player.sendMessage(CUtl.LANG.error("length",Helper.MAX_NAME));
                         return true;
                     }
@@ -901,65 +898,62 @@ public class Destination {
                 return true;
             }
         }
-        public static List<Loc> getList(Player player) {
-            // get the local destination list
+
+        /**
+         * gets the player destination list
+         */
+        public static ArrayList<Dest> getList(Player player) {
             return player.getPData().getDEST().getSaved();
         }
 
         /**
          * gets a list of command friendly names from a destination list
-         * @param list destination list
          * @return names surrounded by quotes
          */
-        public static List<String> getCMDNames(List<Loc> list) {
-            List<String> formatted = new ArrayList<>();
-            for (String name: getNames(list)) formatted.add("\""+name+"\"");
-            return formatted;
+        public static ArrayList<String> getCMDNames(ArrayList<Dest> list) {
+            return list.stream().map(dest -> Suggester.wrapQuotes(dest.getName()))
+                    .collect(Collectors.toCollection(ArrayList::new));
         }
 
         /**
          * gets all names from a destination list
-         * @param list destination list
          * @return list of names
          */
-        public static List<String> getNames(List<Loc> list) {
-            List<String> out = new ArrayList<>();
-            for (Loc entry : list) out.add(entry.getName());
-            return out;
+        public static ArrayList<String> getNames(ArrayList<Dest> list) {
+            return list.stream().map(Dest::getName).collect(Collectors.toCollection(ArrayList::new));
         }
 
         /**
          * saves a new destination
          * @param destination the destination to save
          */
-        public static void add(Player player, Dest destination) {
+        public static void add(Player player, DestEntry destination) {
             // format the color
             destination.setColor(CUtl.color.colorHandler(player,destination.getColor()));
             // if errors were sent (invalid), return
             if (destination.sendErrors()) return;
+            // if there are the max amount of saved destinations
             if (destination.getList().size() >= Data.getConfig().getDestination().getMaxSaved()) {
                 player.sendMessage(LANG.error("max"));
                 return;
             }
+            // if there is a destination with the same name
             if (getNames(destination.getList()).contains(destination.getName())) {
                 player.sendMessage(LANG.error("duplicate",CTxT.of(destination.getName()).color(CUtl.s())));
                 return;
             }
 
-
             // save the destination
             destination.add();
-
-
             String cmdName = destination.getCMDName();
             // buttons after the destination
             CTxT buttons = CTxT.of(" ");
             // only show edit button if destination isn't global
             if (!destination.isGlobal()) buttons.append(EDIT_BUTTON(1,"/dest saved edit "+cmdName)).append(" ");
             buttons.append(dest.setButtons("/dest set saved "+cmdName,
-                    Dimension.canConvert(player.getDimension(),destination.getDest().getDimension())));
+                    Dimension.canConvert(player.getDimension(),destination.getDimension())));
 
-            player.sendMessage(CUtl.tag().append(LANG.msg("add",destination.getDest().getBadge().append(buttons))));
+            player.sendMessage(CUtl.tag().append(LANG.msg("add",destination.getBadge().append(buttons))));
         }
 
         /**
@@ -967,14 +961,14 @@ public class Destination {
          * @param Return to return back to the saved UI or not
          * @param destination the destination to remove
          */
-        public static void delete(boolean Return, Player player, Dest destination) {
-            ListPage<Loc> listPage = new ListPage<>(new ArrayList<>(destination.getList()),PER_PAGE);
+        public static void delete(boolean Return, Player player, DestEntry destination) {
+            ListPage<Dest> listPage = new ListPage<>(destination.getList(),PER_PAGE);
             // if errors were sent (invalid), return
             if (destination.sendErrors()) return;
             destination.remove();
-            player.sendMessage(CUtl.tag().append(LANG.msg("delete",destination.getDest().getBadge())));
+            player.sendMessage(CUtl.tag().append(LANG.msg("delete",destination.getBadge())));
             // return back to the page that the destination was on
-            if (Return) player.performCommand("dest saved " + listPage.getPageOf(destination.getDest()));
+            if (Return) player.performCommand("dest saved " + listPage.getPageOf(destination));
         }
 
         /**
@@ -983,7 +977,7 @@ public class Destination {
          * @param destination destination to edit
          * @param newName the new name for the destination
          */
-        public static void editName(boolean Return, Player player, Dest destination, String newName) {
+        public static void editName(boolean Return, Player player, DestEntry destination, String newName) {
             // if errors were sent (invalid), return
             if (destination.sendErrors()) return;
             // if there's already a destination with the new name
@@ -991,10 +985,13 @@ public class Destination {
                 player.sendMessage(LANG.error("duplicate",CTxT.of(newName).color(CUtl.s())));
                 return;
             }
+
             // save the old name
             CTxT oldName = CTxT.of(destination.getName()).color(CUtl.s());
             // change the name
             destination.setName(newName);
+            // update the destination
+            destination.update();
             // send a message
             player.sendMessage(CUtl.tag().append(LANG.msg("set",oldName,LANG.get("name"),CTxT.of(newName).color(CUtl.s()))));
             // return to the edit screen
@@ -1007,7 +1004,7 @@ public class Destination {
          * @param destination destination to edit
          * @param newOrderString the new order for the destination (as a string)
          */
-        public static void editOrder(boolean Return, Player player, Dest destination, String newOrderString) {
+        public static void editOrder(boolean Return, Player player, DestEntry destination, String newOrderString) {
             // if errors were sent (invalid), return
             if (destination.sendErrors()) return;
             // make sure the new order is a number
@@ -1030,26 +1027,25 @@ public class Destination {
          * @param destination destination to edit
          * @param newLoc the new Loc for the destination
          */
-        public static void editLocation(boolean Return, Player player, Dest destination, Loc newLoc) {
+        public static void editLocation(boolean Return, Player player, DestEntry destination, Loc newLoc) {
             // if errors were sent (invalid), return
             if (destination.sendErrors()) return;
-            // get the destination Loc
-            Loc loc = destination.getDest();
+
             // set only the location data to the Loc if there's coordinates
             if (newLoc.hasXYZ()) {
-                loc.setX(newLoc.getX());
-                loc.setY(newLoc.getY());
-                loc.setZ(newLoc.getZ());
+                destination.setX(newLoc.getX());
+                destination.setY(newLoc.getY());
+                destination.setZ(newLoc.getZ());
             }
             // set only the dimension data to the Loc if there is a dimension
             if (newLoc.getDimension() != null)
-                loc.setDimension(newLoc.getDimension());
-            // save the Loc
-            destination.setDest(loc);
+                destination.setDimension(newLoc.getDimension());
+            // update the destination
+            destination.update();
             // get the formatted name
             CTxT name = CTxT.of(destination.getName()).color(CUtl.s());
             // send the message
-            player.sendMessage(CUtl.tag().append(LANG.msg("set",name,LANG.get("location"),CTxT.of(loc.getNamelessBadge()))));
+            player.sendMessage(CUtl.tag().append(LANG.msg("set",name,LANG.get("location"),CTxT.of(destination.getNamelessBadge()))));
             // return if needed
             if (Return) player.performCommand("dest saved edit "+name);
         }
@@ -1061,13 +1057,15 @@ public class Destination {
          * @param newColor the color to set to
          * @param Return whether to return to the UI or not
          */
-        public static void setColor(Player player, Dest destination, String UISettings, String newColor, boolean Return) {
+        public static void setColor(Player player, DestEntry destination, String UISettings, String newColor, boolean Return) {
             // if errors were sent (invalid), return
             if (destination.sendErrors()) return;
             // handle color
             newColor = CUtl.color.colorHandler(player,newColor);
             // save the new color
             destination.setColor(newColor);
+            // update the destination
+            destination.update();
             // get the formatted name
             CTxT name = CTxT.of(destination.getName()).color(CUtl.s());
             // show the color UI if returning, else send set message
@@ -1081,7 +1079,7 @@ public class Destination {
          * @param name the name of the destination to edit
          */
         public static void colorUI(Player player, String UISettings, String name) {
-            Dest destination = new Dest(player,name,false);
+            DestEntry destination = new DestEntry(player,name,false);
             // if errors were sent (invalid), return
             if (destination.sendErrors()) return;
             // get the current color
@@ -1101,10 +1099,10 @@ public class Destination {
          * UI for editing / viewing a destination
          * @param destination the destination to edit
          */
-        public static void editUI(Player player, Dest destination) {
+        public static void editUI(Player player, DestEntry destination) {
             // if errors were sent (invalid), return
             if (destination.sendErrors()) return;
-            ListPage<Loc> listPage = new ListPage<>(new ArrayList<>(destination.getList()),PER_PAGE);
+            ListPage<Dest> listPage = new ListPage<>(new ArrayList<>(destination.getList()),PER_PAGE);
             // get the command name of the destination
             String cmdName = destination.getCMDName();
 
@@ -1128,7 +1126,7 @@ public class Destination {
                     .append("\n\n ").append(CTxT.of(Assets.symbols.pencil).btn(true).color(Assets.mainColors.edit)
                             .hEvent(LANG.hover("edit",LANG.get("location").color(Assets.mainColors.edit)))
                             .cEvent(2, "/dest saved edit-r location "+cmdName+" "))
-                    .append(" ").append(CTxT.of(destination.getDest().getNamelessBadge()))
+                    .append(" ").append(CTxT.of(destination.getNamelessBadge()))
                     .append("\n   ");
             // SEND BUTTON
             if (Helper.checkEnabled(player).send()) {
@@ -1139,12 +1137,12 @@ public class Destination {
             // SET & CONVERT BUTTON
             msg
                     .append(dest.setButtons("/dest set saved "+cmdName,
-                            Dimension.canConvert(player.getDimension(),destination.getDest().getDimension()))).append(" ")
+                            Dimension.canConvert(player.getDimension(),destination.getDimension()))).append(" ")
                     .append("\n\n ")
                     .append(LANG.btn("delete").btn(true).color('c').cEvent(2,"/dest saved delete-r "+cmdName)
                             .hEvent(LANG.hover("delete",LANG.btn("delete").color('c')))).append(" ")
                     //BACK
-                    .append(CUtl.CButton.back("/dest saved "+ listPage.getPageOf(destination.getDest())))
+                    .append(CUtl.CButton.back("/dest saved "+ listPage.getPageOf(destination)))
                     .append(line);
             player.sendMessage(msg);
         }
@@ -1154,13 +1152,13 @@ public class Destination {
          * @param pg page to show
          */
         public static void UI(Player player, int pg) {
-            ListPage<Loc> listPage = new ListPage<>(new ArrayList<>(getList(player)),PER_PAGE);
+            ListPage<Dest> listPage = new ListPage<>(new ArrayList<>(getList(player)),PER_PAGE);
             // build the message
             CTxT msg = CTxT.of(" "), line = CTxT.of("\n                                             ").strikethrough(true);
             msg.append(LANG.ui().color(Assets.mainColors.saved)).append(line).append("\n");
 
             // for every destination in the current page
-            for (Loc entry: listPage.getPage(pg)) {
+            for (Dest entry: listPage.getPage(pg)) {
                 String cmdName = "\""+entry.getName()+"\"";
                 msg.append(" ")
                         // BADGE
@@ -1197,12 +1195,12 @@ public class Destination {
          * @param pg page to show
          */
         public static void globalUI(Player player, int pg) {
-            ListPage<Loc> listPage = new ListPage<>(new ArrayList<>(GlobalDest.getDestinations()), PER_PAGE);
+            ListPage<Dest> listPage = new ListPage<>(new ArrayList<>(GlobalDest.getDestinations()), PER_PAGE);
             // build the message
             CTxT msg = CTxT.of(" "), line = CTxT.of("\n                                             ").strikethrough(true);
             msg.append(LANG.ui("global").color(Assets.mainColors.global)).append(line).append("\n");
             // for every destination in the current page
-            for (Loc entry : listPage.getPage(pg)) {
+            for (Dest entry : listPage.getPage(pg)) {
                 String cmdName = "\""+entry.getName()+"\"";
                 msg.append(" ")
                         //BADGE
@@ -1232,9 +1230,12 @@ public class Destination {
     }
     public static class lastdeath {
         private static final int PER_PAGE = 4;
+
         public static final Lang LANG = new Lang("destination.lastdeath.");
+
         public static CTxT BUTTON = LANG.btn().btn(true).color(Assets.mainColors.lastdeath).cEvent(1,"/dest lastdeath")
                 .hEvent(CTxT.of(Assets.cmdUsage.destLastdeath).color(Assets.mainColors.lastdeath).append("\n").append(LANG.hover()));
+
         public static void CMDExecutor(Player player, String[] args) {
             if (!Helper.checkEnabled(player).lastdeath()) return;
             if (args.length == 0) {
@@ -1247,6 +1248,7 @@ public class Destination {
             }
             player.sendMessage(CUtl.usage(Assets.cmdUsage.destLastdeath));
         }
+
         /**
          * adds another location to the death list
          * @param loc Loc to add
@@ -1313,12 +1315,12 @@ public class Destination {
                 if (!Helper.checkEnabled(player).send()) return;
                 // send <IGN>
                 if (args.length == 1) {
-                    logic(player,args[0],player.getLoc());
+                    logic(player,args[0],new Dest(player,null,null));
                     return;
                 }
                 // send <IGN> <name>
                 if (args.length == 2) {
-                    logic(player,args[0],new Loc(player,args[1]));
+                    logic(player,args[0],new Dest(player,args[1],null));
                     return;
                 }
 
@@ -1328,8 +1330,8 @@ public class Destination {
                     // send <IGN> saved <name>
                     if (args.length == 3) {
                         // get the dest and the loc from the dest
-                        saved.Dest dest = new saved.Dest(player,args[2],false);
-                        logic(player,args[0],dest.getDest());
+                        saved.DestEntry dest = new saved.DestEntry(player,args[2],false);
+                        logic(player,args[0],dest);
                         return;
                     }
                 }
@@ -1339,26 +1341,26 @@ public class Destination {
 
                 // send IGN x z
                 if (args.length == 3) {
-                    logic(player,args[0],new Loc(Num.toInt(args[1]), Num.toInt(args[2]),pDIM));
+                    logic(player,args[0],new Dest(Num.toInt(args[1]),null, Num.toInt(args[2]), pDIM,null,null));
                 }
                 // send IGN NAME x z
                 if (args.length == 4 && !Num.isInt(args[1])) {
-                    logic(player,args[0],new Loc(Num.toInt(args[1]),null,Num.toInt(args[2]),pDIM,args[1],null));
+                    logic(player,args[0],new Dest(Num.toInt(args[1]),null, Num.toInt(args[2]),pDIM,args[1],null));
                     return;
                 }
                 // send IGN x y (z, DIM, color)
                 if (args.length == 4) {
                     //DIM
                     if (Dimension.getAllIDs().contains(args[3])) {
-                        logic(player, args[0], new Loc(Num.toInt(args[1]), Num.toInt(args[2]), args[3]));
+                        logic(player, args[0], new Dest(Num.toInt(args[1]),null,Num.toInt(args[2]), args[3],null,null));
                     }
                     // COLOR
                     else if (!Num.isInt(args[3])) {
-                        logic(player,args[0],new Loc(Num.toInt(args[1]),null,Num.toInt(args[2]),pDIM,null,args[3]));
+                        logic(player,args[0],new Dest(Num.toInt(args[1]),null,Num.toInt(args[2]),pDIM,null,args[3]));
                     }
                     // Z
                     else {
-                        logic(player,args[0],new Loc(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),pDIM));
+                        logic(player,args[0],new Dest(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),pDIM,null,null));
                     }
                     return;
                 }
@@ -1366,15 +1368,15 @@ public class Destination {
                 if (args.length == 5 && !Num.isInt(args[1])) {
                     // DIM
                     if (Dimension.getAllIDs().contains(args[4])) {
-                        logic(player,args[0],new Loc(Num.toInt(args[2]),null,Num.toInt(args[3]),args[4],args[1],null));
+                        logic(player,args[0],new Dest(Num.toInt(args[2]),null,Num.toInt(args[3]),args[4],args[1],null));
                     }
                     // COLOR
                     else if (!Num.isInt(args[4])) {
-                        logic(player,args[0],new Loc(Num.toInt(args[2]),null,Num.toInt(args[3]),pDIM,args[1],args[4]));
+                        logic(player,args[0],new Dest(Num.toInt(args[2]),null,Num.toInt(args[3]),pDIM,args[1],args[4]));
                     }
                     // Z
                     else {
-                        logic(player,args[0],new Loc(Num.toInt(args[2]),Num.toInt(args[3]),Num.toInt(args[4]),pDIM,args[1],null));
+                        logic(player,args[0],new Dest(Num.toInt(args[2]),Num.toInt(args[3]),Num.toInt(args[4]),pDIM,args[1],null));
                     }
                     return;
                 }
@@ -1382,17 +1384,17 @@ public class Destination {
                 if (args.length == 5 && Num.isInt(args[3])) {
                     // DIM
                     if (Dimension.getAllIDs().contains(args[4])) {
-                        logic(player,args[0],new Loc(Num.toInt(args[1]), Num.toInt(args[2]), Num.toInt(args[3]),args[4]));
+                        logic(player,args[0],new Dest(Num.toInt(args[1]), Num.toInt(args[2]), Num.toInt(args[3]),args[4],null,null));
                     }
                     // COLOR
                     else {
-                        logic(player,args[0],new Loc(Num.toInt(args[1]), Num.toInt(args[2]), Num.toInt(args[3]),pDIM,null,args[4]));
+                        logic(player,args[0],new Dest(Num.toInt(args[1]), Num.toInt(args[2]), Num.toInt(args[3]),pDIM,null,args[4]));
                     }
                     return;
                 }
                 // send IGN x y DIM color
                 if (args.length == 5 && Dimension.getAllIDs().contains(args[3])) {
-                    logic(player,args[0],new Loc(Num.toInt(args[1]),null,Num.toInt(args[2]),args[3],null,args[4]));
+                    logic(player,args[0],new Dest(Num.toInt(args[1]),null,Num.toInt(args[2]),args[3],null,args[4]));
                     return;
                 }
                 // send IGN NAME x y z (DIM, color)
@@ -1401,26 +1403,26 @@ public class Destination {
                     if (Num.isInt(args[4])) {
                         // DIM
                         if (Dimension.getAllIDs().contains(args[5])) {
-                            logic(player,args[0],new Loc(Num.toInt(args[2]), Num.toInt(args[3]), Num.toInt(args[4]),args[5],args[1],null));
+                            logic(player,args[0],new Dest(Num.toInt(args[2]), Num.toInt(args[3]), Num.toInt(args[4]),args[5],args[1],null));
                         }
                         // COLOR
                         else {
-                            logic(player,args[0],new Loc(Num.toInt(args[2]), Num.toInt(args[3]), Num.toInt(args[4]),pDIM,args[1],args[5]));
+                            logic(player,args[0],new Dest(Num.toInt(args[2]), Num.toInt(args[3]), Num.toInt(args[4]),pDIM,args[1],args[5]));
                         }
                     } else {
                         // send IGN NAME x z DIM color
-                        logic(player,args[0],new Loc(Num.toInt(args[2]),null,Num.toInt(args[3]),args[4],args[1],args[5]));
+                        logic(player,args[0],new Dest(Num.toInt(args[2]),null,Num.toInt(args[3]),args[4],args[1],args[5]));
                     }
                     return;
                 }
                 // send IGN x y z DIM color
                 if (args.length == 6 && Dimension.getAllIDs().contains(args[4])) {
-                    logic(player,args[0],new Loc(Num.toInt(args[1]), Num.toInt(args[2]), Num.toInt(args[3]),args[4],null,args[5]));
+                    logic(player,args[0],new Dest(Num.toInt(args[1]), Num.toInt(args[2]), Num.toInt(args[3]),args[4],null,args[5]));
                     return;
                 }
                 // send IGN NAME x y z DIM color
                 if (args.length == 7 && !Num.isInt(args[1])) {
-                    logic(player,args[0],new Loc(Num.toInt(args[2]), Num.toInt(args[3]), Num.toInt(args[4]),args[5],args[1],args[6]));
+                    logic(player,args[0],new Dest(Num.toInt(args[2]), Num.toInt(args[3]), Num.toInt(args[4]),args[5],args[1],args[6]));
                     return;
                 }
                 player.sendMessage(CUtl.usage(Assets.cmdUsage.destSend));
@@ -1529,9 +1531,9 @@ public class Destination {
              * the main logic for sending Locs between players
              * @param player the player sending the Loc
              * @param targetPlayer the player string receiving the Loc
-             * @param loc Loc to send
+             * @param dest Loc to send
              */
-            public static void logic(Player player, String targetPlayer, Loc loc) {
+            public static void logic(Player player, String targetPlayer, Dest dest) {
                 // get the target player from string
                 Player target = Player.of(targetPlayer);
                 // remove bad data
@@ -1552,18 +1554,18 @@ public class Destination {
                 }
                 // LOC VALIDATION
                 // custom name too long
-                if (loc.getName() != null &&
-                        loc.getName().length() > Helper.MAX_NAME) {
+                if (dest.getName() != null &&
+                        dest.getName().length() > Helper.MAX_NAME) {
                     player.sendMessage(CUtl.LANG.error("length",Helper.MAX_NAME));
                     return;
                 }
                 // invalid coordinates
-                if (!loc.hasXYZ()) {
+                if (!dest.hasXYZ()) {
                     player.sendMessage(CUtl.LANG.error("coordinates"));
                     return;
                 }
                 // invalid dimension
-                if (!Dimension.checkValid(loc.getDimension())) {
+                if (!Dimension.checkValid(dest.getDimension())) {
                     player.sendMessage(CUtl.LANG.error("dimension"));
                     return;
                 }
@@ -1573,11 +1575,11 @@ public class Destination {
                 player.getPCache().setSocialCooldown(Data.getConfig().getSocial().getCooldown());
 
                 player.sendMessage(CUtl.tag().append(LANG.msg("sent",CTxT.of(target.getName()).color(CUtl.s()),
-                        CTxT.of("\n ").append(loc.getBadge()))));
+                        CTxT.of("\n ").append(dest.getBadge()))));
 
-                target.sendMessage(CUtl.tag().append(LANG.msg("sent_target",CTxT.of(player.getName()).color(CUtl.s()),getSendTxt(target,loc))));
+                target.sendMessage(CUtl.tag().append(LANG.msg("sent_target",CTxT.of(player.getName()).color(CUtl.s()),getSendTxt(target,dest))));
 
-                DHud.inbox.addDest(target,player,999,loc);
+                DHud.inbox.addDest(target,player,999,dest);
             }
 
             /**
@@ -1585,7 +1587,7 @@ public class Destination {
              * @param loc the Loc to display
              * @return the CTxT built
              */
-            public static CTxT getSendTxt(Player player, Loc loc) {
+            public static CTxT getSendTxt(Player player, Dest loc) {
                 CTxT txt = CTxT.of("").append(loc.getBadge()).append(" ");
                 // if color is null, empty string
                 String colorCMD = loc.getColor() == null ? "" : " \""+loc.getColor()+"\"";

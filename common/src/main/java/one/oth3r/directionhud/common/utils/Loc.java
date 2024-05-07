@@ -15,8 +15,7 @@ public class Loc {
     private Integer y = null;
     private Integer z = null;
     private String dimension = null;
-    private String name = null;
-    private String color = null;
+
     public Loc() {}
 
     /**
@@ -28,20 +27,6 @@ public class Loc {
         y = loc.getY();
         z = loc.getZ();
         dimension = loc.getDimension();
-        name = loc.getName();
-        color = loc.getColor();
-    }
-
-    /**
-     * creates Loc with x, y, z, dimension, name, & color
-     */
-    public Loc(Integer x, Integer y, Integer z, String dimension, String name, String color) {
-        this.x = xzBounds(x);
-        this.y = yBounds(y);
-        this.z = xzBounds(z);
-        if (Dimension.checkValid(dimension)) this.dimension = dimension;
-        this.name = name;
-        this.color = color;
     }
 
     /**
@@ -127,8 +112,6 @@ public class Loc {
         this.y = data.y;
         this.z = data.z;
         this.dimension = data.dimension;
-        this.name = data.name;
-        this.color = data.color;
     }
 
     /**
@@ -139,18 +122,6 @@ public class Loc {
         this.y = yBounds(player.getBlockY());
         this.z = xzBounds(player.getBlockZ());
         this.dimension = player.getDimension();
-    }
-
-    /**
-     * creates a Loc based on the player's location and a custom name
-     * @param name the custom name
-     */
-    public Loc(Player player, String name) {
-        this.x = xzBounds(player.getBlockX());
-        this.y = yBounds(player.getBlockY());
-        this.z = xzBounds(player.getBlockZ());
-        this.dimension = player.getDimension();
-        this.name = name;
     }
 
     private Integer yBounds(Integer s) {
@@ -177,10 +148,6 @@ public class Loc {
 
     public boolean hasXYZ() {
         return this.getXYZ() != null;
-    }
-
-    public boolean hasDestRequirements() {
-        return hasXYZ() && this.dimension != null && this.name != null && this.color != null;
     }
 
     public String getXYZ() {
@@ -217,30 +184,8 @@ public class Loc {
      */
     public CTxT getBadge() {
         CTxT msg = CTxT.of("");
-        // if there's a dimension, add a dimension badge to the start of the message
         if (this.dimension != null) msg.append(Dimension.getBadge(getDimension())).append(" ");
-        // if there's a name, make the badge the name, e.g. [O] name
-        if (this.name != null) msg.append(CTxT.of(this.name).color(this.color==null?"#ffffff":this.color)
-                .hEvent(CTxT.of(getXYZ())));
-        // no name, just have the coordinates
-        else msg.append(CTxT.of(getXYZ()));
-        return msg;
-    }
-
-    /**
-     * creates a Loc badge with the coordinates even with the name filled
-     * @return badge
-     */
-    public CTxT getNamelessBadge() {
-        CTxT msg = CTxT.of("");
-        // if there's a dimension, add a dimension badge to the start of the message
-        if (this.dimension != null) msg.append(Dimension.getBadge(getDimension())).append(" ");
-        // if there's a name, make it the hover
-        if (this.name != null) msg.append(CTxT.of(getXYZ())
-                .hEvent(CTxT.of(this.name).color(this.color==null?"#ffffff":this.color)));
-        // no name, just have the coordinates
-        else msg.append(CTxT.of(getXYZ()));
-        return msg;
+        return msg.append(CTxT.of(getXYZ()).color('f'));
     }
 
     // ----- GETTERS AND SETTERS -----
@@ -275,21 +220,5 @@ public class Loc {
 
     public void setDimension(String dimension) {
         if (Dimension.checkValid(dimension)) this.dimension = dimension;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getColor() {
-        return color;
-    }
-
-    public void setColor(String color) {
-        this.color = CUtl.color.format(color);
     }
 }

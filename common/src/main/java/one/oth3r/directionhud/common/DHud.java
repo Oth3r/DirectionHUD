@@ -2,14 +2,11 @@ package one.oth3r.directionhud.common;
 
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.files.Data;
-import one.oth3r.directionhud.common.utils.Helper;
+import one.oth3r.directionhud.common.utils.*;
 import one.oth3r.directionhud.common.utils.Helper.Enums;
 import one.oth3r.directionhud.common.utils.Helper.*;
 import one.oth3r.directionhud.common.utils.Helper.Command.Suggester;
-import one.oth3r.directionhud.common.utils.Lang;
-import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.utils.CTxT;
-import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
 
@@ -243,10 +240,10 @@ public class DHud {
          * @param target target player
          * @param from the player who sent the destination
          * @param time how long the entry should last
-         * @param loc the destination location
+         * @param dest the destination location
          */
-        public static void addDest(Player target, Player from, int time, Loc loc) {
-            if (!loc.hasXYZ() || loc.getDimension() == null) return;
+        public static void addDest(Player target, Player from, int time, Dest dest) {
+            if (!dest.hasXYZ() || dest.getDimension() == null) return;
 
             ArrayList<HashMap<String, String>> inbox = target.getPCache().getInbox();
             HashMap<String, String> entry = new HashMap<>();
@@ -255,11 +252,9 @@ public class DHud {
             entry.put("player_uuid",from.getUUID());
             entry.put("id", Helper.createID());
             entry.put("expire",String.valueOf(time));
-            entry.put("loc",loc.toString());
+            entry.put("dest",dest.toString());
             // add to the top of the list
             inbox.add(0,entry);
-            System.out.println("target inbox"+ inbox);
-            System.out.println("entry added" + entry);
         }
 
         /**
@@ -342,7 +337,7 @@ public class DHud {
                             // to / from
                             .append("\n  ").append(from).append("\n   ")
                             // destination badge
-                            .append(Destination.social.send.getSendTxt(player,new Loc(entry.get("loc"))));
+                            .append(Destination.social.send.getSendTxt(player,new Dest(entry.get("dest"))));
             }
             return msg;
         }
@@ -473,7 +468,7 @@ public class DHud {
                 }
                 case saved -> {
                     // if using dhud set, its always local destinations
-                    Destination.saved.setColor(player,new Destination.saved.Dest(player,subtype,false),
+                    Destination.saved.setColor(player,new Destination.saved.DestEntry(player,subtype,false),
                             UISettings,color,true);
                 }
                 case preset -> {

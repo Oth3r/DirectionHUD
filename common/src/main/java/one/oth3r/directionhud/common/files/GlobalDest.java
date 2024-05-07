@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import one.oth3r.directionhud.DirectionHUD;
+import one.oth3r.directionhud.common.utils.Dest;
 import one.oth3r.directionhud.common.utils.Loc;
 
 import java.io.File;
@@ -14,15 +15,15 @@ import java.util.List;
 
 public class GlobalDest {
     private static final Float VERSION = 1.0f;
-    private static final Loc VERSION_ENTRY = new Loc(1,null,0,null,VERSION.toString(),null);
+    private static final Dest VERSION_ENTRY = new Dest(1,null,0,null,VERSION.toString(),null);
     /**
      * destination list for editing or iterating
      */
-    private static List<Loc> destinations = new ArrayList<>();
-    public static List<Loc> getDestinations() {
+    private static ArrayList<Dest> destinations = new ArrayList<>();
+    public static ArrayList<Dest> getDestinations() {
         return new ArrayList<>(destinations);
     }
-    public static void setDestinations(List<Loc> destinations) {
+    public static void setDestinations(List<Dest> destinations) {
         GlobalDest.destinations = new ArrayList<>(destinations);
     }
     public static void clear() {
@@ -37,7 +38,7 @@ public class GlobalDest {
         if (!file.exists()) mapToFile();
         try (FileReader reader = new FileReader(file)) {
             // get the data
-            ArrayList<Loc> data = new Gson().fromJson(reader,new TypeToken<ArrayList<Loc>>(){}.getType());
+            ArrayList<Dest> data = new Gson().fromJson(reader,new TypeToken<ArrayList<Dest>>(){}.getType());
 
             float version = VERSION;
             // check for version (first entry)
@@ -62,7 +63,7 @@ public class GlobalDest {
     public static void mapToFile() {
         try (FileWriter writer = new FileWriter(getFile())) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            ArrayList<Loc> out = new ArrayList<>(destinations);
+            ArrayList<Dest> out = new ArrayList<>(destinations);
             out.add(0, VERSION_ENTRY);
             writer.write(gson.toJson(out));
         } catch (Exception e) {
@@ -80,13 +81,11 @@ public class GlobalDest {
         if (!file.exists()) return;
         try (FileReader reader = new FileReader(file)) {
             List<List<String>> legacy = new Gson().fromJson(reader, new TypeToken<List<List<String>>>() {}.getType());
-            ArrayList<Loc> out = new ArrayList<>();
+            ArrayList<Dest> out = new ArrayList<>();
             // convert each entry to the new dest system
             legacy.forEach(entry -> {
                 // entry = name | Loc | color
-                Loc dest = new Loc(true, entry.get(1));
-                dest.setName(entry.get(0));
-                dest.setColor(entry.get(2));
+                Dest dest = new Dest(new Loc(true, entry.get(1)),entry.get(0),entry.get(2));
                 // if valid add to list
                 if (dest.hasDestRequirements()) out.add(dest);
             });

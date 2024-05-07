@@ -11,6 +11,7 @@ import one.oth3r.directionhud.common.Hud;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.playerdata.*;
 import one.oth3r.directionhud.common.utils.CUtl;
+import one.oth3r.directionhud.common.utils.Dest;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.utils.Player;
@@ -388,13 +389,13 @@ public class Updater {
 
                     // update saved
                     ArrayList<ArrayList<String>> saved = (ArrayList<ArrayList<String>>) dest.get("saved");
-                    ArrayList<Loc> newSaved = saved.stream().map(entry -> {
+                    ArrayList<Dest> newSaved = saved.stream().map(entry -> {
+                        // ENTRY: NAME, LOC, COLOR
                         Loc loc = new Loc(true,entry.get(1));
-                        loc.setName(entry.get(0));
-                        loc.setColor(entry.get(2));
+                        Dest destLoc = new Dest(loc,entry.get(0),entry.get(2));
                         // update dimension
-                        loc.setDimension(Utl.dim.updateLegacy(loc.getDimension()));
-                        return loc;
+                        destLoc.setDimension(Utl.dim.updateLegacy(loc.getDimension()));
+                        return destLoc;
                     }).collect(Collectors.toCollection(ArrayList::new));
                     dest.put("saved",newSaved);
                 }

@@ -4,6 +4,7 @@ import one.oth3r.directionhud.common.files.Data;
 import one.oth3r.directionhud.utils.CTxT;
 
 public class Assets {
+
     public static class mainColors {
         public static final String convert = "#ffa93f";
         public static final String set = "#fff540";
@@ -26,6 +27,7 @@ public class Assets {
         public static final String presets = "#2dedff";
         public static final String global = "#60a4fc";
     }
+
     public static String barColor(Hud.Setting.BarColor color) {
         StringBuilder output = new StringBuilder();
         switch (color) {
@@ -39,6 +41,7 @@ public class Assets {
         }
         return output.toString();
     }
+
     public static class cmdUsage {
         public static final String hud = "/hud";
         public static final String hudColor = "/hud color";
@@ -117,6 +120,7 @@ public class Assets {
                     .append(CTxT.of("minecraft.the_nether").color('b')).append("\":\"").append(CTxT.of("8.0").color('b')).append("\"}");
         }
     }
+
     public static class symbols {
         public static class arrows {
             public static final String north = "\u2b06";
@@ -149,6 +153,8 @@ public class Assets {
         public static final String local = "\uD83D\uDCDA";
         public static final String global = "\uD83E\uDDED";
     }
+
+    public static final String DEFAULT_COLOR = "#ffffff";
 
     public enum packets {
         INITIALIZATION("initialize_v1.1"),
