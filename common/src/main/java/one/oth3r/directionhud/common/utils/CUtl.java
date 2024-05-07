@@ -78,24 +78,25 @@ public class CUtl {
                 "#a38cff","#8c04dd","#5c00a7",
                 "#d9d9d9","#808080","#404040");
         public static String updateOld(String string,String defaultColor) {
-            if (string.equals("red")) return "#FF5555";
-            if (string.equals("dark_red")) return "#AA0000";
-            if (string.equals("gold")) return "#FFAA00";
-            if (string.equals("yellow")) return "#FFFF55";
-            if (string.equals("green")) return "#55FF55";
-            if (string.equals("dark_green")) return "#00AA00";
-            if (string.equals("aqua")) return "#55FFFF";
-            if (string.equals("dark_aqua")) return "#00AAAA";
-            if (string.equals("blue")) return "#5555FF";
-            if (string.equals("dark_blue")) return "#0000AA";
-            if (string.equals("pink")) return "#FF55FF";
-            if (string.equals("purple")) return "#AA00AA";
-            if (string.equals("white")) return "#FFFFFF";
-            if (string.equals("gray")) return "#AAAAAA";
-            if (string.equals("dark_gray")) return "#555555";
-            if (string.equals("black")) return "#000000";
-            if (string.charAt(0)=='#') return format(string);
-            return format(defaultColor);
+            return switch (string) {
+                case "red" -> "#FF5555";
+                case "dark_red" -> "#AA0000";
+                case "gold" -> "#FFAA00";
+                case "yellow" -> "#FFFF55";
+                case "green" -> "#55FF55";
+                case "dark_green" -> "#00AA00";
+                case "aqua" -> "#55FFFF";
+                case "dark_aqua" -> "#00AAAA";
+                case "blue" -> "#5555FF";
+                case "dark_blue" -> "#0000AA";
+                case "pink" -> "#FF55FF";
+                case "purple" -> "#AA00AA";
+                case "white" -> "#FFFFFF";
+                case "gray" -> "#AAAAAA";
+                case "dark_gray" -> "#555555";
+                case "black" -> "#000000";
+                default -> string.charAt(0) == '#' ? format(string) : format(defaultColor);
+            };
         }
 
         public static String format(String hex, String defaultColor) {
