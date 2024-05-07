@@ -195,18 +195,8 @@ public class Hud {
             for (Module module: modules.getEnabled(player)) {
                 count++;
                 // if dest isn't set
-                if (!Destination.dest.get(player).hasXYZ()) {
-                    // if dest or distance, remove
-                    if (module.equals(Module.destination) || module.equals(Module.distance)) continue;
-                }
-                // if tracking module
-                if (module.equals(Module.tracking)) {
-                    // if tracking type is dest and dest is off, remove.
-                    // else player tracking type and no player tracked, remove
-                    if (player.getPCache().getHud().getSetting(Setting.module__tracking_target).equals(Setting.ModuleTrackingTarget.dest.toString())) {
-                        if (!Destination.dest.get(player).hasXYZ()) continue;
-                    } else if (!Destination.social.track.getTarget(player).isValid()) continue;
-                }
+                if (moduleInstructions.get(module).isEmpty()) continue;
+
                 for (String str : moduleInstructions.get(module)) {
                     String string = str.substring(1);
                     boolean strike = false;
@@ -352,6 +342,7 @@ public class Hud {
 
             return time;
         }
+
         public static ArrayList<String> getTrackingModule(Player player) {
             ArrayList<String> tracking = new ArrayList<>();
             if (!player.getPCache().getHud().getModule(Module.tracking)) return tracking;
@@ -362,22 +353,19 @@ public class Hud {
             boolean hybrid = (boolean) player.getPCache().getHud().getSetting(Setting.module__tracking_hybrid);
             // PLAYER or HYBRID
             if (trackingTarget.equals(Setting.ModuleTrackingTarget.player) || hybrid) {
-                // make sure there's a target
-                if (player.getPCache().getDEST().getTracking() != null) {
-                    Player target = Destination.social.track.getTarget(player);
-                    // make sure the player is real
-                    if (!target.isValid()) {
-                        Loc plLoc = new Loc(target);
-                        // not in the same dimension
-                        if (!player.getDimension().equals(target.getDimension())) {
-                            // can convert and autoconvert is on
-                            if (Dimension.canConvert(player.getDimension(),target.getDimension()) && player.getPCache().getDEST().getDestSettings().getAutoconvert()) {
-                                plLoc.convertTo(player.getDimension());
-                            } else plLoc = null;
-                        }
-                        // set the loc
-                        pointLoc = plLoc;
+                Player target = Destination.social.track.getTarget(player);
+                // make sure the player is real
+                if (!target.isValid()) {
+                    Loc plLoc = new Loc(target);
+                    // not in the same dimension
+                    if (!player.getDimension().equals(target.getDimension())) {
+                        // can convert and autoconvert is on
+                        if (Dimension.canConvert(player.getDimension(),target.getDimension()) && player.getPCache().getDEST().getDestSettings().getAutoconvert()) {
+                            plLoc.convertTo(player.getDimension());
+                        } else plLoc = null;
                     }
+                    // set the loc
+                    pointLoc = plLoc;
                 }
             }
             // DEST or (HYBRID & NULL TRACKER)
@@ -388,6 +376,7 @@ public class Hud {
             }
             // check if there's a point set, otherwise return nothing
             if (pointLoc == null) return tracking;
+
             Setting.ModuleTrackingType trackingType = Enums.get(String.valueOf(player.getPCache().getHud().getSetting(Setting.module__tracking_type)),ModuleTrackingType.class);
             boolean simple = trackingType.equals(Setting.ModuleTrackingType.simple);
             tracking.add("/p["); // add the key bracket
@@ -399,6 +388,7 @@ public class Hud {
             // make sure 0 - 360
             if (rotation < 0) rotation += 360;
             if (target < 0) target += 360;
+
             if (Num.inBetween(rotation, Num.wSubtract(target,15,360), Num.wAdd(target,15,360)))
                 tracking.add("s"+(simple?"-"+ arrows.up+"-" : arrows.north));
             // NORTH
@@ -432,6 +422,7 @@ public class Hud {
             tracking.add("/p]");
             return tracking;
         }
+
         public static ArrayList<String> getSpeedModule(Player player) {
             ArrayList<String> speed = new ArrayList<>();
             if (!player.getPCache().getHud().getModule(Module.speed)) return speed;
@@ -440,6 +431,7 @@ public class Hud {
             speed.add("p"+" B/S");
             return speed;
         }
+
         public static ArrayList<String> getAngleModule(Player player) {
             ArrayList<String> angle = new ArrayList<>();
             DecimalFormat f = new DecimalFormat("0.0");
