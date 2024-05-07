@@ -43,35 +43,39 @@ public class Utl {
             else return new Vector(0,0,0);
         }
     }
-    public static class checkEnabled {
-        public static boolean customPresets(Player player) {
-            return config.MAXColorPresets > 0;
+
+    public static class CheckEnabled extends FeatureChecker {
+
+        public CheckEnabled(Player player) {
+            super(player);
         }
-        public static boolean destination(Player player) {
-            return player.getPlayer().hasPermission("directionhud.destination");
-        }
-        public static boolean hud(Player player) {
-            return player.getPlayer().hasPermission("directionhud.hud") && config.HUDEditing;
-        }
-        public static boolean reload(Player player) {
+
+        @Override
+        public boolean reload() {
             return player.getPlayer().hasPermission("directionhud.reload");
         }
-        public static boolean global(Player player) {
-            return config.globalDESTs && player.getPlayer().hasPermission("directionhud.destination.global-saving");
+
+        @Override
+        public boolean globalEditing() {
+            return super.global() && player.getPlayer().hasPermission("directionhud.destination.global-saving");
         }
-        public static boolean saving(Player player) {
-            return player.getPlayer().hasPermission("directionhud.destination.saving");
+
+        @Override
+        public boolean hud() {
+            return super.hud() && player.getPlayer().hasPermission("directionhud.hud");
         }
-        public static boolean lastdeath(Player player) {
-            return (boolean)player.getPData().getDEST().getSetting(Destination.Setting.features__lastdeath) && config.LastDeathSaving;
+
+        @Override
+        public boolean destination() {
+            return super.destination() && player.getPlayer().hasPermission("directionhud.destination");
         }
-        public static boolean send(Player player) {
-            return (boolean)player.getPData().getDEST().getSetting(Destination.Setting.features__send) && config.social;
-        }
-        public static boolean track(Player player) {
-            return player.getPCache().getDEST().getDestSettings().getFeatures().getTrack() && config.social;
+
+        @Override
+        public boolean saving() {
+            return super.saving() && player.getPlayer().hasPermission("directionhud.destination.saving");
         }
     }
+
     public static class particle {
         public static final String LINE = "LINE";
         public static final String DEST = "DEST";
