@@ -111,13 +111,13 @@ public class Utl {
     public static class dim {
 
         public static ArrayList<DimensionEntry> DEFAULT_DIMENSIONS = new ArrayList<>(Arrays.asList(
-                new DimensionEntry("minecraft.overworld", "Overworld", "#55FF55",Dimension.OVERWORLD_TIME_ENTRY),
-                new DimensionEntry("minecraft.the_nether", "Nether", "#e8342e", new Time(true)),
-                new DimensionEntry("minecraft.the_end", "End", "#edffb0", new Time(true))
+                new DimensionEntry("minecraft:overworld", "Overworld", "#55FF55",Dimension.OVERWORLD_TIME_ENTRY),
+                new DimensionEntry("minecraft:the_nether", "Nether", "#e8342e", new Time(true)),
+                new DimensionEntry("minecraft:the_end", "End", "#edffb0", new Time(true))
         ));
 
         public static ArrayList<RatioEntry> DEFAULT_RATIOS = new ArrayList<>(List.of(
-                new RatioEntry(new Pair<>("minecraft.overworld", 1.0), new Pair<>("minecraft.the_nether", 8.0))
+                new RatioEntry(new Pair<>("minecraft:overworld", 1.0), new Pair<>("minecraft:the_nether", 8.0))
         ));
 
         /**
@@ -173,13 +173,13 @@ public class Utl {
          */
         @NotNull
         private static String getFormattedDim(ServerWorld world) {
-            // get the path of the dimension, removes the "minecraft."
+            // get the path of the dimension, removes the "minecraft:"
             String formatted = world.getRegistryKey().getValue().getPath();
             // remove all "_" "the_nether" -> "the nether"
             formatted = formatted.replaceAll("_"," ");
             // remove 'the' "the nether" -> "nether"
             formatted = formatted.replaceFirst("the ","");
-            // captilize the key letter "nether" -> "Nether"
+            // capitalize the key letter "nether" -> "Nether"
             formatted = formatted.substring(0,1).toUpperCase()+formatted.substring(1);
             return formatted;
         }
