@@ -424,17 +424,26 @@ public class Updater {
              */
             public static void run() {
                 // shouldn't happen, only call if the file exists
-                if (!getLegacyFile().exists()) return;
+                File file = getLegacyFile();
+                if (!file.exists()) return;
 
-                try (FileInputStream fileStream = new FileInputStream(getLegacyFile())) {
+                try (FileInputStream fileStream = new FileInputStream(file)) {
                     Properties properties = new Properties();
                     properties.load(fileStream);
                     String version = (String) properties.computeIfAbsent("version", a -> String.valueOf(1.5f));
                     if (version.contains("v")) version = version.substring(1);
 
+                    // load the version
                     loadVersion(properties,Float.parseFloat(version));
+
+                    // delete the old file
+                    if (file.delete()) {
+                        DirectionHUD.LOGGER.info("Deleted " + file.getName());
+                    } else {
+                        DirectionHUD.LOGGER.info("Failed to delete the old DirectionHUD config.");
+                    }
                 } catch (Exception e) {
-                    DirectionHUD.LOGGER.info("ERROR READING LEGACY CONFIG: "+e.getMessage());
+                    DirectionHUD.LOGGER.info("ERROR LOADING LEGACY CONFIG: "+e.getMessage());
                 }
             }
 
