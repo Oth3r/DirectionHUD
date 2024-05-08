@@ -371,10 +371,12 @@ public class Updater {
                     // update all destination Locs
                     Map<String,Object> dest = (Map<String, Object>) base.get("destination");
 
-                    Loc destination = new Loc(true,(String)dest.get("dest"));
-                    // update dimension
-                    destination.setDimension(Utl.dim.updateLegacy(destination.getDimension()));
                     // update dest
+                    Loc destination = new Loc(true,(String)dest.get("dest"));
+                    // update the dimension
+                    if (destination.getDimension() != null) {
+                        destination.setDimension(Utl.dim.updateLegacy(destination.getDimension()));
+                    }
                     dest.put("dest",destination);
 
                     // update lastdeath
@@ -436,14 +438,17 @@ public class Updater {
                     // load the version
                     loadVersion(properties,Float.parseFloat(version));
 
-                    // delete the old file
-                    if (file.delete()) {
-                        DirectionHUD.LOGGER.info("Deleted " + file.getName());
-                    } else {
-                        DirectionHUD.LOGGER.info("Failed to delete the old DirectionHUD config.");
-                    }
                 } catch (Exception e) {
                     DirectionHUD.LOGGER.info("ERROR LOADING LEGACY CONFIG: "+e.getMessage());
+                    e.printStackTrace();
+                }
+
+                // delete the old file
+                try {
+                    Files.delete(file.toPath());
+                    DirectionHUD.LOGGER.info("Deleted " + file.getName());
+                } catch (Exception e) {
+                    DirectionHUD.LOGGER.info("Failed to delete the old DirectionHUD config.");
                 }
             }
 
