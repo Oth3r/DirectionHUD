@@ -145,7 +145,7 @@ public class PlayerData {
      * adds the player into the system (when they first join)
      */
     public static void addPlayer(Player player) {
-        PData.loadPlayer(player,false);
+        PData.loadPlayer(player,true);
         // run the updater
         Updater.PlayerFile.run(player);
     }
