@@ -1,6 +1,5 @@
 package one.oth3r.directionhud.common.files.playerdata;
 
-import one.oth3r.directionhud.common.files.Updater;
 import one.oth3r.directionhud.utils.Player;
 
 import java.util.ArrayList;
@@ -116,8 +115,6 @@ public class PlayerData {
     public static void setPlayerData(Player player, PData pData) {
         // make sure the pData isnt null, if it is and the player doesn't have a pData, make a new one for them
         if (pData != null) {
-            // set the player for saving actions
-            pData.setPlayer(player);
             playerData.put(player,pData);
         } else if (!playerData.containsKey(player)) {
             playerData.put(player,new PData(player));
@@ -134,7 +131,7 @@ public class PlayerData {
      */
     public static PData getPData(Player player) {
         if (!playerData.containsKey(player)) {
-            PData.loadPlayer(player,true);
+            PData.loadPlayer(player);
         }
         // accessing the pData, bump the timer
         Queue.updateExpireTime(player);
@@ -145,9 +142,7 @@ public class PlayerData {
      * adds the player into the system (when they first join)
      */
     public static void addPlayer(Player player) {
-        PData.loadPlayer(player,true);
-        // run the updater
-        Updater.PlayerFile.run(player);
+        PData.loadPlayer(player);
     }
 
     /**

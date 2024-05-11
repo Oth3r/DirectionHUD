@@ -21,6 +21,10 @@ public class Dimension {
 
     private static DimensionSettings dimensionSettings = new DimensionSettings();
 
+    public static void setDimensionSettings(DimensionSettings dimensionSettings) {
+        Dimension.dimensionSettings = new DimensionSettings(dimensionSettings);
+    }
+
     public static DimensionSettings getDimensionSettings() {
         return dimensionSettings;
     }
@@ -130,22 +134,6 @@ public class Dimension {
     public static boolean checkValid(String id) {
         return dimensionSettings.getDimensions().stream()
                 .anyMatch(dimension -> dimension.getId().equals(id));
-    }
-
-    /**
-     * loads the dimensionSettings from the file, adds any missing dimensions, and saves
-     */
-    public static void load() {
-        dimensionSettings = DimensionSettings.load();
-        Utl.dim.addMissing();
-        save();
-    }
-
-    /**
-     * saves the current dimensionSettings to file
-     */
-    public static void save() {
-        DimensionSettings.save(dimensionSettings);
     }
 
     // converts the old system of saving dimension settings to the new system

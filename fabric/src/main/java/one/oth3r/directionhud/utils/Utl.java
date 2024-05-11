@@ -11,6 +11,7 @@ import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.dimension.DimensionEntry;
 import one.oth3r.directionhud.common.files.dimension.DimensionEntry.*;
+import one.oth3r.directionhud.common.files.dimension.DimensionSettings;
 import one.oth3r.directionhud.common.files.dimension.RatioEntry;
 import one.oth3r.directionhud.common.template.FeatureChecker;
 import one.oth3r.directionhud.common.utils.CUtl;
@@ -142,10 +143,10 @@ public class Utl {
         /**
          * adds the dimensions that are loaded in game but aren't in the config yet
          */
-        public static void addMissing() {
+        public static void addMissing(DimensionSettings dimensionSettings) {
             Random random = new Random();
             if (DirectionHUD.server == null) return;
-            ArrayList<DimensionEntry> dimensions = Dimension.getDimensionSettings().getDimensions();
+            ArrayList<DimensionEntry> dimensions = dimensionSettings.getDimensions();
             //ADD MISSING DIMS TO MAP
             for (ServerWorld world : DirectionHUD.server.getWorlds()) {
                 String currentDIM = format(world.getRegistryKey());

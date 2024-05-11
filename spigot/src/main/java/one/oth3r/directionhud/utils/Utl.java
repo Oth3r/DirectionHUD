@@ -5,6 +5,7 @@ import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.files.LangReader;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.dimension.DimensionEntry;
+import one.oth3r.directionhud.common.files.dimension.DimensionSettings;
 import one.oth3r.directionhud.common.files.dimension.RatioEntry;
 import one.oth3r.directionhud.common.template.FeatureChecker;
 import one.oth3r.directionhud.common.utils.CUtl;
@@ -141,11 +142,11 @@ public class Utl {
         /**
          * adds the dimensions that are loaded in game but aren't in the config yet
          */
-        public static void addMissing() {
+        public static void addMissing(DimensionSettings dimensionSettings) {
             Random random = new Random();
             // ADD MISSING DIMENSIONS TO MAP
             String defaultWorld = Bukkit.getWorlds().get(0).getName();
-            ArrayList<DimensionEntry> dimensions = Dimension.getDimensionSettings().getDimensions();
+            ArrayList<DimensionEntry> dimensions = dimensionSettings.getDimensions();
             for (World world : Bukkit.getWorlds()) {
                 String currentDIM = format(world.getName());
                 // if already exist or the default, continue

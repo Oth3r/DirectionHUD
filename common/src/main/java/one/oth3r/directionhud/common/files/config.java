@@ -13,7 +13,7 @@ import java.nio.file.Paths;
 
 public class Config {
     @SerializedName("version")
-    private Float version = 1.6f;
+    private Double version = 1.6;
     @SerializedName("lang")
     private String lang = "en_us";
     @SerializedName("location")
@@ -50,11 +50,11 @@ public class Config {
         this.social = social;
     }
 
-    public Float getVersion() {
+    public Double getVersion() {
         return version;
     }
 
-    public void setVersion(Float version) {
+    public void setVersion(Double version) {
         this.version = version;
     }
 
@@ -312,16 +312,14 @@ public class Config {
                 DirectionHUD.LOGGER.info("Updating DirectionHUD.properties to directionhud/config.json");
                 Updater.ConfigFile.Legacy.run();
             }
-            DirectionHUD.LOGGER.info(String.format("Creating new `%s`", file.getName()));
             save();
         }
         try (BufferedReader reader = Files.newBufferedReader(file.toPath())) {
-            Gson gson = new GsonBuilder().create();
-            Data.setConfig(gson.fromJson(reader, Config.class));
+            Updater.ConfigFile.run(reader);
         } catch (Exception e) {
-            DirectionHUD.LOGGER.info(String.format("ERROR LOADING '%s`", file.getName()));
-            e.printStackTrace();
+            DirectionHUD.LOGGER.info(String.format("ERROR LOADING '%s`: ", file.getName(),e.getMessage()));
         }
+        // save after loading
         save();
     }
 
@@ -329,6 +327,9 @@ public class Config {
      * saves Data.config to config.json
      */
     public static void save() {
+        if (!getFile().exists()) {
+            DirectionHUD.LOGGER.info(String.format("Creating new `%s`", getFile().getName()));
+        }
         try (BufferedWriter writer = Files.newBufferedWriter(getFile().toPath())) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             writer.write(gson.toJson(Data.getConfig()));

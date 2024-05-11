@@ -5,12 +5,14 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 import one.oth3r.directionhud.DirectionHUD;
+import one.oth3r.directionhud.common.files.Updater;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.common.utils.Helper.*;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -128,34 +130,41 @@ public class DefaultPData {
 
     // LOADING AND SAVING
 
-    public static final String DEFAULT_FILE_NAME = "default-playerdata.json";
+    public static final String FILE_NAME = "default-playerdata.json";
 
     public static File getDefaultFile() {
-        return new File(DirectionHUD.CONFIG_DIR + DEFAULT_FILE_NAME);
+        return new File(DirectionHUD.CONFIG_DIR + FILE_NAME);
     }
 
+    /**
+     * loads the default pData file to the system
+     */
     public static void loadDefaults() {
         File file = getDefaultFile();
-        if (!file.exists()) {
-            DirectionHUD.LOGGER.info(String.format("Creating new `%s`", DEFAULT_FILE_NAME));
-            saveDefaults();
-        }
+        // create the file if non-existent
+        if (!file.exists()) saveDefaults();
+        // try loading
         try (BufferedReader reader = Files.newBufferedReader(file.toPath())) {
-            Gson gson = new GsonBuilder().create();
-            PlayerData.setDefaults(gson.fromJson(reader, DefaultPData.class));
-        } catch (Exception e) {
-            DirectionHUD.LOGGER.info(String.format("ERROR LOADING '%s`", DEFAULT_FILE_NAME));
-            e.printStackTrace();
+            Updater.DefaultPlayerData.run(reader);
+        } catch (NullPointerException | IOException e) {
+            DirectionHUD.LOGGER.info(String.format("Error loading '%s`, reverting to defaults.", FILE_NAME));
         }
+        // save after everything
         saveDefaults();
     }
 
+    /**
+     * saves the default pData to file
+     */
     public static void saveDefaults() {
+        if (!getDefaultFile().exists()) {
+            DirectionHUD.LOGGER.info(String.format("Creating new `%s`", FILE_NAME));
+        }
         try (BufferedWriter writer = Files.newBufferedWriter(getDefaultFile().toPath())) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             writer.write(gson.toJson(PlayerData.getDefaults()));
         } catch (Exception e) {
-            DirectionHUD.LOGGER.info(String.format("ERROR SAVING '%s`",DEFAULT_FILE_NAME));
+            DirectionHUD.LOGGER.info(String.format("ERROR SAVING '%s`.", FILE_NAME));
             e.printStackTrace();
         }
     }

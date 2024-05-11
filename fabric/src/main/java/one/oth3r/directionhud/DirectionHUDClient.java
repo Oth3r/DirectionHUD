@@ -73,6 +73,7 @@ public class DirectionHUDClient implements ClientModInitializer {
                 if (!client.isInSingleplayer()) {
                     Player player = new Player(client.player,true);
                     PData pData = gson.fromJson(packet.getMessage(), PData.class);
+                    pData.setPlayer(player);
 
                     PlayerData.setPlayerData(player,pData);
                     PlayerData.setPlayerCache(player,new CachedPData(pData));

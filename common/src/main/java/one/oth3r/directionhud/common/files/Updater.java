@@ -1,14 +1,13 @@
 package one.oth3r.directionhud.common.files;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.DHud;
 import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.Hud;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
+import one.oth3r.directionhud.common.files.dimension.DimensionSettings;
 import one.oth3r.directionhud.common.files.playerdata.*;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Dest;
@@ -28,13 +27,48 @@ public class Updater {
     public static class PlayerFile {
 
         /**
-         * runs the updater, only for v2.0+
+         * runs the playerdata updater from the file reader
+         * @param player the player for the file
+         * @param reader the file reader
+         * @throws NullPointerException if the file is null
+         * @throws UnsupportedVersionException if the file's version is unsupported
          */
-        public static void run(Player player) {
-            PData pData = player.getPData();
-            double version = pData.getVersion();
-            pData.setPlayer(player);
-            pData.save();
+        public static void run(Player player, BufferedReader reader)
+                throws NullPointerException, UnsupportedVersionException {
+            // try to read the json
+            PData fileData;
+            try {
+                fileData = Helper.getGson().fromJson(reader, PData.class);
+            } catch (JsonSyntaxException | JsonIOException e) {
+                throw new NullPointerException();
+            }
+
+            // throw null if the fileData is null
+            if (fileData == null) throw new NullPointerException();
+
+            // get the file version
+            Double version = fileData.getVersion();
+
+            // if the version is unsupported, (<2.0 or no version, throw an error)
+            if (version == null || version < 2.0) throw new UnsupportedVersionException();
+
+            // update the base player data using the default player data updater
+            PData pData = new PData(player,DefaultPlayerData.update(fileData));
+
+            // update anything else player based here
+            pData = update(pData, version);
+
+            // set the PlayerData Arraylist
+            PlayerData.setPlayerData(player,pData);
+        }
+
+        /**
+         * updates the pData file, from the version number provided
+         * @return the updated pData
+         */
+        public static PData update(PData old, double version) {
+            PData pData = new PData(old);
+            return pData;
         }
 
         public static class legacy {
@@ -404,11 +438,145 @@ public class Updater {
                 // save at the end
                 mapToFile(player,base);
                 // load the prepared PlayerData
-                PData.loadPlayer(player,true);
+                PData.loadPlayer(player);
             }
         }
     }
+
+    public static class DefaultPlayerData {
+
+        /**
+         * runs the default playerdata updater from the file reader and sets the defaults when finished
+         * @param reader the file reader
+         * @throws NullPointerException if the file is null
+         */
+        public static void run(BufferedReader reader)
+                throws NullPointerException {
+            // try to read the json
+            DefaultPData fileData;
+            try {
+                fileData = Helper.getGson().fromJson(reader, DefaultPData.class);
+            } catch (Exception e) {
+                throw new NullPointerException();
+            }
+
+            // throw null if the fileData is null or version is null
+            if (fileData == null) throw new NullPointerException();
+
+            // get the file version
+            Double version = fileData.getVersion();
+
+            // if there's no version, throw
+            if (version == null) throw new NullPointerException();
+
+            // get the default pData
+            DefaultPData defaultPData = new DefaultPData(fileData);
+
+            // update the default pData
+            defaultPData = update(defaultPData);
+
+            // set the DefaultPData
+            PlayerData.setDefaults(defaultPData);
+        }
+
+        /**
+         * updates the base pData
+         */
+        public static DefaultPData update(DefaultPData defaultPData) {
+            DefaultPData pData = new DefaultPData(defaultPData);
+            // verify the order
+            pData.getHud().setOrder(Hud.modules.fixOrder(pData.getHud().getOrder()));
+
+            return pData;
+        }
+    }
+
+    public static class DimSettings {
+
+        /**
+         * runs the updater from the file reader and sets the loaded settings when finished, adding the missing dimensions
+         * @param reader the file reader
+         * @throws NullPointerException if the file is null
+         */
+        public static void run(BufferedReader reader)
+                throws NullPointerException {
+            // try to read the json
+            DimensionSettings dimensionSettings;
+            try {
+                dimensionSettings = Helper.getGson().fromJson(reader, DimensionSettings.class);
+            } catch (Exception e) {
+                throw new NullPointerException();
+            }
+
+            // throw null if the fileData is null or version is null
+            if (dimensionSettings == null) throw new NullPointerException();
+
+            // get the file version
+            Double version = dimensionSettings.getVersion();
+
+            // if there's no version, throw
+            if (version == null) throw new NullPointerException();
+
+            // update the default pData
+            dimensionSettings = update(dimensionSettings);
+
+            // add missing dimensions
+            Utl.dim.addMissing(dimensionSettings);
+
+            // set the DefaultPData
+            Dimension.setDimensionSettings(dimensionSettings);
+        }
+
+        /**
+         * updates the file
+         */
+        public static DimensionSettings update(DimensionSettings old) {
+            DimensionSettings dimensionSettings = new DimensionSettings(old);
+            return dimensionSettings;
+        }
+    }
+
     public static class ConfigFile {
+
+        /**
+         * runs the updater from the file reader and sets the loaded settings when finished, adding the missing dimensions
+         * @param reader the file reader
+         * @throws NullPointerException if the file is null
+         */
+        public static void run(BufferedReader reader)
+                throws NullPointerException {
+            // try to read the json
+            Config config;
+            try {
+                config = Helper.getGson().fromJson(reader, Config.class);
+            } catch (Exception e) {
+                throw new NullPointerException();
+            }
+
+            // throw null if the fileData is null or version is null
+            if (config == null) throw new NullPointerException();
+
+            // get the file version
+            Double version = config.getVersion();
+
+            // if there's no version, throw
+            if (version == null) throw new NullPointerException();
+
+            // update the config
+            config = update(config);
+
+            // set the DefaultPData
+            Data.setConfig(config);
+        }
+
+        /**
+         * updates the file
+         */
+        public static Config update(Config old) {
+            Config config = new Config(old);
+            return config;
+        }
+
         public static class Legacy {
 
             /**
@@ -500,7 +668,7 @@ public class Updater {
                     try {
                         Dimension.getDimensionSettings().setRatios(Dimension.convertLegacyRatios(gson.fromJson((String) properties.computeIfAbsent("dimension-ratios", a -> ""), arrayListMap)));
                     } catch (JsonSyntaxException ignored) {}
-                    Dimension.save();
+                    DimensionSettings.save();
 
                     // PLAYER DEFAULTS
                     // HUD

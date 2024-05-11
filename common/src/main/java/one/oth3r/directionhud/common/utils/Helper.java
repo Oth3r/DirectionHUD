@@ -1,11 +1,17 @@
 package one.oth3r.directionhud.common.utils;
 
+import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import com.google.gson.stream.MalformedJsonException;
 import one.oth3r.directionhud.common.DHud;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
 
+import java.io.IOException;
 import java.util.*;
 
 public class Helper {
@@ -374,6 +380,36 @@ public class Helper {
                     .append(left).append(" ")
                     .append(CTxT.of(String.valueOf(page)).btn(true).color(CUtl.p()).cEvent(2,command).hEvent(CUtl.LANG.hover("page_set").color(CUtl.p())))
                     .append(" ").append(right);
+        }
+    }
+
+    public static Gson getGson() {
+        return new GsonBuilder()
+                .registerTypeAdapterFactory(new LenientTypeAdapterFactory())
+                .create();
+    }
+
+    public static class LenientTypeAdapterFactory implements TypeAdapterFactory {
+        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+            final TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
+
+            return new TypeAdapter<>() {
+                // normal writer
+                public void write(JsonWriter out, T value) throws IOException {
+                    delegate.write(out, value);
+                }
+                // custom reader
+                public T read(JsonReader in) throws IOException {
+                    try {
+                        //Try to read value using default TypeAdapter
+                        return delegate.read(in);
+                    } catch (JsonSyntaxException | MalformedJsonException e) {
+                        // don't throw anything if there's a weird JSON, just return null
+                        in.skipValue();
+                        return null;
+                    }
+                }
+            };
         }
     }
 }

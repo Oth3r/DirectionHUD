@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 import one.oth3r.directionhud.DirectionHUD;
+import one.oth3r.directionhud.common.files.Updater;
 import one.oth3r.directionhud.utils.Utl;
 
 import java.io.*;
@@ -21,6 +22,14 @@ public class DimensionSettings {
 
     @SerializedName("ratios")
     private ArrayList<RatioEntry> ratios = Utl.dim.DEFAULT_RATIOS;
+
+    public DimensionSettings() {}
+
+    public DimensionSettings(DimensionSettings dimensionSettings) {
+        this.version = dimensionSettings.version;
+        this.dimensions = new ArrayList<>(dimensionSettings.dimensions);
+        this.ratios = new ArrayList<>(dimensionSettings.ratios);
+    }
 
     public Double getVersion() {
         return version;
@@ -50,29 +59,29 @@ public class DimensionSettings {
         return new File(DirectionHUD.CONFIG_DIR+"dimension-settings.json");
     }
 
-    public static DimensionSettings load() {
+    public static void load() {
         File file = getFile();
-        if (!file.exists()) {
-            DirectionHUD.LOGGER.info(String.format("Creating new '%s'",getFile().getName()));
-            return new DimensionSettings();
-        }
-
+        // create a new file if non-existent
+        if (!file.exists()) save();
+        // try reading
         try (BufferedReader reader = Files.newBufferedReader(getFile().toPath(), StandardCharsets.UTF_8)) {
-            Gson gson = new GsonBuilder().create();
-            return gson.fromJson(reader, DimensionSettings.class);
+            Updater.DimSettings.run(reader);
         } catch (Exception e) {
             DirectionHUD.LOGGER.info("Error loading dimension settings, reverting to default settings.");
-            return new DimensionSettings();
         }
+        // save the file
+        save();
     }
 
-    public static void save(DimensionSettings dimensionSettings) {
+    public static void save() {
+        if (!getFile().exists()) {
+            DirectionHUD.LOGGER.info(String.format("Creating new '%s'",getFile().getName()));
+        }
         try (BufferedWriter writer = Files.newBufferedWriter(getFile().toPath(), StandardCharsets.UTF_8)) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            writer.write(gson.toJson(dimensionSettings));
+            writer.write(gson.toJson(Dimension.getDimensionSettings()));
         } catch (Exception e) {
-            DirectionHUD.LOGGER.info("ERROR WRITING DIMENSION SETTINGS - PLEASE REPORT WITH THE ERROR LOG");
-            e.printStackTrace();
+            DirectionHUD.LOGGER.info("ERROR WRITING DIMENSION SETTINGS. "+e.getMessage());
         }
     }
 }
