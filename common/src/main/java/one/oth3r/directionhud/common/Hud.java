@@ -448,7 +448,9 @@ public class Hud {
     }
     public static class modules {
         private static final int PER_PAGE = 5;
+
         public static final Lang LANG = new Lang("hud.module.");
+
         /**
          * creates the button for the modules UI
          * @return the button created
@@ -457,6 +459,7 @@ public class Hud {
             return LANG.btn().btn(true).color(Assets.mainColors.edit).cEvent(1,"/hud modules")
                     .hEvent(CTxT.of(Assets.cmdUsage.hud).color(Assets.mainColors.edit).append("\n").append(LANG.hover()));
         }
+
         public static void CMDExecutor(Player player, String[] args) {
             // UI
             if (args.length == 0) {
@@ -507,6 +510,7 @@ public class Hud {
                 suggester.add(String.valueOf(player.getPCache().getHud().getOrder().indexOf(Module.get(args[1]))+1));
             return suggester;
         }
+
         public static ArrayList<Module> getDefaultOrder() {
             ArrayList<Module> list = new ArrayList<>();
             list.add(Module.coordinates);
@@ -520,6 +524,7 @@ public class Hud {
             list.add(Module.angle);
             return list;
         }
+
         /**
          * gets the default module enabled state from the given module
          * @return default state
@@ -527,6 +532,7 @@ public class Hud {
         public static boolean getDefaultState(Module module) {
             return PlayerData.getDefaults().getHud().getModule(module);
         }
+
         /**
          * reset module(s) to their default config state
          * @param module module to reset, unknown to reset all
@@ -562,6 +568,7 @@ public class Hud {
             if (Return) UI(player, msg, 1);
             else player.sendMessage(msg);
         }
+
         /**
          * move a module's position in the HUD
          * @param module module to move
@@ -586,6 +593,7 @@ public class Hud {
             if (Return) UI(player, msg, listPage.getPageOf(module));
             else player.sendMessage(msg);
         }
+
         /**
          * sets the enabled state of a module
          * @param module module to edit
@@ -606,6 +614,7 @@ public class Hud {
             if (Return) UI(player, msg, listPage.getPageOf(module));
             else player.sendMessage(msg);
         }
+
         /**
          * module order fixer, removes unknown modules, and fills in the gaps if modules are missing
          * @param list the list that needs to be fixed
@@ -623,6 +632,7 @@ public class Hud {
             list.addAll(allModules);
             return list;
         }
+
         /**
          * gets the module page # from the HUD setting that is associated with a module
          * @param setting the module setting
@@ -639,8 +649,9 @@ public class Hud {
             }
             return listPage.getPageOf(module);
         }
+
         /**
-         * @return a list of enabled modules
+         * @return a list of enabled modules in the HUD order
          */
         public static ArrayList<Module> getEnabled(Player player) {
             ArrayList<Module> enabled = new ArrayList<>();
@@ -648,6 +659,7 @@ public class Hud {
                 if (player.getPCache().getHud().getModule(module)) enabled.add(module);
             return enabled;
         }
+
         /**
          * get setting buttons for the provided module
          * @return CTxT with the buttons
@@ -724,6 +736,7 @@ public class Hud {
             }
             return button;
         }
+
         /**
          * gets the sample of the given module as a CTxT
          * @param onlyExample to return only the example
@@ -778,6 +791,7 @@ public class Hud {
             if (onlyExample.length == 0) info.append("\n").append(LANG.get("info."+module).color('7'));
             return info;
         }
+
         /**
          * returns the color of the module -
          * grey if off
@@ -798,6 +812,7 @@ public class Hud {
             if (yellow) return "#fff419";
             return "#19ff21";
         }
+
         /**
          * the HUD Modules chat UI
          * @param aboveTxT a messages that displays above the UI
