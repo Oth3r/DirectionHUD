@@ -49,10 +49,10 @@ public class Assets {
         public static final String hudSettings = "/hud settings";
         public static final String dest = "/dest | /destination";
         public static final String destAdd = "/dest (saved) add <name> (x) (y) (z) (dimension) (color)";
-        public static String destSet = "/dest set <x> (y) <z> (dimension) (convert) | /dest set "+(Data.getConfig().getDestination().getGloabal()?"(saved, global)":"saved")+" <name> (convert)";
+        public static String destSet = "/dest set <x> (y) <z> (dimension) (convert) | /dest set "+(Data.getConfig().getDestination().getGlobal()?"(saved, global)":"saved")+" <name> (convert)";
         public static final String destLastdeath = "/dest lastdeath";
         public static final String destClear = "/dest clear";
-        public static String destSaved = "/dest saved (add, edit, delete, send"+(Data.getConfig().getDestination().getGloabal()?", global)":")");
+        public static String destSaved = "/dest saved (add, edit, delete, send"+(Data.getConfig().getDestination().getGlobal()?", global)":")");
         public static final String destSettings = "/dest settings";
         public static final String destSend = "/dest send <IGN> saved <name> | /dest send <IGN> (name) (x) (y) (z) (dimension) (color)";
         public static final String destTrack = "/dest track (set, accept, deny, cancel) <IGN> | /dest track clear";

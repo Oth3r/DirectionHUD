@@ -16,10 +16,10 @@ public class Config {
     private Double version = 1.6;
     @SerializedName("lang")
     private String lang = "en_us";
-    @SerializedName("location")
-    private Location location = new Location();
     @SerializedName("online-mode")
     private Boolean online = true;
+    @SerializedName("location")
+    private Location location = new Location();
     @SerializedName("hud")
     private Hud hud = new Hud();
     @SerializedName("destination")
@@ -170,7 +170,7 @@ public class Config {
         @SerializedName("max-saved")
         private Integer maxSaved = 50;
         @SerializedName("global")
-        private Boolean gloabal = true;
+        private Boolean global = false;
         @SerializedName("lastdeath")
         private LastDeath lastDeath = new LastDeath();
         @SerializedName("loop-ticks")
@@ -181,7 +181,7 @@ public class Config {
         public Destination(Destination destination) {
             this.saving = destination.saving;
             this.maxSaved = destination.maxSaved;
-            this.gloabal = destination.gloabal;
+            this.global = destination.global;
             this.lastDeath = new LastDeath(destination.lastDeath);
             this.loop = destination.loop;
         }
@@ -202,12 +202,12 @@ public class Config {
             this.maxSaved = maxSaved;
         }
 
-        public Boolean getGloabal() {
-            return gloabal;
+        public Boolean getGlobal() {
+            return global;
         }
 
-        public void setGloabal(Boolean gloabal) {
-            this.gloabal = gloabal;
+        public void setGlobal(Boolean global) {
+            this.global = global;
         }
 
         public LastDeath getLastDeath() {
