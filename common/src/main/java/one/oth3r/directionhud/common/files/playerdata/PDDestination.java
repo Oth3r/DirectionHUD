@@ -208,10 +208,10 @@ public class PDDestination {
 
         public static class Features {
 
-            @SerializedName("track_request_mode")
-            private Destination.Setting.TrackingRequestMode trackRequestMode = Destination.Setting.TrackingRequestMode.request;
             @SerializedName("track")
             private Boolean track = true;
+            @SerializedName("track_request_mode")
+            private Destination.Setting.TrackingRequestMode trackRequestMode = Destination.Setting.TrackingRequestMode.request;
             @SerializedName("send")
             private Boolean send = true;
             @SerializedName("lastdeath")
