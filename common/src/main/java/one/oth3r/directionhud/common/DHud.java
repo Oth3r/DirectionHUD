@@ -37,7 +37,6 @@ public class DHud {
             default -> player.sendMessage(CUtl.error("command"));
         }
     }
-
     public static ArrayList<String> CMDSuggester(Player player, int pos, String[] args) {
         ArrayList<String> suggester = new ArrayList<>();
         if (!Helper.checkEnabled(player).hud()) return suggester;
@@ -145,6 +144,7 @@ public class DHud {
             // save the inbox after the loop, but don't have to save the file
             player.getPCache().setInbox(inbox);
         }
+
         /**
          * removes all entries to deal with tracking, because tracking entries doesn't save between sessions
          */
@@ -358,13 +358,18 @@ public class DHud {
             player.sendMessage(msg);
         }
     }
+
     public static class preset {
         private static final int PER_PAGE = 7;
+
         public static final String DEFAULT_UI_SETTINGS = "normal";
+
         public static final Lang LANG = new Lang("dhud.preset.");
+
         public static CTxT BUTTON = LANG.btn().btn(true).color(Assets.mainColors.presets)
                 .cEvent(1,"/dhud preset")
                 .hEvent(CTxT.of("/dhud presets").color(Assets.mainColors.presets).append("\n").append(LANG.hover()));
+
         public static void colorCMDExecutor(Player player, String[] args) {
             if (args.length != 5) return;
             // /dhud color (settings) (type) (subtype) (set/preset) (color/page)
@@ -435,6 +440,7 @@ public class DHud {
             }
             return suggester;
         }
+
         public enum Type {
             hud,
             dest,
@@ -449,6 +455,7 @@ public class DHud {
                 }
             }
         }
+
         /**
          * sets color via the Type, using the setColor defined by each color type, returns to the UI
          * @param UISettings color UI settings
@@ -476,6 +483,7 @@ public class DHud {
                 }
             }
         }
+
         /**
          * displays the color editor with the provided settings & type
          * @param color current color to edit
@@ -493,9 +501,11 @@ public class DHud {
                     .append(LANG.btn().color(Assets.mainColors.presets)
                             .cEvent(1,String.format("/dhud color %s %s \"%s\" preset default",UISettings,type,subtype)).btn(true)
                             .hEvent(LANG.hover("preset.editor",LANG.hover("preset.editor_2").color(Assets.mainColors.presets))));
+
             CTxT customButton = LANG.btn("custom").btn(true).color(Assets.mainColors.custom)
                     .cEvent(2,String.format("/dhud color %s %s \"%s\" set ",UISettings,type,subtype))
                     .hEvent(LANG.hover("custom",LANG.hover("custom.2").color(Assets.mainColors.custom)));
+
             CTxT defaultSquare = CTxT.of(Assets.symbols.square).color(color).hEvent(CUtl.color.getBadge(color)),
                     smallButton = LANG.get("editor.step.button.small").color(CUtl.s()).cEvent(1,String.format(stepCMD,"small"))
                             .hEvent(LANG.get("editor.step.hover",LANG.get("editor.step.button.small").color(CUtl.s()))).btn(true),
@@ -503,6 +513,7 @@ public class DHud {
                             .hEvent(LANG.get("editor.step.hover",LANG.get("editor.step.button.normal").color(CUtl.s()))).btn(true),
                     bigButton = LANG.get("editor.step.button.big").color(CUtl.s()).cEvent(1,String.format(stepCMD,"big"))
                             .hEvent(LANG.get("editor.step.hover",LANG.get("editor.step.button.big").color(CUtl.s()))).btn(true);
+
             // initialize the change amounts for each step size
             float[] changeAmounts = new float[3];
             if (UISettings == null || UISettings.equals("normal")) {
@@ -547,6 +558,7 @@ public class DHud {
                     .append(hsbList.get(4)).append(" ").append(defaultSquare).append(" ").append(hsbList.get(5)).append(" ").append(LANG.get("editor.brightness")).append("\n\n ")
                     .append(smallButton).append(" ").append(normalButton).append(" ").append(bigButton);
         }
+
         /**
          * the presets UI
          * @param UISettings color UI settings
@@ -557,10 +569,12 @@ public class DHud {
         public static void UI(Player player, String UISettings, Type type, String subtype, String page) {
             // top button initialization
             String clickCMD = String.format("/dhud color %s %s \"%s\" ",UISettings,type,subtype);
+
             CTxT defaultBtn = LANG.btn("default").color(CUtl.s()).cEvent(1,clickCMD+"preset default").btn(true),
                     minecraftBtn = LANG.btn("minecraft").color(CUtl.s()).cEvent(1,clickCMD+"preset minecraft").btn(true),
                     customBtn = CTxT.of(" ").append(LANG.btn("custom").color(CUtl.s()).cEvent(1,clickCMD+"preset custom").btn(true)), // space at start for alignment
                     list = CTxT.of(""); // text for inside the UI
+
             // code for the button selector page, default and mc colors
             if (page.equals("default") || page.equals("minecraft")) {
                 List<String> colorStrings, colors;
@@ -631,10 +645,12 @@ public class DHud {
                     .append(CTxT.of("\n                               ").strikethrough(true));
             player.sendMessage(msg);
         }
+
         /**
          * everything for the custom color presets
          */
         public static class custom {
+
             /**
              * update from the old preset system to the new one (1.7)
              * <p>
