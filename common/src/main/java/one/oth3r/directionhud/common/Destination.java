@@ -367,7 +367,7 @@ public class Destination {
                 if (args[0].equalsIgnoreCase("saved") && Helper.checkEnabled(player).saving())
                     suggester.addAll(saved.getCMDNames(saved.getList(player)));
                 else if (args[0].equalsIgnoreCase("global") && Helper.checkEnabled(player).global())
-                    suggester.addAll(saved.getCMDNames(GlobalDest.getDestinations()));
+                    suggester.addAll(saved.getCMDNames(Data.getGlobal().getDestinations()));
                 else suggester.addAll(Suggester.xyz(player,current,2));
             }
             // set <saved> <name> ((convert))
@@ -534,7 +534,7 @@ public class Destination {
             }
             // global delete
             if (args[0].equalsIgnoreCase("delete")) {
-                if (pos == 1) suggester.addAll(getCMDNames(GlobalDest.getDestinations()));
+                if (pos == 1) suggester.addAll(getCMDNames(Data.getGlobal().getDestinations()));
             }
             // saved add
             if (args[0].equalsIgnoreCase("add")) {
@@ -609,7 +609,7 @@ public class Destination {
                 return suggester;
             }
             // saved edit type (name)
-            if (pos == 1) suggester.addAll(getCMDNames(global ? GlobalDest.getDestinations() : getList(player)));
+            if (pos == 1) suggester.addAll(getCMDNames(global ? Data.getGlobal().getDestinations() : getList(player)));
             // saved edit type name (<arg>)
             if (args[0].equalsIgnoreCase("location")) {
                 if (pos == 2) {
@@ -797,7 +797,7 @@ public class Destination {
              * get the dest list depending on the global state
              */
             private static ArrayList<Dest> getListType(Player player, boolean global) {
-                return global ? GlobalDest.getDestinations() : saved.getList(player);
+                return global ? Data.getGlobal().getDestinations() : saved.getList(player);
             }
 
             /**
@@ -818,9 +818,9 @@ public class Destination {
             private void save() {
                 if (global) {
                     // set the list to the edited list
-                    GlobalDest.setDestinations(list);
+                    Data.getGlobal().setDestinations(list);
                     // save changes to file
-                    GlobalDest.mapToFile();
+                    GlobalDest.save();
                 } else player.getPData().getDEST().setSaved(list);
             }
 
@@ -1210,7 +1210,7 @@ public class Destination {
          * @param pg page to show
          */
         public static void globalUI(Player player, int pg) {
-            ListPage<Dest> listPage = new ListPage<>(new ArrayList<>(GlobalDest.getDestinations()), PER_PAGE);
+            ListPage<Dest> listPage = new ListPage<>(new ArrayList<>(Data.getGlobal().getDestinations()), PER_PAGE);
             // build the message
             CTxT msg = CTxT.of(" "), line = CTxT.of("\n                                             ").strikethrough(true);
             msg.append(LANG.ui("global").color(Assets.mainColors.global)).append(line).append("\n");

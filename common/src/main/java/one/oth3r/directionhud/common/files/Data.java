@@ -1,6 +1,5 @@
 package one.oth3r.directionhud.common.files;
 
-import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.dimension.DimensionSettings;
 import one.oth3r.directionhud.common.files.playerdata.PData;
 
@@ -18,11 +17,31 @@ public class Data {
         config = new Config(newConfig);
     }
 
+    /**
+     * global destinations
+     */
+    private static GlobalDest globalDestinations = new GlobalDest();
+
+    public static GlobalDest getGlobal() {
+        return globalDestinations;
+    }
+
+    public static void setGlobalDestinations(GlobalDest globalDestinations) {
+        Data.globalDestinations = new GlobalDest(globalDestinations);
+    }
+
     public static void loadFiles(boolean tryLegacy) {
         Config.load(tryLegacy);
         PData.loadDefaults();
         LangReader.loadLanguageFile();
         DimensionSettings.load();
         if (config.getOnline()) GlobalDest.load();
+    }
+
+    /**
+     * clears the per-server data
+     */
+    public static void clear() {
+        globalDestinations = new GlobalDest();
     }
 }

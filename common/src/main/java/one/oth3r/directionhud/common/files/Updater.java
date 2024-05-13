@@ -18,6 +18,7 @@ import one.oth3r.directionhud.utils.Utl;
 
 import java.io.*;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.text.DecimalFormat;
 import java.util.*;
@@ -536,6 +537,92 @@ public class Updater {
         }
     }
 
+    public static class Global {
+
+        /**
+         * runs the updater from the file reader and sets the loaded settings when finished, adding the missing dimensions
+         * @param reader the file reader
+         * @throws NullPointerException if the file is null
+         */
+        public static void run(BufferedReader reader)
+                throws NullPointerException {
+            // try to read the json
+            GlobalDest globalDest;
+            try {
+                globalDest = Helper.getGson().fromJson(reader, GlobalDest.class);
+            } catch (Exception e) {
+                throw new NullPointerException();
+            }
+
+            // check if reading the file failed
+            if (globalDest == null) {
+                // run the legacy updater
+                globalDest = legacyUpdater();
+                // if the updater failed, throw null
+                if (globalDest == null) {
+                    System.out.println("updater fail");
+                    throw new NullPointerException();
+                }
+            }
+
+            // get the file version
+            Double version = globalDest.getVersion();
+
+            // if there's no version, throw
+            if (version == null) {
+                System.out.println("version null");
+                throw new NullPointerException();
+            }
+
+            // update
+            globalDest = update(globalDest);
+
+            // set the global destinations
+            Data.setGlobalDestinations(globalDest);
+        }
+
+        /**
+         * updates the file
+         */
+        public static GlobalDest update(GlobalDest old) {
+            GlobalDest globalDest = new GlobalDest(old);
+            return globalDest;
+        }
+
+        /**
+         * update the old string based global destination to the new object based system using a buffered reader
+         * @return null if couldn't update / not legacy
+         */
+        public static GlobalDest legacyUpdater() {
+            // try to read the file
+            try (BufferedReader reader = Files.newBufferedReader(GlobalDest.getFile().toPath(), StandardCharsets.UTF_8)){
+                List<List<String>> legacy = Helper.getGson().fromJson(reader, new TypeToken<List<List<String>>>() {}.getType());
+                // if the file still couldn't be read
+                if (legacy == null) return null;
+
+                ArrayList<Dest> updated = new ArrayList<>();
+                // convert each entry to the new dest system
+                legacy.forEach(entry -> {
+                    // entry = name | Loc | color
+                    Dest dest = new Dest(new Loc(true, entry.get(1)),entry.get(0),entry.get(2));
+                    // if valid add to list
+                    if (dest.hasDestRequirements()) updated.add(dest);
+                });
+
+                GlobalDest globalDest = new GlobalDest();
+                globalDest.setDestinations(updated);
+
+                // log the update
+                DirectionHUD.LOGGER.info("Successfully loaded legacy global destinations & migrated to new system!");
+                // return the updated global destination file
+                return globalDest;
+            } catch (IOException e) {
+                // return null if unable
+                return null;
+            }
+        }
+    }
+
     public static class ConfigFile {
 
         /**
@@ -641,7 +728,7 @@ public class Updater {
                     // CONFIG
                     config.getLocation().setMaxXZ(Integer.parseInt((String) properties.computeIfAbsent("max-xz", a -> String.valueOf(config.getLocation().getMaxXZ()))));
                     config.getLocation().setMaxY(Integer.parseInt((String) properties.computeIfAbsent("max-y", a -> String.valueOf(config.getLocation().getMaxY()))));
-                    config.getDestination().setGloabal(Boolean.parseBoolean((String) properties.computeIfAbsent("global-destinations", a -> String.valueOf(config.getDestination().getGloabal()))));
+                    config.getDestination().setGlobal(Boolean.parseBoolean((String) properties.computeIfAbsent("global-destinations", a -> String.valueOf(config.getDestination().getGlobal()))));
                     config.getDestination().setSaving(Boolean.parseBoolean((String) properties.computeIfAbsent("destination-saving", a -> String.valueOf(config.getDestination().getSaving()))));
                     config.getDestination().setMaxSaved(Integer.parseInt((String) properties.computeIfAbsent("destination-max", a -> String.valueOf(config.getDestination().getMaxSaved()))));
                     config.getDestination().getLastDeath().setSaving(Boolean.parseBoolean((String) properties.computeIfAbsent("lastdeath-saving", a -> String.valueOf(config.getDestination().getLastDeath().getSaving()))));

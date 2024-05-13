@@ -29,7 +29,7 @@ public class Events {
     public static void serverEnd() {
         for (Player player: Utl.getPlayers()) playerLeave(player);
         // clear everything as serverEnd on client can just be exiting single-player
-        GlobalDest.clear();
+        Data.clear();
         PlayerData.clearPlayerData();
         PlayerData.clearPlayerCache();
         DirectionHUD.clear();
