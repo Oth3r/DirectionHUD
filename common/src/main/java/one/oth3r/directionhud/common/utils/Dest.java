@@ -5,6 +5,8 @@ import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 
+import java.util.Objects;
+
 public class Dest extends Loc {
     private String name = null;
     private String color = null;
@@ -63,6 +65,7 @@ public class Dest extends Loc {
         else msg.append(CTxT.of(getXYZ()));
         return msg;
     }
+
     /**
      * creates a Dest badge without the name
      * @return badge
@@ -73,6 +76,32 @@ public class Dest extends Loc {
         msg.append(CTxT.of(getXYZ()).hEvent(CTxT.of(this.name).color(this.color==null?"#ffffff":this.color)));
         return msg;
     }
+
+    // BASE OVERRIDES
+    /**
+     * displays a string version of the Dest, which is a gson
+     */
+    @Override
+    public String toString() {
+        return Helper.getGson().toJson(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false; // Check equality of parent class fields
+        Dest dest = (Dest) o;
+        return Objects.equals(name, dest.name) &&
+                Objects.equals(color, dest.color);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), name, color);
+    }
+
+    // GETTERS AND SETTERS
 
     public String getName() {
         return name;

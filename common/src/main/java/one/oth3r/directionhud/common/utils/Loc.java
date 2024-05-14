@@ -10,6 +10,7 @@ import one.oth3r.directionhud.utils.Utl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 
 public class Loc {
     private Integer x = null;
@@ -157,14 +158,7 @@ public class Loc {
         return x+" "+y+" "+z;
     }
 
-    /**
-     * displays a string version of the Loc, which is a HashMap
-     */
-    @Override
-    public String toString() {
-        Gson gson = new GsonBuilder().create();
-        return gson.toJson(this);
-    }
+
 
     // todo create a common Vec class please this sucks
     public ArrayList<Double> getVec(Player player) {
@@ -187,6 +181,32 @@ public class Loc {
         CTxT msg = CTxT.of("");
         if (this.dimension != null) msg.append(Dimension.getBadge(getDimension())).append(" ");
         return msg.append(CTxT.of(getXYZ()).color('f'));
+    }
+
+    // OVERRIDES
+
+    /**
+     * displays a string version of the Loc, which is a gson
+     */
+    @Override
+    public String toString() {
+        return Helper.getGson().toJson(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Loc loc = (Loc) o;
+        return Objects.equals(x, loc.x) &&
+                Objects.equals(y, loc.y) &&
+                Objects.equals(z, loc.z) &&
+                Objects.equals(dimension, loc.dimension);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y, z, dimension);
     }
 
     // ----- GETTERS AND SETTERS -----
