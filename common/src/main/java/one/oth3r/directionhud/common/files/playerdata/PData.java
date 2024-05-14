@@ -5,7 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.files.Data;
-import one.oth3r.directionhud.common.files.UnsupportedVersionException;
+import one.oth3r.directionhud.common.exception.UnsupportedVersionException;
 import one.oth3r.directionhud.common.files.Updater;
 import one.oth3r.directionhud.utils.Player;
 
