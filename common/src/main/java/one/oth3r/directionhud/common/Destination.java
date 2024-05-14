@@ -1655,7 +1655,7 @@ public class Destination {
                 ArrayList<String> suggester = new ArrayList<>();
                 // track (clear*|set|cancel*|accept*|deny*)
                 if (pos == 0) {
-                    if (getTarget(player).isValid()) suggester.add("clear");
+                    if (hasTargetEntry(player)) suggester.add("clear");
                     suggester.add("set");
                     if (DHud.inbox.getAllType(player, DHud.inbox.Type.track_pending)!=null) suggester.add("cancel");
                     if (DHud.inbox.getAllType(player, DHud.inbox.Type.track_request)!=null) {
@@ -1723,7 +1723,7 @@ public class Destination {
              */
             public static void clear(Player player, int reason) {
                 // nothing to clear
-                if (!getTarget(player).isValid()) {
+                if (!hasTargetEntry(player)) {
                     player.sendMessage(LANG.error("cleared"));
                     return;
                 }
@@ -2389,7 +2389,7 @@ public class Destination {
         }
         //TRACK
         if (Helper.checkEnabled(player).track()) {
-            msg.append(social.track.BUTTON(social.track.getTarget(player).isValid()));
+            msg.append(social.track.BUTTON(social.track.hasTargetEntry(player)));
             if (line2Free && !line1Free) {
                 msg.append("\n\n ");
             } else if (line2Free) {
