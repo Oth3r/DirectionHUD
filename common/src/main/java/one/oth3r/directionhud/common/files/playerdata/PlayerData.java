@@ -149,9 +149,12 @@ public class PlayerData {
      * removes a player from the system
      */
     public static void removePlayer(Player player) {
-        PData.savePlayer(player);
+        // only clear the playerData if the player has it
+        if (playerData.containsKey(player)) {
+            PData.savePlayer(player);
+            removePlayerData(player);
+        }
         Queue.clearPlayer(player);
-        removePlayerData(player);
         removePlayerCache(player);
     }
 }
