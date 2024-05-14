@@ -6,6 +6,7 @@ import one.oth3r.directionhud.common.files.Data;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.Utl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -78,7 +79,7 @@ public class Loc {
                 if (list[1] != null && !list[1].equals("null")) this.y = Helper.Num.toInt(list[1]);
                 this.z = Helper.Num.toInt(list[2]);
             }
-            if (list.length == 4) this.dimension = list[3];
+            if (list.length == 4) this.dimension = Utl.dim.updateLegacy(list[3]);
             return;
         }
         ArrayList<String> sp = new ArrayList<>(Arrays.asList(xyz.split(" ")));
