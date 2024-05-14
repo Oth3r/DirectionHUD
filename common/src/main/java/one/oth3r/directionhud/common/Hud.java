@@ -355,7 +355,7 @@ public class Hud {
             if (trackingTarget.equals(Setting.ModuleTrackingTarget.player) || hybrid) {
                 Player target = Destination.social.track.getTarget(player);
                 // make sure the player is real
-                if (!target.isValid()) {
+                if (target.isValid()) {
                     Loc plLoc = new Loc(target);
                     // not in the same dimension
                     if (!player.getDimension().equals(target.getDimension())) {
