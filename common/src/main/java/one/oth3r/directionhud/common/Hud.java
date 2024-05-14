@@ -21,6 +21,7 @@ import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
 
 import java.text.DecimalFormat;
+import java.time.temporal.ValueRange;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -415,8 +416,14 @@ public class Hud {
             // if compact and the ylevel is different & there's a y level on the loc
             if (!simple && !(boolean) player.getPCache().getDEST().getDestSettings().getYlevel() && pointLoc.getY() != null) {
                 tracking.add("p|");
-                if (player.getLoc().getY() > pointLoc.getY())
+                int playerY = player.getLoc().getY(), targetY = pointLoc.getY();
+                // dash if in Y range
+                if (playerY-2 < targetY && targetY < playerY+2)
+                    tracking.add("s-");
+                // down if higher
+                else if (player.getLoc().getY() > pointLoc.getY())
                     tracking.add("s"+arrows.south);
+                // up if lower
                 else tracking.add("s"+arrows.north);
             }
             tracking.add("/p]");
