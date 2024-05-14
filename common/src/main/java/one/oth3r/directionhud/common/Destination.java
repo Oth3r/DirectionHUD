@@ -153,7 +153,9 @@ public class Destination {
             return suggester;
         }
     }
+
     public static final Lang LANG = new Lang("destination.");
+
     public static class dest {
         public static CTxT SET_BUTTON() {
             return LANG.btn("set").btn(true).color(Assets.mainColors.set).cEvent(2,"/dest set ").hEvent(
@@ -393,6 +395,7 @@ public class Destination {
             return suggester;
         }
     }
+
     public static class saved {
         private static final int PER_PAGE = 7;
 
@@ -1309,6 +1312,7 @@ public class Destination {
     }
 
     public static class social {
+
         /**
          * returns if there is a social cooldown for the player or not, and if there is send an error message
          * @return if there is a social cooldown or not
@@ -1320,6 +1324,7 @@ public class Destination {
             }
             return false;
         }
+
         public static class send {
 
             public static final Lang LANG = new Lang("destination.send.");
@@ -1361,7 +1366,7 @@ public class Destination {
                     logic(player,args[0],new Dest(Num.toInt(args[1]),null, Num.toInt(args[2]), pDIM,null,null));
                 }
                 // send IGN NAME x z
-                if (args.length == 4 && !Num.isInt(args[1])) {
+                if (args.length == 4 && !Num.isNum(args[1])) {
                     logic(player,args[0],new Dest(Num.toInt(args[1]),null, Num.toInt(args[2]),pDIM,args[1],null));
                     return;
                 }
@@ -1372,7 +1377,7 @@ public class Destination {
                         logic(player, args[0], new Dest(Num.toInt(args[1]),null,Num.toInt(args[2]), args[3],null,null));
                     }
                     // COLOR
-                    else if (!Num.isInt(args[3])) {
+                    else if (!Num.isNum(args[3])) {
                         logic(player,args[0],new Dest(Num.toInt(args[1]),null,Num.toInt(args[2]),pDIM,null,args[3]));
                     }
                     // Z
@@ -1382,13 +1387,13 @@ public class Destination {
                     return;
                 }
                 // send IGN NAME x y (z, color, DIM)
-                if (args.length == 5 && !Num.isInt(args[1])) {
+                if (args.length == 5 && !Num.isNum(args[1])) {
                     // DIM
                     if (Dimension.getAllIDs().contains(args[4])) {
                         logic(player,args[0],new Dest(Num.toInt(args[2]),null,Num.toInt(args[3]),args[4],args[1],null));
                     }
                     // COLOR
-                    else if (!Num.isInt(args[4])) {
+                    else if (!Num.isNum(args[4])) {
                         logic(player,args[0],new Dest(Num.toInt(args[2]),null,Num.toInt(args[3]),pDIM,args[1],args[4]));
                     }
                     // Z
@@ -1398,7 +1403,7 @@ public class Destination {
                     return;
                 }
                 // send IGN x y z (DIM, color)
-                if (args.length == 5 && Num.isInt(args[3])) {
+                if (args.length == 5 && Num.isNum(args[3])) {
                     // DIM
                     if (Dimension.getAllIDs().contains(args[4])) {
                         logic(player,args[0],new Dest(Num.toInt(args[1]), Num.toInt(args[2]), Num.toInt(args[3]),args[4],null,null));
@@ -1416,8 +1421,8 @@ public class Destination {
                 }
                 // send IGN NAME x y z (DIM, color)
                 // send IGN NAME x y DIM (color)
-                if (args.length == 6 && !Num.isInt(args[1])) {
-                    if (Num.isInt(args[4])) {
+                if (args.length == 6 && !Num.isNum(args[1])) {
+                    if (Num.isNum(args[4])) {
                         // DIM
                         if (Dimension.getAllIDs().contains(args[5])) {
                             logic(player,args[0],new Dest(Num.toInt(args[2]), Num.toInt(args[3]), Num.toInt(args[4]),args[5],args[1],null));
@@ -1621,8 +1626,11 @@ public class Destination {
                 return txt;
             }
         }
+
         public static class track {
+
             public static final Lang LANG = new Lang("destination.track.");
+
             public static CTxT BUTTON(boolean x) {
                 return CTxT.of("")
                         .append(LANG.btn().btn(true).color(Assets.mainColors.track).cEvent(2,"/dest track set")
@@ -1630,6 +1638,7 @@ public class Destination {
                         .append(CTxT.of(Assets.symbols.x).btn(true).color(x? 'c':'7').cEvent(x? 1:0,"/dest track clear")
                                 .hEvent(CTxT.of(Assets.cmdUsage.destTrackClear).color(x? 'c':'7').append("\n").append(LANG.hover("clear"))));
             }
+
             public static void CMDExecutor(Player player, String[] args) {
                 if (!Helper.checkEnabled(player).track()) return;
                 //dest track
@@ -1690,6 +1699,7 @@ public class Destination {
                 }
                 return suggester;
             }
+
             /**
              * the types of track processing
              */
@@ -1700,7 +1710,7 @@ public class Destination {
             }
 
             /**
-             * returns the current tracking target
+             * returns the current tracking target as a player
              * @return the target
              */
             public static Player getTarget(Player player) {
@@ -1730,7 +1740,7 @@ public class Destination {
                 // get the reason for clearing
                 CTxT reasonTxT = LANG.msg("cleared." + switch (reason) {
                     default -> "command"; case 2 -> "tracking_off"; case 3 -> "tracking_off_target";
-                });
+                }).color('7');
                 // clear the tracker
                 clear(player);
                 // send the message
@@ -1773,32 +1783,35 @@ public class Destination {
                 Player target = new Player(target_string);
                 // cooldown check
                 if (cooldown(player)) return;
+                // bad data check
                 if (!target.isValid()) {
                     player.sendMessage(CUtl.LANG.error("player", CTxT.of(target_string).color(CUtl.s())));
                     return;
                 }
-                // make the two player TxTs
-                CTxT targetTxT = CTxT.of(target.getName()).color(CUtl.s()), playerTxT = CTxT.of(player.getName()).color(CUtl.s());
-                if (target == player) {
+                if (target.equals(player)) {
                     player.sendMessage(LANG.error("self"));
                     return;
                 }
                 if (!(boolean) player.getPData().getDEST().getSetting(Setting.features__track)) {
-                    player.sendMessage(LANG.error("target_disabled",targetTxT));
+                    player.sendMessage(LANG.error("target_disabled",target.getHighlightedName()));
                     return;
                 }
                 // tracking request already pending
                 if (DHud.inbox.search(player, DHud.inbox.Type.track_pending,"player_name",target_string) != null) {
-                    player.sendMessage(LANG.error("pending",targetTxT));
+                    player.sendMessage(LANG.error("pending",target.getHighlightedName()));
                     return;
                 }
                 // already tracking the target
                 if (getTarget(player).isValid() && Objects.equals(getTarget(player), target)) {
-                    player.sendMessage(LANG.error("already_tracking",targetTxT));
+                    player.sendMessage(LANG.error("already_tracking",target.getHighlightedName()));
                     return;
                 }
+
+                // logic
+
                 // add the cooldown
                 player.getPCache().setSocialCooldown(Data.getConfig().getSocial().getCooldown());
+
                 // target has instant tracking
                 if (Enums.get(player.getPData().getDEST().getSetting(Setting.features__track_request_mode),Setting.TrackingRequestMode.class)
                         .equals(Setting.TrackingRequestMode.instant)) {
@@ -1808,10 +1821,10 @@ public class Destination {
                 // add the tracking to the inbox
                 DHud.inbox.addTracking(target,player,300);
                 // send the messages
-                player.sendMessage(CUtl.tag().append(LANG.msg("request",targetTxT)).append("\n ")
+                player.sendMessage(CUtl.tag().append(LANG.msg("request",target.getHighlightedName())).append("\n ")
                         .append(LANG.msg("expire",300).color('7').italic(true)));
 
-                target.sendMessage(CUtl.tag().append(LANG.msg("request_target",playerTxT)).append("\n ")
+                target.sendMessage(CUtl.tag().append(LANG.msg("request_target",player.getHighlightedName())).append("\n ")
                         .append(CUtl.LANG.btn("accept").btn(true).color('a').cEvent(1,"/dest track accept "+player.getName())
                                 .hEvent(CUtl.LANG.hover("accept"))).append(" ")
                         .append(CUtl.LANG.btn("deny").btn(true).color('c').cEvent(1,"/dest track deny "+player.getName())
@@ -1837,6 +1850,7 @@ public class Destination {
                     player.sendMessage(LANG.error("self"));
                     return;
                 }
+
                 // get the entry from the player inbox
                 // tracK_request if accept or deny, track_pending if canceling
                 HashMap<String, String> entry = DHud.inbox.search(player, DHud.inbox.Type.track_request,"player_name", tracker);
