@@ -337,7 +337,7 @@ public class PDHud {
         public static class Module {
 
             @SerializedName("time_24hr")
-            private Boolean time24hr = true;
+            private Boolean time24hr = false;
             @SerializedName("tracking_type")
             private Hud.Setting.ModuleTrackingType trackingType = Hud.Setting.ModuleTrackingType.simple;
             @SerializedName("tracking_target")
