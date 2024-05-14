@@ -771,7 +771,7 @@ public class Destination {
                 // global dest list handling
                 this.global = global;
                 this.list = getListType(player, global);
-                this.index = list.indexOf(this);
+                this.index = list.indexOf(getThis());
                 this.player = player;
             }
 
@@ -832,7 +832,7 @@ public class Destination {
              */
             public void update() {
                 if (index >= 0) {
-                    list.set(index, this);
+                    list.set(index, getThis());
                     save();
                 }
             }
@@ -841,10 +841,10 @@ public class Destination {
              * adds the destination to the list and saves to file if not already
              */
             public void add() {
-                if (!list.contains(this)) {
-                    list.add(this);
+                if (!list.contains(getThis())) {
+                    list.add(getThis());
                     // update the index & save
-                    index = list.indexOf(this);
+                    index = list.indexOf(getThis());
                     save();
                 }
             }
@@ -853,7 +853,7 @@ public class Destination {
              * removes the destination from the list and saves to file
              */
             public void remove() {
-                list.remove(this);
+                list.remove(getThis());
                 save();
             }
 
@@ -877,7 +877,7 @@ public class Destination {
              * @param order the new order, player format +1
              */
             public void setOrder(int order) {
-                list.remove(this);
+                list.remove(getThis());
                 // sub one because player entered order is one off
                 order--;
                 // make sure the order is not out of bounds
@@ -886,11 +886,15 @@ public class Destination {
                 // set the index
                 index = order;
                 // add the dest back if empty, setting throws an error
-                if (list.isEmpty()) list.add(this);
+                if (list.isEmpty()) list.add(getThis());
                 // set the new order in the list
-                else list.set(index,this);
+                else list.set(index,getThis());
                 // save the list
                 update();
+            }
+
+            public Dest getThis() {
+                return new Dest(this);
             }
 
             public boolean isGlobal() {
@@ -983,7 +987,9 @@ public class Destination {
             ListPage<Dest> listPage = new ListPage<>(destination.getList(),PER_PAGE);
             // if errors were sent (invalid), return
             if (destination.sendErrors()) return;
+
             destination.remove();
+
             player.sendMessage(CUtl.tag().append(LANG.msg("delete",destination.getBadge())));
             // return back to the page that the destination was on
             if (Return) player.performCommand("dest saved " + listPage.getPageOf(destination));
