@@ -1711,6 +1711,13 @@ public class Destination {
             }
 
             /**
+             * if the player has an entry in the target section (NOT IF ITS VALID OR NOT)
+             */
+            public static boolean hasTargetEntry(Player player) {
+                return player.getPCache().getDEST().getTracking() != null;
+            }
+
+            /**
              * clear the tracker with a reason
              * @param reason 1 = command clear, 2 = tracking off, 3 = target tracking off
              */
