@@ -588,7 +588,7 @@ public class Destination {
                             new Loc(Num.toInt(args[2]), Num.toInt(args[3])));
                     if (args.length == 5) {
                         // location x, y, z
-                        if (Num.isInt(args[4])) editLocation(true,player,new DestEntry(player,args[1],global),
+                        if (Num.isInt(args[4])) editLocation(Return,player,new DestEntry(player,args[1],global),
                                 new Loc(Num.toInt(args[2]), Num.toInt(args[3]), Num.toInt(args[4])));
                         // location x, z, dim)
                         else editLocation(Return,player,new DestEntry(player,args[1],global),
