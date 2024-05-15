@@ -4,6 +4,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
@@ -64,13 +65,13 @@ public class DirectionHUD implements ModInitializer {
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> Events.playerLeave(new Player(handler.player)));
 
 		//PACKETS
-		ServerPlayNetworking.registerGlobalReceiver(PacketBuilder.getIdentifier(Assets.packets.INITIALIZATION),
-				(server, player, handler, buf, responseSender) -> server.execute(() -> {
-					Player dPlayer = new Player(player);
-					DirectionHUD.LOGGER.info("Received initialization packet from "+dPlayer.getName()+", connecting to client.");
-					DirectionHUD.clientPlayers.add(dPlayer);
-					dPlayer.sendPDataPackets();
-				}));
+		PayloadTypeRegistry.playC2S().register(Payloads.Initialization.ID, Payloads.Initialization.CODEC);
+		ServerPlayNetworking.registerGlobalReceiver(Payloads.Initialization.ID,((payload, context) -> server.execute(() -> {
+			Player player = new Player(context.player());
+			DirectionHUD.LOGGER.info("Received initialization packet from "+player.getName());
+			DirectionHUD.clientPlayers.add(player);
+			player.sendPDataPackets();
+		})));
 
 		// COMMAND REGISTRATION
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {

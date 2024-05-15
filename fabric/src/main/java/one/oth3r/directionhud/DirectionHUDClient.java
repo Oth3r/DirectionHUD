@@ -8,6 +8,8 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Text;
@@ -63,16 +65,18 @@ public class DirectionHUDClient implements ClientModInitializer {
             }
         });
 
-        ClientPlayNetworking.registerGlobalReceiver(PacketBuilder.getIdentifier(Assets.packets.PLAYER_DATA), (client, handler, buf, responseSender) -> {
-            // receiving setting packets from the server, copy to not throw an error
-            PacketBuilder packet = new PacketBuilder(buf.copy());
-            assert client.player != null;
+        //PACKETS
+
+        PayloadTypeRegistry.playS2C().register(Payloads.PlayerData.ID, Payloads.PlayerData.CODEC);
+        // receiving setting packets from the server
+        ClientPlayNetworking.registerGlobalReceiver(Payloads.PlayerData.ID, (payload, context) -> {
+            MinecraftClient client = context.client();
             client.execute(() -> {
                 Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-                // if the client isn't in single player, load the file stuff from the packet
+                // if not single player store the payload in local playerdata (otherwise it doesn't need to be saved)
                 if (!client.isInSingleplayer()) {
                     Player player = new Player(client.player,true);
-                    PData pData = gson.fromJson(packet.getMessage(), PData.class);
+                    PData pData = gson.fromJson(payload.value(), PData.class);
                     pData.setPlayer(player);
 
                     PlayerData.setPlayerData(player,pData);
@@ -82,16 +86,16 @@ public class DirectionHUDClient implements ClientModInitializer {
             });
         });
 
-        ClientPlayNetworking.registerGlobalReceiver(PacketBuilder.getIdentifier(Assets.packets.HUD), (client, handler, buf, responseSender) -> {
-            // receiving HUD packets from the server
-            PacketBuilder packet = new PacketBuilder(buf.copy());
-            if (client.player == null) return;
+        PayloadTypeRegistry.playS2C().register(Payloads.HUD.ID, Payloads.HUD.CODEC);
+        // receiving HUD packets from the server
+        ClientPlayNetworking.registerGlobalReceiver(Payloads.HUD.ID, (payload, context) -> {
+            MinecraftClient client = context.client();
             client.execute(() -> {
                 Type hashMapToken = new TypeToken<HashMap<Hud.Module, ArrayList<String>>>() {}.getType();
                 Gson gson = new GsonBuilder().disableHtmlEscaping().create();
                 // if there is no actionbar override, build and send the HUD
                 if (overrideCd <= 0) {
-                    client.player.sendMessage(Hud.build.compile(new Player(client.player,true), gson.fromJson(packet.getMessage(), hashMapToken)).b(), true);
+                    client.player.sendMessage(Hud.build.compile(new Player(client.player,true), gson.fromJson(payload.value(), hashMapToken)).b(), true);
                 }
             });
         });
@@ -100,8 +104,7 @@ public class DirectionHUDClient implements ClientModInitializer {
             if (client.isInSingleplayer()) DirectionHUD.singleplayer = true;
             // send an initialization packet whenever joining a server
             client.execute(() -> {
-                PacketBuilder sPacket = new PacketBuilder("Hello from DirectionHUD client!");
-                sPacket.sendToServer(PacketBuilder.getIdentifier(Assets.packets.INITIALIZATION));
+                ClientPlayNetworking.send(new Payloads.Initialization("Hello from DirectionHUD client!"));
             });
         });
 

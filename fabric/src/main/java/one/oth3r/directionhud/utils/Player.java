@@ -4,18 +4,20 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Vec3d;
 import one.oth3r.directionhud.DirectionHUD;
-import one.oth3r.directionhud.PacketBuilder;
+import one.oth3r.directionhud.Payloads;
 import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.Hud;
 import one.oth3r.directionhud.common.files.playerdata.CachedPData;
 import one.oth3r.directionhud.common.files.playerdata.PData;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.template.PlayerTemplate;
+import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Loc;
 
 import java.util.ArrayList;
@@ -122,9 +124,7 @@ public class Player extends PlayerTemplate {
     @Override
     public void sendPDataPackets() {
         if (DirectionHUD.clientPlayers.contains(this) && !client) {
-            Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-            PacketBuilder packet = new PacketBuilder(gson.toJson(getPData()));
-            packet.sendToPlayer(Assets.packets.PLAYER_DATA,serverPlayer);
+            ServerPlayNetworking.send(serverPlayer,new Payloads.PlayerData(Helper.getGson().toJson(getPData())));
         }
     }
 
@@ -132,9 +132,7 @@ public class Player extends PlayerTemplate {
     public void sendHUDPackets(HashMap<Hud.Module, ArrayList<String>> hudData) {
         if (client) return;
         // send the instructions to build the hud to the client
-        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-        PacketBuilder packet = new PacketBuilder(gson.toJson(hudData));
-        packet.sendToPlayer(Assets.packets.HUD,serverPlayer);
+        ServerPlayNetworking.send(serverPlayer,new Payloads.HUD(Helper.getGson().toJson(hudData)));
     }
 
     @Override

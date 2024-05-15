@@ -26,12 +26,12 @@ public class Payloads {
             return ID;
         }
     }
-    public record Settings(String value) implements CustomPayload {
-        public static final CustomPayload.Id<Settings> ID = new CustomPayload.Id<>(
-                new Identifier(DirectionHUD.MOD_ID,Assets.packets.SETTINGS.getIdentifier()));
-        public static final PacketCodec<RegistryByteBuf, Settings> CODEC = PacketCodecs.STRING.xmap(Settings::new, Settings::value).cast();
+    public record PlayerData(String value) implements CustomPayload {
+        public static final CustomPayload.Id<PlayerData> ID = new CustomPayload.Id<>(
+                new Identifier(DirectionHUD.MOD_ID,Assets.packets.PLAYER_DATA.getIdentifier()));
+        public static final PacketCodec<RegistryByteBuf, PlayerData> CODEC = PacketCodecs.STRING.xmap(PlayerData::new, PlayerData::value).cast();
         @Override
-        public Id<Settings> getId() {
+        public Id<PlayerData> getId() {
             return ID;
         }
     }
