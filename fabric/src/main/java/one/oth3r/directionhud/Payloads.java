@@ -8,6 +8,7 @@ import net.minecraft.util.Identifier;
 import one.oth3r.directionhud.common.Assets;
 
 public class Payloads {
+
     public record Initialization(String value) implements CustomPayload {
         public static final CustomPayload.Id<Initialization> ID = new CustomPayload.Id<>(
                 new Identifier(DirectionHUD.MOD_ID,Assets.packets.INITIALIZATION.getIdentifier()));
@@ -17,6 +18,7 @@ public class Payloads {
             return ID;
         }
     }
+
     public record HUD(String value) implements CustomPayload {
         public static final CustomPayload.Id<HUD> ID = new CustomPayload.Id<>(
                 new Identifier(DirectionHUD.MOD_ID,Assets.packets.HUD.getIdentifier()));
@@ -26,6 +28,7 @@ public class Payloads {
             return ID;
         }
     }
+
     public record PlayerData(String value) implements CustomPayload {
         public static final CustomPayload.Id<PlayerData> ID = new CustomPayload.Id<>(
                 new Identifier(DirectionHUD.MOD_ID,Assets.packets.PLAYER_DATA.getIdentifier()));
