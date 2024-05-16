@@ -561,7 +561,6 @@ public class Updater {
                 globalDest = legacyUpdater();
                 // if the updater failed, throw null
                 if (globalDest == null) {
-                    System.out.println("updater fail");
                     throw new NullPointerException();
                 }
             }
@@ -571,7 +570,6 @@ public class Updater {
 
             // if there's no version, throw
             if (version == null) {
-                System.out.println("version null");
                 throw new NullPointerException();
             }
 

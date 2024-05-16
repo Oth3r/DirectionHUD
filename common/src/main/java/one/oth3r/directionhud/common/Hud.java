@@ -1310,7 +1310,6 @@ public class Hud {
                 player.getPData().getHud().setSetting(setting, moduleAngleDisplay);
                 setTxT.append(LANG.get(setting+"."+moduleAngleDisplay).color(CUtl.s()));
             }
-            System.out.println("as");
             // update the hud
             player.updateHUD();
             // make the message

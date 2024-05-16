@@ -223,7 +223,6 @@ public class Destination {
          */
         public static void set(Player player, Loc loc) {
             if (!inAutoClearRadius(player, loc)) {
-                System.out.println("SET");
                 player.getPData().getDEST().setDest(loc);
             }
         }
@@ -703,7 +702,6 @@ public class Destination {
             }
             //dest saved add <name> x y z DIM color
             if (args.length == 6) {
-                System.out.println("color"+args[5]);
                 add(player,new DestEntry(player,new Dest(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),args[4],args[0],args[5]),global));
                 return;
             }
