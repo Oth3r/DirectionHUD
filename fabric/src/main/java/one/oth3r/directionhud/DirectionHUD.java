@@ -64,8 +64,12 @@ public class DirectionHUD implements ModInitializer {
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> Events.playerJoin(new Player(handler.player)));
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> Events.playerLeave(new Player(handler.player)));
 
-		//PACKETS
+		// PACKET REGISTRATION
+		PayloadTypeRegistry.playS2C().register(Payloads.HUD.ID, Payloads.HUD.CODEC);
+		PayloadTypeRegistry.playS2C().register(Payloads.PlayerData.ID, Payloads.PlayerData.CODEC);
 		PayloadTypeRegistry.playC2S().register(Payloads.Initialization.ID, Payloads.Initialization.CODEC);
+
+		// PACKET HANDLING
 		ServerPlayNetworking.registerGlobalReceiver(Payloads.Initialization.ID,((payload, context) -> server.execute(() -> {
 			Player player = new Player(context.player());
 			DirectionHUD.LOGGER.info("Received initialization packet from "+player.getName());

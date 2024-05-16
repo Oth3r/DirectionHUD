@@ -67,7 +67,6 @@ public class DirectionHUDClient implements ClientModInitializer {
 
         //PACKETS
 
-        PayloadTypeRegistry.playS2C().register(Payloads.PlayerData.ID, Payloads.PlayerData.CODEC);
         // receiving setting packets from the server
         ClientPlayNetworking.registerGlobalReceiver(Payloads.PlayerData.ID, (payload, context) -> {
             MinecraftClient client = context.client();
@@ -86,7 +85,6 @@ public class DirectionHUDClient implements ClientModInitializer {
             });
         });
 
-        PayloadTypeRegistry.playS2C().register(Payloads.HUD.ID, Payloads.HUD.CODEC);
         // receiving HUD packets from the server
         ClientPlayNetworking.registerGlobalReceiver(Payloads.HUD.ID, (payload, context) -> {
             MinecraftClient client = context.client();
