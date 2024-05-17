@@ -124,7 +124,8 @@ public class Destination {
                 if (Helper.checkEnabled(player).saving()) {
                     suggester.add("add");
                     suggester.add("saved");
-                } else if (Helper.checkEnabled(player).global()){
+                }
+                if (Helper.checkEnabled(player).global()){
                     suggester.add("global");
                 }
                 suggester.add("set");
@@ -525,22 +526,6 @@ public class Destination {
                 player.sendMessage(CUtl.usage(Assets.cmdUsage.destSet));
                 return;
             }
-            // todo move to their respective locations /dest saved set and /dest global set
-//            // /dest set saved <name> (convert)
-//            if (args[0].equalsIgnoreCase("saved")) {
-//                // check if saving is on
-//                if (!Helper.checkEnabled(player).saving()) return;
-//                if (args.length == 2) setSaved(player, args[1], false, false);
-//                if (args.length == 3 && args[2].equalsIgnoreCase("convert")) setSaved(player, args[1], false, true);
-//                return;
-//            }
-//            // /dest set global <name> (convert)
-//            if (args[0].equalsIgnoreCase("global")) {
-//                if (!Helper.checkEnabled(player).global()) return;
-//                if (args.length == 2) setSaved(player, args[1],true, false);
-//                if (args.length == 3 && args[2].equalsIgnoreCase("convert")) setSaved(player, args[1],true, true);
-//                return;
-//            }
             boolean convert = false;
             String[] destArgs = args;
             // if last is convert remove the last entry in the destArgs
@@ -612,10 +597,6 @@ public class Destination {
             args[0] = args[0].replace("-r","");
 
             switch (args[0]) {
-                case "global" -> {
-                    if (!Helper.checkEnabled(player).global()) return;
-                    globalCMDExecutor(player, Helper.trimStart(args,1));
-                }
                 case "edit" -> editCMDExecutor(player, Helper.trimStart(args, 1), false, Return);
                 case "send" -> {
                     if (args.length == 2) player.sendMessage(CUtl.LANG.error("args"));
@@ -629,6 +610,12 @@ public class Destination {
                 case "delete" -> {
                     if (args.length == 1) player.sendMessage(CUtl.LANG.error("args"));
                     if (args.length == 2) delete(Return,player,new DestEntry(player, args[1], false));
+                }
+                case "set" -> {
+                    // if convert is there, convert
+                    boolean convert = args.length == 3 && args[2].equals("convert");
+
+                    if (args.length >= 2) dest.setSaved(player,args[1],false,convert);
                 }
                 case "add" -> addCMDExecutor(player, Helper.trimStart(args,1), false);
                 default -> player.sendMessage(CUtl.usage(Assets.cmdUsage.destSaved));
@@ -645,16 +632,17 @@ public class Destination {
                 suggester.add("edit");
                 suggester.add("delete");
                 suggester.add("send");
-                if (Helper.checkEnabled(player).global()) suggester.add("global");
+                suggester.add("set");
                 return suggester;
             }
             // if -r is attached, remove it and continue with the suggester
             if (args[0].contains("-r")) args[0] = args[0].replace("-r","");
             // switch for logic
             switch (args[0]) {
-                case "global" -> suggester.addAll(globalCMDSuggester(player,pos-1, Helper.trimStart(args,1)));
-                case "delete" -> {
+                case "delete", "set" -> {
                     if (pos == 1) suggester.addAll(getCMDNames(getList(player)));
+                    // add convert if setting
+                    if (pos == 2 && args[0].equals("set")) suggester.add("convert");
                 }
                 case "send" -> {
                     // saved send (name)
@@ -691,31 +679,47 @@ public class Destination {
                     if (args.length == 1) player.sendMessage(CUtl.LANG.error("args"));
                     if (args.length == 2) delete(false,player,new DestEntry(player, args[1], true));
                 }
+                case "set" -> {
+                    // if convert is there, convert
+                    boolean convert = args.length == 3 && args[2].equals("convert");
+
+                    if (args.length >= 2) dest.setSaved(player,args[1],true,convert);
+                }
                 case "add" -> addCMDExecutor(player, Helper.trimStart(args,1), true);
                 default -> player.sendMessage(CUtl.usage(Assets.cmdUsage.destSaved));
             }
         }
         public static ArrayList<String> globalCMDSuggester(Player player, int pos, String[] args) {
             ArrayList<String> suggester = new ArrayList<>();
-            // enabled check
-            if (!Helper.checkEnabled(player).globalEditing()) return suggester;
+
             if (pos == 0) {
+                suggester.add("set");
+                // enabled check
+                if (!Helper.checkEnabled(player).globalEditing()) return suggester;
                 suggester.add("add");
                 suggester.add("edit");
                 suggester.add("delete");
                 return suggester;
             }
-            // global delete
-            if (args[0].equalsIgnoreCase("delete")) {
+
+            if (args[0].equals("set")) {
                 if (pos == 1) suggester.addAll(getCMDNames(Data.getGlobal().getDestinations()));
+                // add convert
+                if (pos == 2) suggester.add("convert");
             }
-            // saved add
-            if (args[0].equalsIgnoreCase("add")) {
-                return addCMDSuggester(player,pos-1, Helper.trimStart(args,1));
-            }
-            // global edit
-            if (args[0].equalsIgnoreCase("edit")) {
-                return editCMDSuggester(player,true,pos-1, Helper.trimStart(args,1));
+
+            // enabled check
+            if (!Helper.checkEnabled(player).globalEditing()) return suggester;
+            switch (args[0]) {
+                case "delete" -> {
+                    if (pos == 1) suggester.addAll(getCMDNames(Data.getGlobal().getDestinations()));
+                }
+                case "add" -> {
+                    return addCMDSuggester(player,pos-1, Helper.trimStart(args,1));
+                }
+                case "edit" -> {
+                    return editCMDSuggester(player,true,pos-1, Helper.trimStart(args,1));
+                }
             }
             return suggester;
         }
