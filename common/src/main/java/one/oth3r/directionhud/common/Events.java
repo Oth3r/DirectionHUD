@@ -2,10 +2,10 @@ package one.oth3r.directionhud.common;
 
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.files.Data;
-import one.oth3r.directionhud.common.files.GlobalDest;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.utils.CUtl;
+import one.oth3r.directionhud.common.utils.Dest;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.utils.CTxT;
@@ -62,11 +62,11 @@ public class Events {
             if (Dimension.canConvert(toDIM, loc.getDimension()) &&
                     (boolean) player.getPData().getDEST().getSetting(Destination.Setting.autoconvert)) {
                 //DEST AutoConvert logic
-                Loc cLoc = Destination.dest.get(player);
-                cLoc.convertTo(toDIM);
-                Destination.dest.set(player,cLoc);
+                Dest dest = Destination.dest.get(player);
+                dest.convertTo(toDIM);
+                Destination.dest.set(player,new Dest());
                 player.sendMessage(CUtl.tag().append(Destination.LANG.msg("autoconvert.destination",
-                        CTxT.of("\n ").append(Destination.LANG.msg("autoconvert.destination.2",loc.getBadge(),cLoc.getBadge())))));
+                        CTxT.of("\n ").append(Destination.LANG.msg("autoconvert.destination.2",loc.getBadge(),dest.getBadge())))));
             } else if ((boolean) player.getPData().getDEST().getSetting(Destination.Setting.autoclear)) {
                 // clear if autoclear is on
                 Destination.dest.clear(player, 3);
@@ -74,13 +74,13 @@ public class Events {
         }
     }
 
-    public static void playerDeath(Player player, Loc death) {
+    public static void playerDeath(Player player, Loc deathLoc) {
         if (!Helper.checkEnabled(player).lastdeath()) return;
-        Destination.lastdeath.add(player, death);
+        Destination.lastdeath.add(player, deathLoc);
         CTxT msg = CUtl.tag().append(Destination.lastdeath.LANG.msg("save",
-                death.getBadge()
-                .append(" ").append(Destination.dest.setButtons("/dest set "+death.getXYZ()+" "+death.getDimension(),
-                        Dimension.canConvert(player.getSpawnDimension(),death.getDimension())))));
+                deathLoc.getBadge()
+                .append(" ").append(Destination.dest.setButtons(new Dest(deathLoc,null,null),
+                        Dimension.canConvert(player.getSpawnDimension(), deathLoc.getDimension())))));
         player.sendMessage(msg);
     }
 }

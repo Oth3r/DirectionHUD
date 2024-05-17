@@ -166,12 +166,12 @@ public class Destination {
             return CTxT.of(Assets.symbols.x).btn(true).color(o?'c':'7').cEvent(o?1:0,"/dest clear").hEvent(
                     CTxT.of(Assets.cmdUsage.destClear).color(o?'c':'7').append("\n").append(LANG.hover("clear")));
         }
-        public static Loc get(Player player) {
+        public static Dest get(Player player) {
             // get from cache because called in a loop
-            Loc loc = player.getPCache().getDEST().getDestination();
-            if (!loc.hasXYZ()) return new Loc();
-            if (player.getPCache().getDEST().getDestSettings().getYlevel()) loc.setY(player.getBlockY());
-            return new Loc(loc);
+            Dest dest = player.getPCache().getDEST().getDestination();
+            if (!dest.hasXYZ()) return new Dest();
+            if (player.getPCache().getDEST().getDestSettings().getYlevel()) dest.setY(player.getBlockY());
+            return new Dest(dest);
         }
         public static boolean inAutoClearRadius(Player player, Loc loc) {
             if ((boolean) player.getPData().getDEST().getSetting(Setting.autoclear))
@@ -182,12 +182,11 @@ public class Destination {
             return (int) Utl.vec.distance(new Loc(player).getVec(player),get(player).getVec(player));
         }
 
-        
         /**
          * clears the destination without notifying the player
          */
         public static void clear(Player player) {
-            player.getPData().getDEST().setDest(new Loc());
+            player.getPData().getDEST().setDest(new Dest());
         }
         /**
          * clears the destination with a message for the player
@@ -202,14 +201,13 @@ public class Destination {
                 player.sendMessage(LANG.error("cleared"));
                 return;
             }
-            Loc current = get(player);
+            Dest current = get(player);
             // get the reason for clearing
             CTxT reasonTxT = LANG.msg("cleared." + switch (reason) {
                 default -> "command"; case 2 -> "reached"; case 3 -> "dimension";
             }).append(" ");
             // add the set buttons
-            reasonTxT.append(setButtons("/dest set "+current.getX()+" "+(current.getY()==null?"":current.getY()+" ")+current.getZ()+" "+
-                            (Dimension.checkValid(current.getDimension())?current.getDimension():player.getDimension()),
+            reasonTxT.append(setButtons(current,
                     // only convert if reason is switching & convertible
                     reason == 3 && Dimension.canConvert(player.getDimension(),current.getDimension())
             ));
@@ -221,7 +219,7 @@ public class Destination {
         /**
          * sets the destination without notifying the player, still checks for autoclear instantly clearing or not
          */
-        public static void set(Player player, Loc loc) {
+        public static void set(Player player, Dest loc) {
             if (!inAutoClearRadius(player, loc)) {
                 player.getPData().getDEST().setDest(loc);
             }
@@ -238,36 +236,37 @@ public class Destination {
         }
         /**
          * sets the destination with bad data checks and convert toggle
-         * @param loc the location to set
+         * @param dest the location to set
          * @param convert to convert to the players dimension or not
          */
-        public static void playerSet(Player player, Loc loc, boolean convert) {
+        public static void playerSet(Player player, Dest dest, boolean convert) {
             // handle bad data
-            if (!loc.hasXYZ()) {
+            if (!dest.hasXYZ()) {
                 player.sendMessage(CUtl.error("coordinates"));
                 return;
             }
-            if (loc.getDimension() == null) {
+            if (dest.getDimension() == null) {
                 player.sendMessage(CUtl.error("dimension"));
                 return;
             }
 
             CTxT convertTag = CTxT.of("");
-            if (convert && Dimension.canConvert(player.getDimension(),loc.getDimension())) {
+            if (convert && Dimension.canConvert(player.getDimension(),dest.getDimension())) {
                 // fill the convert tag
-                convertTag.append(" ").append(LANG.msg("set.converted").color('7').italic(true).hEvent(loc.getBadge()));
+                convertTag.append(" ").append(LANG.msg("set.converted").color('7').italic(true).hEvent(dest.getBadge()));
                 // convert the loc
-                loc.convertTo(player.getDimension());
+                dest.convertTo(player.getDimension());
             }
             // check if already in autoclear radius
-            if (inAutoClearRadius(player,loc)) {
+            if (inAutoClearRadius(player,dest)) {
                 player.sendMessage(LANG.error("already_at"));
                 return;
             }
             // set the destination and send the message
-            set(player, loc);
-            setMSG(player,loc.getBadge().append(convertTag));
+            set(player, dest);
+            setMSG(player,dest.getBadge().append(convertTag));
         }
+
         /**
          * sets the destination to a saved destination
          * @param global if it's a global destination
@@ -293,104 +292,268 @@ public class Destination {
                 player.sendMessage(LANG.error("already_at"));
                 return;
             }
-            set(player,destination);
+            set(player,destination.getThis());
             setMSG(player,destination.getBadge().append(convertTag));
         }
+
         /**
          * creates the set buttons for the destination
-         * @param setCMD the command to set the destination
+         * @param destination the command to set the destination
          * @param convert if the convert button should be there too
          * @return the set buttons
          */
-        public static CTxT setButtons(String setCMD, boolean convert) {
+        public static CTxT setButtons(Dest destination, boolean convert) {
             CTxT out = CTxT.of("");
-            out.append(LANG.btn("set").btn(true).color(Assets.mainColors.set).cEvent(1,setCMD)
+            if (!destination.isValid()) return out;
+
+            // get the set command
+            String setCMD = "/dest set " + destination.toCMD();
+
+            out.append(LANG.btn("set").btn(true).color(Assets.mainColors.set)
+                    .cEvent(1,setCMD)
                     .hEvent(LANG.btn("set").color(Assets.mainColors.set).append("\n").append(LANG.hover("set"))));
-            // make the convert button
-            if (convert) out.append(" ")
-                    .append(CTxT.of(Assets.symbols.convert).btn(true).color(Assets.mainColors.convert).cEvent(1,setCMD+" convert")
-                            .hEvent(LANG.btn("convert").color(Assets.mainColors.convert).append("\n").append(LANG.hover("convert"))));
+
+            // make the convert button if needed
+            if (convert) {
+                out.append(" ").append(CTxT.of(Assets.symbols.convert).btn(true).color(Assets.mainColors.convert)
+                        .cEvent(1, setCMD + " convert")
+                        .hEvent(LANG.btn("convert").color(Assets.mainColors.convert).append("\n").append(LANG.hover("convert"))));
+            }
+
             return out;
         }
+
+        /**
+         * gets a destination from command args
+         * @param args the destination args ONLY (trim out excess beforehand)
+         * @return the destination from the args
+         */
+        public static Dest getDestArgs(Player player, String[] args, boolean reqName) {
+            // <xyz or xy> (dimension) (color)
+            // (name) <xyz or xy> (dimension) (color)
+
+            // (name) <x> (y) <z> (dimension) (color)
+
+            String pDIM = player.getDimension();
+
+            // make sure NAMES only if reqName is true
+            if (args.length > 1 && Num.isNum(args[0]) && reqName) return new Dest();
+
+            // x z
+            if (args.length == 2) {
+                return new Dest(Num.toInt(args[0]),null,Num.toInt(args[1]),pDIM,null,null);
+            }
+
+            // NAME x z OR x y (z, DIM)
+            if (args.length == 3) {
+                // if NAME (not num)
+                if (!Num.isNum(args[0])) {
+                    return new Dest(Num.toInt(args[1]), null, Num.toInt(args[2]), pDIM, args[0], null);
+                }
+
+                // NO NAME
+                // if DIM
+                if (Dimension.getAllIDs().contains(args[2])) {
+                    return new Dest(Num.toInt(args[0]),null,Num.toInt(args[1]),args[2],null,null);
+                }
+                // Z
+                return new Dest(Num.toInt(args[0]),Num.toInt(args[1]),Num.toInt(args[2]),pDIM,null,null);
+            }
+
+            // NAME x y (z, color, DIM) OR x y z (DIM)
+            if (args.length == 4) {
+                // if NAME (not num)
+                if (!Num.isNum(args[0])) {
+                    // if DIM
+                    if (Dimension.getAllIDs().contains(args[3])) {
+                        return new Dest(Num.toInt(args[1]),null,Num.toInt(args[2]),args[3],args[0],null);
+                    }
+                    // if color (not num)
+                    if (!Num.isNum(args[3])) {
+                        return new Dest(Num.toInt(args[1]),null,Num.toInt(args[2]),pDIM,args[0],CUtl.color.colorHandler(player,args[3]));
+                    }
+                    // z
+                    return new Dest(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),pDIM,args[0],null);
+                }
+
+                // NO NAME
+                // if DIM
+                if (Dimension.getAllIDs().contains(args[3])) {
+                    return new Dest(Num.toInt(args[0]),Num.toInt(args[1]),Num.toInt(args[2]),args[3],null,null);
+                }
+                // else IGNORE (don't do color on no name destinations)
+                return new Dest(Num.toInt(args[0]),Num.toInt(args[1]),Num.toInt(args[2]),pDIM,null,null);
+            }
+
+            // NAME x y z (DIM, color) OR NAME x z (DIM) (color)
+            if (args.length == 5) {
+                // if NAME (not num)
+                if (!Num.isNum(args[0])) {
+                    // if there's (z)
+                    if (Num.isNum(args[3])) {
+                        // if DIM
+                        if (Dimension.getAllIDs().contains(args[4])) {
+                            return new Dest(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),args[4],args[0],null);
+                        }
+                        // else color
+                        return new Dest(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),pDIM,args[0],CUtl.color.colorHandler(player,args[4]));
+                    }
+
+                    // if no Z
+                    return new Dest(Num.toInt(args[1]),null,Num.toInt(args[2]),args[3],args[0],CUtl.color.colorHandler(player,args[4]));
+                }
+            }
+
+            // NAME x y z (DIM) (color)
+            if (args.length == 6) {
+                // if NAME (not num)
+                if (!Num.isNum(args[0])) {
+                    return new Dest(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),args[4],args[0],args[5]);
+                }
+            }
+
+            // if none of the above, empty destination
+            return new Dest();
+        }
+
+        /**
+         * returns a suggester for a destination at the pos (for turning into a destination with {@link dest#getDestArgs(Player, String[], boolean)})
+         * @param pos trimmed pos starting at the destination
+         * @param args trimmed args starting at the destination
+         */
+        public static ArrayList<String> destSuggester(Player player, int pos, String[] args, boolean reqName) {
+            String current = Suggester.getCurrent(args,pos);
+            ArrayList<String> suggester = new ArrayList<>();
+
+            // (name) <x> (y) <z> (dimension) (color)
+
+            // <NAME> OR <x>
+            if (pos == 0) {
+                suggester.add(Suggester.wrapQuotes("name"));
+                if (!reqName) {
+                    // only if name isn't required
+                    suggester.addAll(Suggester.xyz(player, current, 3));
+                }
+            }
+
+            // make sure there is a name if reqName is true
+            if (pos > 0 && Num.isNum(args[0]) && reqName) return suggester;
+
+            // NAME <x> OR x <y>
+            if (pos == 1) {
+                // NAME (if not num)
+                if (!Num.isNum(args[0])) {
+                    suggester.addAll(Suggester.xyz(player,current,3));
+                }
+                // else <y>
+                else {
+                    suggester.addAll(Suggester.xyz(player,current,2));
+                }
+            }
+
+            // NAME x <y> OR x y <z, DIM>
+            if (pos == 2) {
+                // NAME (if not num)
+                if (!Num.isNum(args[0])) {
+                    // Y
+                    suggester.addAll(Suggester.xyz(player,current,3));
+                }
+                // (z, DIM)
+                else {
+                    suggester.addAll(Suggester.xyz(player, current, 1));
+                    suggester.addAll(Suggester.dims(current, false));
+                }
+            }
+
+            // NAME x y <z, DIM, color> OR x y z <DIM>
+            if (pos == 3) {
+                // NAME (if not num)
+                if (!Num.isNum(args[0])) {
+                    // <z, DIM, color>
+                    suggester.addAll(Suggester.xyz(player,current,1));
+                    suggester.addAll(Suggester.dims(current,false));
+                    suggester.addAll(Suggester.colors(player,current,false));
+                }
+                // DIM
+                else if (Num.isNum(args[2])) {
+                    suggester.addAll(Suggester.dims(current, true));
+                }
+            }
+
+            // NAME x y z <DIM, color> OR NAME x z DIM <color>
+            if (pos == 4) {
+                // NAME (if not num)
+                if (!Num.isNum(args[0])) {
+                    // (<DIM, color>
+                    if (Num.isInt(args[3])) {
+                        suggester.addAll(Suggester.dims(current,true));
+                        suggester.addAll(Suggester.colors(player,current,true));
+                    }
+                    // <color>
+                    else if (Dimension.getAllIDs().contains(args[3])) {
+                        suggester.addAll(Suggester.colors(player,current,true));
+                    }
+                }
+            }
+
+            // NAME x y z DIM <color>
+            if (pos == 5) {
+                // NAME (if not num)
+                if (!Num.isNum(args[0])) {
+                    // if contains Z and valid DIM
+                    if (Num.isNum(args[3]) && Dimension.getAllIDs().contains(args[4])) {
+                        // <color>
+                        suggester.addAll(Suggester.colors(player,current,true));
+                    }
+                }
+            }
+
+            return suggester;
+        }
+
+        // SUGGESTERS AND EXECUTORS
         public static void setCMDExecutor(Player player, String[] args) {
             if (args.length < 1) {
                 player.sendMessage(CUtl.usage(Assets.cmdUsage.destSet));
                 return;
             }
-            // /dest set saved <name> (convert)
-            if (args[0].equalsIgnoreCase("saved")) {
-                // check if saving is on
-                if (!Helper.checkEnabled(player).saving()) return;
-                if (args.length == 2) setSaved(player, args[1], false, false);
-                if (args.length == 3 && args[2].equalsIgnoreCase("convert")) setSaved(player, args[1], false, true);
-                return;
+            // todo move to their respective locations /dest saved set and /dest global set
+//            // /dest set saved <name> (convert)
+//            if (args[0].equalsIgnoreCase("saved")) {
+//                // check if saving is on
+//                if (!Helper.checkEnabled(player).saving()) return;
+//                if (args.length == 2) setSaved(player, args[1], false, false);
+//                if (args.length == 3 && args[2].equalsIgnoreCase("convert")) setSaved(player, args[1], false, true);
+//                return;
+//            }
+//            // /dest set global <name> (convert)
+//            if (args[0].equalsIgnoreCase("global")) {
+//                if (!Helper.checkEnabled(player).global()) return;
+//                if (args.length == 2) setSaved(player, args[1],true, false);
+//                if (args.length == 3 && args[2].equalsIgnoreCase("convert")) setSaved(player, args[1],true, true);
+//                return;
+//            }
+            boolean convert = false;
+            String[] destArgs = args;
+            // if last is convert remove the last entry in the destArgs
+            if (args[args.length-1].equals("convert")) {
+                convert = true;
+                destArgs = Arrays.copyOf(args, args.length-1);
             }
-            // /dest set global <name> (convert)
-            if (args[0].equalsIgnoreCase("global")) {
-                if (!Helper.checkEnabled(player).global()) return;
-                if (args.length == 2) setSaved(player, args[1],true, false);
-                if (args.length == 3 && args[2].equalsIgnoreCase("convert")) setSaved(player, args[1],true, true);
-                return;
-            }
-            if (!Num.isInt(args[0]) || !Num.isInt(args[1])) return;
-            // /dest set x z
-            if (args.length == 2)
-                playerSet(player,new Loc(Num.toInt(args[0]), Num.toInt(args[1]),player.getDimension()),false);
-            // /dest set x z DIM
-            if (args.length == 3 && !Num.isInt(args[2]))
-                playerSet(player,new Loc(Num.toInt(args[0]), Num.toInt(args[1]),args[2]),false);
-            // /dest set x y z
-            if (args.length == 3 && Num.isInt(args[2]))
-                playerSet(player,new Loc(Num.toInt(args[0]), Num.toInt(args[1]), Num.toInt(args[2]),player.getDimension()),false);
-            // /dest set x z DIM (convert)
-            if (args.length == 4 && !Num.isInt(args[2]))
-                playerSet(player,new Loc(Num.toInt(args[0]), Num.toInt(args[1]),args[2]),true);
-            // /dest set x y z DIM
-            if (args.length == 4 && Num.isInt(args[2]))
-                playerSet(player,new Loc(Num.toInt(args[0]), Num.toInt(args[1]), Num.toInt(args[2]),args[3]),false);
-            // /dest set x y z DIM (convert)
-            if (args.length == 5)
-                playerSet(player,new Loc(Num.toInt(args[0]), Num.toInt(args[1]), Num.toInt(args[2]),args[3]),true);
+
+            // set the destination
+            playerSet(player, getDestArgs(player, destArgs, false), convert);
         }
         public static ArrayList<String> setCMDSuggester(Player player, int pos, String[] args) {
-            String current = Suggester.getCurrent(args, pos);
-            ArrayList<String> suggester = new ArrayList<>();
-            // set <saved> <name> (convert)
-            // set <x> (y) <z> (dim) (convert)
-            if (pos == 0) {
-                if (Helper.checkEnabled(player).saving()) suggester.add("saved");
-                if (Helper.checkEnabled(player).global()) suggester.add("global");
-                suggester.addAll(Suggester.xyz(player,current,3));
-                return suggester;
+            // use the dest Suggester
+            ArrayList<String> suggester = new ArrayList<>(destSuggester(player, pos, args, false));
+
+            // if the args has a dimension, add convert on the end if not there already
+            if (pos > 2 && !args[args.length-1].equalsIgnoreCase("convert") &&
+                    Arrays.stream(args).anyMatch(s -> Dimension.getAllIDs().contains(s))) {
+                suggester.add("convert");
             }
-            // set <saved, global, x> ((name) (y))
-            if (pos == 1) {
-                if (args[0].equalsIgnoreCase("saved") && Helper.checkEnabled(player).saving())
-                    suggester.addAll(saved.getCMDNames(saved.getList(player)));
-                else if (args[0].equalsIgnoreCase("global") && Helper.checkEnabled(player).global())
-                    suggester.addAll(saved.getCMDNames(Data.getGlobal().getDestinations()));
-                else suggester.addAll(Suggester.xyz(player,current,2));
-            }
-            // set <saved> <name> ((convert))
-            // set <x> (y) (<z> (dim))
-            if (pos == 2) {
-                if (!Num.isInt(args[1])) {
-                    suggester.add("convert");
-                } else {
-                    suggester.addAll(Suggester.dims(current,true));
-                    suggester.addAll(Suggester.xyz(player,current,1));
-                }
-            }
-            // set <x> (y) <z> (dim)
-            // set x z dim (convert)
-            if (pos == 3) {
-                if (Num.isInt(args[2])) suggester.addAll(Suggester.dims(current,true));
-                else suggester.add("convert");
-            }
-            // set x y z dim convert
-            if (pos == 4) {
-                if (Num.isInt(args[2])) suggester.add("convert");
-            }
+
             return suggester;
         }
     }
@@ -642,110 +805,16 @@ public class Destination {
         }
 
         public static void addCMDExecutor(Player player, String[] args, boolean global) {
-            if (!Helper.checkEnabled(player).saving()) return;
-            //dest saved add <name>
-            if (args.length == 1) {
-                add(player,new DestEntry(player,new Dest(player,args[0],Assets.DEFAULT_COLOR),global));
+            if (!Helper.checkEnabled(player).saving() && !Helper.checkEnabled(player).globalEditing()) {
                 return;
             }
-            if (!Num.inBetween(args.length, 2, 6)) {
-                player.sendMessage(CUtl.usage(Assets.cmdUsage.destAdd));
-                return;
-            }
-            Dest baseDest = new Dest(player,args[0],Assets.DEFAULT_COLOR);
-            String playerDIM = player.getDimension();
-            //dest saved add <name> color
-            //dest saved add <name> dim
-            if (args.length == 2) {
-                if (Dimension.checkValid(args[1])) {
-                    baseDest.setDimension(args[1]);
-                } else {
-                    baseDest.setColor(args[1]);
-                }
-                add(player,new DestEntry(player,baseDest,global));
-                return;
-            }
-            //dest saved add <name> x z
-            if (args.length == 3) {
-                add(player,new DestEntry(player,new Dest(Num.toInt(args[1]),null, Num.toInt(args[2]),playerDIM,args[0],Assets.DEFAULT_COLOR),global));
-                return;
-            }
-            //dest saved add <name> x z color
-            if (args.length == 4 && !Num.isInt(args[3]) && !Dimension.checkValid(args[3])) {
-                add(player,new DestEntry(player,new Dest(Num.toInt(args[1]),null,Num.toInt(args[2]),playerDIM,args[0],args[3]),global));
-                return;
-            }
-            //dest saved add <name> x y DIM
-            if (args.length == 4 && !Num.isInt(args[3])) {
-                add(player,new DestEntry(player,new Dest(Num.toInt(args[1]),null,Num.toInt(args[2]),args[3],args[0],Assets.DEFAULT_COLOR),global));
-                return;
-            }
-            //dest saved add <name> x y z
-            if (args.length == 4 && Num.isInt(args[3])) {
-                add(player,new DestEntry(player,new Dest(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),playerDIM,args[0],Assets.DEFAULT_COLOR),global));
-                return;
-            }
-            //dest saved add <name> x y DIM color
-            if (args.length == 5 && !Num.isInt(args[3])) {
-                add(player,new DestEntry(player,new Dest(Num.toInt(args[1]),null,Num.toInt(args[2]),args[3],args[0],args[4]),global));
-                return;
-            }
-            //dest saved add <name> x y z color
-            if (args.length == 5 && !Dimension.checkValid(args[4])) {
-                add(player,new DestEntry(player,new Dest(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),playerDIM,args[0],args[4]),global));
-                return;
-            }
-            //dest saved add <name> x y z DIM
-            if (args.length == 5) {
-                add(player,new DestEntry(player,new Dest(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),args[4],args[0],Assets.DEFAULT_COLOR),global));
-                return;
-            }
-            //dest saved add <name> x y z DIM color
-            if (args.length == 6) {
-                add(player,new DestEntry(player,new Dest(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),args[4],args[0],args[5]),global));
-                return;
-            }
-            player.sendMessage(CUtl.usage(Assets.cmdUsage.destAdd));
+            add(player,new DestEntry(player,dest.getDestArgs(player,args,true),global));
         }
         public static ArrayList<String> addCMDSuggester(Player player, int pos, String[] args) {
-            String current = Suggester.getCurrent(args,pos);
-            ArrayList<String> suggester = new ArrayList<>();
-            // add <name> <x> (y) <z> (dim) (color)
-            if (pos == 0) {
-                suggester.add("\"name\"");
-                return suggester;
+            if (!Helper.checkEnabled(player).saving() && !Helper.checkEnabled(player).globalEditing()) {
+                return new ArrayList<>();
             }
-            // add <name> (<x> (dim) (color))
-            if (pos == 1) {
-                suggester.addAll(Suggester.xyz(player,current,3));
-                suggester.addAll(Suggester.colors(player,current,false));
-                suggester.addAll(Suggester.dims(current,false));
-            }
-            // add <name> <x> ((y))
-            if (pos == 2) {
-                if (Num.isInt(args[1])) return Suggester.xyz(player,current,2);
-            }
-            // add <name> <x> (y) (<z> (dim) (color))
-            if (pos == 3) {
-                if (Num.isInt(args[1])) suggester.addAll(Suggester.xyz(player,current,1));
-                suggester.addAll(Suggester.colors(player,current,false));
-                suggester.addAll(Suggester.dims(current,false));
-            }
-            // add <name> <x> (y) <z> ((dim) (color))
-            if (pos == 4) {
-                if (Num.isInt(args[3])) {
-                    suggester.addAll(Suggester.dims(current,true));
-                    suggester.addAll(Suggester.colors(player,current,true));
-                }
-                if (Dimension.checkValid(args[3]))
-                    suggester.addAll(Suggester.colors(player,current,true));
-            }
-            // add <name> <x> (y) <z> (dim) ((color))
-            if (pos == 5) {
-                if (Num.isInt(args[3]) && Dimension.checkValid(args[4]))
-                    suggester.addAll(Suggester.colors(player,current,true));
-            }
-            return suggester;
+            return dest.destSuggester(player,pos,args,true);
         }
 
         /**
@@ -970,7 +1039,7 @@ public class Destination {
             CTxT buttons = CTxT.of(" ");
             // only show edit button if destination isn't global
             if (!destination.isGlobal()) buttons.append(EDIT_BUTTON(1,"/dest saved edit "+cmdName)).append(" ");
-            buttons.append(dest.setButtons("/dest set saved "+cmdName,
+            buttons.append(dest.setButtons(destination,
                     Dimension.canConvert(player.getDimension(),destination.getDimension())));
 
             player.sendMessage(CUtl.tag().append(LANG.msg("add",destination.getBadge().append(buttons))));
@@ -1158,7 +1227,7 @@ public class Destination {
             }
             // SET & CONVERT BUTTON
             msg
-                    .append(dest.setButtons("/dest set saved "+cmdName,
+                    .append(dest.setButtons(destination,
                             Dimension.canConvert(player.getDimension(),destination.getDimension()))).append(" ")
                     .append("\n\n ")
                     .append(LANG.btn("delete").btn(true).color('c').cEvent(2,"/dest saved delete-r "+cmdName)
@@ -1188,7 +1257,7 @@ public class Destination {
                         // EDIT
                         .append(EDIT_BUTTON(1,"/dest saved edit " + cmdName)).append(" ")
                         // SET & convert
-                        .append(dest.setButtons("/dest set saved " + cmdName,
+                        .append(dest.setButtons(entry,
                                 Dimension.canConvert(player.getDimension(), entry.getDimension())))
                         .append("\n");
             }
@@ -1223,12 +1292,11 @@ public class Destination {
             msg.append(LANG.ui("global").color(Assets.mainColors.global)).append(line).append("\n");
             // for every destination in the current page
             for (Dest entry : listPage.getPage(pg)) {
-                String cmdName = "\""+entry.getName()+"\"";
                 msg.append(" ")
                         //BADGE
                         .append(entry.getBadge()).append(" ")
                         // SET & convert
-                        .append(dest.setButtons("/dest set global " + cmdName,
+                        .append(dest.setButtons(entry,
                                 Dimension.canConvert(player.getDimension(), entry.getDimension())))
                         .append("\n");
             }
@@ -1299,8 +1367,8 @@ public class Destination {
             for (Loc loc: listPage.getPage(pg)) {
                 String dim = loc.getDimension();
                 msg.append(loc.getBadge()).append("\n  ")
-                        .append(saved.SAVE_BUTTON("/dest add \""+Dimension.getName(dim).toLowerCase()+"_death\" "+loc.getXYZ()+" "+dim+" \""+Dimension.getColor(dim)+"\""))
-                        .append(" ").append(dest.setButtons("/dest set "+loc.getXYZ()+" "+loc.getDimension(),
+                        .append(saved.SAVE_BUTTON("/dest add \""+Dimension.getName(dim).toLowerCase()+"_death\" "+loc.toCMD()+" \""+Dimension.getColor(dim)+"\""))
+                        .append(" ").append(dest.setButtons(new Dest(loc,null,null),
                                 Dimension.canConvert(player.getDimension(),dim)));
                 msg.append("\n ");
             }
@@ -1361,195 +1429,32 @@ public class Destination {
                         return;
                     }
                 }
-                String pDIM = player.getDimension();
-                // send <IGN> <xyz or xy> (dimension)
-                // send <IGN> (name) <xyz or xy> (dimension)
 
-                // send IGN x z
-                if (args.length == 3) {
-                    logic(player,args[0],new Dest(Num.toInt(args[1]),null, Num.toInt(args[2]), pDIM,null,null));
-                }
-                // send IGN NAME x z
-                if (args.length == 4 && !Num.isNum(args[1])) {
-                    logic(player,args[0],new Dest(Num.toInt(args[1]),null, Num.toInt(args[2]),pDIM,args[1],null));
-                    return;
-                }
-                // send IGN x y (z, DIM, color)
-                if (args.length == 4) {
-                    //DIM
-                    if (Dimension.getAllIDs().contains(args[3])) {
-                        logic(player, args[0], new Dest(Num.toInt(args[1]),null,Num.toInt(args[2]), args[3],null,null));
-                    }
-                    // COLOR
-                    else if (!Num.isNum(args[3])) {
-                        logic(player,args[0],new Dest(Num.toInt(args[1]),null,Num.toInt(args[2]),pDIM,null,args[3]));
-                    }
-                    // Z
-                    else {
-                        logic(player,args[0],new Dest(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),pDIM,null,null));
-                    }
-                    return;
-                }
-                // send IGN NAME x y (z, color, DIM)
-                if (args.length == 5 && !Num.isNum(args[1])) {
-                    // DIM
-                    if (Dimension.getAllIDs().contains(args[4])) {
-                        logic(player,args[0],new Dest(Num.toInt(args[2]),null,Num.toInt(args[3]),args[4],args[1],null));
-                    }
-                    // COLOR
-                    else if (!Num.isNum(args[4])) {
-                        logic(player,args[0],new Dest(Num.toInt(args[2]),null,Num.toInt(args[3]),pDIM,args[1],args[4]));
-                    }
-                    // Z
-                    else {
-                        logic(player,args[0],new Dest(Num.toInt(args[2]),Num.toInt(args[3]),Num.toInt(args[4]),pDIM,args[1],null));
-                    }
-                    return;
-                }
-                // send IGN x y z (DIM, color)
-                if (args.length == 5 && Num.isNum(args[3])) {
-                    // DIM
-                    if (Dimension.getAllIDs().contains(args[4])) {
-                        logic(player,args[0],new Dest(Num.toInt(args[1]), Num.toInt(args[2]), Num.toInt(args[3]),args[4],null,null));
-                    }
-                    // COLOR
-                    else {
-                        logic(player,args[0],new Dest(Num.toInt(args[1]), Num.toInt(args[2]), Num.toInt(args[3]),pDIM,null,args[4]));
-                    }
-                    return;
-                }
-                // send IGN x y DIM color
-                if (args.length == 5 && Dimension.getAllIDs().contains(args[3])) {
-                    logic(player,args[0],new Dest(Num.toInt(args[1]),null,Num.toInt(args[2]),args[3],null,args[4]));
-                    return;
-                }
-                // send IGN NAME x y z (DIM, color)
-                // send IGN NAME x y DIM (color)
-                if (args.length == 6 && !Num.isNum(args[1])) {
-                    if (Num.isNum(args[4])) {
-                        // DIM
-                        if (Dimension.getAllIDs().contains(args[5])) {
-                            logic(player,args[0],new Dest(Num.toInt(args[2]), Num.toInt(args[3]), Num.toInt(args[4]),args[5],args[1],null));
-                        }
-                        // COLOR
-                        else {
-                            logic(player,args[0],new Dest(Num.toInt(args[2]), Num.toInt(args[3]), Num.toInt(args[4]),pDIM,args[1],args[5]));
-                        }
-                    } else {
-                        // send IGN NAME x z DIM color
-                        logic(player,args[0],new Dest(Num.toInt(args[2]),null,Num.toInt(args[3]),args[4],args[1],args[5]));
-                    }
-                    return;
-                }
-                // send IGN x y z DIM color
-                if (args.length == 6 && Dimension.getAllIDs().contains(args[4])) {
-                    logic(player,args[0],new Dest(Num.toInt(args[1]), Num.toInt(args[2]), Num.toInt(args[3]),args[4],null,args[5]));
-                    return;
-                }
-                // send IGN NAME x y z DIM color
-                if (args.length == 7 && !Num.isInt(args[1])) {
-                    logic(player,args[0],new Dest(Num.toInt(args[2]), Num.toInt(args[3]), Num.toInt(args[4]),args[5],args[1],args[6]));
-                    return;
-                }
-                player.sendMessage(CUtl.usage(Assets.cmdUsage.destSend));
+                // send <IGN> <xyz or xy> (dimension)
+                // send <IGN> (name) <xyz or xy> (dimension) (color)
+
+                // trim out the IGN
+                String[] destArgs = Helper.trimStart(args,1);
+                // use dest args
+                logic(player, args[0], dest.getDestArgs(player,destArgs,false));
             }
 
             public static ArrayList<String> CMDSuggester(Player player, int pos, String[] args) {
-                String current = Suggester.getCurrent(args,pos);
                 ArrayList<String> suggester = new ArrayList<>();
                 // enabled check
                 if (!Helper.checkEnabled(player).send()) return suggester;
-                // send <player> <saved> <name>
+
                 // send <player> (name) <x> (y) <z> (dimension) (color)
 
                 // send (player)
                 if (pos == 0) {
                     suggester.addAll(Suggester.players(player));
                 }
-                // send <player> (<saved>, (name), <x>)
-                if (pos == 1) {
-                    if (Helper.checkEnabled(player).saving()) suggester.add("saved");
-                    suggester.addAll(Suggester.xyz(player,current,3));
-                    suggester.add(Suggester.wrapQuotes("name"));
+                // send (dest)
+                else {
+                    suggester.addAll(dest.destSuggester(player,pos-1,Helper.trimStart(args,1),false));
                 }
-                // send <player> <saved> (<name>)
-                // send <player> (name) (<x>)
-                // send <player> <x> ((y))
-                if (pos == 2) {
-                    // send <player> <saved> (<name>)
-                    if (args[1].equalsIgnoreCase("saved") && Helper.checkEnabled(player).saving()) {
-                        suggester.addAll(saved.getCMDNames(saved.getList(player)));
-                    }
-                    // send <player> (name) (<x>)
-                    else if (!Num.isInt(args[1])) {
-                        suggester.addAll(Suggester.xyz(player,current,3));
-                    }
-                    // send <player> <x> ((y))
-                    else {
-                        suggester.addAll(Suggester.xyz(player,current,2));
-                    }
-                }
-                // send <player> (name) <x> ((y))
-                // send <player> <x> (y) (<z> (dimension) (color))
-                if (pos == 3) {
-                    // Y
-                    if (!Num.isInt(args[1])) {
-                        suggester.addAll(Suggester.xyz(player,current,1));
-                    }
-                    // (<z> (dimension) (color))
-                    else {
-                        suggester.addAll(Suggester.xyz(player, current, 1));
-                        suggester.addAll(Suggester.dims(current, false));
-                        suggester.addAll(Suggester.colors(player, current, false));
-                    }
-                }
-                // send <player> (name) <x> (y) (<z>, (dimension), (color))
-                // send <player> <x> (y) <z> ((dimension), (color))
-                // send <player> <x> (y) (dimension) ((color))
-                if (pos == 4) {
-                    // (<z>, (dimension), (color))
-                    if (!Num.isInt(args[1])) {
-                        suggester.addAll(Suggester.xyz(player,current,1));
-                        suggester.addAll(Suggester.dims(current,false));
-                        suggester.addAll(Suggester.colors(player,current,false));
-                    }
-                    // ((dimension), (color))
-                    if (Num.isInt(args[3])) {
-                        suggester.addAll(Suggester.dims(current,true));
-                        suggester.addAll(Suggester.colors(player,current,true));
-                    }
-                    // ((color))
-                    else if (Dimension.getAllIDs().contains(args[3])) {
-                        suggester.addAll(Suggester.colors(player,current,true));
-                    }
-                }
-                // send <player> (name) <x> (y) <z> ((dimension), (color))
-                // send <player> (name) <x> (y) (dimension) ((color))
-                // send <player> <x> (y) <z> (dimension) ((color))
-                if (pos == 5) {
-                    // NAME
-                    if (!Num.isInt(args[1])) {
-                        // ((dimension), (color))
-                        if (Num.isInt(args[4])) {
-                            suggester.addAll(Suggester.dims(current,true));
-                            suggester.addAll(Suggester.colors(player,current,true));
-                        }
-                        // (color)
-                        else if (Dimension.getAllIDs().contains(args[4])) {
-                            suggester.addAll(Suggester.colors(player,current,true));
-                        }
-                    }
-                    // send <player> <x> (y) <z> (dimension) ((color))
-                    if (Num.isInt(args[1]) && Num.isInt(args[3]) && Dimension.getAllIDs().contains(args[4])){
-                        suggester.addAll(Suggester.colors(player,current,true));
-                    }
-                }
-                // send <player> (name) <x> (y) <z> (dimension) ((color))
-                if (pos == 6) {
-                    if (!Num.isInt(args[1]) && Num.isInt(args[4]) && Dimension.getAllIDs().contains(args[5])) {
-                        suggester.addAll(Suggester.colors(player,current,true));
-                    }
-                }
+
                 return suggester;
             }
 
@@ -1610,23 +1515,23 @@ public class Destination {
 
             /**
              * gets the sent Loc as a CTxt for the receiver
-             * @param loc the Loc to display
+             * @param dest the Loc to display
              * @return the CTxT built
              */
-            public static CTxT getSendTxt(Player player, Dest loc) {
-                CTxT txt = CTxT.of("").append(loc.getBadge()).append(" ");
+            public static CTxT getSendTxt(Player player, Dest dest) {
+                CTxT txt = CTxT.of("").append(dest.getBadge()).append(" ");
                 // if color is null, empty string
-                String colorCMD = loc.getColor() == null ? "" : " \""+loc.getColor()+"\"";
+                String colorCMD = dest.getColor() == null ? "" : " \""+dest.getColor()+"\"";
                 // if no name, have the placeholder name for the player to change it later
-                String nameCMD = loc.getName() == null ? Suggester.wrapQuotes(LANG.get("default_save_name")) : Suggester.wrapQuotes(loc.getName());
+                String nameCMD = dest.getName() == null ? Suggester.wrapQuotes(LANG.get("default_save_name")) : Suggester.wrapQuotes(dest.getName());
                 // wrap the dimension in quotes
-                String dimCMD = Suggester.wrapQuotes(loc.getDimension());
+                String dimCMD = Suggester.wrapQuotes(dest.getDimension());
                 // ADD
                 if (Helper.checkEnabled(player).saving())
-                    txt.append(saved.SAVE_BUTTON("/dest saved add "+ nameCMD +" "+loc.getXYZ()+" "+dimCMD+" "+colorCMD)).append(" ");
+                    txt.append(saved.SAVE_BUTTON("/dest saved add "+ nameCMD +" "+dest.getXYZ()+" "+dimCMD+" "+colorCMD)).append(" ");
                 // SET & CONVERT
-                txt.append(dest.setButtons("/dest set "+loc.getXYZ()+" "+loc.getDimension(),
-                        Dimension.canConvert(player.getDimension(),loc.getDimension())));
+                txt.append(Destination.dest.setButtons(dest,
+                        Dimension.canConvert(player.getDimension(),dest.getDimension())));
                 return txt;
             }
         }
