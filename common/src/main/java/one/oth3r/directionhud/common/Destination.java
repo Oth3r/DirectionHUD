@@ -339,6 +339,14 @@ public class Destination {
             // make sure NAMES only if reqName is true
             if (args.length > 1 && Num.isNum(args[0]) && reqName) return new Dest();
 
+            // NAME
+            if (args.length == 1) {
+                // if NAME (not num)
+                if (!Num.isNum(args[0])) {
+                    return new Dest(player,args[0],null);
+                }
+            }
+
             // x z
             if (args.length == 2) {
                 return new Dest(Num.toInt(args[0]),null,Num.toInt(args[1]),pDIM,null,null);
