@@ -188,6 +188,23 @@ public class Loc {
         return msg.append(CTxT.of(getXYZ()).color('f'));
     }
 
+    /**
+     * turns the LOC into a string for a DirectionHUD command
+     * x (y) z dimension
+     */
+    public String toCMD() {
+        // if not valid return empty
+        if (!isValid()) return "";
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(x).append(" ");
+        if (y != null) sb.append(y).append(" ");
+        sb.append(z).append(" ");
+        sb.append(Suggester.wrapQuotes(dimension));
+
+        return sb.toString();
+    }
+
     // OVERRIDES
 
     /**

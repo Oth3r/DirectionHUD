@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.common.utils.Helper.Command.Suggester;
 
 import java.util.Objects;
 
@@ -50,7 +51,7 @@ public class Dest extends Loc {
     }
 
     public boolean hasDestRequirements() {
-        return hasXYZ() && getDimension() != null && this.name != null && this.color != null;
+        return isValid() && this.name != null && this.color != null;
     }
 
     @Override
@@ -75,6 +76,20 @@ public class Dest extends Loc {
         msg.append(Dimension.getBadge(getDimension())).append(" ");
         msg.append(CTxT.of(getXYZ()).hEvent(CTxT.of(this.name).color(this.color==null?"#ffffff":this.color)));
         return msg;
+    }
+
+    /**
+     * turns the DEST into a DirectionHUD command compatible string
+     * @return x (y) z DIM (name) (color)
+     */
+    @Override
+    public String toCMD() {
+        StringBuilder sb = new StringBuilder(super.toCMD());
+
+        if (name != null) sb.append(" ").append(Suggester.wrapQuotes(name));
+        if (color != null) sb.append(" ").append(Suggester.wrapQuotes(color));
+
+        return sb.toString();
     }
 
     // BASE OVERRIDES
