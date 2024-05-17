@@ -1,6 +1,6 @@
 package one.oth3r.directionhud.common.files.playerdata;
 
-import one.oth3r.directionhud.common.utils.Loc;
+import one.oth3r.directionhud.common.utils.Dest;
 import one.oth3r.directionhud.utils.Player;
 
 import java.util.ArrayList;
@@ -106,17 +106,17 @@ public class CachedPData {
     }
 
     public static class CachedDestination {
-        private final Loc destination;
+        private final Dest destination;
         private final PDDestination.Settings destSettings;
         private final String tracking;
 
         public CachedDestination(PDDestination destination) {
-            this.destination = new Loc(destination.getDest());
+            this.destination = new Dest(destination.getDest());
             this.destSettings = new PDDestination.Settings(destination.getSetting());
             this.tracking = destination.getTracking();
         }
 
-        public Loc getDestination() {
+        public Dest getDestination() {
             return destination;
         }
 
