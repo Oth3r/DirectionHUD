@@ -29,7 +29,7 @@ public class PDDestination {
     @SerializedName("saved")
     private ArrayList<Dest> saved = new ArrayList<>();
     @SerializedName("dest")
-    private Loc dest = new Loc();
+    private Dest dest = new Dest();
     @SerializedName("tracking")
     private String tracking = null;
     @SerializedName("lastdeath")
@@ -39,7 +39,7 @@ public class PDDestination {
 
     public PDDestination() {}
 
-    public PDDestination(ArrayList<Dest> saved, Loc dest, String tracking, List<Loc> lastdeath, Settings setting) {
+    public PDDestination(ArrayList<Dest> saved, Dest dest, String tracking, List<Loc> lastdeath, Settings setting) {
         this.saved = saved;
         this.dest = dest;
         this.tracking = tracking;
@@ -65,11 +65,11 @@ public class PDDestination {
         save();
     }
 
-    public Loc getDest() {
+    public Dest getDest() {
         return dest;
     }
 
-    public void setDest(Loc dest) {
+    public void setDest(Dest dest) {
         this.dest = dest;
         save();
     }
