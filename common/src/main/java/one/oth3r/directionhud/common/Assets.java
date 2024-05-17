@@ -61,66 +61,6 @@ public class Assets {
         public static final String inbox = "/dhud inbox";
     }
 
-    /**
-     * gets all the options for a config entry, better than hard coding into the lang file.
-     */
-    public static class configOptions {
-        @SafeVarargs
-        private static <T extends Enum<T>> String fromEnum(T[] enums, T... exclude) {
-            StringBuilder output = new StringBuilder();
-            // get every enum except for the exclude list
-            for (T entry: enums) {
-                boolean stop = false;
-                // check if the entry is excluded, then skip the entry
-                for (T ex: exclude) {
-                    if (ex.equals(entry)) {
-                        stop = true;
-                        break;
-                    }
-                }
-                // skip entry
-                if (stop) continue;
-                output.append(entry).append(", ");
-            }
-            return output.substring(0,output.toString().length()-2); // remove the last ", "
-        }
-        public static String moduleOrder() {
-            return fromEnum(Hud.Module.values(), Hud.Module.unknown);
-        }
-        public static String DisplayType() {
-            return fromEnum(Hud.Setting.DisplayType.values());
-        }
-        public static String BossBarColor() {
-            return fromEnum(Hud.Setting.BarColor.values());
-        }
-        public static String TrackingTarget() {
-            return fromEnum(Hud.Setting.ModuleTrackingTarget.values());
-        }
-        public static String TrackingType() {
-            return fromEnum(Hud.Setting.ModuleTrackingType.values());
-        }
-        public static String AngleDisplay() {
-            return fromEnum(Hud.Setting.ModuleAngleDisplay.values());
-        }
-        public static String TrackRequestMode() {
-            return fromEnum(Destination.Setting.TrackingRequestMode.values());
-        }
-        public static String colorPreset() {
-            return "\"PresetName|#ffaacc\"";
-        }
-        public static CTxT dimensions() {
-            return CTxT.of("{\"")
-                    .append(CTxT.of("color").color('a')).append("\":\"").append(CTxT.of("#55ff55").color('a')).append("\",\"")
-                    .append(CTxT.of("name").color('b')).append("\":\"").append(CTxT.of("Overworld").color('b')).append("\",\"")
-                    .append(CTxT.of("dimension").color('d')).append("\":\"").append(CTxT.of("minecraft.overworld").color('d')).append("\"}");
-        }
-        public static CTxT dimension_ratios() {
-            return CTxT.of("{\"")
-                    .append(CTxT.of("minecraft.overworld").color('a')).append("\":\"").append(CTxT.of("1.0").color('a')).append("\",\"")
-                    .append(CTxT.of("minecraft.the_nether").color('b')).append("\":\"").append(CTxT.of("8.0").color('b')).append("\"}");
-        }
-    }
-
     public static class symbols {
         public static class arrows {
             public static final String north = "\u2b06";
@@ -153,8 +93,6 @@ public class Assets {
         public static final String local = "\uD83D\uDCDA";
         public static final String global = "\uD83E\uDDED";
     }
-
-    public static final String DEFAULT_COLOR = "#ffffff";
 
     public enum packets {
         INITIALIZATION("initialize_v1.1"),
