@@ -560,7 +560,7 @@ public class Destination {
                 .hEvent(CTxT.of(Assets.cmdUsage.destSaved).color(Assets.mainColors.saved).append("\n").append(LANG.hover()));
 
         public static CTxT GLOBAL_BUTTON = LANG.btn("global").btn(true).color(Assets.mainColors.global).cEvent(1,"/dest global")
-                .hEvent(CTxT.of(Assets.cmdUsage.destSaved).color(Assets.mainColors.global).append("\n").append(LANG.hover()));
+                .hEvent(CTxT.of(Assets.cmdUsage.destGlobal).color(Assets.mainColors.global).append("\n").append(LANG.hover()));
 
         public static CTxT ADD_BUTTON = CTxT.of("+").btn(true).color(Assets.mainColors.add).cEvent(2,"/dest add ")
                 .hEvent(CTxT.of(Assets.cmdUsage.destAdd).color(Assets.mainColors.add).append("\n")
@@ -1281,7 +1281,7 @@ public class Destination {
             // add global button if enabled
             if (Helper.checkEnabled(player).global()) msg.append(CTxT.of(Assets.symbols.global).btn(true).color(Assets.mainColors.global)
                     .hEvent(LANG.hover("global").color(Assets.mainColors.global))
-                    .cEvent(1,"/dest saved global"));
+                    .cEvent(1,"/dest global"));
             // else add button
             else msg.append(ADD_BUTTON);
             msg
@@ -1323,7 +1323,7 @@ public class Destination {
                             .hEvent(LANG.hover("local").color(Assets.mainColors.saved))
                             .cEvent(1, "/dest saved"))
                     // nav buttons
-                    .append(" ").append(listPage.getNavButtons(pg, "/dest saved global "))
+                    .append(" ").append(listPage.getNavButtons(pg, "/dest global "))
                     // back button
                     .append(" ").append(CUtl.CButton.back("/dest"))
                     .append(line);
