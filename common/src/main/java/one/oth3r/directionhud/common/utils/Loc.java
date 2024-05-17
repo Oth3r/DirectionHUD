@@ -1,12 +1,12 @@
 package one.oth3r.directionhud.common.utils;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import one.oth3r.directionhud.common.files.Data;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
+import one.oth3r.directionhud.common.utils.Helper.Command.Suggester;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -158,7 +158,12 @@ public class Loc {
         return x+" "+y+" "+z;
     }
 
-
+    /**
+     * checks if the Loc is valid or not
+     */
+    public boolean isValid() {
+        return hasXYZ() && dimension != null;
+    }
 
     // todo create a common Vec class please this sucks
     public ArrayList<Double> getVec(Player player) {
