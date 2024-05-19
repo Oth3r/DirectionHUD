@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class OnPlayerDeathMixin {
     @Inject(at = @At("HEAD"), method = "onDeath(Lnet/minecraft/entity/damage/DamageSource;)V")
     public void onDeathCallback(DamageSource source, CallbackInfo onDeathCallbackInfoReturnable) {
-        Player player = Player.of((ServerPlayerEntity) (Object) this);
+        Player player = new Player((ServerPlayerEntity) (Object) this);
         Events.playerDeath(player,new Loc(player));
     }
 }

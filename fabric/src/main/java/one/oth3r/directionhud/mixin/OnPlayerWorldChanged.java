@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class OnPlayerWorldChanged {
     @Inject(at = @At("HEAD"), method = "worldChanged(Lnet/minecraft/server/world/ServerWorld;)V")
     public void worldChangedCallback(ServerWorld world, CallbackInfo info) {
-        Player player = Player.of((ServerPlayerEntity) (Object) this);
+        Player player = new Player((ServerPlayerEntity) (Object) this);
         Events.playerChangeWorld(player,Utl.dim.format(world.getRegistryKey()),player.getDimension());
     }
 }

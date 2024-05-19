@@ -1,16 +1,22 @@
 package one.oth3r.directionhud.common.utils;
 
-import one.oth3r.directionhud.common.DHUD;
-import one.oth3r.directionhud.common.files.PlayerData;
-import one.oth3r.directionhud.common.files.config;
+import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import com.google.gson.stream.MalformedJsonException;
+import one.oth3r.directionhud.common.DHud;
+import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
 
+import java.io.IOException;
 import java.util.*;
 
 public class Helper {
     public static final int MAX_NAME = 16;
+
     public static class Enums {
         public static <T extends Enum<T>> ArrayList<T> toArrayList(T[] array) {
             return new ArrayList<>(Arrays.asList(array));
@@ -49,17 +55,19 @@ public class Helper {
          * @param enumType the class of enums
          * @return an enum, if there isn't a match, it returns the first enum
          */
-        public static <T extends Enum<T>> T get(String enumString, Class<T> enumType) {
+        public static <T extends Enum<T>> T get(Object enumString, Class<T> enumType) {
             T[] values = enumType.getEnumConstants();
             for (T all : values) {
                 // check if there is a match for any of the enum names
-                if (enumString.equals(all.name())) return all;
+                if (enumString.toString().equals(all.name())) return all;
             }
             // if there's no match return the first entry
             return values[0];
         }
     }
+
     public static class Num {
+
         public static boolean isInt(String string) {
             try {
                 Integer.parseInt(string);
@@ -68,6 +76,7 @@ public class Helper {
             }
             return true;
         }
+
         public static Integer toInt(String s) {
             // return an int no matter what
             try {
@@ -80,6 +89,7 @@ public class Helper {
                 }
             }
         }
+
         public static boolean isNum(String s) {
             // checks if int or a double
             try {
@@ -94,37 +104,70 @@ public class Helper {
                 }
             }
         }
+
         public static boolean inBetween(double num, double min, double max) {
             // if min is greater than max, flip
             if (min > max) return num >= min || num <= max;
             return num >= min && num <= max;
         }
+
         public static double wSubtract(double num, double sub, double max) {
             // wrapped subtract
             double output = num - sub;
             if (output < 0) output = max - (output*-1);
             return output;
         }
+
         public static double wAdd(double num, double add, double max) {
             // wrapped add
             return (num+add)%max;
         }
+
     }
+
     public static class Command {
+
         public static class Suggester {
+
+            /**
+             * wraps a list of things in quotes
+             * @param list the list of things
+             * @return a list of strings with quotes around items
+             */
             public static <T>ArrayList<String> wrapQuotes(List<T> list) {
                 ArrayList<String> output = new ArrayList<>();
-                for (T s:list) {
-                    output.add("\""+s+"\"");
+                for (T entry:list) {
+                    output.add(wrapQuotes(entry));
                 }
                 return output;
             }
+
+            /**
+             * wraps an object with quotes
+             * @param obj object to wrap
+             * @return wrapped string
+             */
+            public static String wrapQuotes(Object obj) {
+                return "\""+obj+"\"";
+            }
+
+            /**
+             * gets the current typed string from the player
+             * @param args command args
+             * @param pos typing pos
+             */
             public static String getCurrent(String[] args, int pos) {
                 // if the length is the same as the pos, there's nothing currently being typed at that pos
                 // get the current typed message
                 if (args.length == pos+1) return args[pos];
                 return "";
             }
+
+            /**
+             * suggests the coordinates of the player
+             * @param current current typed string
+             * @param type amount of coordinates, 3 xyz, 2 z|yz, 1 z
+             */
             public static ArrayList<String> xyz(Player player, String current, int type) {
                 // type = 3: all 3, ect
                 ArrayList<String> list = new ArrayList<>();
@@ -135,44 +178,55 @@ public class Helper {
                 } else if (type == 2) {
                     list.add(String.valueOf(player.getBlockY()));
                     list.add(player.getBlockY()+" "+player.getBlockZ());
-                } else if (type == 1) list.add(String.valueOf(player.getBlockZ()));
+                } else if (type == 1) {
+                    list.add(String.valueOf(player.getBlockZ()));
+                }
                 // don't suggest if typing letters or different coordinates
                 if (current.isEmpty() || list.get(0).startsWith(current)) return list;
                 return new ArrayList<>();
             }
+
+            /**
+             * suggests player strings excluding the inputted player
+             * @param player player to exclude
+             */
             public static ArrayList<String> players(Player player) {
-                //get player strings excluding the inputted player
+
                 ArrayList<String> list = new ArrayList<>();
                 for (Player entry: Utl.getPlayers())
                     if (!entry.equals(player)) list.add(entry.getName());
                 return list;
             }
-            public static ArrayList<String> dims(String current) {
-                return dims(current,true);
-            }
+
+            /**
+             * suggests a list of dimensions
+             * @param displayEmpty if the list should show up if current is empty
+             */
             public static ArrayList<String> dims(String current, boolean displayEmpty) {
-                ArrayList<String> list = new ArrayList<>();
+                ArrayList<String> list = new ArrayList<>(), dimList = wrapQuotes(Dimension.getAllIDs());
                 if (!current.isEmpty() || displayEmpty) {
-                    if (current.isEmpty()) return Dim.getAll();
-                    for (String dim : Dim.getAll()) {
+                    if (current.isEmpty()) return dimList;
+                    for (String dim : dimList) {
                         if (dim.contains(current)) list.add(dim);
                     }
                 }
                 return list;
             }
-            public static ArrayList<String> colors(Player player, String current) {
-                return colors(player,current,true);
-            }
+
+            /**
+             * suggests a list of colors and player presets
+             * @param displayEmpty if the list displays when the current is empty or not
+             */
             public static ArrayList<String> colors(Player player, String current, boolean displayEmpty) {
                 ArrayList<String> list = new ArrayList<>();
                 ArrayList<String> presets = new ArrayList<>();
                 // add all presets to a list
-                for (String name : DHUD.preset.custom.getNames(PlayerData.get.colorPresets(player)))
+                for (String name : DHud.preset.custom.getNames(player.getPData().getColorPresets()))
                     presets.add(String.format("\"preset-%s\"",name));
                 // displaying logic, if not empty and not display empty or empty and display empty
                 if (!current.isEmpty() || displayEmpty) {
                     list.add("ffffff");
-                    if (!presets.isEmpty() && Utl.checkEnabled.customPresets(player)) {
+                    if (!presets.isEmpty() && checkEnabled(player).customPresets()) {
                         list.add("preset");
                         if (current.startsWith("pre")) {
                             list.addAll(presets);
@@ -190,13 +244,13 @@ public class Helper {
                 return list;
             }
         }
+
         public static String[] quoteHandler(String[] args) {
             // put quoted items all in one arg
             boolean quote = false;
             ArrayList<String> output = new ArrayList<>();
             StringBuilder addBuffer = new StringBuilder();
             for (String s : args) {
-                s = s.replaceAll("\\\\",""); // remove all "\" with empty
                 if (s.contains("\"")) {
                     int count = s.length() - s.replaceAll("\"","").length(); // count how many quotes there are
                     s = s.replace("\"",""); // remove the quote
@@ -221,6 +275,14 @@ public class Helper {
             return output.toArray(arr);
         }
     }
+
+    public static Utl.CheckEnabled checkEnabled(Player player) {
+        return new Utl.CheckEnabled(player);
+    }
+
+    /**
+     * creates a random ID
+     */
     public static String createID() {
         //spigot not having apache smh my head
         String CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -233,41 +295,36 @@ public class Helper {
         }
         return sb.toString();
     }
+
+    /**
+     * trims a String array
+     * @param numToRemove number to remove from the start
+     */
     public static String[] trimStart(String[] arr, int numToRemove) {
         if (numToRemove > arr.length) return new String[0];
         String[] result = new String[arr.length - numToRemove];
         System.arraycopy(arr, numToRemove, result, 0, result.length);
         return result;
     }
-    public static class Pair<A, B> {
-        private final A first;
-        private final B second;
-        public Pair(A first, B second) {
-            this.first = first;
-            this.second = second;
-        }
+
+    public record Pair<A, B>(A key, B value) {
+
         public String toString() {
-            return "("+this.first+", "+this.second+")";
-        }
-        public Pair<B,A> getFlipped() {
-            return new Pair<>(second,first);
-        }
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
+                return "(" + this.key + ", " + this.value + ")";
             }
-            if (obj == null || getClass() != obj.getClass()) {
-                return false;
+
+        public Pair<B, A> getFlipped() {
+                return new Pair<>(value, key);
             }
-            Pair<?, ?> otherPair = (Pair<?, ?>) obj;
-            return Objects.equals(first, otherPair.first) && Objects.equals(second, otherPair.second);
-        }
-        @Override
-        public int hashCode() {
-            return Objects.hash(first, second);
+    }
+
+    public record ColorPreset(String name, String color) {
+
+        public String toString() {
+            return "(" + this.name + ": " + this.color + ")";
         }
     }
+
     public static class ListPage<T> {
         // helps separate lists into page sized chunks
         private final ArrayList<T> list;
@@ -321,138 +378,38 @@ public class Helper {
             // build and return
             return CTxT.of("")
                     .append(left).append(" ")
-                    .append(CTxT.of(String.valueOf(page)).btn(true).color(CUtl.p()).cEvent(2,command).hEvent(CUtl.hover("page_set").color(CUtl.p())))
+                    .append(CTxT.of(String.valueOf(page)).btn(true).color(CUtl.p()).cEvent(2,command).hEvent(CUtl.LANG.hover("page_set").color(CUtl.p())))
                     .append(" ").append(right);
         }
     }
-    public static class Dim {
-        private static final String COLOR = "color";
-        private static final String NAME = "name";
-        private static final HashMap<String,HashMap<String,String>> dimensions = new HashMap<>();
-        private static final HashMap<Pair<String, String>, Double> conversionRatios = new HashMap<>();
-        /**
-         * adds a set of dimensions to the dimension list
-         * @param moreDimensions list of dimensions to add
-         */
-        public static void addDimensions(HashMap<String,HashMap<String,String>> moreDimensions) {
-            // add the dimensions
-            for (String dimension : moreDimensions.keySet())
-                dimensions.put(dimension,moreDimensions.get(dimension));
-        }
-        /**
-         * saves the current dimensions to the config
-         */
-        public static void saveDimensions() {
-            ArrayList<String> output = new ArrayList<>();
-            for (Map.Entry<String, HashMap<String, String>> entry : dimensions.entrySet()) {
-                String key = entry.getKey();
-                HashMap<String, String> data = entry.getValue();
-                output.add(key+"|"+data.get(NAME)+"|"+data.get(COLOR));
-            }
-            config.dimensions = output;
-            config.save();
-        }
-        /**
-         * returns all dimension names
-         * @return list with dimension names
-         */
-        public static ArrayList<String> getAll() {
-            return new ArrayList<>(dimensions.keySet());
-        }
-        /**
-         * gets the formatted name of the dimension specified
-         * @param dimension the dimension
-         * @return the dimension's name
-         */
-        public static String getName(String dimension) {
-            if (!dimensions.containsKey(dimension)) return "unknown";
-            HashMap<String,String> map = dimensions.get(dimension);
-            return map.get(NAME);
-        }
-        /**
-         * gets the HEX color for the dimension specified
-         * @param dimension the dimension
-         * @return HEX color
-         */
-        public static String getColor(String dimension) {
-            if (!dimensions.containsKey(dimension)) return "#FF0000";
-            return dimensions.get(dimension).get(COLOR);
-        }
-        /**
-         * makes a one letter badge of the dimension, eg [O] for overworld
-         * @param dimension the dimension
-         * @return the badge
-         */
-        public static CTxT getBadge(String dimension) {
-            if (!dimensions.containsKey(dimension)) return CTxT.of("X").btn(true).hEvent(CTxT.of("???"));
-            HashMap<String,String> dimMap = dimensions.get(dimension);
-            return CTxT.of(String.valueOf(dimMap.get(NAME).charAt(0)).toUpperCase()).btn(true)
-                    .color(dimMap.get(COLOR)).hEvent(CTxT.of(dimMap.get(NAME)).color(dimMap.get(COLOR)));
-        }
-        /**
-         * checks if the two dimension's coordinates can be converted to each other
-         * @param dimensionA dimension one
-         * @param dimensionB dimension two
-         * @return if the dimensions can be converted or not
-         */
-        public static boolean canConvert(String dimensionA, String dimensionB) {
-            // both in same dim, cant convert
-            if (dimensionA.equalsIgnoreCase(dimensionB)) return false;
-            Pair<String, String> key = new Pair<>(dimensionA, dimensionB);
-            // if the ratio exists (both normal and flipped), it's true
-            return conversionRatios.containsKey(key) || conversionRatios.containsKey(key.getFlipped());
-        }
-        /**
-         * gets the ratio for 2 dimensions, flipped accordingly
-         * @param dimensionFrom the from dimension
-         * @param dimensionTo the to dimension
-         * @return the ratio as a double
-         */
-        public static double getRatio(String dimensionFrom, String dimensionTo) {
-            Pair<String, String> dimensionPair = new Helper.Pair<>(dimensionFrom, dimensionTo), flippedPair = dimensionPair.getFlipped();
-            if (conversionRatios.containsKey(dimensionPair)) return conversionRatios.get(dimensionPair);
-            // flip the ratio if there's a flipped ratio
-            else if (conversionRatios.containsKey(flippedPair)) return 1 / conversionRatios.get(flippedPair);
-            // no ratio if no match
-            else return 1.0;
-        }
-        /**
-         * checks if the dimension is in the list of dimensions
-         * @return if the dimension exists in the list or not
-         */
-        public static boolean checkValid(String dimension) {
-            return dimensions.containsKey(dimension);
-        }
-        public static void load() {
-            loadConfigRatios();
-            loadConfigDimensions();
-            Utl.dim.addMissing();
-            saveDimensions();
-        }
-        private static void loadConfigRatios() {
-            conversionRatios.clear();
-            for (String s : config.dimensionRatios) {
-                String[] entries = s.split("\\|");
-                if (entries.length != 2) continue;
-                String[] entry1 = entries[0].split("="), entry2 = entries[1].split("=");
-                double ratio = Double.parseDouble(entry1[1]) / Double.parseDouble(entry2[1]);
-                conversionRatios.put(new Pair<>(entry1[0],entry2[0]), ratio);
-            }
-        }
-        private static void loadConfigDimensions() {
-            dimensions.clear();
-            // for all config dimensions
-            for (String entry : config.dimensions) {
-                String[] entries = entry.split("\\|");
-                // if not correct length
-                if (entries.length != 3) continue;
-                // filling data
-                HashMap<String,String> data = new HashMap<>();
-                data.put(NAME,entries[1]);
-                data.put(COLOR,entries[2]);
-                // add the dimension
-                dimensions.put(entries[0],data);
-            }
+
+    public static Gson getGson() {
+        return new GsonBuilder()
+                .registerTypeAdapterFactory(new LenientTypeAdapterFactory())
+                .create();
+    }
+
+    public static class LenientTypeAdapterFactory implements TypeAdapterFactory {
+        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+            final TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
+
+            return new TypeAdapter<>() {
+                // normal writer
+                public void write(JsonWriter out, T value) throws IOException {
+                    delegate.write(out, value);
+                }
+                // custom reader
+                public T read(JsonReader in) throws IOException {
+                    try {
+                        //Try to read value using default TypeAdapter
+                        return delegate.read(in);
+                    } catch (JsonSyntaxException | MalformedJsonException e) {
+                        // don't throw anything if there's a weird JSON, just return null
+                        in.skipValue();
+                        return null;
+                    }
+                }
+            };
         }
     }
 }
