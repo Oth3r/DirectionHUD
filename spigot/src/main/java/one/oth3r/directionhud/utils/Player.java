@@ -198,7 +198,7 @@ public class Player extends PlayerTemplate {
             distCovered += spacing;
             if (pVec.distance(endVec) < 2) continue;
             if (distCovered >= 50) break;
-            player.spawnParticle(Particle.REDSTONE,particlePos.getX(),particlePos.getY(),particlePos.getZ(),1,Utl.particle.getParticle(particleType,new Player(player)));
+            player.spawnParticle(Particle.CLOUD,particlePos.getX(),particlePos.getY(),particlePos.getZ(),1,Utl.particle.getParticle(particleType,new Player(player)));
         }
     }
 }
