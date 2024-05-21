@@ -41,6 +41,7 @@ public class DirectionHUD extends JavaPlugin implements PluginMessageListener {
         VERSION = pdf.getVersion();
         LOGGER = this.getLogger();
         Events.serverStart();
+
         //COMMANDS
         Objects.requireNonNull(getCommand("destination")).setExecutor(new DestinationCommand());
         Objects.requireNonNull(getCommand("destination")).setTabCompleter(new DestinationCommand());
@@ -48,6 +49,7 @@ public class DirectionHUD extends JavaPlugin implements PluginMessageListener {
         Objects.requireNonNull(getCommand("hud")).setTabCompleter(new HUDCommand());
         Objects.requireNonNull(getCommand("directionhud")).setExecutor(new DHUDCommand());
         Objects.requireNonNull(getCommand("directionhud")).setTabCompleter(new DHUDCommand());
+
         //LOOP & EVENTS
         getServer().getPluginManager().registerEvents(new EventManager(), this);
         new BukkitRunnable() {
@@ -56,11 +58,13 @@ public class DirectionHUD extends JavaPlugin implements PluginMessageListener {
                 LoopManager.tick();
             }
         }.runTaskTimerAsynchronously(this, 0L, 1L);
+
         // register incoming and outgoing packets
         this.getServer().getMessenger().registerIncomingPluginChannel(this, PacketHelper.getChannel(Assets.packets.INITIALIZATION), this);
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, PacketHelper.getChannel(Assets.packets.PLAYER_DATA));
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, PacketHelper.getChannel(Assets.packets.HUD));
     }
+
     @Override
     public void onDisable() {
         Events.serverEnd();
@@ -68,6 +72,7 @@ public class DirectionHUD extends JavaPlugin implements PluginMessageListener {
         this.getServer().getMessenger().unregisterOutgoingPluginChannel(this);
         this.getServer().getMessenger().unregisterIncomingPluginChannel(this);
     }
+
     @Override
     public void onPluginMessageReceived(String channel, org.bukkit.entity.Player player, byte[] message) {
         if (channel.equals(PacketHelper.getChannel(Assets.packets.INITIALIZATION))) {
@@ -78,6 +83,7 @@ public class DirectionHUD extends JavaPlugin implements PluginMessageListener {
             dPlayer.sendPDataPackets();
         }
     }
+
     public static void clear() {
         clientPlayers.clear();
     }
