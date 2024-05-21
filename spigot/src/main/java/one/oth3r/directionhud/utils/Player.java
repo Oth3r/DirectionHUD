@@ -126,7 +126,7 @@ public class Player extends PlayerTemplate {
 
     @Override
     public String getDimension() {
-        return Utl.dim.format(player.getWorld().getName());
+        return Utl.dim.format(player.getWorld());
     }
 
     @Override

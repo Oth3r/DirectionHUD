@@ -15,16 +15,19 @@ public class EventManager implements Listener {
     public static void playerJoin(PlayerJoinEvent event) {
         Events.playerJoin(new Player(event.getPlayer()));
     }
+
     @EventHandler
     public static void playerQuit(PlayerQuitEvent event) {
         Events.playerLeave(new Player(event.getPlayer()));
         DirectionHUD.clientPlayers.remove(new Player(event.getPlayer()));
     }
+
     @EventHandler
     public static void switchWorld(PlayerChangedWorldEvent event) {
         Player player = new Player(event.getPlayer());
-        Events.playerChangeWorld(player,Utl.dim.format(event.getFrom().getName()),player.getDimension());
+        Events.playerChangeWorld(player,Utl.dim.format(event.getFrom()),player.getDimension());
     }
+
     @EventHandler
     public static void playerDeath(PlayerDeathEvent event) {
         Player player = new Player(event.getEntity());
