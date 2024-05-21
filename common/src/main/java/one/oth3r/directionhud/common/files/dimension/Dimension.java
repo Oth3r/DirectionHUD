@@ -168,9 +168,10 @@ public class Dimension {
             );
 
             // if overworld add overworld time settings
-            if (data.getId().contains("overworld")) {
+            if (entries[0].contains("overworld")) {
                 data.setTime(OVERWORLD_TIME_ENTRY);
             }
+
             // add the dimension data
             list.add(data);
         }
