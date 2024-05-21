@@ -118,7 +118,10 @@ public class Player extends PlayerTemplate {
 
     @Override
     public String getSpawnDimension() {
-        return Utl.dim.format(Bukkit.getWorlds().get(0).getName());
+        if (player.getRespawnLocation() != null && player.getRespawnLocation().getWorld() != null) {
+            return Utl.dim.format(player.getRespawnLocation().getWorld());
+        }
+        return Utl.dim.format(Bukkit.getWorlds().get(0));
     }
 
     @Override
