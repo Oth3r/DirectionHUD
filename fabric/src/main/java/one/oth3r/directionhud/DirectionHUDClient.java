@@ -8,7 +8,6 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
@@ -19,6 +18,8 @@ import one.oth3r.directionhud.common.LoopManager;
 import one.oth3r.directionhud.common.files.playerdata.CachedPData;
 import one.oth3r.directionhud.common.files.playerdata.PData;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
+import one.oth3r.directionhud.packet.PacketSender;
+import one.oth3r.directionhud.packet.Payloads;
 import one.oth3r.directionhud.utils.Player;
 import org.lwjgl.glfw.GLFW;
 
@@ -102,7 +103,7 @@ public class DirectionHUDClient implements ClientModInitializer {
             if (client.isInSingleplayer()) DirectionHUD.singleplayer = true;
             // send an initialization packet whenever joining a server
             client.execute(() -> {
-                ClientPlayNetworking.send(new Payloads.Initialization("Hello from DirectionHUD client!"));
+                new PacketSender(Assets.packets.INITIALIZATION,"Hello from the DirectionHUD client!").sendToServer();
             });
         });
 
