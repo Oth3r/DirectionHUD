@@ -4,7 +4,6 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import one.oth3r.directionhud.DirectionHUD;
@@ -16,13 +15,12 @@ import java.nio.charset.StandardCharsets;
 
 public class PacketSender {
 
-    private final PacketByteBuf data;
+    private final PacketByteBuf data = PacketByteBufs.create();
     private final packets type;
 
     public PacketSender(packets type, String data) {
         this.type = type;
-        this.data = PacketByteBufs.create()
-                .writeBytes(ByteBuffer.wrap(data.getBytes(StandardCharsets.UTF_8)));
+        this.data.writeBytes(ByteBuffer.wrap(data.getBytes(StandardCharsets.UTF_8)));
     }
 
     public void sendToPlayer(ServerPlayerEntity player) {
