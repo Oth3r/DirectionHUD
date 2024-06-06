@@ -75,6 +75,9 @@ public class DirectionHUD extends JavaPlugin implements PluginMessageListener {
 
     @Override
     public void onPluginMessageReceived(String channel, org.bukkit.entity.Player player, byte[] message) {
+        // make sure packets only work on the latest supported minecraft version
+        if (!getMCVersion().equals("1.20.6")) return;
+
         if (channel.equals(PacketHelper.getChannel(Assets.packets.INITIALIZATION))) {
             // if the client has directionhud, add them to the list & send the data packets
             DirectionHUD.LOGGER.info("Received initialization packet from "+player.getName()+", connecting to client.");
@@ -82,6 +85,10 @@ public class DirectionHUD extends JavaPlugin implements PluginMessageListener {
             clientPlayers.add(dPlayer);
             dPlayer.sendPDataPackets();
         }
+    }
+
+    public static String getMCVersion() {
+        return Bukkit.getServer().getBukkitVersion().split("-")[0];
     }
 
     public static void clear() {
