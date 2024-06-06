@@ -4,7 +4,6 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
@@ -16,10 +15,11 @@ import net.minecraft.util.WorldSavePath;
 import one.oth3r.directionhud.commands.DHUDCommand;
 import one.oth3r.directionhud.commands.DestinationCommand;
 import one.oth3r.directionhud.commands.HUDCommand;
+import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.Events;
 import one.oth3r.directionhud.common.LoopManager;
 import one.oth3r.directionhud.common.files.Data;
-import one.oth3r.directionhud.packet.Payloads;
+import one.oth3r.directionhud.packet.PacketSender;
 import one.oth3r.directionhud.utils.BossBarManager;
 import one.oth3r.directionhud.utils.Player;
 import org.apache.logging.log4j.LogManager;
@@ -64,18 +64,14 @@ public class DirectionHUD implements ModInitializer {
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> Events.playerJoin(new Player(handler.player)));
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> Events.playerLeave(new Player(handler.player)));
 
-		// PACKET REGISTRATION
-		PayloadTypeRegistry.playS2C().register(Payloads.HUD.ID, Payloads.HUD.CODEC);
-		PayloadTypeRegistry.playS2C().register(Payloads.PlayerData.ID, Payloads.PlayerData.CODEC);
-		PayloadTypeRegistry.playC2S().register(Payloads.Initialization.ID, Payloads.Initialization.CODEC);
-
 		// PACKET HANDLING
-		ServerPlayNetworking.registerGlobalReceiver(Payloads.Initialization.ID,((payload, context) -> server.execute(() -> {
-			Player player = new Player(context.player());
+		ServerPlayNetworking.registerGlobalReceiver(PacketSender.getIdentifier(Assets.packets.INITIALIZATION),
+				(server, pl, handler, buf, responseSender) -> server.execute(() -> {
+			Player player = new Player(pl);
 			DirectionHUD.LOGGER.info("Received initialization packet from "+player.getName());
 			DirectionHUD.clientPlayers.add(player);
 			player.sendPDataPackets();
-		})));
+		}));
 
 		// COMMAND REGISTRATION
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
