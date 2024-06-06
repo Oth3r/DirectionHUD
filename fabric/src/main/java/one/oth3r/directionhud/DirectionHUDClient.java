@@ -8,28 +8,32 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.Text;
 import one.oth3r.directionhud.common.Assets;
-import one.oth3r.directionhud.common.HUD;
+import one.oth3r.directionhud.common.Hud;
 import one.oth3r.directionhud.common.LoopManager;
-import one.oth3r.directionhud.common.files.PlayerData;
+import one.oth3r.directionhud.common.files.playerdata.CachedPData;
+import one.oth3r.directionhud.common.files.playerdata.PData;
+import one.oth3r.directionhud.common.files.playerdata.PlayerData;
+import one.oth3r.directionhud.packet.PacketSender;
 import one.oth3r.directionhud.utils.Player;
 import org.lwjgl.glfw.GLFW;
 
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class DirectionHUDClient implements ClientModInitializer {
-    public static boolean singleplayer = false;
     public static boolean onSupportedServer = false;
-    public static HashMap<String, Object> packetData = new HashMap<>();
     private static KeyBinding keyBinding;
+
     public static Text override = Text.of("");
     public static int overrideCd = 0;
+
     @Override
     public void onInitializeClient() {
         DirectionHUD.isClient = true;
@@ -61,51 +65,63 @@ public class DirectionHUDClient implements ClientModInitializer {
                 }
             }
         });
-        ClientPlayNetworking.registerGlobalReceiver(PacketBuilder.getIdentifier(Assets.packets.SETTINGS), (client, handler, buf, responseSender) -> {
-            // receiving setting packets from the server, copy to not throw an error
-            PacketBuilder packet = new PacketBuilder(buf.copy());
-            assert client.player != null;
+
+        //PACKETS
+        // receiving setting packets from the server
+        ClientPlayNetworking.registerGlobalReceiver(PacketSender.getIdentifier(Assets.packets.PLAYER_DATA), (client, handler, buf, responseSender) -> {
+            String data = getPacketData(buf);
             client.execute(() -> {
-                Type hashMapToken = new TypeToken<HashMap<String, Object>>() {}.getType();
                 Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-                packetData = gson.fromJson(packet.getMessage(), hashMapToken);
-                if (!client.isInSingleplayer()) PlayerData.playerMap.put(Player.of(),packetData);
+                // if not single player store the payload in local playerdata (otherwise it doesn't need to be saved)
+                if (!client.isInSingleplayer()) {
+                    Player player = new Player(client.player,true);
+                    PData pData = gson.fromJson(data, PData.class);
+                    pData.setPlayer(player);
+
+                    PlayerData.setPlayerData(player,pData);
+                    PlayerData.setPlayerCache(player,new CachedPData(pData));
+                }
                 onSupportedServer = true;
             });
         });
-        ClientPlayNetworking.registerGlobalReceiver(PacketBuilder.getIdentifier(Assets.packets.HUD), (client, handler, buf, responseSender) -> {
-            // receiving HUD packets from the server
-            PacketBuilder packet = new PacketBuilder(buf.copy());
+
+        // receiving HUD packets from the server
+        ClientPlayNetworking.registerGlobalReceiver(PacketSender.getIdentifier(Assets.packets.HUD), (client, handler, buf, responseSender) -> {
+            // get the data
+            String data = getPacketData(buf);
             assert client.player != null;
             client.execute(() -> {
-                Type hashMapToken = new TypeToken<HashMap<HUD.Module, ArrayList<String>>>() {}.getType();
+                Type hashMapToken = new TypeToken<HashMap<Hud.Module, ArrayList<String>>>() {}.getType();
                 Gson gson = new GsonBuilder().disableHtmlEscaping().create();
                 // if there is no actionbar override, build and send the HUD
-                if (overrideCd <= 0)
-                    client.player.sendMessage(HUD.build.compile(getClientPlayer(client),gson.fromJson(packet.getMessage(), hashMapToken)).b(),true);
+                if (overrideCd <= 0) {
+                    client.player.sendMessage(Hud.build.compile(new Player(client.player,true), gson.fromJson(data, hashMapToken)).b(), true);
+                }
             });
         });
+
+        // JOIN / LEAVE
+
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
-            if (client.isInSingleplayer()) singleplayer = true;
+            if (client.isInSingleplayer()) DirectionHUD.singleplayer = true;
             // send an initialization packet whenever joining a server
             client.execute(() -> {
-                PacketBuilder sPacket = new PacketBuilder("Hello from DirectionHUD client!");
-                sPacket.sendToServer(PacketBuilder.getIdentifier(Assets.packets.INITIALIZATION));
+                new PacketSender(Assets.packets.INITIALIZATION,"Hello from the DirectionHUD client!").sendToServer();
             });
         });
+
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
-            singleplayer = false;
+            DirectionHUD.singleplayer = false;
             onSupportedServer = false;
-            packetData = new HashMap<>();
-            PlayerData.playerMap.clear();
+            if (client.player == null) return;
+
+            Player player = new Player(client.player,true);
+            PlayerData.removePlayerData(player);
+            PlayerData.removePlayerCache(player);
         });
     }
-    public static Player getClientPlayer(MinecraftClient client) {
-        //if in single-player, use the server to get a ServerPlayerEntity
-        // else, just use a null as there is only one player using the code
-        Player player = Player.of();
-        if (client.isInSingleplayer() && client.player != null)
-            player = Player.of(client.player.getUuidAsString());
-        return player;
+
+    public static String getPacketData(PacketByteBuf buf) {
+        return buf.toString(StandardCharsets.UTF_8);
     }
 }

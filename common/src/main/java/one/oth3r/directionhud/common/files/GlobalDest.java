@@ -2,46 +2,73 @@ package one.oth3r.directionhud.common.files;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import one.oth3r.directionhud.DirectionHUD;
+import one.oth3r.directionhud.common.utils.Dest;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class GlobalDest {
-    public static List<String> dummyEntry = List.of("dummy entry");
-    public static List<List<String>> dests = new ArrayList<>();
+    private Double version = 1.0;
+
+    private ArrayList<Dest> destinations = new ArrayList<>();
+
+    public GlobalDest() {}
+
+    public GlobalDest(GlobalDest globalDest) {
+        this.version = globalDest.version;
+        this.destinations = globalDest.destinations;
+    }
+
+    public Double getVersion() {
+        return version;
+    }
+
+    public void setVersion(Double version) {
+        this.version = version;
+    }
+
+    public ArrayList<Dest> getDestinations() {
+        return destinations;
+    }
+
+    public void setDestinations(ArrayList<Dest> destinations) {
+        this.destinations = destinations;
+    }
+
+    // SAVING AND LOADING
+
+    public static final String FILE_NAME = "global-dest.json";
+
     public static File getFile() {
-        return new File(DirectionHUD.DATA_DIR+"global-dest.json");
+        return new File(DirectionHUD.DATA_DIR+FILE_NAME);
     }
-    public static List<List<String>> fileToMap() {
+
+    public static void load() {
         File file = getFile();
-        if (!file.exists()) mapToFile();
-        try (FileReader reader = new FileReader(file)) {
-            Gson gson = new GsonBuilder().create();
-            dests = gson.fromJson(reader,new TypeToken<List<List<String>>>() {}.getType());
-            // add dummy entry, for identifying between local and global tests, only in memory, never saved to file
-            dests.add(dests.size(),dummyEntry);
+        // create a new file if non-existent
+        if (!file.exists()) save();
+        // try reading
+        try (BufferedReader reader = Files.newBufferedReader(getFile().toPath(), StandardCharsets.UTF_8)) {
+            Updater.Global.run(reader);
         } catch (Exception e) {
-            DirectionHUD.LOGGER.info("ERROR READING GLOBAL DEST FILE - PLEASE REPORT WITH THE ERROR LOG");
-            DirectionHUD.LOGGER.info(e.getMessage());
+            DirectionHUD.LOGGER.info("Error loading global destinations, clearing!.");
         }
-        return dests;
+        // save the file
+        save();
     }
-    public static void mapToFile() {
-        try (FileWriter writer = new FileWriter(getFile())) {
+
+    public static void save() {
+        if (!getFile().exists()) {
+            DirectionHUD.LOGGER.info(String.format("Creating new '%s'",FILE_NAME));
+        }
+        try (BufferedWriter writer = Files.newBufferedWriter(getFile().toPath(), StandardCharsets.UTF_8)) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            // remove the dummy entry when saving
-            List<List<String>> fileDests = dests;
-            fileDests.remove(dummyEntry);
-            writer.write(gson.toJson(fileDests));
+            writer.write(gson.toJson(Data.getGlobal()));
         } catch (Exception e) {
-            DirectionHUD.LOGGER.info("ERROR SAVING GLOBAL DEST FILE - PLEASE REPORT WITH THE ERROR LOG");
-            DirectionHUD.LOGGER.info(e.getMessage());
+            DirectionHUD.LOGGER.info(String.format("ERROR WRITING `%s`: %s",FILE_NAME,e.getMessage()));
         }
     }
 }

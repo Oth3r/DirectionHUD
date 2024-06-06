@@ -1,28 +1,32 @@
 package one.oth3r.directionhud.utils;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Vec3d;
 import one.oth3r.directionhud.DirectionHUD;
-import one.oth3r.directionhud.PacketBuilder;
+import one.oth3r.directionhud.packet.PacketSender;
 import one.oth3r.directionhud.common.Assets;
-import one.oth3r.directionhud.common.HUD;
-import one.oth3r.directionhud.common.files.PlayerData;
+import one.oth3r.directionhud.common.Hud;
+import one.oth3r.directionhud.common.files.playerdata.CachedPData;
+import one.oth3r.directionhud.common.files.playerdata.PData;
+import one.oth3r.directionhud.common.files.playerdata.PlayerData;
+import one.oth3r.directionhud.common.template.PlayerTemplate;
+import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Loc;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
 
-public class Player {
-    private ServerPlayerEntity player;
+public class Player extends PlayerTemplate {
+    private final PlayerEntity player;
+    private final ServerPlayerEntity serverPlayer;
+    private final boolean client;
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -34,34 +38,45 @@ public class Player {
         Player other = (Player) obj;
         return Objects.equals(player, other.player);
     }
+
     @Override
     public int hashCode() {
         return Objects.hash(player);
     }
+
+    public Player() {
+        player = null;
+        serverPlayer = null;
+        client = false;
+    }
+
+    /**
+     * load a client player entity for client work
+     */
+    public Player(PlayerEntity playerEntity, boolean cpl) {
+        player = playerEntity;
+        serverPlayer = null;
+        client = cpl;
+    }
+
+    public Player(ServerPlayerEntity serverPlayerEntity) {
+        player = serverPlayerEntity;
+        serverPlayer = serverPlayerEntity;
+        client = false;
+    }
+
+    public Player(String identifier) {
+        if (identifier.contains("-")) serverPlayer = DirectionHUD.server.getPlayerManager().getPlayer(UUID.fromString(identifier));
+        else serverPlayer = DirectionHUD.server.getPlayerManager().getPlayer(identifier);
+        player = serverPlayer;
+        client = false;
+    }
+
     @Override
-    public String toString() {
-        return "DirectionHUD Player: "+this.getName();
+    public boolean isValid() {
+        return serverPlayer != null;
     }
-    public Player() {}
-    public static Player of() {
-        // creates a player object with a null inside for client use
-        Player instance = new Player();
-        instance.player = null;
-        return instance;
-    }
-    public static Player of(@NotNull ServerPlayerEntity player) {
-        Player instance = new Player();
-        instance.player = player;
-        return instance;
-    }
-    @Nullable
-    public static Player of(String identifier) {
-        Player instance = new Player();
-        if (identifier.contains("-")) instance.player = DirectionHUD.server.getPlayerManager().getPlayer(UUID.fromString(identifier));
-        else instance.player = DirectionHUD.server.getPlayerManager().getPlayer(identifier);
-        if (instance.player == null) return null;
-        return instance;
-    }
+
     public void performCommand(String cmd) {
         try {
             ParseResults<ServerCommandSource> parse =
@@ -72,80 +87,102 @@ public class Player {
             DirectionHUD.LOGGER.info(e.getMessage());
         }
     }
+
+    @Override
     public void sendMessage(CTxT message) {
         player.sendMessage(message.b());
     }
+
+    @Override
     public void sendActionBar(CTxT message) {
         player.sendMessage(message.b(),true);
     }
-    // Call after toggling the hud.
-    public void updateHUD() {
-        // if toggled off
-        if (!(boolean) PlayerData.get.hud.setting(this, HUD.Setting.state)) {
-            //if actionbar send empty to clear else remove bossbar
-            if (PlayerData.get.hud.setting(this,HUD.Setting.type).equals(HUD.Setting.DisplayType.actionbar.toString()))
-                this.sendActionBar(CTxT.of(""));
-            else DirectionHUD.bossBarManager.removePlayer(this);
-        }
-        if (PlayerData.get.hud.setting(this, HUD.Setting.type).equals(HUD.Setting.DisplayType.actionbar.toString()))
-            DirectionHUD.bossBarManager.removePlayer(this);
-        else this.sendActionBar(CTxT.of(""));
+
+    @Override
+    public void displayBossBar(CTxT message) {
+        DirectionHUD.bossBarManager.display(this,message);
     }
-    public void sendSettingPackets() {
-        // if player has DirectionHUD on client, send a hashmap with data
-        if (DirectionHUD.clientPlayers.contains(this)) {
-            Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-            PacketBuilder packet = new PacketBuilder(gson.toJson(PlayerData.get.fromMap(this)));
-            packet.sendToPlayer(Assets.packets.SETTINGS,player);
+
+    @Override
+    public void removeBossBar() {
+        DirectionHUD.bossBarManager.removePlayer(this);
+    }
+
+    @Override
+    public PData getPData() {
+        return PlayerData.getPData(this);
+    }
+
+    @Override
+    public CachedPData getPCache() {
+        return PlayerData.getPCache(this);
+    }
+
+    @Override
+    public void sendPDataPackets() {
+        if (DirectionHUD.clientPlayers.contains(this) && !client) {
+            new PacketSender(Assets.packets.PLAYER_DATA,Helper.getGson().toJson(getPData())).sendToPlayer(serverPlayer);
         }
     }
-    public void sendHUDPackets(HashMap<HUD.Module, ArrayList<String>> hudData) {
+
+    @Override
+    public void sendHUDPackets(HashMap<Hud.Module, ArrayList<String>> hudData) {
+        if (client) return;
         // send the instructions to build the hud to the client
-        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-        PacketBuilder packet = new PacketBuilder(gson.toJson(hudData));
-        packet.sendToPlayer(Assets.packets.HUD,player);
+        new PacketSender(Assets.packets.HUD,Helper.getGson().toJson(hudData)).sendToPlayer(serverPlayer);
     }
-    public void displayHUD(CTxT message) {
-        if (message.toString().isEmpty()) {
-            //if the HUD is enabled but there is no output, flip the tag
-            if (PlayerData.MsgData.get(this,"hud.enabled_but_off").isBlank()) {
-                PlayerData.MsgData.set(this,"hud.enabled_but_off","true");
-                // if actionbar, clear once, if bossbar remove player
-                if ((HUD.Setting.DisplayType.get((String) PlayerData.get.hud.setting(this, HUD.Setting.type)).equals(HUD.Setting.DisplayType.actionbar))) {
-                    player.sendMessage(CTxT.of("").b(),true);
-                } else DirectionHUD.bossBarManager.removePlayer(this);
-            }
-            return;
-        } else if (!PlayerData.MsgData.get(this,"hud.enabled_but_off").isBlank()) {
-            // hud isn't blank but the blank tag was still enabled
-            PlayerData.MsgData.clear(this,"hud.enabled_but_off");
-        }
-        // if actionbar send actionbar, if bossbar update the bar
-        if ((HUD.Setting.DisplayType.get((String) PlayerData.get.hud.setting(this, HUD.Setting.type)).equals(HUD.Setting.DisplayType.actionbar)))
-            player.sendMessage(message.b(),true);
-        else DirectionHUD.bossBarManager.display(this,message);
-    }
+
+    @Override
     public String getName() {
         return player.getName().getString();
     }
+
     public ServerPlayerEntity getPlayer() {
-        return player;
+        return serverPlayer;
     }
+
+    @Override
     public String getUUID() {
         return player.getUuidAsString();
     }
+
+    @Override
     public String getDimension() {
         return Utl.dim.format(player.getWorld().getRegistryKey());
     }
-    public String getSpawnDimension() {
-        return Utl.dim.format(player.getSpawnPointDimension());
+
+    @Override
+    public int getTimeOfDay() {
+        return (int) player.getWorld().getTimeOfDay() % 24000;
     }
+
+    @Override
+    public boolean hasStorm() {
+        return player.getWorld().isRaining();
+    }
+
+    @Override
+    public boolean hasThunderstorm() {
+        return player.getWorld().isThundering();
+    }
+
+    @Override
+    public String getSpawnDimension() {
+        if (client) return null;
+        return Utl.dim.format(serverPlayer.getSpawnPointDimension());
+    }
+
+    @Override
     public float getYaw() {
         return player.getYaw();
     }
+
+    @Override
     public float getPitch() {
         return player.getPitch();
     }
+
+    @Override
     public ArrayList<Double> getVec() {
         ArrayList<Double> vec = new ArrayList<>();
         vec.add(player.getX());
@@ -153,23 +190,32 @@ public class Player {
         vec.add(player.getZ());
         return vec;
     }
+    @Override
     public Loc getLoc() {
         if (player == null) return new Loc();
         else return new Loc(this);
     }
+
+    @Override
     public int getBlockX() {
         return player.getBlockX();
     }
+
+    @Override
     public int getBlockY() {
         return player.getBlockY();
     }
+
+    @Override
     public int getBlockZ() {
         return player.getBlockZ();
     }
+
     public void spawnParticle(String particleType, Vec3d vec) {
-        player.getServerWorld().spawnParticles(player,Utl.particle.getParticle(particleType,this),
+        serverPlayer.getServerWorld().spawnParticles(serverPlayer,Utl.particle.getParticle(particleType,this),
                 true,vec.getX(),vec.getY(),vec.getZ(),1,0,0,0,1);
     }
+
     public void spawnParticleLine(ArrayList<Double> end, String particleType) {
         Vec3d endVec = Utl.vec.convertTo(end);
         Vec3d pVec = player.getPos().add(0, 1, 0);

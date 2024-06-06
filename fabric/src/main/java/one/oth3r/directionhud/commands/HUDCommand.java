@@ -8,7 +8,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import one.oth3r.directionhud.common.HUD;
+import one.oth3r.directionhud.common.Hud;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.utils.Player;
 
@@ -47,17 +47,17 @@ public class HUDCommand {
                                                                                 .executes((context2) -> command(context2.getSource(), context2.getInput())))))))))));
     }
     public static CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder, int pos) {
-        Player player = Player.of(Objects.requireNonNull(context.getSource().getPlayer()));
+        Player player = new Player(Objects.requireNonNull(context.getSource().getPlayer()));
         String[] args = context.getInput().split(" ");
         if (pos > args.length) return builder.buildFuture();
         args = Helper.trimStart(args,1);
-        for (String s : HUD.CMDSuggester(player,pos, Helper.Command.quoteHandler(args))) builder.suggest(s);
+        for (String s : Hud.CMDSuggester(player,pos, Helper.Command.quoteHandler(args))) builder.suggest(s);
         return builder.buildFuture();
     }
     private static int command(ServerCommandSource source, String arg) {
         ServerPlayerEntity spe = source.getPlayer();
         if (spe == null) return 1;
-        Player player = Player.of(spe);
+        Player player = new Player(spe);
         String[] args;
         //trims the words before the text
         //find the index of the word
@@ -68,7 +68,7 @@ public class HUDCommand {
         if (args[0].equalsIgnoreCase("hud"))
             args = arg.replaceFirst("hud ", "").split(" ");
         if (args[0].equalsIgnoreCase("hud")) args = new String[0];
-        HUD.CMDExecutor(player, Helper.Command.quoteHandler(args));
+        Hud.CMDExecutor(player, Helper.Command.quoteHandler(args));
         return 1;
     }
 }

@@ -18,7 +18,8 @@ import one.oth3r.directionhud.commands.HUDCommand;
 import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.Events;
 import one.oth3r.directionhud.common.LoopManager;
-import one.oth3r.directionhud.common.files.config;
+import one.oth3r.directionhud.common.files.Data;
+import one.oth3r.directionhud.packet.PacketSender;
 import one.oth3r.directionhud.utils.BossBarManager;
 import one.oth3r.directionhud.utils.Player;
 import org.apache.logging.log4j.LogManager;
@@ -31,20 +32,23 @@ public class DirectionHUD implements ModInitializer {
 	public static final String SECONDARY = "#ffee35";
 	public static BossBarManager bossBarManager = new BossBarManager();
 	public static String DATA_DIR = "";
-	public static String CONFIG_DIR = FabricLoader.getInstance().getConfigDir().toFile()+"/";
+	public static String CONFIG_DIR = FabricLoader.getInstance().getConfigDir().toFile()+"/directionhud/";
 	public static final Logger LOGGER = LogManager.getLogger("DirectionHUD");
 	public static ArrayList<Player> clientPlayers = new ArrayList<>();
 	public static final String MOD_ID = "directionhud";
 	public static final Version VERSION = FabricLoader.getInstance().getModContainer(MOD_ID).orElseThrow().getMetadata().getVersion();
 	public static boolean isClient = false;
 	public static final boolean isMod = true;
+	public static boolean singleplayer = false;
+
 	public static PlayerManager playerManager;
 	public static MinecraftServer server;
 	public static CommandManager commandManager;
+
 	@Override
 	public void onInitialize() {
-		config.load();
-		//START
+		Data.loadFiles(true);
+		// SERVER START/STOP
 		ServerLifecycleEvents.SERVER_STARTED.register(s -> {
 			DirectionHUD.playerManager = s.getPlayerManager();
 			DirectionHUD.server = s;
@@ -54,31 +58,35 @@ public class DirectionHUD implements ModInitializer {
 			Events.serverStart();
 		});
 		//STOP
-		ServerLifecycleEvents.SERVER_STOPPING.register(s -> {
-			Events.serverEnd();
-		});
-		//PLAYER
-		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-			Events.playerJoin(Player.of(handler.player));
-		});
-		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
-			Events.playerLeave(Player.of(handler.player));
-		});
-		//PACKETS
-		ServerPlayNetworking.registerGlobalReceiver(PacketBuilder.getIdentifier(Assets.packets.INITIALIZATION),
-				(server, player, handler, buf, responseSender) -> server.execute(() -> {
-					DirectionHUD.LOGGER.info("Received initialization packet from "+player.getName().getString());
-					Player dPlayer = Player.of(player);
-					DirectionHUD.clientPlayers.add(dPlayer);
-					dPlayer.sendSettingPackets();
-				}));
-		//COMMANDS
+		ServerLifecycleEvents.SERVER_STOPPING.register(s -> Events.serverEnd());
+
+		// PLAYER CONNECTIONS
+		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> Events.playerJoin(new Player(handler.player)));
+		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> Events.playerLeave(new Player(handler.player)));
+
+		// PACKET HANDLING
+		ServerPlayNetworking.registerGlobalReceiver(PacketSender.getIdentifier(Assets.packets.INITIALIZATION),
+				(server, pl, handler, buf, responseSender) -> server.execute(() -> {
+			Player player = new Player(pl);
+			DirectionHUD.LOGGER.info("Received initialization packet from "+player.getName());
+			DirectionHUD.clientPlayers.add(player);
+			player.sendPDataPackets();
+		}));
+
+		// COMMAND REGISTRATION
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
 			DHUDCommand.register(dispatcher);
 			HUDCommand.register(dispatcher);
 			DestinationCommand.register(dispatcher);
 		});
-		//LOOP
+
+		// LOOP
 		ServerTickEvents.END_SERVER_TICK.register(minecraftServer -> minecraftServer.execute(LoopManager::tick));
+	}
+	public static void clear() {
+		playerManager = null;
+		server = null;
+		commandManager = null;
+		clientPlayers.clear();
 	}
 }

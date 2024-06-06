@@ -2,10 +2,8 @@ package one.oth3r.directionhud.common.utils;
 
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.Assets;
-import one.oth3r.directionhud.common.DHUD;
-import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.files.LangReader;
-import one.oth3r.directionhud.common.files.PlayerData;
+import one.oth3r.directionhud.common.utils.Helper.*;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
@@ -16,8 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CUtl {
-    public static CTxT LARGE = CTxT.of("\n                                             ").strikethrough(true);
-    public static CTxT LINE_35 = CTxT.of("\n                                   ").strikethrough(true);
+    public static final Lang LANG = new Lang("");
     public static CTxT tag() {
         return CTxT.of("").append(CTxT.of("DirectionHUD").btn(true).color(p())).append(" ");
     }
@@ -28,7 +25,7 @@ public class CUtl {
         return DirectionHUD.SECONDARY;
     }
     public static CTxT error(String key, Object... args) {
-        return error().append(lang("error."+key, args));
+        return error().append(getLangEntry("error."+key, args));
     }
     public static CTxT error() {
         return tag().append(getLangEntry("msg.error").color(Assets.mainColors.error)).append(" ");
@@ -54,97 +51,21 @@ public class CUtl {
             return LangReader.of(key, args).getTxT();
         }
     }
-    public static CTxT lang(String key, Object... args) {
-        return getLangEntry("key.directionhud."+key,args);
-    }
-    public static CTxT config(String key, Object... args) {
-        return getLangEntry("config."+key,args);
-    }
-    public static CTxT button(String key, Object... args) {
-        return getLangEntry("button."+key,args);
-    }
-    public static CTxT hover(String key, Object... args) {
-        return getLangEntry("hover."+key,args);
-    }
     public static String toggleColor(boolean button) {
         return button?"#55FF55":"#FF5555";
     }
     // OFF/ON w/COLOR
     public static CTxT toggleTxT(boolean button) {
-        return CUtl.TBtn(button?"on":"off").color(toggleColor(button));
+        return LANG.btn(button?"on":"off").color(toggleColor(button));
     }
     // [OFF/ON] (COLOR & FUNCTIONALITY)
     public static CTxT toggleBtn(boolean button, String cmd) {
-        return CUtl.TBtn(button?"on":"off").btn(true).color(button?'a':'c').hEvent(CUtl.TBtn("state.hover",
+        return LANG.btn(button?"on":"off").btn(true).color(button?'a':'c').hEvent(LANG.hover("state",
                 toggleTxT(!button))).cEvent(1,cmd+(button?"off":"on"));
-    }
-    public static CTxT TBtn(String key, Object... args) {
-        return lang("button."+key,args);
     }
     public static class CButton {
         public static CTxT back(String cmd) {
-            return TBtn("back").btn(true).color(Assets.mainColors.back).cEvent(1,cmd).hEvent(CTxT.of(cmd).color(Assets.mainColors.back).append("\n").append(TBtn("back.hover")));
-        }
-        public static class dest {
-            public static CTxT convert(String cmd) {
-                return CTxT.of(Assets.symbols.convert).btn(true).color(Assets.mainColors.convert).cEvent(1,cmd).hEvent(
-                        CTxT.of(cmd).color(Assets.mainColors.convert).append("\n").append(TBtn("dest.convert.hover")));
-            }
-            public static CTxT set(String cmd) {
-                return TBtn("dest.set").btn(true).color(Assets.mainColors.set).cEvent(1,cmd).hEvent(
-                        CTxT.of(cmd).color(Assets.mainColors.set).append("\n").append(TBtn("dest.set.hover")));
-            }
-            public static CTxT edit(int t, String cmd) {
-                return CTxT.of(Assets.symbols.pencil).btn(true).color(Assets.mainColors.edit).cEvent(t,cmd).hEvent(TBtn("dest.edit.hover").color(Assets.mainColors.edit)).color(Assets.mainColors.edit);
-            }
-            public static CTxT settings() {
-                return button("settings").btn(true).color(Assets.mainColors.setting).cEvent(1,"/dest settings")
-                        .hEvent(CTxT.of(Assets.cmdUsage.destSettings).color(Assets.mainColors.setting).append("\n").append(hover("settings",lang("dest.ui.short"))));
-            }
-            public static CTxT saved() {
-                return TBtn("dest.saved").btn(true).color(Assets.mainColors.saved).cEvent(1,"/dest saved").hEvent(
-                        CTxT.of(Assets.cmdUsage.destSaved).color(Assets.mainColors.saved).append("\n").append(TBtn("dest.saved.hover")));
-            }
-            public static CTxT add() {
-                return CTxT.of("+").btn(true).color(Assets.mainColors.add).cEvent(2,"/dest add ").hEvent(
-                        CTxT.of(Assets.cmdUsage.destAdd).color(Assets.mainColors.add).append("\n").append(TBtn("dest.add.hover",TBtn("dest.add.hover_2").color(Assets.mainColors.add))));
-            }
-            public static CTxT add(String cmd) {
-                return CTxT.of("+").btn(true).color(Assets.mainColors.add).cEvent(2,cmd).hEvent(
-                        TBtn("dest.add.hover_save",TBtn("dest.add.hover_2").color(Assets.mainColors.add)));
-            }
-            public static CTxT set() {
-                return TBtn("dest.set").btn(true).color(Assets.mainColors.set).cEvent(2,"/dest set ").hEvent(
-                        CTxT.of(Assets.cmdUsage.destSet).color(Assets.mainColors.set).append("\n").append(TBtn("dest.set.hover_info")));
-            }
-            public static CTxT clear(Player player) {
-                boolean o = Destination.get(player).hasXYZ();
-                return CTxT.of(Assets.symbols.x).btn(true).color(o?'c':'7').cEvent(o?1:0,"/dest clear").hEvent(
-                        CTxT.of(Assets.cmdUsage.destClear).color(o?'c':'7').append("\n").append(TBtn("dest.clear.hover")));
-            }
-            public static CTxT lastdeath() {
-                return TBtn("dest.lastdeath").btn(true).color(Assets.mainColors.lastdeath).cEvent(1,"/dest lastdeath").hEvent(
-                        CTxT.of(Assets.cmdUsage.destLastdeath).color(Assets.mainColors.lastdeath).append("\n").append(TBtn("dest.lastdeath.hover")));
-            }
-            public static CTxT send() {
-                return TBtn("dest.send").btn(true).color(Assets.mainColors.send).cEvent(2,"/dest send ").hEvent(
-                        CTxT.of(Assets.cmdUsage.destSend).color(Assets.mainColors.send).append("\n").append(TBtn("dest.send.hover")));
-            }
-            public static CTxT track() {
-                return TBtn("dest.track").btn(true).color(Assets.mainColors.track).cEvent(2,"/dest track set").hEvent(
-                        CTxT.of(Assets.cmdUsage.destTrack).color(Assets.mainColors.track).append("\n").append(TBtn("dest.track.hover")));
-            }
-            public static CTxT trackX() {
-                return CTxT.of(Assets.symbols.x).btn(true).color('c').cEvent(1,"/dest track clear").hEvent(
-                        CTxT.of(Assets.cmdUsage.destTrackClear).color('c').append("\n").append(TBtn("dest.track_clear.hover")));
-            }
-        }
-        public static class DHUD {
-            public static CTxT dest() {
-                return TBtn("dest").btn(true).color(Assets.mainColors.dest).cEvent(1,"/dest").hEvent(
-                        CTxT.of(Assets.cmdUsage.dest).color(Assets.mainColors.dest).append("\n").append(TBtn("dest.hover")));
-            }
-
+            return LANG.btn("back").btn(true).color(Assets.mainColors.back).cEvent(1,cmd).hEvent(CTxT.of(cmd).color(Assets.mainColors.back).append("\n").append(LANG.hover("back")));
         }
     }
     public static class color {
@@ -157,36 +78,27 @@ public class CUtl {
                 "#a38cff","#8c04dd","#5c00a7",
                 "#d9d9d9","#808080","#404040");
         public static String updateOld(String string,String defaultColor) {
-            if (string.equals("red")) return "#FF5555";
-            if (string.equals("dark_red")) return "#AA0000";
-            if (string.equals("gold")) return "#FFAA00";
-            if (string.equals("yellow")) return "#FFFF55";
-            if (string.equals("green")) return "#55FF55";
-            if (string.equals("dark_green")) return "#00AA00";
-            if (string.equals("aqua")) return "#55FFFF";
-            if (string.equals("dark_aqua")) return "#00AAAA";
-            if (string.equals("blue")) return "#5555FF";
-            if (string.equals("dark_blue")) return "#0000AA";
-            if (string.equals("pink")) return "#FF55FF";
-            if (string.equals("purple")) return "#AA00AA";
-            if (string.equals("white")) return "#FFFFFF";
-            if (string.equals("gray")) return "#AAAAAA";
-            if (string.equals("dark_gray")) return "#555555";
-            if (string.equals("black")) return "#000000";
-            if (string.charAt(0)=='#') return format(string);
-            return format(defaultColor);
+            return switch (string) {
+                case "red" -> "#FF5555";
+                case "dark_red" -> "#AA0000";
+                case "gold" -> "#FFAA00";
+                case "yellow" -> "#FFFF55";
+                case "green" -> "#55FF55";
+                case "dark_green" -> "#00AA00";
+                case "aqua" -> "#55FFFF";
+                case "dark_aqua" -> "#00AAAA";
+                case "blue" -> "#5555FF";
+                case "dark_blue" -> "#0000AA";
+                case "pink" -> "#FF55FF";
+                case "purple" -> "#AA00AA";
+                case "white" -> "#FFFFFF";
+                case "gray" -> "#AAAAAA";
+                case "dark_gray" -> "#555555";
+                case "black" -> "#000000";
+                default -> string.charAt(0) == '#' ? format(string) : format(defaultColor);
+            };
         }
-        public static boolean checkValid(String color, String current) {
-            //checks the validity of the color by seeing if it resets.
-            //if color isn't current color, test if its valid
-            if (!CUtl.color.format(color).equals(current)) {
-                //format the color and set default to current
-                color = CUtl.color.format(color, current);
-                //if color is current (it reset), it's not valid
-                return !color.equals(current);
-            }
-            return true;
-        }
+
         public static String format(String hex, String defaultColor) {
             if (hex == null) return format(defaultColor);
             if (hex.length() == 6) hex = "#"+hex;
@@ -198,12 +110,15 @@ public class CUtl {
             }
             return format(defaultColor);
         }
+
         public static String format(String hex) {
             return format(hex,"#ffffff");
         }
+
         public static CTxT getBadge(String hex) {
             return CTxT.of(Assets.symbols.square+" "+format(hex).toUpperCase()).color(hex);
         }
+
         public static float[] HSB(String hex) {
             Color color = Color.decode(format(hex));
             int r = color.getRed();
@@ -213,6 +128,7 @@ public class CUtl {
             Color.RGBtoHSB(r, g, b, hsb);
             return hsb;
         }
+
         public static int[] RGB(String hex) {
             Color color = Color.decode(format(hex));
             int[] i = new int[3];
@@ -221,31 +137,35 @@ public class CUtl {
             i[2] = color.getBlue();
             return i;
         }
+
         public static String HSBtoHEX(float[] hsb) {
             Color color = new Color(Color.HSBtoRGB(hsb[0],hsb[1],hsb[2]));
             return String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
         }
+
         public static String editHSB(int type, String hex, float change) {
             float[] hsb = HSB(hex);
             hsb[type] = Math.max(Math.min(hsb[type]+change,1),0);
             return HSBtoHEX(hsb);
         }
+
         public static String colorHandler(Player player, String color) {
             return colorHandler(player, color, "#ffffff");
         }
+
         public static String colorHandler(Player player, String color, String defaultColor) {
             //if color is preset, get the preset color
-            if (color != null && color.contains("preset-")) {
-                String name = color.split("-")[1];
-                // find the right preset and get the color
-                for (String preset : PlayerData.get.colorPresets(player)) {
-                    if (DHUD.preset.custom.getName(preset).equals(name)) {
-                        color = DHUD.preset.custom.getColor(preset);
-                        break;
+            if (color != null) {
+                if (color.contains("preset-")) {
+                    String name = color.split("-")[1];
+                    // find the right preset and get the color
+                    for (ColorPreset preset : player.getPData().getColorPresets()) {
+                        if (preset.name().equals(name)) {
+                            color = preset.color();
+                            break;
+                        }
                     }
                 }
-            }
-            if (color != null)
                 switch (color.toLowerCase()) {
                     case "red" -> color = DEFAULT_COLORS.get(1);
                     case "orange" -> color = DEFAULT_COLORS.get(4);
@@ -255,6 +175,7 @@ public class CUtl {
                     case "purple" -> color = DEFAULT_COLORS.get(16);
                     case "gray" -> color = DEFAULT_COLORS.get(19);
                 }
+            }
             color = format(color,defaultColor);
             return color;
         }

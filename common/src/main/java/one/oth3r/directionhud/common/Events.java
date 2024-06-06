@@ -1,15 +1,16 @@
 package one.oth3r.directionhud.common;
 
 import one.oth3r.directionhud.DirectionHUD;
-import one.oth3r.directionhud.common.files.GlobalDest;
-import one.oth3r.directionhud.common.files.PlayerData;
-import one.oth3r.directionhud.common.files.config;
+import one.oth3r.directionhud.common.files.Data;
+import one.oth3r.directionhud.common.files.dimension.Dimension;
+import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.utils.CUtl;
+import one.oth3r.directionhud.common.utils.Dest;
+import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
-import one.oth3r.directionhud.common.utils.Helper.Dim;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -19,67 +20,67 @@ public class Events {
         try {
             Files.createDirectories(Paths.get(DirectionHUD.DATA_DIR+"playerdata/"));
         } catch (Exception e) {
-            DirectionHUD.LOGGER.info("Failed to create playerdata directory:\n" + e.getMessage());
+            DirectionHUD.LOGGER.info("Failed to create playerdata directory.");
         }
-        GlobalDest.fileToMap();
-        config.load();
+        Data.loadFiles(true);
         DirectionHUD.LOGGER.info("Started server!");
     }
+
     public static void serverEnd() {
         for (Player player: Utl.getPlayers()) playerLeave(player);
         // clear everything as serverEnd on client can just be exiting single-player
-        GlobalDest.dests.clear();
-        PlayerData.playerMap.clear();
-        PlayerData.dataMap.clear();
-        DirectionHUD.clientPlayers.clear();
-        DirectionHUD.LOGGER.info("Safely shutdown!");
+        Data.clear();
+        PlayerData.clearPlayerData();
+        PlayerData.clearPlayerCache();
+        DirectionHUD.clear();
+        DirectionHUD.LOGGER.info("Safely shutdown DirectionHUD server!");
     }
+
     public static void playerJoin(Player player) {
         PlayerData.addPlayer(player);
     }
+
     public static void playerLeave(Player player) {
         playerSoftLeave(player);
         DirectionHUD.clientPlayers.remove(player);
     }
+
     /**
      * effectively reloads the player without deleting certain required maps (like clientPlayers)
      */
     public static void playerSoftLeave(Player player) {
-        DHUD.inbox.removeAllTracking(player);
+        DHud.inbox.removeAllTracking(player);
         PlayerData.removePlayer(player);
         DirectionHUD.bossBarManager.removePlayer(player);
     }
+
     public static void playerChangeWorld(Player player, String fromDIM, String toDIM) {
-        if (Destination.get(player).hasXYZ()) {
-            Loc loc = Destination.get(player);
+        if (Destination.dest.get(player).hasXYZ()) {
+            Loc loc = Destination.dest.get(player);
             // don't clear if the dest's dim is the same as the new dim
-            if (toDIM.equals(Destination.get(player).getDIM())) return;
-            if (Dim.canConvert(toDIM, Destination.get(player).getDIM()) &&
-                    (boolean) PlayerData.get.dest.setting(player, Destination.Setting.autoconvert)) {
+            if (toDIM.equals(loc.getDimension())) return;
+            if (Dimension.canConvert(toDIM, loc.getDimension()) &&
+                    (boolean) player.getPData().getDEST().getSetting(Destination.Setting.autoconvert)) {
                 //DEST AutoConvert logic
-                Loc cLoc = Destination.get(player);
-                cLoc.convertTo(toDIM);
-                Destination.silentSet(player,cLoc);
-                player.sendMessage(CUtl.tag().append(CUtl.lang("dest.autoconvert.dest"))
-                        .append("\n ").append(CUtl.lang("dest.autoconvert.dest.info",loc.getBadge(),cLoc.getBadge()).italic(true).color('7')));
-            } else if ((boolean) PlayerData.get.dest.setting(player, Destination.Setting.autoclear)) {
-                //DEST AutoClear logic
-                CTxT msg = CTxT.of("").append(CUtl.lang("dest.changed.cleared.dim").color('7').italic(true))
-                        .append(" ").append(CUtl.CButton.dest.set("/dest set "+loc.getXYZ()+" "+fromDIM));
-                if (Dim.canConvert(toDIM, Destination.get(player).getDIM()))
-                    msg.append(" ").append(CUtl.CButton.dest.convert("/dest set "+loc.getXYZ()+" "+fromDIM+" convert"));
-                Destination.clear(player, msg);
+                Dest dest = Destination.dest.get(player);
+                dest.convertTo(toDIM);
+                Destination.dest.set(player,new Dest());
+                player.sendMessage(CUtl.tag().append(Destination.LANG.msg("autoconvert.destination",
+                        CTxT.of("\n ").append(Destination.LANG.msg("autoconvert.destination.2",loc.getBadge(),dest.getBadge())))));
+            } else if ((boolean) player.getPData().getDEST().getSetting(Destination.Setting.autoclear)) {
+                // clear if autoclear is on
+                Destination.dest.clear(player, 3);
             }
         }
     }
-    public static void playerDeath(Player player, Loc death) {
-        if (!config.LastDeathSaving || !(boolean) PlayerData.get.dest.setting(player, Destination.Setting.features__lastdeath)) return;
-        Destination.lastdeath.add(player, death);
-        CTxT msg = CUtl.tag().append(CUtl.lang("dest.lastdeath.save"))
-                .append(" ").append(death.getBadge())
-                .append(" ").append(CUtl.CButton.dest.set("/dest set "+death.getXYZ()+" "+death.getDIM()));
-        if (Dim.canConvert(player.getSpawnDimension(),death.getDIM()))
-            msg.append(" ").append(CUtl.CButton.dest.convert("/dest set "+death.getXYZ()+" "+death.getDIM()+" convert"));
+
+    public static void playerDeath(Player player, Loc deathLoc) {
+        if (!Helper.checkEnabled(player).lastdeath()) return;
+        Destination.lastdeath.add(player, deathLoc);
+        CTxT msg = CUtl.tag().append(Destination.lastdeath.LANG.msg("save",
+                deathLoc.getBadge()
+                .append(" ").append(Destination.dest.setButtons(new Dest(deathLoc,null,null),
+                        Dimension.canConvert(player.getSpawnDimension(), deathLoc.getDimension())))));
         player.sendMessage(msg);
     }
 }
