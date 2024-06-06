@@ -35,7 +35,7 @@ public class Data {
         PData.loadDefaults();
         LangReader.loadLanguageFile();
         DimensionSettings.load();
-        if (config.getOnline()) GlobalDest.load();
+        if (config.getDestination().getGlobal()) GlobalDest.load();
     }
 
     /**
