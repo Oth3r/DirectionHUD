@@ -66,7 +66,11 @@ public class DirectionHUD implements ModInitializer {
 
 		// PACKET REGISTRATION
 		PayloadTypeRegistry.playS2C().register(Payloads.HUD.ID, Payloads.HUD.CODEC);
+		PayloadTypeRegistry.playS2C().register(Payloads.SpigotHUD.ID, Payloads.SpigotHUD.CODEC);
+
 		PayloadTypeRegistry.playS2C().register(Payloads.PlayerData.ID, Payloads.PlayerData.CODEC);
+		PayloadTypeRegistry.playS2C().register(Payloads.SpigotPlayerData.ID, Payloads.SpigotPlayerData.CODEC);
+
 		PayloadTypeRegistry.playC2S().register(Payloads.Initialization.ID, Payloads.Initialization.CODEC);
 
 		// PACKET HANDLING

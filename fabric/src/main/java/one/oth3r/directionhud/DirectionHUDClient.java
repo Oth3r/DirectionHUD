@@ -70,34 +70,23 @@ public class DirectionHUDClient implements ClientModInitializer {
 
         // receiving setting packets from the server
         ClientPlayNetworking.registerGlobalReceiver(Payloads.PlayerData.ID, (payload, context) -> {
-            MinecraftClient client = context.client();
-            client.execute(() -> {
-                Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-                // if not single player store the payload in local playerdata (otherwise it doesn't need to be saved)
-                if (!client.isInSingleplayer()) {
-                    Player player = new Player(client.player,true);
-                    PData pData = gson.fromJson(payload.value(), PData.class);
-                    pData.setPlayer(player);
-
-                    PlayerData.setPlayerData(player,pData);
-                    PlayerData.setPlayerCache(player,new CachedPData(pData));
-                }
-                onSupportedServer = true;
-            });
+            playerDataPacketLogic(context.client(),payload.value());
+        });
+        // spigot
+        ClientPlayNetworking.registerGlobalReceiver(Payloads.SpigotPlayerData.ID, (payload, context) -> {
+            playerDataPacketLogic(context.client(),payload.value());
         });
 
         // receiving HUD packets from the server
         ClientPlayNetworking.registerGlobalReceiver(Payloads.HUD.ID, (payload, context) -> {
-            MinecraftClient client = context.client();
-            client.execute(() -> {
-                Type hashMapToken = new TypeToken<HashMap<Hud.Module, ArrayList<String>>>() {}.getType();
-                Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-                // if there is no actionbar override, build and send the HUD
-                if (overrideCd <= 0) {
-                    client.player.sendMessage(Hud.build.compile(new Player(client.player,true), gson.fromJson(payload.value(), hashMapToken)).b(), true);
-                }
-            });
+            hudPacketLogic(context.client(),payload.value());
         });
+        // spigot
+        ClientPlayNetworking.registerGlobalReceiver(Payloads.SpigotHUD.ID, (payload, context) -> {
+            hudPacketLogic(context.client(),payload.value());
+        });
+
+        // JOIN & DISCONNECT
 
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
             if (client.isInSingleplayer()) DirectionHUD.singleplayer = true;
@@ -117,4 +106,32 @@ public class DirectionHUDClient implements ClientModInitializer {
             PlayerData.removePlayerCache(player);
         });
     }
+
+    public static void playerDataPacketLogic(MinecraftClient client, String packet) {
+        client.execute(() -> {
+            Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+            // if not single player store the payload in local playerdata (otherwise it doesn't need to be saved)
+            if (!client.isInSingleplayer()) {
+                Player player = new Player(client.player,true);
+                PData pData = gson.fromJson(packet, PData.class);
+                pData.setPlayer(player);
+
+                PlayerData.setPlayerData(player,pData);
+                PlayerData.setPlayerCache(player,new CachedPData(pData));
+            }
+            onSupportedServer = true;
+        });
+    }
+
+    public static void hudPacketLogic(MinecraftClient client, String packet) {
+        client.execute(() -> {
+            Type hashMapToken = new TypeToken<HashMap<Hud.Module, ArrayList<String>>>() {}.getType();
+            Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+            // if there is no actionbar override, build and send the HUD
+            if (overrideCd <= 0) {
+                client.player.sendMessage(Hud.build.compile(new Player(client.player,true), gson.fromJson(packet, hashMapToken)).b(), true);
+            }
+        });
+    }
+
 }
