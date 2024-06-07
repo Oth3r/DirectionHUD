@@ -98,7 +98,10 @@ public class Assets {
     public enum packets {
         INITIALIZATION("initialize_v1.1"),
         PLAYER_DATA("player_data_v1.1"),
-        HUD("hud_v1.1");
+        HUD("hud_v1.1"),
+        SPIGOT_PLAYER_DATA("spigot_player_data_v1.1"),
+        SPIGOT_HUD("spigot_hud_v1.1");
+
         private final String identifier;
         packets(String key) {
             this.identifier = key;
