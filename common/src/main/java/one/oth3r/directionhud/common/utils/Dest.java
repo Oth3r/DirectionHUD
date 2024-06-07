@@ -84,9 +84,9 @@ public class Dest extends Loc {
      */
     @Override
     public String toCMD() {
-        StringBuilder sb = new StringBuilder(super.toCMD());
-
-        if (name != null) sb.append(" ").append(Suggester.wrapQuotes(name));
+        StringBuilder sb = new StringBuilder();
+        if (name != null) sb.append(Suggester.wrapQuotes(name)).append(" ");
+        sb.append(super.toCMD());
         if (color != null) sb.append(" ").append(Suggester.wrapQuotes(color));
 
         return sb.toString();
