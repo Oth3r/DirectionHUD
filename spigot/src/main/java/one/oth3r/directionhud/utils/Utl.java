@@ -94,7 +94,7 @@ public class Utl {
                 distCovered += spacing;
                 if (distCovered >= 50) break;
                 if (!(playerV.distance(particlePos) > 0.5 && playerV.distance(particlePos) < 50)) continue;
-                player.getPlayer().spawnParticle(Particle.CLOUD,particlePos.getX(),particlePos.getY(),particlePos.getZ(),1,getParticle(particleType,player));
+                player.getPlayer().spawnParticle(Particle.DUST,particlePos.getX(),particlePos.getY(),particlePos.getZ(),1,getParticle(particleType,player));
             }
         }
         public static Particle.DustOptions getParticle(String particleType, Player player) {
