@@ -16,7 +16,7 @@ public class Payloads {
 
     public record Initialization(String value) implements CustomPayload {
         public static final CustomPayload.Id<Initialization> ID = new CustomPayload.Id<>(
-                new Identifier(DirectionHUD.MOD_ID,Assets.packets.INITIALIZATION.getIdentifier()));
+                Identifier.of(DirectionHUD.MOD_ID,Assets.packets.INITIALIZATION.getIdentifier()));
 
         public static final PacketCodec<RegistryByteBuf, Initialization> CODEC = PacketCodecs.STRING.xmap(Initialization::new, Initialization::value).cast();
 
@@ -28,7 +28,7 @@ public class Payloads {
 
     public record HUD(String value) implements CustomPayload {
         public static final CustomPayload.Id<HUD> ID = new CustomPayload.Id<>(
-                new Identifier(DirectionHUD.MOD_ID,Assets.packets.HUD.getIdentifier()));
+                Identifier.of(DirectionHUD.MOD_ID,Assets.packets.HUD.getIdentifier()));
 
         public static final PacketCodec<RegistryByteBuf, HUD> CODEC = PacketCodecs.STRING.xmap(HUD::new, HUD::value).cast();
 
@@ -40,7 +40,7 @@ public class Payloads {
 
     public record PlayerData(String value) implements CustomPayload {
         public static final CustomPayload.Id<PlayerData> ID = new CustomPayload.Id<>(
-                new Identifier(DirectionHUD.MOD_ID,Assets.packets.SPIGOT_PLAYER_DATA.getIdentifier()));
+                Identifier.of(DirectionHUD.MOD_ID,Assets.packets.SPIGOT_PLAYER_DATA.getIdentifier()));
 
         public static final PacketCodec<RegistryByteBuf, PlayerData> CODEC = PacketCodecs.STRING.xmap(PlayerData::new, PlayerData::value).cast();
 
@@ -54,7 +54,7 @@ public class Payloads {
 
     public record SpigotHUD(String value) implements CustomPayload {
         public static final CustomPayload.Id<SpigotHUD> ID = new CustomPayload.Id<>(
-                new Identifier(DirectionHUD.MOD_ID,Assets.packets.SPIGOT_HUD.getIdentifier()));
+                Identifier.of(DirectionHUD.MOD_ID,Assets.packets.SPIGOT_HUD.getIdentifier()));
 
         public static final PacketCodec<PacketByteBuf, SpigotHUD> CODEC = PacketCodec.of(
                 (value, buf) -> buf.writeBytes(ByteBuffer.wrap(value.value.getBytes(StandardCharsets.UTF_8))),
@@ -68,7 +68,7 @@ public class Payloads {
 
     public record SpigotPlayerData(String value) implements CustomPayload {
         public static final CustomPayload.Id<SpigotPlayerData> ID = new CustomPayload.Id<>(
-                new Identifier(DirectionHUD.MOD_ID,Assets.packets.PLAYER_DATA.getIdentifier()));
+                Identifier.of(DirectionHUD.MOD_ID,Assets.packets.PLAYER_DATA.getIdentifier()));
 
         public static final PacketCodec<PacketByteBuf, SpigotPlayerData> CODEC = PacketCodec.of(
                 (value, buf) -> buf.writeBytes(ByteBuffer.wrap(value.value.getBytes(StandardCharsets.UTF_8))),
