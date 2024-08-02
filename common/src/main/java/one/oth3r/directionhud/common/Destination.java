@@ -663,14 +663,26 @@ public class Destination {
 
         public static void globalCMDExecutor(Player player, String[] args) {
             if (!Helper.checkEnabled(player).global()) return;
+
+            // ui
             if (args.length == 0) {
                 globalUI(player, 1);
                 return;
             }
+
+            // page nav
             if (Num.isNum(args[0])) {
                 globalUI(player, Num.toInt(args[0]));
                 return;
             }
+
+            // global set
+            if (args[0].equals("set")) {
+                // if convert is there, convert
+                boolean convert = args.length == 3 && args[2].equals("convert");
+                if (args.length >= 2) dest.setSaved(player,args[1],true,convert);
+            }
+
             // PERMS FOR EDITING
             if (!Helper.checkEnabled(player).globalEditing()) return;
             switch (args[0]) {
@@ -678,12 +690,6 @@ public class Destination {
                 case "delete" -> {
                     if (args.length == 1) player.sendMessage(CUtl.LANG.error("args"));
                     if (args.length == 2) delete(false,player,new DestEntry(player, args[1], true));
-                }
-                case "set" -> {
-                    // if convert is there, convert
-                    boolean convert = args.length == 3 && args[2].equals("convert");
-
-                    if (args.length >= 2) dest.setSaved(player,args[1],true,convert);
                 }
                 case "add" -> addCMDExecutor(player, Helper.trimStart(args,1), true);
                 default -> player.sendMessage(CUtl.usage(Assets.cmdUsage.destSaved));
