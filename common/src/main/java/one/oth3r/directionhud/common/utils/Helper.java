@@ -383,12 +383,18 @@ public class Helper {
         }
     }
 
+    /**
+     * gets a Gson with the LenientTypeAdapter
+     */
     public static Gson getGson() {
         return new GsonBuilder()
                 .registerTypeAdapterFactory(new LenientTypeAdapterFactory())
                 .create();
     }
 
+    /**
+     * the LenientTypeAdapter, doesn't throw anything when reading a weird JSON entry, good for human entered JSONs
+     */
     public static class LenientTypeAdapterFactory implements TypeAdapterFactory {
         public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
             final TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
