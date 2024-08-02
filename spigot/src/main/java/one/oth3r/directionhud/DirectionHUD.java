@@ -99,6 +99,9 @@ public class DirectionHUD extends JavaPlugin implements PluginMessageListener {
         return Float.parseFloat(last2);
     }
 
+    /**
+     * clears all client players, not really needed - only here for common support
+     */
     public static void clear() {
         clientPlayers.clear();
     }
