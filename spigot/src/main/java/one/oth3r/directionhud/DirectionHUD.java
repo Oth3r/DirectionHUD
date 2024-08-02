@@ -87,8 +87,16 @@ public class DirectionHUD extends JavaPlugin implements PluginMessageListener {
         }
     }
 
-    public static String getMCVersion() {
-        return Bukkit.getServer().getBukkitVersion().split("-")[0];
+    /**
+     * gets the MC version as a float, removing the first decimal, eg 20.6
+     */
+    public static float getMCVersion() {
+        // like 1.20.6
+        String version = Bukkit.getServer().getBukkitVersion().split("-")[0];
+        // remove 1.
+        String last2 = version.substring(version.indexOf(".")+1);
+        // get as float, 20.6
+        return Float.parseFloat(last2);
     }
 
     public static void clear() {
