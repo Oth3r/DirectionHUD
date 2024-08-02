@@ -1539,7 +1539,7 @@ public class Destination {
             public static CTxT getSendTxt(Player player, Dest dest) {
                 CTxT txt = CTxT.of("").append(dest.getBadge()).append(" ");
                 // if color is null, empty string
-                String colorCMD = dest.getColor() == null ? "" : " \""+dest.getColor()+"\"";
+                String colorCMD = dest.getColor() == null ? "" : "\""+dest.getColor()+"\"";
                 // if no name, have the placeholder name for the player to change it later
                 String nameCMD = dest.getName() == null ? Suggester.wrapQuotes(LANG.get("default_save_name")) : Suggester.wrapQuotes(dest.getName());
                 // wrap the dimension in quotes
