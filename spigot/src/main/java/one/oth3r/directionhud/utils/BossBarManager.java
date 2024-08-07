@@ -12,20 +12,41 @@ import java.util.Map;
 
 public class BossBarManager {
     private final Map<Player, BossBar> bossBars = new HashMap<>();
+
+    /**
+     * creates a bossbar for the player
+     */
     public void addPlayer(Player player) {
-        BossBar bossBar = Bukkit.createBossBar("DirectionHUD", BarColor.WHITE, BarStyle.SOLID);
-        bossBar.addPlayer(player.getPlayer());
-        bossBars.put(player, bossBar);
+        if (bossBars.get(player) == null) {
+            BossBar bossBar = Bukkit.createBossBar("DirectionHUD", BarColor.WHITE, BarStyle.SOLID);
+            bossBar.addPlayer(player.getPlayer());
+            bossBars.put(player, bossBar);
+        }
     }
+
+    /**
+     * removes the bossbar from the player
+     */
     public void removePlayer(Player player) {
         BossBar bossBar = bossBars.remove(player);
         if (bossBar != null) bossBar.removePlayer(player.getPlayer());
     }
+
+    /**
+     * displays the bossbar for the player
+     */
     public void display(Player player, CTxT hud) {
+        // if the player doesnt have a bossbar, add one in
         if (!bossBars.containsKey(player)) addPlayer(player);
+
+        // get the bossbar
         BossBar bossBar = bossBars.get(player);
+        // set the bossbar text
         bossBar.setTitle(hud.b().toLegacyText());
+        // set the color
         bossBar.setColor(BarColor.valueOf(((String) player.getPCache().getHud().getSetting(Hud.Setting.bossbar__color)).toUpperCase()));
+
+        // bossbar
         if (Destination.dest.get(player).hasXYZ() && (boolean) player.getPCache().getHud().getSetting(Hud.Setting.bossbar__distance)) {
             int dist = Destination.dest.getDist(player);
             double progress = getProgress(dist,(int) player.getPCache().getHud().getSetting(Hud.Setting.bossbar__distance_max));
