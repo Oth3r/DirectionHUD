@@ -48,7 +48,7 @@ public class Dimension {
         return dimensionSettings.getDimensions().stream()
                 .filter(dimension -> dimension.getId().equals(id))
                 .map(DimensionEntry::getTime)
-                .findFirst().orElse(null);
+                .findFirst().orElse(new DimensionEntry.Time());
     }
 
     /**
