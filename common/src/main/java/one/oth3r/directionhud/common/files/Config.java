@@ -16,6 +16,8 @@ public class Config {
     private Double version = 1.6;
     @SerializedName("lang")
     private String lang = "en_us";
+    @SerializedName("lang-options") @SuppressWarnings("unused")
+    private final String[] lang_options = {"en_us","ru_ru","zh_cn","zh_hk"};
     @SerializedName("online-mode")
     private Boolean online = true;
     @SerializedName("location")
