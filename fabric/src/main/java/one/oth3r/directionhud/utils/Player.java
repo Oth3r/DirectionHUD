@@ -158,6 +158,11 @@ public class Player extends PlayerTemplate {
     }
 
     @Override
+    public long getWorldTime() {
+        return player.getWorld().getTime();
+    }
+
+    @Override
     public boolean hasStorm() {
         return player.getWorld().isRaining();
     }
