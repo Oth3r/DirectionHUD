@@ -176,11 +176,11 @@ public class Destination {
         }
         public static boolean inAutoClearRadius(Player player, Loc loc) {
             if ((boolean) player.getPData().getDEST().getSetting(Setting.autoclear))
-                return Utl.vec.distance(new Loc(player).getVec(player),loc.getVec(player)) <= (int) player.getPData().getDEST().getSetting(Setting.autoclear_rad);
+                return player.getVec().distanceTo(loc.getVec(player)) <= (int) player.getPData().getDEST().getSetting(Setting.autoclear_rad);
             else return false;
         }
         public static int getDist(Player player) {
-            return (int) Utl.vec.distance(new Loc(player).getVec(player),get(player).getVec(player));
+            return (int) player.getVec().distanceTo(get(player).getVec(player));
         }
 
         /**

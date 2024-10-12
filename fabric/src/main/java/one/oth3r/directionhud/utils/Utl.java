@@ -16,6 +16,7 @@ import one.oth3r.directionhud.common.files.dimension.RatioEntry;
 import one.oth3r.directionhud.common.template.FeatureChecker;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Helper.*;
+import one.oth3r.directionhud.common.utils.Vec;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
@@ -80,19 +81,22 @@ public class Utl {
         public static final String LINE = "LINE";
         public static final String DEST = "DEST";
         public static final String TRACKING = "TRACKING";
-        public static void spawnLine(Player player, ArrayList<Double> start, ArrayList<Double> end, String particleType) {
-            Vec3d startV = vec.convertTo(start);
-            Vec3d endV = vec.convertTo(end);
-            Vec3d playerV = vec.convertTo(player.getVec());
-            double distance = startV.distanceTo(endV);
-            Vec3d particlePos = startV.subtract(0, 0.2, 0);
+        public static void spawnLine(Player player, Vec start, Vec end, String particleType) {
+            Vec playerV = player.getVec();
+
+            Vec3d startV3 = new Vec3d(start.getX(),start.getY(),start.getZ());
+            Vec3d endV3 = new Vec3d(end.getX(),end.getY(),end.getZ());
+            Vec3d playerV3 = new Vec3d(playerV.getX(),playerV.getY(),playerV.getZ());
+
+            double distance = startV3.distanceTo(endV3);
+            Vec3d particlePos = startV3.subtract(0, 0.2, 0);
             double spacing = 1;
-            Vec3d segment = endV.subtract(startV).normalize().multiply(spacing);
+            Vec3d segment = endV3.subtract(startV3).normalize().multiply(spacing);
             double distCovered = 0;
             for (; distCovered <= distance; particlePos = particlePos.add(segment)) {
                 distCovered += spacing;
                 if (distCovered >= 50) break;
-                if (!(playerV.distanceTo(particlePos) > 0.5 && playerV.distanceTo(particlePos) < 50)) continue;
+                if (!(playerV3.distanceTo(particlePos) > 0.5 && playerV3.distanceTo(particlePos) < 50)) continue;
                 player.spawnParticle(particleType,particlePos);
             }
         }

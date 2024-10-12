@@ -5,6 +5,7 @@ import one.oth3r.directionhud.common.files.playerdata.CachedPData;
 import one.oth3r.directionhud.common.files.playerdata.PData;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Loc;
+import one.oth3r.directionhud.common.utils.Vec;
 import one.oth3r.directionhud.utils.CTxT;
 
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ public abstract class PlayerTemplate {
      * @return the world time in ticks
      */
     public abstract int getTimeOfDay();
+    public abstract long getWorldTime();
 
     /**
      * the storm status of a world
@@ -46,12 +48,12 @@ public abstract class PlayerTemplate {
 
     public abstract float getYaw();
     public abstract float getPitch();
-    public abstract ArrayList<Double> getVec();
+    public abstract Vec getVec();
     public abstract Loc getLoc();
     public abstract int getBlockX();
     public abstract int getBlockY();
     public abstract int getBlockZ();
-    public abstract void spawnParticleLine(ArrayList<Double> end, String particleType);
+    public abstract void spawnParticleLine(Vec target, String particleType);
     public abstract void performCommand(String cmd);
     public abstract void sendMessage(CTxT message);
     public abstract void sendActionBar(CTxT message);

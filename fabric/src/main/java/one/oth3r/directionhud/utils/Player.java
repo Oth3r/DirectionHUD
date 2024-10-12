@@ -7,6 +7,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Vec3d;
 import one.oth3r.directionhud.DirectionHUD;
+import one.oth3r.directionhud.common.utils.Vec;
 import one.oth3r.directionhud.packet.PacketSender;
 import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.Hud;
@@ -183,12 +184,9 @@ public class Player extends PlayerTemplate {
     }
 
     @Override
-    public ArrayList<Double> getVec() {
-        ArrayList<Double> vec = new ArrayList<>();
-        vec.add(player.getX());
-        vec.add(player.getY()+1);
-        vec.add(player.getZ());
-        return vec;
+    public Vec getVec() {
+        // todo the old vec added 1 to the y, make sure nothing bad happens plz
+        return new Vec(player.getX(),player.getY(),player.getZ());
     }
     @Override
     public Loc getLoc() {
@@ -216,8 +214,9 @@ public class Player extends PlayerTemplate {
                 true,vec.getX(),vec.getY(),vec.getZ(),1,0,0,0,1);
     }
 
-    public void spawnParticleLine(ArrayList<Double> end, String particleType) {
-        Vec3d endVec = Utl.vec.convertTo(end);
+    @Override
+    public void spawnParticleLine(Vec target, String particleType) {
+        Vec3d endVec = new Vec3d(target.getX(),target.getY(),target.getZ());
         Vec3d pVec = player.getPos().add(0, 1, 0);
         if (player.getVehicle() != null) pVec.add(0,-0.2,0);
         double distance = pVec.distanceTo(endVec);
