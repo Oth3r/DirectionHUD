@@ -337,26 +337,38 @@ public class Destination {
 
             String pDIM = player.getDimension();
 
-            // make sure NAMES only if reqName is true
+            // make sure NAME only entries if reqName is true
             if (args.length > 1 && Num.isNum(args[0]) && reqName) return new Dest();
+
+            // a boolean for checking if they are using a name alongside the coords, and is able to continue suggesting
+            boolean isNameContinue = false;
+            // pos < 2, only the name would be present
+            if (args.length <= 2) isNameContinue = !Num.isNum(args[0]);
+            // pos > 2, the name & maybe a color is preset, so check for that
+            if (args.length > 2) isNameContinue = (!Num.isNum(args[0]) && Num.isNum(args[1]));
 
             // NAME
             if (args.length == 1) {
-                // if NAME (not num)
-                if (!Num.isNum(args[0])) {
+                // just the name
+                if (isNameContinue) {
                     return new Dest(player,args[0],null);
                 }
             }
 
-            // x z
+            // x z OR NAME (COLOR)
             if (args.length == 2) {
+                // name and color
+                if (isNameContinue) {
+                    return new Dest(player,args[0],args[1]);
+                }
+                // x and z
                 return new Dest(Num.toInt(args[0]),null,Num.toInt(args[1]),pDIM,null,null);
             }
 
             // NAME x z OR x y (z, DIM)
             if (args.length == 3) {
-                // if NAME (not num)
-                if (!Num.isNum(args[0])) {
+                // name
+                if (isNameContinue) {
                     return new Dest(Num.toInt(args[1]), null, Num.toInt(args[2]), pDIM, args[0], null);
                 }
 
@@ -371,8 +383,8 @@ public class Destination {
 
             // NAME x y (z, color, DIM) OR x y z (DIM)
             if (args.length == 4) {
-                // if NAME (not num)
-                if (!Num.isNum(args[0])) {
+                // name
+                if (isNameContinue) {
                     // if DIM
                     if (Dimension.getAllIDs().contains(args[3])) {
                         return new Dest(Num.toInt(args[1]),null,Num.toInt(args[2]),args[3],args[0],null);
@@ -397,7 +409,7 @@ public class Destination {
             // NAME x y z (DIM, color) OR NAME x z (DIM) (color)
             if (args.length == 5) {
                 // if NAME (not num)
-                if (!Num.isNum(args[0])) {
+                if (isNameContinue) {
                     // if there's (z)
                     if (Num.isNum(args[3])) {
                         // if DIM
@@ -416,7 +428,7 @@ public class Destination {
             // NAME x y z (DIM) (color)
             if (args.length == 6) {
                 // if NAME (not num)
-                if (!Num.isNum(args[0])) {
+                if (isNameContinue) {
                     return new Dest(Num.toInt(args[1]),Num.toInt(args[2]),Num.toInt(args[3]),args[4],args[0],args[5]);
                 }
             }
@@ -440,19 +452,30 @@ public class Destination {
             if (pos == 0) {
                 suggester.add(Suggester.wrapQuotes("name"));
                 if (!reqName) {
-                    // only if name isn't required
+                    // suggest, only if name isn't required
                     suggester.addAll(Suggester.xyz(player, current, 3));
                 }
             }
 
             // make sure there is a name if reqName is true
+            // don't suggest further if a name isn't provided
             if (pos > 0 && Num.isNum(args[0]) && reqName) return suggester;
 
-            // NAME <x> OR x <y>
+            // a boolean for checking if they are using a name alongside the coords
+            boolean isName = false;
+            // make sure the pos is greater than 1, because anything below that, there is no name
+            if (pos >= 1) isName = !Num.isNum(args[0]);
+
+            boolean nameContinue = isName;
+            // when pos > 1, there can be 'name color', which it shouldn't suggest after that, so check to make sure
+            if (pos > 1) nameContinue = isName && Num.isNum(args[1]);
+
+            // NAME <x, color> OR x <y>
             if (pos == 1) {
-                // NAME (if not num)
-                if (!Num.isNum(args[0])) {
+                // NAME
+                if (isName) {
                     suggester.addAll(Suggester.xyz(player,current,3));
+                    suggester.addAll(Suggester.colors(player,current,false));
                 }
                 // else <y>
                 else {
@@ -462,10 +485,12 @@ public class Destination {
 
             // NAME x <y> OR x y <z, DIM>
             if (pos == 2) {
-                // NAME (if not num)
-                if (!Num.isNum(args[0])) {
-                    // Y
-                    suggester.addAll(Suggester.xyz(player,current,3));
+                // NAME
+                if (isName) {
+                    if (nameContinue) {
+                        // Y
+                        suggester.addAll(Suggester.xyz(player, current, 3));
+                    }
                 }
                 // (z, DIM)
                 else {
@@ -476,12 +501,14 @@ public class Destination {
 
             // NAME x y <z, DIM, color> OR x y z <DIM>
             if (pos == 3) {
-                // NAME (if not num)
-                if (!Num.isNum(args[0])) {
-                    // <z, DIM, color>
-                    suggester.addAll(Suggester.xyz(player,current,1));
-                    suggester.addAll(Suggester.dims(current,false));
-                    suggester.addAll(Suggester.colors(player,current,false));
+                // NAME
+                if (isName) {
+                    if (nameContinue) {
+                        // <z, DIM, color>
+                        suggester.addAll(Suggester.xyz(player, current, 1));
+                        suggester.addAll(Suggester.dims(current, false));
+                        suggester.addAll(Suggester.colors(player, current, false));
+                    }
                 }
                 // DIM
                 else if (Num.isNum(args[2])) {
@@ -491,8 +518,8 @@ public class Destination {
 
             // NAME x y z <DIM, color> OR NAME x z DIM <color>
             if (pos == 4) {
-                // NAME (if not num)
-                if (!Num.isNum(args[0])) {
+                // NAME
+                if (isName && nameContinue) {
                     // (<DIM, color>
                     if (Num.isInt(args[3])) {
                         suggester.addAll(Suggester.dims(current,true));
@@ -507,8 +534,8 @@ public class Destination {
 
             // NAME x y z DIM <color>
             if (pos == 5) {
-                // NAME (if not num)
-                if (!Num.isNum(args[0])) {
+                // NAME
+                if (isName && nameContinue) {
                     // if contains Z and valid DIM
                     if (Num.isNum(args[3]) && Dimension.getAllIDs().contains(args[4])) {
                         // <color>
