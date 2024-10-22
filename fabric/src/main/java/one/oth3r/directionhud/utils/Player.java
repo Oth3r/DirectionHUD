@@ -80,7 +80,7 @@ public class Player extends PlayerTemplate {
     public void performCommand(String cmd) {
         try {
             ParseResults<ServerCommandSource> parse =
-                    DirectionHUD.commandManager.getDispatcher().parse(cmd, player.getCommandSource());
+                    DirectionHUD.commandManager.getDispatcher().parse(cmd, serverPlayer.getCommandSource());
             DirectionHUD.commandManager.getDispatcher().execute(parse);
         } catch (CommandSyntaxException e) {
             DirectionHUD.LOGGER.info("ERROR EXECUTING COMMAND - PLEASE REPORT WITH THE ERROR LOG");
@@ -90,7 +90,7 @@ public class Player extends PlayerTemplate {
 
     @Override
     public void sendMessage(CTxT message) {
-        player.sendMessage(message.b());
+        player.sendMessage(message.b(), false);
     }
 
     @Override

@@ -98,13 +98,13 @@ public class Utl {
         }
         public static DustParticleEffect getParticle(String particleType, Player player) {
             String hex = player.getPCache().getDEST().getDestSettings().getParticles().getDestColor();
-            if (particleType.equals(DEST)) return new DustParticleEffect(new Vector3f(Vec3d.unpackRgb(Color.decode(CUtl.color.format(hex)).getRGB()).toVector3f()),3);
+            if (particleType.equals(DEST)) return new DustParticleEffect(Color.decode(CUtl.color.format(hex)).getRGB(),3);
             hex = player.getPCache().getDEST().getDestSettings().getParticles().getLineColor();
-            if (particleType.equals(LINE)) return new DustParticleEffect(new Vector3f(Vec3d.unpackRgb(Color.decode(CUtl.color.format(hex)).getRGB()).toVector3f()),1);
+            if (particleType.equals(LINE)) return new DustParticleEffect(Color.decode(CUtl.color.format(hex)).getRGB(),1);
             hex = player.getPCache().getDEST().getDestSettings().getParticles().getTrackingColor();
-            if (particleType.equals(TRACKING)) return new DustParticleEffect(new Vector3f(Vec3d.unpackRgb(Color.decode(CUtl.color.format(hex)).getRGB()).toVector3f()),0.5f);
+            if (particleType.equals(TRACKING)) return new DustParticleEffect(Color.decode(CUtl.color.format(hex)).getRGB(),0.5f);
             hex = "#000000";
-            return new DustParticleEffect(new Vector3f(Vec3d.unpackRgb(Color.decode(CUtl.color.format(hex)).getRGB()).toVector3f()),5f);
+            return new DustParticleEffect(Color.decode(CUtl.color.format(hex)).getRGB(),5f);
         }
     }
 
