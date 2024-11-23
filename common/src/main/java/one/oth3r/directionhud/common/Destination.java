@@ -707,7 +707,13 @@ public class Destination {
             if (args[0].equals("set")) {
                 // if convert is there, convert
                 boolean convert = args.length == 3 && args[2].equals("convert");
+
+                // set the destination
                 if (args.length >= 2) dest.setSaved(player,args[1],true,convert);
+                // send usage message if not long enough
+                else player.sendMessage(CUtl.usage(Assets.cmdUsage.destGlobal));
+                // return to not execute any more code...
+                return;
             }
 
             // PERMS FOR EDITING
