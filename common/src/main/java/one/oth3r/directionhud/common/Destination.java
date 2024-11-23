@@ -92,14 +92,17 @@ public class Destination {
         }
     }
     public static class commandExecutor {
+
         public static void logic(Player player, String[] args) {
             if (!Helper.checkEnabled(player).destination()) return;
             if (args.length == 0) {
                 UI(player);
                 return;
             }
+
             String type = args[0].toLowerCase();
             String[] trimmedArgs = Helper.trimStart(args, 1);
+
             switch (type) {
                 case "set" -> dest.setCMDExecutor(player, trimmedArgs);
                 case "clear" -> dest.clear(player, 1);
@@ -859,6 +862,12 @@ public class Destination {
             if (!Helper.checkEnabled(player).saving() && !Helper.checkEnabled(player).globalEditing()) {
                 return;
             }
+            // if the arguments are empty, send a usage message and don't execute
+            if (args.length < 1) {
+                player.sendMessage(CUtl.usage(Assets.cmdUsage.destAdd));
+                return;
+            }
+
             add(player,new DestEntry(player,dest.getDestArgs(player,args,true),global));
         }
         public static ArrayList<String> addCMDSuggester(Player player, int pos, String[] args) {

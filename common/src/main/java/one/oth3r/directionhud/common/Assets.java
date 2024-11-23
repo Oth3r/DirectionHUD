@@ -48,7 +48,7 @@ public class Assets {
         public static final String hudModules = "/hud modules (order, toggle, reset)";
         public static final String hudSettings = "/hud settings";
         public static final String dest = "/dest | /destination";
-        public static final String destAdd = "/dest (saved) add <name> (x) (y) (z) (dimension) (color)";
+        public static final String destAdd = "... add <name> (x) (y) (z) (dimension) (color)";
         public static String destSet = "/dest set <x> (y) <z> (dimension) (convert)";
         public static final String destLastdeath = "/dest lastdeath";
         public static final String destClear = "/dest clear";
