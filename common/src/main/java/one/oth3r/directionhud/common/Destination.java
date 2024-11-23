@@ -725,7 +725,7 @@ public class Destination {
                     if (args.length == 2) delete(false,player,new DestEntry(player, args[1], true));
                 }
                 case "add" -> addCMDExecutor(player, Helper.trimStart(args,1), true);
-                default -> player.sendMessage(CUtl.usage(Assets.cmdUsage.destSaved));
+                default -> player.sendMessage(CUtl.usage(Assets.cmdUsage.destGlobalPerms));
             }
         }
         public static ArrayList<String> globalCMDSuggester(Player player, int pos, String[] args) {

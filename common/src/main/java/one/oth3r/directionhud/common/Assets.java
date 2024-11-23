@@ -53,7 +53,8 @@ public class Assets {
         public static final String destLastdeath = "/dest lastdeath";
         public static final String destClear = "/dest clear";
         public static String destSaved = "/dest saved (add, delete, edit, set, send)";
-        public static String destGlobal = "/dest global (set)";
+        public static String destGlobal = "/dest global (set) (name)";
+        public static String destGlobalPerms = "/dest global (add, delete, edit, set)";
         public static final String destSettings = "/dest settings";
         public static final String destSend = "/dest send <IGN> (name) (x) (y) (z) (dimension) (color)";
         public static final String destTrack = "/dest track (set, accept, deny, cancel) <IGN> | /dest track clear";
