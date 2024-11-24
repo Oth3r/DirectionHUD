@@ -1,11 +1,9 @@
 package one.oth3r.directionhud.utils;
 
-import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
@@ -14,13 +12,9 @@ import one.oth3r.directionhud.common.files.dimension.DimensionEntry.*;
 import one.oth3r.directionhud.common.files.dimension.DimensionSettings;
 import one.oth3r.directionhud.common.files.dimension.RatioEntry;
 import one.oth3r.directionhud.common.template.FeatureChecker;
-import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Helper.*;
-import one.oth3r.directionhud.common.utils.Vec;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Vector3f;
 
-import java.awt.*;
 import java.util.*;
 import java.util.List;
 
@@ -40,15 +34,6 @@ public class Utl {
         for (ServerPlayerEntity p : DirectionHUD.server.getPlayerManager().getPlayerList())
             array.add(new Player(p));
         return array;
-    }
-    public static class vec {
-        public static double distance(ArrayList<Double> from, ArrayList<Double> to)  {
-            return convertTo(from).distanceTo(convertTo(to));
-        }
-        public static Vec3d convertTo(ArrayList<Double> vec) {
-            if (vec.size() == 3) return new Vec3d(vec.get(0),vec.get(1),vec.get(2));
-            else return new Vec3d(0,0,0);
-        }
     }
 
     public static class CheckEnabled extends FeatureChecker {
@@ -74,41 +59,6 @@ public class Utl {
         @Override
         public boolean reload() {
             return player.getPlayer().hasPermissionLevel(2) || DirectionHUD.singleplayer;
-        }
-    }
-
-    public static class particle {
-        public static final String LINE = "LINE";
-        public static final String DEST = "DEST";
-        public static final String TRACKING = "TRACKING";
-        public static void spawnLine(Player player, Vec start, Vec end, String particleType) {
-            Vec playerV = player.getVec();
-
-            Vec3d startV3 = new Vec3d(start.getX(),start.getY(),start.getZ());
-            Vec3d endV3 = new Vec3d(end.getX(),end.getY(),end.getZ());
-            Vec3d playerV3 = new Vec3d(playerV.getX(),playerV.getY(),playerV.getZ());
-
-            double distance = startV3.distanceTo(endV3);
-            Vec3d particlePos = startV3.subtract(0, 0.2, 0);
-            double spacing = 1;
-            Vec3d segment = endV3.subtract(startV3).normalize().multiply(spacing);
-            double distCovered = 0;
-            for (; distCovered <= distance; particlePos = particlePos.add(segment)) {
-                distCovered += spacing;
-                if (distCovered >= 50) break;
-                if (!(playerV3.distanceTo(particlePos) > 0.5 && playerV3.distanceTo(particlePos) < 50)) continue;
-                player.spawnParticle(particleType,particlePos);
-            }
-        }
-        public static DustParticleEffect getParticle(String particleType, Player player) {
-            String hex = player.getPCache().getDEST().getDestSettings().getParticles().getDestColor();
-            if (particleType.equals(DEST)) return new DustParticleEffect(Color.decode(CUtl.color.format(hex)).getRGB(),3);
-            hex = player.getPCache().getDEST().getDestSettings().getParticles().getLineColor();
-            if (particleType.equals(LINE)) return new DustParticleEffect(Color.decode(CUtl.color.format(hex)).getRGB(),1);
-            hex = player.getPCache().getDEST().getDestSettings().getParticles().getTrackingColor();
-            if (particleType.equals(TRACKING)) return new DustParticleEffect(Color.decode(CUtl.color.format(hex)).getRGB(),0.5f);
-            hex = "#000000";
-            return new DustParticleEffect(Color.decode(CUtl.color.format(hex)).getRGB(),5f);
         }
     }
 

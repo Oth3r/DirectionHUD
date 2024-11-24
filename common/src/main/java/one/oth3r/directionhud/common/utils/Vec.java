@@ -1,9 +1,9 @@
 package one.oth3r.directionhud.common.utils;
 
 public class Vec {
-    private double x;
-    private double y;
-    private double z;
+    private final double x;
+    private final double y;
+    private final double z;
 
     public Vec() {
         this.x = 0;
@@ -27,24 +27,47 @@ public class Vec {
         return x;
     }
 
-    public void setX(double x) {
-        this.x = x;
-    }
-
     public double getY() {
         return y;
-    }
-
-    public void setY(double y) {
-        this.y = y;
     }
 
     public double getZ() {
         return z;
     }
 
-    public void setZ(double z) {
-        this.z = z;
+    public Vec add(Vec addVec) {
+        return add(addVec.x,addVec.y,addVec.z);
+    }
+
+    public Vec add(double x, double y, double z) {
+        return new Vec(this.x + x, this.y + y, this.z + z);
+    }
+
+    public Vec subtract(Vec subVec) {
+        return add(-subVec.x,-subVec.y,-subVec.z);
+    }
+
+    public Vec subtract(double x, double y, double z) {
+        return new Vec(this.x - x, this.y - y, this.z - z);
+    }
+
+    public Vec multiply(double x, double y, double z) {
+        return new Vec(this.x * x, this.y * y, this.z * z);
+    }
+
+    public Vec divide(double x, double y, double z) {
+        return new Vec(this.x / x, this.y / y, this.z / z);
+    }
+
+    public Vec normalize() {
+        // calculate the magnitude (length) of the vector
+        double magnitude = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+
+        // If the magnitude is tiny, return zero
+        if (magnitude < 1e-5) return new Vec();
+
+        // divide each axis by magnitude to normalize
+        return new Vec(this.x / magnitude, this.y / magnitude, this.z / magnitude);
     }
 
     public double distanceTo(Vec vec) {

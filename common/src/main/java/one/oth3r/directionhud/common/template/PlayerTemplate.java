@@ -5,6 +5,7 @@ import one.oth3r.directionhud.common.files.playerdata.CachedPData;
 import one.oth3r.directionhud.common.files.playerdata.PData;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Loc;
+import one.oth3r.directionhud.common.utils.ParticleType;
 import one.oth3r.directionhud.common.utils.Vec;
 import one.oth3r.directionhud.utils.CTxT;
 
@@ -53,7 +54,6 @@ public abstract class PlayerTemplate {
     public abstract int getBlockX();
     public abstract int getBlockY();
     public abstract int getBlockZ();
-    public abstract void spawnParticleLine(Vec target, String particleType);
     public abstract void performCommand(String cmd);
     public abstract void sendMessage(CTxT message);
     public abstract void sendActionBar(CTxT message);
@@ -80,6 +80,7 @@ public abstract class PlayerTemplate {
     }
     public abstract void sendPDataPackets();
     public abstract void sendHUDPackets(HashMap<Hud.Module, ArrayList<String>> hudData);
+
     public void displayHUD(CTxT message) {
         if (message.toString().isEmpty()) {
             //if the HUD is enabled but there is no output, flip the tag
@@ -99,5 +100,54 @@ public abstract class PlayerTemplate {
         if ((Hud.Setting.DisplayType.get((String) this.getPCache().getHud().getSetting(Hud.Setting.type)).equals(Hud.Setting.DisplayType.actionbar)))
             sendActionBar(message);
         else displayBossBar(message);
+    }
+
+    /// PARTICLES
+
+    /**
+     * spawns a particle at the given location
+     * @param particleType the type of particle
+     * @param position the position
+     */
+    public abstract void spawnParticle(ParticleType particleType, Vec position);
+
+    /**
+     * spawns a line of particles, starting at the player pos
+     * @param end the end of the line
+     * @param particleType the particle type
+     */
+    public void spawnParticleLine(Vec end, ParticleType particleType) {
+        spawnParticleLine(this.getVec(), end, particleType);
+    }
+
+    /**
+     * spawns a line of particles for the player
+     * @param start start of the line
+     * @param end end of the line
+     * @param particleType the type of particle
+     */
+    public void spawnParticleLine(Vec start, Vec end, ParticleType particleType) {
+        Vec playerVec = this.getVec();
+
+        double distance = start.distanceTo(end);
+        Vec particlePos = start.add(0, -0.2, 0);
+
+        // the spacing between 2 particle points
+        double spacing = 1;
+
+        // the vec that is added to the last pos to complete the line
+        Vec segment = end.subtract(start).normalize().multiply(spacing,spacing,spacing);
+
+        double distCovered = 0;
+        // loop through the distance between the 2 lines
+        for (; distCovered <= distance; particlePos = particlePos.add(segment)) {
+            distCovered += spacing;
+            // don't spawn if player is further than 50 blocks
+            if (playerVec.distanceTo(particlePos) >= 50) break;
+            // keep trying if the player is too close
+            if (playerVec.distanceTo(particlePos) < 0.5) continue;
+            // spawn the particle
+            this.spawnParticle(particleType, particlePos);
+        }
     }
 }

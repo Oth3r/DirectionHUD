@@ -7,6 +7,7 @@ import one.oth3r.directionhud.common.files.playerdata.CachedPData;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.utils.Helper.Enums;
 import one.oth3r.directionhud.common.utils.Loc;
+import one.oth3r.directionhud.common.utils.ParticleType;
 import one.oth3r.directionhud.common.utils.Vec;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
@@ -84,8 +85,8 @@ public class LoopManager {
 
             // only do x and y if 3d is off
             if (!(boolean) player.getPCache().getHud().getSetting(Hud.Setting.module__speed_3d)) {
-                pos.setY(0.0);
-                oldPos.setY(0.0);
+                pos = new Vec(pos.getX(),0,pos.getZ());
+                oldPos = new Vec(oldPos.getX(),0,oldPos.getZ());
             }
 
             // update the speed
@@ -114,20 +115,23 @@ public class LoopManager {
     private static void particles(Player player) {
         // spawn all the particles
         if (Destination.dest.get(player).hasXYZ()) {
-            // destination particles
+            /// destination particles
             if (player.getPCache().getDEST().getDestSettings().getParticles().getDest()) {
-                Vec vec1 = Destination.dest.get(player).getVec(player), vec2 = new Vec(vec1);
-
-                vec1.setY(vec1.getY()+3);
-                vec2.setY(vec2.getY()-1);
-
-                Utl.particle.spawnLine(player, vec1, vec2, Utl.particle.DEST);
+                // make a vertical line at the destination, marking it
+                Vec destinationVec = Destination.dest.get(player).getVec(player);
+                // spawn the line of particles
+                player.spawnParticleLine(destinationVec.add(0,2,0),destinationVec.add(0,-2,0), ParticleType.DEST);
             }
-            // line particles
-            if (player.getPCache().getDEST().getDestSettings().getParticles().getLine())
-                player.spawnParticleLine(Destination.dest.get(player).getVec(player),Utl.particle.LINE);
+
+            /// line particles
+            if (player.getPCache().getDEST().getDestSettings().getParticles().getLine()) {
+                // particle line from the player to the destination
+                player.spawnParticleLine(Destination.dest.get(player).getVec(player),ParticleType.LINE);
+            }
         }
-        // track particles
+
+        /// tracking particles
+        // if tracking particles are enabled
         if (player.getPCache().getDEST().getDestSettings().getParticles().getTracking()) {
             // make sure there's a target
             Player target = Destination.social.track.getTarget(player);
@@ -147,7 +151,7 @@ public class LoopManager {
                     }
                 }
                 // actually send the particles
-                if (sendParticles) player.spawnParticleLine(targetVec,Utl.particle.TRACKING);
+                if (sendParticles) player.spawnParticleLine(targetVec,ParticleType.TRACKING);
             }
         }
     }
