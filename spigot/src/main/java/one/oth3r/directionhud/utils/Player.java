@@ -6,13 +6,18 @@ import net.md_5.bungee.api.ChatMessageType;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.PacketHelper;
 import one.oth3r.directionhud.common.Assets;
+import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.Hud;
 import one.oth3r.directionhud.common.files.playerdata.CachedPData;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.files.playerdata.PData;
+import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.common.template.PlayerTemplate;
+import one.oth3r.directionhud.common.utils.ParticleType;
+import one.oth3r.directionhud.common.utils.Vec;
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
 import org.bukkit.Particle;
 import org.bukkit.util.Vector;
 
@@ -135,6 +140,11 @@ public class Player extends PlayerTemplate {
     }
 
     @Override
+    public long getWorldTime() {
+        return player.getWorld().getTime();
+    }
+
+    @Override
     public boolean hasStorm() {
         return player.getWorld().hasStorm();
     }
@@ -155,12 +165,8 @@ public class Player extends PlayerTemplate {
     }
 
     @Override
-    public ArrayList<Double> getVec() {
-        ArrayList<Double> vec = new ArrayList<>();
-        vec.add(player.getLocation().toVector().getX());
-        vec.add(player.getLocation().toVector().getY()+1);
-        vec.add(player.getLocation().toVector().getZ());
-        return vec;
+    public Vec getVec() {
+        return new Vec(player.getLocation().getX(),player.getLocation().getY()+1,player.getLocation().getZ());
     }
 
     @Override
@@ -188,20 +194,36 @@ public class Player extends PlayerTemplate {
         return player;
     }
 
-    public void spawnParticleLine(ArrayList<Double> end, String particleType) {
-        Vector endVec = Utl.vec.convertTo(end);
-        Vector pVec = player.getLocation().toVector().add(new Vector(0, 1, 0));
-        if (player.getVehicle() != null) pVec.add(new Vector(0,-0.2,0));
-        double distance = pVec.distance(endVec);
-        Vector particlePos = pVec.subtract(new Vector(0, 0.2, 0));
-        double spacing = 1;
-        Vector segment = endVec.subtract(pVec).normalize().multiply(spacing);
-        double distCovered = 0;
-        for (; distCovered <= distance; particlePos = particlePos.add(segment)) {
-            distCovered += spacing;
-            if (pVec.distance(endVec) < 2) continue;
-            if (distCovered >= 50) break;
-            player.spawnParticle(Particle.DUST,particlePos.getX(),particlePos.getY(),particlePos.getZ(),1,Utl.particle.getParticle(particleType,new Player(player)));
+    @Override
+    public void spawnParticle(ParticleType particleType, Vec position) {
+        player.spawnParticle(Particle.DUST,position.getX(),position.getY(),position.getZ(),1,getParticle(particleType));
+    }
+
+    public Particle.DustOptions getParticle(ParticleType particleType) {
+        String color;
+        float size;
+
+        switch (particleType) {
+            case DEST -> {
+                color = this.getPData().getDEST().getSetting().getParticles().getDestColor();
+                size = 3;
+            }
+            case LINE -> {
+                color = this.getPData().getDEST().getSetting().getParticles().getLineColor();
+                size = 1;
+            }
+            case TRACKING -> {
+                color = this.getPData().getDEST().getSetting().getParticles().getTrackingColor();
+                size = 0.5f;
+            }
+            default -> {
+                color = "#000000";
+                size = 1;
+            }
         }
+
+        int[] rgb = CUtl.color.RGB(color);
+        // return the particle options
+        return new Particle.DustOptions(Color.fromRGB(rgb[0],rgb[1],rgb[2]), size);
     }
 }
