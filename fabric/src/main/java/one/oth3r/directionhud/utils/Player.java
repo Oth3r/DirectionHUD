@@ -6,6 +6,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.math.Vec3d;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.utils.*;
 import one.oth3r.directionhud.packet.PacketSender;
@@ -15,6 +16,7 @@ import one.oth3r.directionhud.common.files.playerdata.CachedPData;
 import one.oth3r.directionhud.common.files.playerdata.PData;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.template.PlayerTemplate;
+import org.joml.Vector3f;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -237,7 +239,7 @@ public class Player extends PlayerTemplate {
             }
         }
 
-        return new DustParticleEffect(Color.decode(CUtl.color.format(color)).getRGB(), scale);
+        return new DustParticleEffect(new Vector3f(Vec3d.unpackRgb(Color.decode(CUtl.color.format(color)).getRGB()).toVector3f()), scale);
     }
 
     @Override
