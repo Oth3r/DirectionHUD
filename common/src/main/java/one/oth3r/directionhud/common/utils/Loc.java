@@ -165,17 +165,18 @@ public class Loc {
         return hasXYZ() && dimension != null;
     }
 
-    // todo create a common Vec class please this sucks
-    public ArrayList<Double> getVec(Player player) {
-        ArrayList<Double> vector = new ArrayList<>();
+    public Vec getVec(Player player) {
+        // make sure y isn't null, using the player y if needed
         Integer i = this.y;
         if (i == null) i = player.getBlockY();
+
+        // if nothing else is null, return as vec
         if (this.x != null && this.z != null) {
-            vector.add((double)this.x+0.5);
-            vector.add((double)i+0.5);
-            vector.add((double)this.z+0.5);
+            return new Vec(this.x+0.5,i+0.5,this.z+0.5);
         }
-        return vector;
+
+        // empty Loc, return empty vec
+        return new Vec();
     }
 
     /**

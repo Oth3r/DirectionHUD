@@ -1,6 +1,7 @@
 package one.oth3r.directionhud.common.files.playerdata;
 
 import one.oth3r.directionhud.common.utils.Dest;
+import one.oth3r.directionhud.common.utils.Vec;
 import one.oth3r.directionhud.utils.Player;
 
 import java.util.ArrayList;
@@ -81,19 +82,30 @@ public class CachedPData {
     }
 
     public static class SpeedData {
-        private ArrayList<Double> vec;
+        // all data since last update
+        private Vec vec;
+        private Long worldTime;
         private Double speed = 0.0;
 
         public SpeedData(Player player) {
             vec = player.getVec();
+            worldTime = player.getWorldTime();
         }
 
-        public ArrayList<Double> getVec() {
+        public Vec getVec() {
             return vec;
         }
 
-        public void setVec(ArrayList<Double> vec) {
+        public void setVec(Vec vec) {
             this.vec = vec;
+        }
+
+        public Long getWorldTime() {
+            return worldTime;
+        }
+
+        public void setWorldTime(Long worldTime) {
+            this.worldTime = worldTime;
         }
 
         public Double getSpeed() {

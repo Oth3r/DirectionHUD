@@ -3,10 +3,12 @@ package one.oth3r.directionhud.utils;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Vec3d;
 import one.oth3r.directionhud.DirectionHUD;
+import one.oth3r.directionhud.common.utils.*;
 import one.oth3r.directionhud.packet.PacketSender;
 import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.Hud;
@@ -14,9 +16,9 @@ import one.oth3r.directionhud.common.files.playerdata.CachedPData;
 import one.oth3r.directionhud.common.files.playerdata.PData;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.template.PlayerTemplate;
-import one.oth3r.directionhud.common.utils.Helper;
-import one.oth3r.directionhud.common.utils.Loc;
+import org.joml.Vector3f;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
@@ -80,7 +82,7 @@ public class Player extends PlayerTemplate {
     public void performCommand(String cmd) {
         try {
             ParseResults<ServerCommandSource> parse =
-                    DirectionHUD.commandManager.getDispatcher().parse(cmd, player.getCommandSource());
+                    DirectionHUD.commandManager.getDispatcher().parse(cmd, serverPlayer.getCommandSource());
             DirectionHUD.commandManager.getDispatcher().execute(parse);
         } catch (CommandSyntaxException e) {
             DirectionHUD.LOGGER.info("ERROR EXECUTING COMMAND - PLEASE REPORT WITH THE ERROR LOG");
@@ -90,7 +92,7 @@ public class Player extends PlayerTemplate {
 
     @Override
     public void sendMessage(CTxT message) {
-        player.sendMessage(message.b());
+        player.sendMessage(message.b(), false);
     }
 
     @Override
@@ -157,6 +159,11 @@ public class Player extends PlayerTemplate {
     }
 
     @Override
+    public long getWorldTime() {
+        return player.getWorld().getTime();
+    }
+
+    @Override
     public boolean hasStorm() {
         return player.getWorld().isRaining();
     }
@@ -183,13 +190,10 @@ public class Player extends PlayerTemplate {
     }
 
     @Override
-    public ArrayList<Double> getVec() {
-        ArrayList<Double> vec = new ArrayList<>();
-        vec.add(player.getX());
-        vec.add(player.getY()+1);
-        vec.add(player.getZ());
-        return vec;
+    public Vec getVec() {
+        return new Vec(player.getX(),player.getY()+1,player.getZ());
     }
+
     @Override
     public Loc getLoc() {
         if (player == null) return new Loc();
@@ -211,25 +215,36 @@ public class Player extends PlayerTemplate {
         return player.getBlockZ();
     }
 
-    public void spawnParticle(String particleType, Vec3d vec) {
-        serverPlayer.getServerWorld().spawnParticles(serverPlayer,Utl.particle.getParticle(particleType,this),
-                true,vec.getX(),vec.getY(),vec.getZ(),1,0,0,0,1);
+    /// particles
+    public DustParticleEffect getParticle(ParticleType particleType) {
+        String color;
+        float scale;
+
+        switch (particleType) {
+            case DEST -> {
+                color = this.getPCache().getDEST().getDestSettings().getParticles().getDestColor();
+                scale = 3;
+            }
+            case LINE -> {
+                color = this.getPCache().getDEST().getDestSettings().getParticles().getLineColor();
+                scale = 1;
+            }
+            case TRACKING -> {
+                color = this.getPCache().getDEST().getDestSettings().getParticles().getTrackingColor();
+                scale = 0.5F;
+            }
+            default -> {
+                color = "#000000";
+                scale = 1;
+            }
+        }
+
+        return new DustParticleEffect(new Vector3f(Vec3d.unpackRgb(Color.decode(CUtl.color.format(color)).getRGB()).toVector3f()), scale);
     }
 
-    public void spawnParticleLine(ArrayList<Double> end, String particleType) {
-        Vec3d endVec = Utl.vec.convertTo(end);
-        Vec3d pVec = player.getPos().add(0, 1, 0);
-        if (player.getVehicle() != null) pVec.add(0,-0.2,0);
-        double distance = pVec.distanceTo(endVec);
-        Vec3d particlePos = pVec.subtract(0, 0.2, 0);
-        double spacing = 1;
-        Vec3d segment = endVec.subtract(pVec).normalize().multiply(spacing);
-        double distCovered = 0;
-        for (; distCovered <= distance; particlePos = particlePos.add(segment)) {
-            distCovered += spacing;
-            if (pVec.distanceTo(endVec) < 2) continue;
-            if (distCovered >= 50) break;
-            this.spawnParticle(particleType,particlePos);
-        }
+    @Override
+    public void spawnParticle(ParticleType particleType, Vec position) {
+        serverPlayer.getServerWorld().spawnParticles(serverPlayer,getParticle(particleType),
+                true,position.getX(),position.getY(),position.getZ(),1,0,0,0,1);
     }
 }
