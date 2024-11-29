@@ -3,9 +3,12 @@ package one.oth3r.directionhud.common;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.files.Data;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
+import one.oth3r.directionhud.common.files.playerdata.CachedPData;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.utils.Helper.Enums;
 import one.oth3r.directionhud.common.utils.Loc;
+import one.oth3r.directionhud.common.utils.ParticleType;
+import one.oth3r.directionhud.common.utils.Vec;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
 
@@ -23,26 +26,32 @@ public class LoopManager {
         // tick the counters
         secondTick++;
         rainbowF += 10;
+
         HUDTick++;
         ParticleTick++;
+
         if (HUDTick >= Data.getConfig().getHud().getLoop()) {
             HUDTick = 0;
             for (Player player : Utl.getPlayers()) {
                 HUDTickLogic(player);
             }
         }
+
         if (ParticleTick >= Data.getConfig().getDestination().getLoop()) {
             ParticleTick = 0;
             for (Player player :Utl.getPlayers()) particles(player);
         }
+
         // reset the rainbow at 360
         if (rainbowF >= 360) rainbowF = 0;
+
         // tick every 2
         if (secondTick % 2 == 0) {
             for (Player player : Utl.getPlayers()) {
                 speedUpdate(player);
             }
         }
+        
         // every 20 ticks
         if (secondTick >= 20) {
             secondTick = 0;
@@ -51,21 +60,37 @@ public class LoopManager {
             PlayerData.Queue.tick();
         }
     }
-    
+
+    /**
+     * updates the player speed by seeing how far the player went since the last check
+     */
     private static void speedUpdate(Player player) {
+        /*
+        still having consistency issues - FABRIC TESTING ONLY it seems like the player's location isnt being properly updated every tick
+        - leading to the player speed jumping around... making the check faster makes the issue worse, and slowing down the checks lessons the effect
+        BUT the display looks laggier. averaging out the speed makes the display not immedatly update, so stopping still displays 0.23123 ect... still stuck on this :P
+        10/12/24
+        */
+
         // only update the speed if the module and hud is on
         if ((boolean) player.getPCache().getHud().getSetting(Hud.Setting.state) && player.getPCache().getHud().getModule(Hud.Module.speed)) {
-            ArrayList<Double> pos = player.getVec();
-            ArrayList<Double> oldPos = player.getPCache().getSpeedData().getVec();
+            CachedPData.SpeedData speedData = player.getPCache().getSpeedData();
+
+            Vec pos = player.getVec(), oldPos = speedData.getVec();
+            long worldTime = player.getWorldTime(), oldWorldTime = speedData.getWorldTime();
+
             // replace with players current speed
-            player.getPCache().getSpeedData().setVec(pos);
+            speedData.setVec(pos);
+            speedData.setWorldTime(player.getWorldTime());
+
             // only do x and y if 3d is off
             if (!(boolean) player.getPCache().getHud().getSetting(Hud.Setting.module__speed_3d)) {
-                pos.set(1,0.0);
-                oldPos.set(1,0.0);
+                pos = new Vec(pos.getX(),0,pos.getZ());
+                oldPos = new Vec(oldPos.getX(),0,oldPos.getZ());
             }
+
             // update the speed
-            player.getPCache().getSpeedData().setSpeed(Utl.vec.distance(oldPos, pos) * 10);
+            player.getPCache().getSpeedData().setSpeed((pos.distanceTo(oldPos) / (worldTime-oldWorldTime))*20);
         }
     }
 
@@ -90,25 +115,29 @@ public class LoopManager {
     private static void particles(Player player) {
         // spawn all the particles
         if (Destination.dest.get(player).hasXYZ()) {
-            // destination particles
+            /// destination particles
             if (player.getPCache().getDEST().getDestSettings().getParticles().getDest()) {
-                ArrayList<Double> destVec1 = Destination.dest.get(player).getVec(player);
-                ArrayList<Double> destVec2 = new ArrayList<>(destVec1);
-                destVec1.set(1,destVec1.get(1)+3);
-                destVec2.set(1,destVec2.get(1)-3);
-                Utl.particle.spawnLine(player, destVec1, destVec2, Utl.particle.DEST);
+                // make a vertical line at the destination, marking it
+                Vec destinationVec = Destination.dest.get(player).getVec(player);
+                // spawn the line of particles
+                player.spawnParticleLine(destinationVec.add(0,2,0),destinationVec.add(0,-2,0), ParticleType.DEST);
             }
-            // line particles
-            if (player.getPCache().getDEST().getDestSettings().getParticles().getLine())
-                player.spawnParticleLine(Destination.dest.get(player).getVec(player),Utl.particle.LINE);
+
+            /// line particles
+            if (player.getPCache().getDEST().getDestSettings().getParticles().getLine()) {
+                // particle line from the player to the destination
+                player.spawnParticleLine(Destination.dest.get(player).getVec(player),ParticleType.LINE);
+            }
         }
-        // track particles
+
+        /// tracking particles
+        // if tracking particles are enabled
         if (player.getPCache().getDEST().getDestSettings().getParticles().getTracking()) {
             // make sure there's a target
             Player target = Destination.social.track.getTarget(player);
             if (target.isValid()) {
                 boolean sendParticles = true;
-                ArrayList<Double> targetVec = target.getVec();
+                Vec targetVec = target.getVec();
                 if (!target.getDimension().equals(player.getDimension())) {
                     sendParticles = false;
                     // if convertible and autoconvert is enabled, send the particles
@@ -122,7 +151,7 @@ public class LoopManager {
                     }
                 }
                 // actually send the particles
-                if (sendParticles) player.spawnParticleLine(targetVec,Utl.particle.TRACKING);
+                if (sendParticles) player.spawnParticleLine(targetVec,ParticleType.TRACKING);
             }
         }
     }

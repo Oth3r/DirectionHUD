@@ -92,14 +92,17 @@ public class Destination {
         }
     }
     public static class commandExecutor {
+
         public static void logic(Player player, String[] args) {
             if (!Helper.checkEnabled(player).destination()) return;
             if (args.length == 0) {
                 UI(player);
                 return;
             }
+
             String type = args[0].toLowerCase();
             String[] trimmedArgs = Helper.trimStart(args, 1);
+
             switch (type) {
                 case "set" -> dest.setCMDExecutor(player, trimmedArgs);
                 case "clear" -> dest.clear(player, 1);
@@ -176,11 +179,11 @@ public class Destination {
         }
         public static boolean inAutoClearRadius(Player player, Loc loc) {
             if ((boolean) player.getPData().getDEST().getSetting(Setting.autoclear))
-                return Utl.vec.distance(new Loc(player).getVec(player),loc.getVec(player)) <= (int) player.getPData().getDEST().getSetting(Setting.autoclear_rad);
+                return player.getVec().distanceTo(loc.getVec(player)) <= (int) player.getPData().getDEST().getSetting(Setting.autoclear_rad);
             else return false;
         }
         public static int getDist(Player player) {
-            return (int) Utl.vec.distance(new Loc(player).getVec(player),get(player).getVec(player));
+            return (int) player.getVec().distanceTo(get(player).getVec(player));
         }
 
         /**
@@ -707,7 +710,13 @@ public class Destination {
             if (args[0].equals("set")) {
                 // if convert is there, convert
                 boolean convert = args.length == 3 && args[2].equals("convert");
+
+                // set the destination
                 if (args.length >= 2) dest.setSaved(player,args[1],true,convert);
+                // send usage message if not long enough
+                else player.sendMessage(CUtl.usage(Assets.cmdUsage.destGlobal));
+                // return to not execute any more code...
+                return;
             }
 
             // PERMS FOR EDITING
@@ -719,7 +728,7 @@ public class Destination {
                     if (args.length == 2) delete(false,player,new DestEntry(player, args[1], true));
                 }
                 case "add" -> addCMDExecutor(player, Helper.trimStart(args,1), true);
-                default -> player.sendMessage(CUtl.usage(Assets.cmdUsage.destSaved));
+                default -> player.sendMessage(CUtl.usage(Assets.cmdUsage.destGlobalPerms));
             }
         }
         public static ArrayList<String> globalCMDSuggester(Player player, int pos, String[] args) {
@@ -853,6 +862,12 @@ public class Destination {
             if (!Helper.checkEnabled(player).saving() && !Helper.checkEnabled(player).globalEditing()) {
                 return;
             }
+            // if the arguments are empty, send a usage message and don't execute
+            if (args.length < 1) {
+                player.sendMessage(CUtl.usage(Assets.cmdUsage.destAdd));
+                return;
+            }
+
             add(player,new DestEntry(player,dest.getDestArgs(player,args,true),global));
         }
         public static ArrayList<String> addCMDSuggester(Player player, int pos, String[] args) {
