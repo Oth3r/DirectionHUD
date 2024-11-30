@@ -245,6 +245,37 @@ public class Helper {
             }
         }
 
+        /**
+         * removes all entries until the target entry is found
+         * @return the edited string array, removing the keyword as well
+         */
+        public static String[] removeTo(String[] target, String... keywords) {
+            // the args variable to return
+            String[] args = target;
+
+            String targetString = String.join(" ", target);
+            // set the index to -1 as not finding a match as default
+            int index = -1;
+
+            // finds the index for the keywords
+            for (String keyword : keywords) {
+                index = targetString.indexOf(keyword);
+
+                // if a match is found, break out of the loop
+                if (index != -1) break;
+            }
+
+            //trims the words before the text
+            if (index != -1) {
+                targetString = targetString.substring(index).trim();
+                args = targetString.split(" ");
+                // remove the keyword as well
+                args = trimStart(args, 1);
+            }
+
+            return args;
+        }
+
         public static String[] quoteHandler(String[] args) {
             // put quoted items all in one arg
             boolean quote = false;
