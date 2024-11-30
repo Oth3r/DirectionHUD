@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import org.apache.commons.text.similarity.LevenshteinDistance;
 
 
 public class DestinationCommand {
@@ -53,10 +54,55 @@ public class DestinationCommand {
     }
     public static CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder, int pos) {
         Player player = new Player(Objects.requireNonNull(context.getSource().getPlayer()));
-        String[] args = context.getInput().split(" ");
-        if (pos > args.length) return builder.buildFuture();
-        args = Helper.trimStart(args,1);
-        for (String s : Destination.commandSuggester.logic(player,pos,Helper.Command.quoteHandler(args))) builder.suggest(s);
+        
+        // Split preserving quoted strings
+        String input = context.getInput();
+        String[] args = input.split("\\s+(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+        
+        // Handle base command suggestions
+        if (args.length <= 1) {
+            List<String> suggestions = Destination.commandSuggester.logic(player, 1, new String[0]);
+            suggestions.forEach(builder::suggest);
+            return builder.buildFuture();
+        }
+        
+        args = Helper.trimStart(args, 1);
+        
+        // Get suggestions for current position
+        List<String> suggestions = Destination.commandSuggester.logic(player, pos, args);
+        if (suggestions.isEmpty()) {
+            return builder.buildFuture();
+        }
+    
+        // Get current input if position is valid
+        String userInput = "";
+        boolean isQuoted = false;
+        if (pos-1 < args.length) {
+            isQuoted = args[pos-1].startsWith("\"");
+            userInput = args[pos-1].replaceAll("^\"|\"$", "").toLowerCase();
+        }
+    
+        // Handle suggestions
+        if (!userInput.isEmpty()) {
+            LevenshteinDistance distance = new LevenshteinDistance();
+            
+            for (String suggestion : suggestions) {
+                String lowerSuggestion = suggestion.toLowerCase();
+                
+                if (userInput.length() <= 3) {
+                    if (lowerSuggestion.contains(userInput)) {
+                        builder.suggest(isQuoted ? "\"" + suggestion + "\"" : suggestion);
+                    }
+                } else {
+                    int maxDistance = (int) Math.ceil(userInput.length() * 0.4);
+                    if (distance.apply(userInput, lowerSuggestion) <= maxDistance) {
+                        builder.suggest(isQuoted ? "\"" + suggestion + "\"" : suggestion);
+                    }
+                }
+            }
+        } else {
+            suggestions.forEach(builder::suggest);
+        }
         return builder.buildFuture();
     }
     private static int command(ServerCommandSource source, String arg) {
