@@ -13,9 +13,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.util.WorldSavePath;
-import one.oth3r.directionhud.commands.DHUDCommand;
-import one.oth3r.directionhud.commands.DestinationCommand;
-import one.oth3r.directionhud.commands.HUDCommand;
+import one.oth3r.directionhud.commands.ModCommands;
 import one.oth3r.directionhud.common.Events;
 import one.oth3r.directionhud.common.LoopManager;
 import one.oth3r.directionhud.common.files.Data;
@@ -83,9 +81,9 @@ public class DirectionHUD implements ModInitializer {
 
 		// COMMAND REGISTRATION
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
-			DHUDCommand.register(dispatcher);
-			HUDCommand.register(dispatcher);
-			DestinationCommand.register(dispatcher);
+			ModCommands.Register.directionhud(dispatcher);
+			ModCommands.Register.destination(dispatcher);
+			ModCommands.Register.hud(dispatcher);
 		});
 
 		// LOOP
