@@ -5,11 +5,13 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.google.gson.stream.MalformedJsonException;
+import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.DHud;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
+import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 
 import java.io.IOException;
 import java.util.*;
@@ -241,6 +243,28 @@ public class Helper {
                     list.add("purple");
                     list.add("gray");
                 }
+                return list;
+            }
+
+            /**
+             * filters the suggestions based on similarity to the current typed out command
+             */
+            public static ArrayList<String> filter(ArrayList<String> suggestions, String current) {
+                // if the current typed command is empty, don't filter
+                if (current.equalsIgnoreCase("")) return suggestions;
+
+                JaroWinklerSimilarity similarity = new JaroWinklerSimilarity();
+                float minSimilarity = 0.65f;
+
+                ArrayList<String> list = new ArrayList<>();
+                for (String s : suggestions) {
+                    DirectionHUD.LOGGER.info(s+" "+similarity.apply(current, s));
+
+                    // add the suggestion to the return list if above the min similarity threshold
+                    if (similarity.apply(current, s) > minSimilarity) list.add(s);
+                }
+                DirectionHUD.LOGGER.info("-------------------------");
+
                 return list;
             }
         }

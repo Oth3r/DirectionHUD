@@ -123,6 +123,7 @@ public class Destination {
             ArrayList<String> suggester = new ArrayList<>();
             if (!Helper.checkEnabled(player).destination()) return suggester;
             if (pos == 1) {
+                pos = 0;
                 if (Helper.checkEnabled(player).lastdeath()) suggester.add("lastdeath");
                 if (Helper.checkEnabled(player).saving()) {
                     suggester.add("add");
@@ -139,22 +140,24 @@ public class Destination {
             }
             if (pos > 1) {
                 String command = args[0].toLowerCase();
-                String[] trimmedArgs = Helper.trimStart(args, 1);
-                int fixedPos = pos - 2;
+                args = Helper.trimStart(args, 1);
+                pos = pos - 2;
                 switch (command) {
-                    case "saved" -> suggester.addAll(saved.CMDSuggester(player,fixedPos,trimmedArgs));
-                    case "add" -> suggester.addAll(saved.addCMDSuggester(player,fixedPos,trimmedArgs));
-                    case "global" -> suggester.addAll(saved.globalCMDSuggester(player,fixedPos,trimmedArgs));
-                    case "settings" -> suggester.addAll(settings.CMDSuggester(player, fixedPos,trimmedArgs));
+                    case "saved" -> suggester.addAll(saved.CMDSuggester(player,pos,args));
+                    case "add" -> suggester.addAll(saved.addCMDSuggester(player,pos,args));
+                    case "global" -> suggester.addAll(saved.globalCMDSuggester(player,pos,args));
+                    case "settings" -> suggester.addAll(settings.CMDSuggester(player, pos,args));
                     case "color" -> {
-                        if (fixedPos == 3 && trimmedArgs[0].equals("set")) suggester.addAll(Suggester.colors(player,Suggester.getCurrent(trimmedArgs,fixedPos),true));
+                        if (pos == 3 && args[0].equals("set")) suggester.addAll(Suggester.colors(player,Suggester.getCurrent(args,pos),true));
                     }
-                    case "set" -> suggester.addAll(dest.setCMDSuggester(player,fixedPos,trimmedArgs));
-                    case "send" -> suggester.addAll(social.send.CMDSuggester(player,fixedPos,trimmedArgs));
-                    case "track" -> suggester.addAll(social.track.CMDSuggester(player,fixedPos,trimmedArgs));
+                    case "set" -> suggester.addAll(dest.setCMDSuggester(player,pos,args));
+                    case "send" -> suggester.addAll(social.send.CMDSuggester(player,pos,args));
+                    case "track" -> suggester.addAll(social.track.CMDSuggester(player,pos,args));
                 }
             }
-            return suggester;
+            String current = Suggester.getCurrent(args,pos);
+
+            return Suggester.filter(suggester,current);
         }
     }
 
