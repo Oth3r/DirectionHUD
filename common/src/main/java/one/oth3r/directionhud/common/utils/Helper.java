@@ -11,6 +11,7 @@ import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
+import org.apache.commons.text.similarity.FuzzyScore;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 
 import java.io.IOException;
@@ -252,20 +253,31 @@ public class Helper {
             public static ArrayList<String> filter(ArrayList<String> suggestions, String current) {
                 // if the current typed command is empty, don't filter
                 if (current.equalsIgnoreCase("")) return suggestions;
+                if (current.isEmpty()) return suggestions;
 
-                JaroWinklerSimilarity similarity = new JaroWinklerSimilarity();
-                float minSimilarity = 0.65f;
+                // todo maybe have a fallback, as everyone doesn't speak english 🦅
+                FuzzyScore fuzzyScore = new FuzzyScore(Locale.ENGLISH);
 
-                ArrayList<String> list = new ArrayList<>();
-                for (String s : suggestions) {
-                    DirectionHUD.LOGGER.info(s+" "+similarity.apply(current, s));
+                double minimumScore = current.length() * 1.5;
+                if (current.length() == 1) minimumScore = 1;
 
-                    // add the suggestion to the return list if above the min similarity threshold
-                    if (similarity.apply(current, s) > minSimilarity) list.add(s);
-                }
                 DirectionHUD.LOGGER.info("-------------------------");
 
-                return list;
+                // the list of filtered suggestions only
+                ArrayList<String> filtered = new ArrayList<>();
+
+                // score each suggestion and retrieve the suitable option
+                for (String s : suggestions) {
+                    int score = fuzzyScore.fuzzyScore(s.toLowerCase(), current.toLowerCase());
+                    DirectionHUD.LOGGER.info(minimumScore+" "+s+" "+fuzzyScore.fuzzyScore(s.toLowerCase(), current));
+
+                    // if the score is greater or equal than the minimum, add to the filtered list
+                    if (score >= minimumScore) filtered.add(s);
+                }
+
+                DirectionHUD.LOGGER.info("-------------------------");
+                DirectionHUD.LOGGER.info(current);
+                return filtered;
             }
         }
 
