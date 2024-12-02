@@ -464,7 +464,7 @@ public class Hud {
          */
         public static CTxT button() {
             return LANG.btn().btn(true).color(Assets.mainColors.edit).cEvent(1,"/hud modules")
-                    .hEvent(CTxT.of(Assets.cmdUsage.hud).color(Assets.mainColors.edit).append("\n").append(LANG.hover()));
+                    .hEvent(CTxT.of(Assets.cmdUsage.hudModules).color(Assets.mainColors.edit).append("\n").append(LANG.hover()));
         }
 
         public static void CMDExecutor(Player player, String[] args) {
@@ -879,7 +879,7 @@ public class Hud {
          */
         public static CTxT button() {
             return LANG.btn().btn(true).rainbow(true,15f,45f).cEvent(1,"/hud color")
-                    .hEvent(CTxT.of(Assets.cmdUsage.hud).rainbow(true,15f,45f).append("\n").append(LANG.hover()));
+                    .hEvent(CTxT.of(Assets.cmdUsage.hudColor).rainbow(true,15f,45f).append("\n").append(LANG.hover()));
         }
         public static void cmdExecutor(Player player, String[] args) {
             if (args.length == 0) {
