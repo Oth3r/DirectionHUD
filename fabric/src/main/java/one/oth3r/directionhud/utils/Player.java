@@ -243,6 +243,6 @@ public class Player extends PlayerTemplate {
     @Override
     public void spawnParticle(ParticleType particleType, Vec position) {
         serverPlayer.getServerWorld().spawnParticles(serverPlayer,getParticle(particleType),
-                true,position.getX(),position.getY(),position.getZ(),1,0,0,0,1);
+                true,true,position.getX(),position.getY(),position.getZ(),1,0,0,0,1);
     }
 }
