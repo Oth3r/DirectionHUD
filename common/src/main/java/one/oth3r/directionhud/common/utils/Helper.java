@@ -5,8 +5,8 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.google.gson.stream.MalformedJsonException;
-import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.DHud;
+import one.oth3r.directionhud.common.files.Data;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
@@ -255,28 +255,34 @@ public class Helper {
                 if (current.equalsIgnoreCase("")) return suggestions;
                 if (current.isEmpty()) return suggestions;
 
-                // todo maybe have a fallback, as everyone doesn't speak english 🦅
-                FuzzyScore fuzzyScore = new FuzzyScore(Locale.ENGLISH);
-
-                double minimumScore = current.length() * 1.5;
-                if (current.length() == 1) minimumScore = 1;
-
-                DirectionHUD.LOGGER.info("-------------------------");
-
                 // the list of filtered suggestions only
                 ArrayList<String> filtered = new ArrayList<>();
 
-                // score each suggestion and retrieve the suitable option
-                for (String s : suggestions) {
-                    int score = fuzzyScore.fuzzyScore(s.toLowerCase(), current.toLowerCase());
-                    DirectionHUD.LOGGER.info(minimumScore+" "+s+" "+fuzzyScore.fuzzyScore(s.toLowerCase(), current));
+                // todo have a personal fallback, as everyone doesn't speak english 🦅
+                if (Data.getConfig().getLang().equals("en_us")) {
+                    FuzzyScore fuzzyScore = new FuzzyScore(Locale.ENGLISH);
 
-                    // if the score is greater or equal than the minimum, add to the filtered list
-                    if (score >= minimumScore) filtered.add(s);
+                    double minimumScore = current.length() * 1.5;
+                    if (current.length() == 1) minimumScore = 1;
+
+                    // score each suggestion and retrieve the suitable option
+                    for (String s : suggestions) {
+                        int score = fuzzyScore.fuzzyScore(s.toLowerCase(), current.toLowerCase());
+
+                        // if the score is greater or equal than the minimum, add to the filtered list
+                        if (score >= minimumScore) filtered.add(s);
+                    }
+                } else {
+                    // if the language isn't english, use the JaroWinklerSimilarity
+                    JaroWinklerSimilarity similarity = new JaroWinklerSimilarity();
+                    float minSimilarity = 0.65f;
+
+                    for (String s : suggestions) {
+                        // add the suggestion to the return list if above the min similarity threshold
+                        if (similarity.apply(current, s) > minSimilarity) filtered.add(s);
+                    }
                 }
 
-                DirectionHUD.LOGGER.info("-------------------------");
-                DirectionHUD.LOGGER.info(current);
                 return filtered;
             }
         }
