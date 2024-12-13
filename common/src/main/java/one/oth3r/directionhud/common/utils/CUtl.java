@@ -33,6 +33,7 @@ public class CUtl {
     public static CTxT usage(String s) {
         return tag().append(getLangEntry("msg.usage").color(Assets.mainColors.usage)).append(" ").append(s);
     }
+
     /**
      * get an entry from the lang file without a prefix
      * @param key lang key
@@ -40,17 +41,25 @@ public class CUtl {
      * @return the CTxT of the entry
      */
     public static CTxT getLangEntry(String key, Object... args) {
+        // if the directionHUD client, use the built-in lang reader
         if (DirectionHUD.isClient) {
+            // we have to first convert all the CTxT's to the built version because minecraft lang reader doesn't know how to process it
+            // make a array with the same size of the args
             Object[] fixedArgs = new Object[args.length];
-            for (var i = 0;i < args.length;i++) {
+            // for every arg, build & add if CTxT or just add if not
+            for (var i = 0; i < args.length; i++) {
                 if (args[i] instanceof CTxT) fixedArgs[i] = ((CTxT) args[i]).b();
                 else fixedArgs[i] = args[i];
             }
+            // return the translated text
             return Utl.getTranslation(key,fixedArgs);
-        } else {
+        }
+        // else use the custom lang reader, for compatibility, and the lack of a lang reader on the server on fabric
+        else {
             return LangReader.of(key, args).getTxT();
         }
     }
+
     public static String toggleColor(boolean button) {
         return button?"#55FF55":"#FF5555";
     }
