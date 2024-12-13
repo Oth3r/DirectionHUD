@@ -7,9 +7,9 @@ import java.awt.*;
 public class Rainbow {
     private boolean enabled = false;
     private float position = 0;
-    private float stepSize = 15;
+    private float stepSize = 45;
     private float brightness = 1;
-    private float saturation = 0;
+    private float saturation = 1;
 
     public Rainbow(boolean enabled, float position, float stepSize, float brightness, float saturation) {
         this.enabled = enabled;
@@ -17,6 +17,12 @@ public class Rainbow {
         this.stepSize = stepSize;
         this.brightness = brightness;
         this.saturation = saturation;
+    }
+
+    public Rainbow(float position, float stepSize) {
+        this.enabled = true;
+        this.position = position;
+        this.stepSize = stepSize;
     }
 
     public Rainbow() {}
