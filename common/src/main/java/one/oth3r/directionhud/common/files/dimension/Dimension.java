@@ -86,10 +86,10 @@ public class Dimension {
                 .filter(dimension -> dimension.getId().equals(id))
                 .findFirst().orElse(null);
         // if not found
-        if (dim == null) return CTxT.of("X").btn(true).hEvent(CTxT.of("???"));
+        if (dim == null) return CTxT.of("X").btn(true).hover(CTxT.of("???"));
         // make the badge
         return CTxT.of(String.valueOf(dim.getName().charAt(0)).toUpperCase()).btn(true)
-                .color(dim.getColor()).hEvent(CTxT.of(dim.getName()).color(dim.getColor()));
+                .color(dim.getColor()).hover(CTxT.of(dim.getName()).color(dim.getColor()));
     }
     public static ArrayList<Pair<String, String>> getRatioPairs() {
         return dimensionSettings.getRatios().stream()

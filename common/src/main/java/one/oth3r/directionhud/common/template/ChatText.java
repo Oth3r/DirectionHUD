@@ -3,30 +3,25 @@ package one.oth3r.directionhud.common.template;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Helper.Pair;
 import one.oth3r.directionhud.common.utils.Rainbow;
-import one.oth3r.directionhud.utils.CTxT;
 
 import java.util.ArrayList;
 
-public abstract class ChatText {
-    private String text;
-    private Boolean button = false;
-    private String color = null;
-    private Pair<Integer, String> clickEvent = null;
-    private CTxT hoverEvent = null;
-    private Boolean bold = false;
-    private Boolean italic = false;
-    private Boolean strikethrough = false;
-    private Boolean underline = false;
-    private ArrayList<ChatText> append = new ArrayList<>();
-    private Rainbow rainbow = new Rainbow();
+public abstract class ChatText<T, C extends ChatText<T, C>> {
+    protected T text;
+    protected Boolean button = false;
+    protected String color = "#ffffff";
+    protected Pair<Integer, String> clickEvent = null;
+    protected C hoverEvent = null;
+    protected Boolean bold = false;
+    protected Boolean italic = false;
+    protected Boolean strikethrough = false;
+    protected Boolean underline = false;
+    protected ArrayList<C> append = new ArrayList<>();
+    protected Rainbow rainbow = new Rainbow();
 
     public ChatText() {}
 
-    public ChatText(String text) {
-        this.text = text;
-    }
-
-    public ChatText(ChatText main) {
+    public ChatText(C main) {
         this.text = main.text;
         this.button = main.button;
         this.color = main.color;
@@ -40,60 +35,72 @@ public abstract class ChatText {
         this.rainbow = main.rainbow;
     }
 
-    public ChatText text(String text) {
-        this.text = text;
-        return this;
-    }
+    public abstract C text(String text);
 
-    public ChatText btn(Boolean button) {
+    public C btn(Boolean button) {
         this.button = button;
-        return this;
+        return self();
     }
 
-    public ChatText color(String color) {
+    public C color(String color) {
         this.color = CUtl.color.format(color);
-        return this;
+        return self();
     }
 
-    public ChatText click(int type, String actionString) {
+    public C color(char color) {
+        this.color = CUtl.color.format(color);
+        return self();
+    }
+
+    public C click(int type, String actionString) {
         this.clickEvent = new Pair<>(type, actionString);
-        return this;
+        return self();
     }
 
-    public ChatText hover(CTxT hoverText) {
+    public C hover(C hoverText) {
         this.hoverEvent = hoverText;
-        return this;
+        return self();
     }
 
-    public ChatText bold(Boolean bold) {
+    public C bold(Boolean bold) {
         this.bold = bold;
-        return this;
+        return self();
     }
 
-    public ChatText italic(Boolean italic) {
+    public C italic(Boolean italic) {
         this.italic = italic;
-        return this;
+        return self();
     }
 
-    public ChatText strikethrough(Boolean strikethrough) {
+    public C strikethrough(Boolean strikethrough) {
         this.strikethrough = strikethrough;
-        return this;
+        return self();
     }
 
-    public ChatText underline(Boolean underline) {
+    public C underline(Boolean underline) {
         this.underline = underline;
-        return this;
+        return self();
     }
 
-    public abstract ChatText append(String append);
+    public abstract C append(String append);
 
-    public ChatText append(ChatText append) {
+    public abstract C append(T append);
+
+    public C append(C append) {
         this.append.add(append);
-        return this;
+        return self();
     }
 
-    public ChatText rainbow(Rainbow rainbow) {
+    public C rainbow(Rainbow rainbow) {
         this.rainbow = rainbow;
-        return this;
+        return self();
+    }
+
+    public abstract T b();
+
+    // helper to return the subclass instance
+    @SuppressWarnings("unchecked")
+    protected C self() {
+        return (C) this;
     }
 }

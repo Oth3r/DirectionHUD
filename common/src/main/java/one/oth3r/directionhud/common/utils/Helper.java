@@ -444,14 +444,14 @@ public class Helper {
             CTxT right = CTxT.of("");
             // if at the start left is gray else not
             if (page==1) left.append(CTxT.of("<<").btn(true).color('7'));
-            else left.append(CTxT.of("<<").btn(true).color(CUtl.s()).cEvent(1,command+(page-1)));
+            else left.append(CTxT.of("<<").btn(true).color(CUtl.s()).click(1,command+(page-1)));
             // if at the end right is gray else not
             if (page==max) right.append(CTxT.of(">>").btn(true).color('7'));
-            else right.append(CTxT.of(">>").btn(true).color(CUtl.s()).cEvent(1,command+(page+1)));
+            else right.append(CTxT.of(">>").btn(true).color(CUtl.s()).click(1,command+(page+1)));
             // build and return
             return CTxT.of("")
                     .append(left).append(" ")
-                    .append(CTxT.of(String.valueOf(page)).btn(true).color(CUtl.p()).cEvent(2,command).hEvent(CUtl.LANG.hover("page_set").color(CUtl.p())))
+                    .append(CTxT.of(String.valueOf(page)).btn(true).color(CUtl.p()).click(2,command).hover(CUtl.LANG.hover("page_set").color(CUtl.p())))
                     .append(" ").append(right);
         }
     }

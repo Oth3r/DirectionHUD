@@ -69,15 +69,17 @@ public class CUtl {
     }
     // [OFF/ON] (COLOR & FUNCTIONALITY)
     public static CTxT toggleBtn(boolean button, String cmd) {
-        return LANG.btn(button?"on":"off").btn(true).color(button?'a':'c').hEvent(LANG.hover("state",
-                toggleTxT(!button))).cEvent(1,cmd+(button?"off":"on"));
+        return LANG.btn(button?"on":"off").btn(true).color(button?'a':'c').hover(LANG.hover("state",
+                toggleTxT(!button))).click(1,cmd+(button?"off":"on"));
     }
     public static class CButton {
         public static CTxT back(String cmd) {
-            return LANG.btn("back").btn(true).color(Assets.mainColors.back).cEvent(1,cmd).hEvent(CTxT.of(cmd).color(Assets.mainColors.back).append("\n").append(LANG.hover("back")));
+            return LANG.btn("back").btn(true).color(Assets.mainColors.back).click(1,cmd).hover(CTxT.of(cmd).color(Assets.mainColors.back).append("\n").append(LANG.hover("back")));
         }
     }
+
     public static class color {
+
         public static final List<String> DEFAULT_COLORS = List.of(
                 "#ff5757","#d40000","#900000",
                 "#ffa562","#ff9834","#e77400",
@@ -86,6 +88,7 @@ public class CUtl {
                 "#8ddfff","#0099ff","#004995",
                 "#a38cff","#8c04dd","#5c00a7",
                 "#d9d9d9","#808080","#404040");
+
         public static String updateOld(String string,String defaultColor) {
             return switch (string) {
                 case "red" -> "#FF5555";
@@ -122,6 +125,20 @@ public class CUtl {
 
         public static String format(String hex) {
             return format(hex,"#ffffff");
+        }
+
+        /**
+         * converts the character into the corresponding hex color <br>
+         * currently using minecraft colors, but todo change later
+         */
+        public static String format(char character) {
+            return switch (character) {
+                case 'c' -> "#FF5555";
+                case 'e' -> "#FFFF55";
+                case 'a' -> "#55FF55";
+                case '7' -> "#AAAAAA";
+                default -> "#FFFFFF";
+            };
         }
 
         public static CTxT getBadge(String hex) {

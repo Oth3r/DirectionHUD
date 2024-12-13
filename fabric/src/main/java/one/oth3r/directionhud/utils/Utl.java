@@ -3,6 +3,7 @@ package one.oth3r.directionhud.utils;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.world.World;
 import one.oth3r.directionhud.DirectionHUD;
@@ -25,7 +26,7 @@ public class Utl {
     public static CTxT getTxTFromObj(Object obj) {
         CTxT txt = CTxT.of("");
         if (obj instanceof CTxT) txt.append(((CTxT) obj).b());
-        else if (obj instanceof Text) txt.append((Text) obj);
+        else if (obj instanceof Text) txt.append((MutableText) obj);
         else txt.append(String.valueOf(obj));
         return txt;
     }
