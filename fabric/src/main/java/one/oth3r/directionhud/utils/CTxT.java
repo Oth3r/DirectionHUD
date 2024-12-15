@@ -9,10 +9,13 @@ public class CTxT extends ChatText<MutableText, CTxT> {
 
     public CTxT(CTxT main) {
         super(main);
+        // create a copy of the mutable
+        this.text = text.copy();
     }
 
     public CTxT(MutableText text) {
-        this.text = text;
+        // create a copy of the mutable
+        this.text = text.copy();
     }
 
     public CTxT(String text) {
@@ -48,7 +51,7 @@ public class CTxT extends ChatText<MutableText, CTxT> {
     }
 
     private ClickEvent getClickEvent() {
-        if (this.clickEvent == null) return null;
+        if (this.clickEvent == null || this.clickEvent.value() == null) return null;
         return switch (this.clickEvent.key()) {
             case 1 -> new ClickEvent(ClickEvent.Action.RUN_COMMAND, clickEvent.value());
             case 2 -> new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, clickEvent.value());
@@ -93,6 +96,11 @@ public class CTxT extends ChatText<MutableText, CTxT> {
 
         for (CTxT txt : this.append) output.append(txt.b());
 
-        return output;
+        return output.copy();
+    }
+
+    @Override
+    public String toString() {
+        return b().getString();
     }
 }

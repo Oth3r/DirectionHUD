@@ -52,6 +52,11 @@ public abstract class ChatText<T, C extends ChatText<T, C>> {
         return self();
     }
 
+    public C click(Pair<Integer, String> clickEventPair) {
+        this.clickEvent = clickEventPair;
+        return self();
+    }
+
     public C click(int type, String actionString) {
         this.clickEvent = new Pair<>(type, actionString);
         return self();
@@ -97,6 +102,9 @@ public abstract class ChatText<T, C extends ChatText<T, C>> {
     }
 
     public abstract T b();
+
+    @Override
+    public abstract String toString();
 
     // helper to return the subclass instance
     @SuppressWarnings("unchecked")

@@ -506,28 +506,25 @@ public class DHud {
                     .click(2,String.format("/dhud color %s %s \"%s\" set ",UISettings,type,subtype))
                     .hover(LANG.hover("custom",LANG.hover("custom.2").color(Assets.mainColors.custom)));
 
-            CTxT defaultSquare = CTxT.of(Assets.symbols.square).color(color).hover(CUtl.color.getBadge(color)),
-                    smallButton = LANG.get("editor.step.button.small").color(CUtl.s()).click(1,String.format(stepCMD,"small"))
-                            .hover(LANG.get("editor.step.hover",LANG.get("editor.step.button.small").color(CUtl.s()))).btn(true),
-                    normalButton = LANG.get("editor.step.button.normal").color(CUtl.s()).click(1,String.format(stepCMD,"normal"))
-                            .hover(LANG.get("editor.step.hover",LANG.get("editor.step.button.normal").color(CUtl.s()))).btn(true),
-                    bigButton = LANG.get("editor.step.button.big").color(CUtl.s()).click(1,String.format(stepCMD,"big"))
-                            .hover(LANG.get("editor.step.hover",LANG.get("editor.step.button.big").color(CUtl.s()))).btn(true);
+            CTxT defaultSquare = CTxT.of(Assets.symbols.square).color(color).hover(CUtl.color.getBadge(color));
+            CTxT smallButton = createSizeButton(stepCMD,"small");
+            CTxT normalButton = createSizeButton(stepCMD, "normal");
+            CTxT bigButton = createSizeButton(stepCMD, "big");
 
             // initialize the change amounts for each step size
             float[] changeAmounts = new float[3];
             if (UISettings == null || UISettings.equals("normal")) {
-                normalButton.color(Assets.mainColors.gray).click(1,null).hover(null);
+                normalButton.color(Assets.mainColors.gray).click(null).hover(null);
                 changeAmounts[0] = 0.02f;
                 changeAmounts[1] = 0.05f;
                 changeAmounts[2] = 0.1f;
             } else if (UISettings.equals("small")) {
-                smallButton.color(Assets.mainColors.gray).click(1,null).hover(null);
+                smallButton.color(Assets.mainColors.gray).click(null).hover(null);
                 changeAmounts[0] = 0.005f;
                 changeAmounts[1] = 0.0125f;
                 changeAmounts[2] = 0.025f;
             } else if (UISettings.equals("big")) {
-                bigButton.color(Assets.mainColors.gray).click(1,null).hover(null);
+                bigButton.color(Assets.mainColors.gray).click(null).hover(null);
                 changeAmounts[0] = 0.04f;
                 changeAmounts[1] = 0.1f;
                 changeAmounts[2] = 0.2f;
@@ -550,6 +547,7 @@ public class DHud {
                 }
                 i = i+2;
             }
+
             return CTxT.of(" ")
                     .append(presetsButton).append(" ").append(customButton).append("\n\n")
                     .append("  ")
@@ -557,6 +555,17 @@ public class DHud {
                     .append(hsbList.get(2)).append(" ").append(defaultSquare).append(" ").append(hsbList.get(3)).append(" ").append(LANG.get("editor.saturation")).append("\n  ")
                     .append(hsbList.get(4)).append(" ").append(defaultSquare).append(" ").append(hsbList.get(5)).append(" ").append(LANG.get("editor.brightness")).append("\n\n ")
                     .append(smallButton).append(" ").append(normalButton).append(" ").append(bigButton);
+        }
+
+        /**
+         * creates the sizing button for the color editor - as the code for each button is identical
+         * @param stepCMD
+         * @param size
+         * @return
+         */
+        private static CTxT createSizeButton(String stepCMD, String size) {
+            CTxT buttonTxT = LANG.get("editor.step.button."+size).color(CUtl.s());
+            return new CTxT(buttonTxT).click(1,String.format(stepCMD,size)).hover(LANG.get("editor.step.hover",buttonTxT)).btn(true);
         }
 
         /**
