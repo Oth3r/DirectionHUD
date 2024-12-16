@@ -16,6 +16,7 @@ public abstract class ChatText<T, C extends ChatText<T, C>> {
     protected Boolean italic = false;
     protected Boolean strikethrough = false;
     protected Boolean underline = false;
+    protected Boolean obfuscate = false;
     protected ArrayList<C> append = new ArrayList<>();
     protected Rainbow rainbow = new Rainbow();
 
@@ -87,6 +88,11 @@ public abstract class ChatText<T, C extends ChatText<T, C>> {
         return self();
     }
 
+    public C obfuscate(Boolean obfuscate) {
+        this.obfuscate = obfuscate;
+        return self();
+    }
+
     public abstract C append(String append);
 
     public abstract C append(T append);
@@ -105,6 +111,42 @@ public abstract class ChatText<T, C extends ChatText<T, C>> {
 
     @Override
     public abstract String toString();
+
+    public Boolean isBtn() {
+        return button;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public Boolean isBold() {
+        return bold;
+    }
+
+    public Boolean isItalic() {
+        return italic;
+    }
+
+    public Boolean isStrikethrough() {
+        return strikethrough;
+    }
+
+    public Boolean isUnderline() {
+        return underline;
+    }
+
+    public Boolean isObfuscated() {
+        return obfuscate;
+    }
+
+    public Pair<Integer, String> getClick() {
+        return clickEvent;
+    }
+
+    public C getHover() {
+        return hoverEvent;
+    }
 
     // helper to return the subclass instance
     @SuppressWarnings("unchecked")

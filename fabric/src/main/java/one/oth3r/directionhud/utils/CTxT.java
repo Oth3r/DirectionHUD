@@ -82,7 +82,8 @@ public class CTxT extends ChatText<MutableText, CTxT> {
                 .withItalic(this.italic)
                 .withBold(this.bold)
                 .withStrikethrough(this.strikethrough)
-                .withUnderline(this.underline)));
+                .withUnderline(this.underline)
+                .withObfuscated(this.obfuscate)));
         if (this.button) output.append("]").setStyle(Style.EMPTY.withColor(Formatting.byCode('f')));
 
         // make sure everything including the button pieces are styled ?
@@ -92,7 +93,8 @@ public class CTxT extends ChatText<MutableText, CTxT> {
                 .withItalic(this.italic)
                 .withBold(this.bold)
                 .withStrikethrough(this.strikethrough)
-                .withUnderline(this.underline));
+                .withUnderline(this.underline)
+                .withObfuscated(this.obfuscate));
 
         for (CTxT txt : this.append) output.append(txt.b());
 
