@@ -70,7 +70,7 @@ public class CTxT extends ChatText<MutableText, CTxT> {
 
         MutableText output = Text.literal("");
         if (this.rainbow.isEnabled()) {
-            this.text = this.rainbow.colorize(this.text.getString()).b();
+            this.text = this.rainbow.colorize(text.getString(), this).b();
         }
 
         if (this.button) output.append("[").setStyle(Style.EMPTY.withColor(Formatting.byCode('f')));

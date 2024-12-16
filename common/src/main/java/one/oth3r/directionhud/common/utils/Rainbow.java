@@ -5,11 +5,11 @@ import one.oth3r.directionhud.utils.CTxT;
 import java.awt.*;
 
 public class Rainbow {
-    private boolean enabled = false;
-    private float position = 0;
-    private float stepSize = 45;
-    private float brightness = 1;
-    private float saturation = 1;
+    protected boolean enabled = false;
+    protected float position = 0;
+    protected float stepSize = 5;
+    protected float brightness = 1;
+    protected float saturation = 1;
 
     public Rainbow(boolean enabled, float position, float stepSize, float brightness, float saturation) {
         this.enabled = enabled;
@@ -75,7 +75,7 @@ public class Rainbow {
      * makes a string ranbow using the varibles in the Rainbow class
      * @return a colorized CTxT object
      */
-    public CTxT colorize(String target) {
+    public CTxT colorize(String target, CTxT settings) {
         // if not enabled, don't send a string
         if (!enabled) return CTxT.of(target);
 
@@ -99,7 +99,15 @@ public class Rainbow {
             String hexColor = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
 
             rainbow.append(CTxT.of(Character.toString(target.codePointAt(i)))
-                    .color(hexColor));
+                    .color(hexColor)
+                    // copy the settings of the settings CTxT EXCEPT for button
+                    .bold(settings.isBold())
+                    .italic(settings.isItalic())
+                    .strikethrough(settings.isStrikethrough())
+                    .underline(settings.isUnderline())
+                    .obfuscate(settings.isObfuscated())
+                    .click(settings.getClick())
+                    .hover(settings.getHover()));
 
             // bump the hue
             hue = (hue+stepSize) % 360f;
