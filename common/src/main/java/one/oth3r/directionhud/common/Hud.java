@@ -1043,21 +1043,29 @@ public class Hud {
             if (Return) changeUI(player,UISettings,colorType,msg);
             else player.sendMessage(msg);
         }
+
         /**
          * formats the given text with the hud colors selected
          * @param txt text to be formatted
          * @param typ primary/secondary
-         * @param start rainbow start
-         * @param step rainbow step
          */
-        public static CTxT addColor(Player player, String txt, int typ, float start, float step) {
+        public static CTxT addColor(Player player, String txt, int typ, Rainbow rainbow) {
             CTxT output = CTxT.of(txt).italic(getEntry(player,typ).getItalics()).bold(getEntry(player,typ).getBold());
-            if (getEntry(player,typ).getRainbow()) return output.rainbow(new Rainbow(start,step));
+            if (getEntry(player,typ).getRainbow()) return output.rainbow(rainbow);
             return output.color(getEntry(player,typ).getColor());
         }
-        public static CTxT addColor(Player player, CTxT txt, int typ, float start, float step) {
-            return addColor(player,txt.toString(),typ,start,step);
+        public static CTxT addColor(Player player, CTxT txt, int typ, Rainbow rainbow) {
+            return addColor(player,txt.toString(),typ,rainbow);
         }
+
+        /**
+         * add the color to the text, using the hud color
+         */
+        public static CTxT addColor(Player player, CTxT txt, int typ) {
+            Rainbow rainbow = player.getPCache().getRainbow(typ);
+            return addColor(player, txt, typ, rainbow);
+        }
+
         /**
          * the chat UI for editing a HUD color
          * @param setting the color UI settings

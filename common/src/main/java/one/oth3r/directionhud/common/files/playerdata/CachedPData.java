@@ -1,6 +1,8 @@
 package one.oth3r.directionhud.common.files.playerdata;
 
 import one.oth3r.directionhud.common.utils.Dest;
+import one.oth3r.directionhud.common.utils.HudRainbow;
+import one.oth3r.directionhud.common.utils.Rainbow;
 import one.oth3r.directionhud.common.utils.Vec;
 import one.oth3r.directionhud.utils.Player;
 
@@ -14,7 +16,7 @@ import java.util.HashMap;
  * <p>
  * currently everything in HUD and Destination settings
  * <p>
- * inbox and social cooldown are also int the cache, and can be written to
+ * inbox and social cooldown are also in the cache, and can be written to
  * <p>
  * when saving pData the writing data gets merged
  */
@@ -24,6 +26,7 @@ public class CachedPData {
     private CachedDestination destination;
     private final SpeedData speedData;
     private final HashMap<String,Integer> msgMap = new HashMap<>();
+    private final HudRainbow hudRainbow;
     // READ AND WRITE
     private Integer socialCooldown;
     private ArrayList<HashMap<String,String>> inbox;
@@ -32,10 +35,15 @@ public class CachedPData {
         this.hud = new PDHud(pData.getHud());
         this.destination = new CachedDestination(pData.getDEST());
         this.speedData = new SpeedData(pData.getPlayer());
+        this.hudRainbow = new HudRainbow(pData.getPlayer());
         this.inbox = pData.getInbox();
         this.socialCooldown = pData.getSocialCooldown();
     }
 
+    /**
+     * update the cache with new data
+     * @param pData updated data
+     */
     public void update(DefaultPData pData) {
         this.hud = new PDHud(pData.getHud());
         this.destination = new CachedDestination(pData.getDEST());
@@ -51,6 +59,14 @@ public class CachedPData {
 
     public SpeedData getSpeedData() {
         return speedData;
+    }
+
+    /**
+     * get rainbow based on hud color type
+     * @return rainbow for the hud color type
+     */
+    public Rainbow getRainbow(int typ) {
+        return this.hudRainbow.select(typ);
     }
 
     public ArrayList<String> getMsgKeys() {
