@@ -41,7 +41,7 @@ public class Data {
     /**
      * clears the per-server data
      */
-    public static void clear() {
+    public static void clearServerData() {
         globalDestinations = new GlobalDest();
     }
 }
