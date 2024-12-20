@@ -185,7 +185,15 @@ public class Destination {
                 return player.getVec().distanceTo(loc.getVec(player)) <= (int) player.getPData().getDEST().getSetting(Setting.autoclear_rad);
             else return false;
         }
+
+        /**
+         * gets the distance to the destination. <br>
+         * @return the distance, -1 if there's no destination set
+         */
         public static int getDist(Player player) {
+            Dest dest = get(player);
+
+            if (!dest.hasXYZ()) return -1;
             return (int) player.getVec().distanceTo(get(player).getVec(player));
         }
 
