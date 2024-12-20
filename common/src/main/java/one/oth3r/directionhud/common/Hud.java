@@ -1082,10 +1082,10 @@ public class Hud {
                 return;
             }
             // message header
-            msg.append(" ").append(addColor(player,LANG.btn(type),typ,15,20)).append(line).append("\n");
+            msg.append(" ").append(addColor(player,LANG.btn(type),typ,new Rainbow(15,20))).append(line).append("\n");
             // make the buttons
             CTxT reset = CUtl.LANG.btn("reset").btn(true).color('c').click(1, "/hud color reset-r "+type+" "+setting)
-                    .hover(LANG.hover("reset",addColor(player,LANG.get(type),typ,15,20)));
+                    .hover(LANG.hover("reset",addColor(player,LANG.get(type),typ,new Rainbow(15,20))));
             // bold
             CTxT boldButton = LANG.btn("bold").btn(true).color(CUtl.toggleColor(getEntry(player,typ).getBold()))
                     .click(1,String.format("/hud color %s-r bold %s %s",type,(getEntry(player,typ).getBold()?"off":"on"),setting))
