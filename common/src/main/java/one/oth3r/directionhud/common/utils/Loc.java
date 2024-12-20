@@ -158,6 +158,10 @@ public class Loc {
         return x+" "+y+" "+z;
     }
 
+    public boolean hasY() {
+        return y != null;
+    }
+
     /**
      * checks if the Loc is valid or not
      */
