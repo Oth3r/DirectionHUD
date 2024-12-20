@@ -2,6 +2,7 @@ package one.oth3r.directionhud.common.utils;
 
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.Assets;
+import one.oth3r.directionhud.common.Hud;
 import one.oth3r.directionhud.common.files.LangReader;
 import one.oth3r.directionhud.common.utils.Helper.*;
 import one.oth3r.directionhud.utils.CTxT;
@@ -9,6 +10,7 @@ import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -72,6 +74,105 @@ public class CUtl {
         return LANG.btn(button?"on":"off").btn(true).color(button?'a':'c').hover(LANG.hover("state",
                 toggleTxT(!button))).click(1,cmd+(button?"off":"on"));
     }
+
+    /**
+     * parses a coded string into a colored CTxT <br>
+     * <p>
+     *     &1 - primary color <br>
+     *     &2 - secondary color <br>
+     *     &b - bold <br>
+     *     &i - italic <br>
+     *     &s - strikethrough <br>
+     *     &u - underline <br>
+     *     &o - obfuscated <br>
+     *     &r - resets all modifiers, but doesn't reset the color <br>
+     * </p>
+     * @return colored CTxT
+     */
+    public static CTxT parse(Player player, String input) {
+        // todo rainbow start and step
+        /*
+        THE SELECTORS THAT STOP THE PROCESSING CHUNK
+        &p &s
+         */
+
+        ArrayList<Character> selectors = new ArrayList<>(List.of('1','2','b','i','s','u','o','r'));
+        CTxT output = CTxT.of("");
+        // the color type VIA Hud.color types
+        int color = 1;
+        StringBuilder current = new StringBuilder();
+        boolean bold = false,
+                italic = false,
+                strikethrough = false,
+                underline = false,
+                obfuscated = false;
+
+        int i = 0;
+        while (i < input.length()) {
+            int ahead = i + 1;
+            // if there is a code
+            if (input.charAt(i) == '&' && ahead < input.length() &&
+                    selectors.contains(input.charAt(ahead))) {
+                char code = input.charAt(ahead);
+
+                // append the currently built string
+                output.append(colorize(player,current.toString(),color,bold,italic,strikethrough,underline,obfuscated));
+
+                // clear the currently built string
+                current.setLength(0);
+
+                // apply the code
+                switch (code) {
+                    case '1' -> color = 1;
+                    case '2' -> color = 2;
+                    case 'b' -> bold = true;
+                    case 'i' -> italic = true;
+                    case 's' -> strikethrough = true;
+                    case 'u' -> underline = true;
+                    case 'o' -> obfuscated = true;
+                    case 'r' -> {
+                        bold = false;
+                        italic = false;
+                        strikethrough = false;
+                        underline = false;
+                        obfuscated = false;
+                    }
+                }
+
+                i += 2;
+            } else {
+                current.append(input.charAt(i));
+                i++;
+            }
+        }
+
+        // build what's left at the end of the loop
+        output.append(colorize(player,current.toString(),color,bold,italic,strikethrough,underline,obfuscated));
+
+
+        return output;
+    }
+
+    /**
+     * colorizes the string using the settings provided + player hud colors
+     * @return colored CTxT
+     */
+    public static CTxT colorize(Player player, String text, int color,
+                                boolean bold, boolean italic, boolean strikethrough,
+                                boolean underline, boolean obfuscated) {
+        // append the currently built string
+        CTxT build = Hud.color.addColor(player,new CTxT(text),color);
+
+        // only apply bold and italic if enabled
+        if (bold) build.bold(true);
+        if (italic) build.italic(true);
+
+        // apply the rest of the modifiers
+        build.strikethrough(strikethrough).underline(underline).obfuscate(obfuscated);
+
+        return build;
+    }
+
     public static class CButton {
         public static CTxT back(String cmd) {
             return LANG.btn("back").btn(true).color(Assets.mainColors.back).click(1,cmd).hover(CTxT.of(cmd).color(Assets.mainColors.back).append("\n").append(LANG.hover("back")));
