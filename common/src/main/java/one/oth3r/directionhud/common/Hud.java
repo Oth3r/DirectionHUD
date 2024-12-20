@@ -4,6 +4,8 @@ import one.oth3r.directionhud.common.Assets.symbols.arrows;
 import one.oth3r.directionhud.common.Hud.Setting.ModuleAngleDisplay;
 import one.oth3r.directionhud.common.Hud.Setting.ModuleTrackingTarget;
 import one.oth3r.directionhud.common.Hud.Setting.*;
+import one.oth3r.directionhud.common.files.Data;
+import one.oth3r.directionhud.common.files.ModuleText;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.dimension.DimensionEntry.*;
 import one.oth3r.directionhud.common.files.dimension.DimensionEntry.Time.*;
@@ -23,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 
 public class Hud {
+
     public enum Setting {
         state,
         type,
@@ -119,6 +122,7 @@ public class Hud {
             both
         }
     }
+
     public enum Module {
         coordinates,
         distance,
@@ -138,7 +142,9 @@ public class Hud {
             }
         }
     }
+
     public static final Lang LANG = new Lang("hud.");
+
     public static void CMDExecutor(Player player, String[] args) {
         if (!Helper.checkEnabled(player).hud()) return;
         if (args.length == 0) {
@@ -152,9 +158,12 @@ public class Hud {
             case "settings" -> settings.CMDExecutor(player,trimmedArgs);
             case "color" -> color.cmdExecutor(player, trimmedArgs);
             case "toggle" -> settings.change(player,Setting.state,(boolean) player.getPCache().getHud().getSetting(Setting.state)?"off":"on",false);
-            default -> player.sendMessage(CUtl.error("command"));
+//            default -> player.sendMessage(CUtl.error("command")); todo
+            default -> player.sendMessage(CUtl.parse(player, args[0]));
+
         }
     }
+
     public static ArrayList<String> CMDSuggester(Player player, int pos, String[] args) {
         ArrayList<String> suggester = new ArrayList<>();
         if (!Helper.checkEnabled(player).hud()) return suggester;
@@ -176,15 +185,17 @@ public class Hud {
         }
         return suggester;
     }
+
     public static class build {
         /**
          * builds the HUD for actionBar & BossBar use
          * @param moduleInstructions a HashMap with the instructions for building the HUD
          * @return a CTxT with the fully built HUD
          */
-        public static CTxT compile(Player player, HashMap<Module, ArrayList<String>> moduleInstructions) {
+        public static CTxT compile(Player player, HashMap<Module, String> moduleInstructions) {
             // returns a CTxT with the fully built HUD
             int start = 1;
+            player.getPCache().getRainbow(1).setPosition(LoopManager.rainbowF);
             CTxT msg = CTxT.of("");
             // loop for all enabled modules
             int count = 0;
@@ -193,130 +204,244 @@ public class Hud {
                 // if dest isn't set
                 if (moduleInstructions.get(module).isEmpty()) continue;
 
-                for (String str : moduleInstructions.get(module)) {
-                    String string = str.substring(1);
-                    boolean strike = false;
-                    // if '/', remove the char and enable strikethrough for the text
-                    if (str.charAt(0) == '/') {
-                        str = str.substring(1);
-                        string = string.substring(1);
-                        strike = true;
-                    }
-                    // if 'p' use primary color, 's' for secondary
-                    int typ = str.charAt(0) == 'p'?1:2;
-                    // add the color and style
-                    msg.append(color.addColor(player,string,typ,LoopManager.rainbowF+start,5)
-                            .strikethrough(strike));
-                    // if rainbow, move the starting position by how many characters were turned into a rainbow, for a seamless rainbow
-                    if (color.getEntry(player,typ).getRainbow()) {
-                        String rgbStr = string.replaceAll("\\s", "");
-                        start = start + rgbStr.codePointCount(0, rgbStr.length())*5;
-                    }
-                }
+                msg.append(CUtl.parse(player,moduleInstructions.get(module)));
+
+//                for (String str : moduleInstructions.get(module)) {
+//                    String string = str.substring(1);
+//                    boolean strike = false;
+//                    // if '/', remove the char and enable strikethrough for the text
+//                    if (str.charAt(0) == '/') {
+//                        str = str.substring(1);
+//                        string = string.substring(1);
+//                        strike = true;
+//                    }
+//                    // if 'p' use primary color, 's' for secondary
+//                    int typ = str.charAt(0) == 'p'?1:2;
+//                    // add the color and style
+//                    msg.append(color.addColor(player,string,typ,LoopManager.rainbowF+start,5)
+//                            .strikethrough(strike));
+//                    // if rainbow, move the starting position by how many characters were turned into a rainbow, for a seamless rainbow
+//                    if (color.getEntry(player,typ).getRainbow()) {
+//                        String rgbStr = string.replaceAll("\\s", "");
+//                        start = start + rgbStr.codePointCount(0, rgbStr.length())*5;
+//                    }
+//                }
+
                 if (count < modules.getEnabled(player).size()) msg.append(" ");
             }
             if (msg.equals(CTxT.of(""))) return CTxT.of("");
             //make the click event unique for detecting if an actionbar is from DirectionHUD or not
-            msg.cEvent(3,"https://modrinth.com/mod/directionhud");
+            msg.click(3,"https://modrinth.com/mod/directionhud");
             return msg;
         }
         /**
          * puts all HUD building instructions into a HashMap
          * @return HUD building instructions
          */
-        public static HashMap<Module, ArrayList<String>> getHUDInstructions(Player player) {
-            ArrayList<String> coordinates = new ArrayList<>();
-            coordinates.add("pXYZ: ");
-            coordinates.add("s"+player.getBlockX()+" "+player.getBlockY()+" "+player.getBlockZ());
-            ArrayList<String> destination = new ArrayList<>();
-            ArrayList<String> distance = new ArrayList<>();
-            ArrayList<String> tracking = getTrackingModule(player);
-            if (Destination.dest.get(player).hasXYZ()) {
-                destination.add("p[");
-                destination.add("s"+ Destination.dest.get(player).getXYZ());
-                destination.add("p]");
-                distance.add("p[");
-                distance.add("s"+ Destination.dest.getDist(player));
-                distance.add("p]");
-            }
-            ArrayList<String> direction = getDirectionModule(player);
-            ArrayList<String> time = getTimeModule(player);
-            ArrayList<String> weather = getWeatherModule(player);
-            HashMap<Module, ArrayList<String>> filledModules = new HashMap<>();
-            filledModules.put(Module.coordinates, coordinates);
-            filledModules.put(Module.distance, distance);
-            filledModules.put(Module.destination, destination);
-            filledModules.put(Module.direction, direction);
-            filledModules.put(Module.time, time);
-            filledModules.put(Module.weather, weather);
-            filledModules.put(Module.tracking, tracking);
-            filledModules.put(Module.speed, getSpeedModule(player));
+        public static HashMap<Module, String> getHUDInstructions(Player player) {
+            HashMap<Module, String> filledModules = new HashMap<>();
+            filledModules.put(Module.coordinates, getCoordinatesModule(player));
+            filledModules.put(Module.destination, getDestinationModule(player));
+            filledModules.put(Module.distance, getDistanceModule(player));
+            filledModules.put(Module.tracking, getTrackingModule(player));
+            filledModules.put(Module.direction, getDirectionModule(player));
+            filledModules.put(Module.weather, getWeatherModule(player));
+            filledModules.put(Module.time, getTimeModule(player));
             filledModules.put(Module.angle, getAngleModule(player));
+            filledModules.put(Module.speed, getSpeedModule(player));
             return filledModules;
         }
-        /**
-         * @return the direction module instructions
-         */
-        public static ArrayList<String> getDirectionModule(Player player) {
-            ArrayList<String> direction = new ArrayList<>();
-            double rotation = player.getYaw()+180;
-            String cardinal = "?";
-            if (Num.inBetween(rotation,360.0,22.5) ||
-                    Num.inBetween(rotation,337.5,360.0)) cardinal = "N";
-            else if (Num.inBetween(rotation,22.5,67.5)) cardinal = "NE";
-            else if (Num.inBetween(rotation,67.5,112.5)) cardinal = "E";
-            else if (Num.inBetween(rotation,112.5,157.5)) cardinal = "SE";
-            else if (Num.inBetween(rotation,157.5,202.5)) cardinal = "S";
-            else if (Num.inBetween(rotation,202.5,247.5)) cardinal = "SW";
-            else if (Num.inBetween(rotation,247.5,292.5)) cardinal = "W";
-            else if (Num.inBetween(rotation,292.5,337.5)) cardinal = "NW";
-            direction.add("p"+cardinal);
-            return direction;
+
+        public static String getCoordinatesModule(Player player) {
+            return String.format(Data.getModuleText().getCoordinates().getXyz(),
+                    player.getBlockX(), player.getBlockY(), player.getBlockZ());
+
+        }
+        public static String getDestinationModule(Player player) {
+            Dest dest = Destination.dest.get(player);
+            // if no destination is set, empty
+            if (!dest.hasXYZ()) return "";
+            // get the destination assets
+            ModuleText.ModuleDestination moduleDestination = Data.getModuleText().getDestination();
+
+            // return based on the destination
+            if (dest.hasDestRequirements()) {
+                return String.format(moduleDestination.getName(), dest.getName());
+            }
+            else if (dest.hasY()) {
+                return String.format(moduleDestination.getXyz(), dest.getX(), dest.getY(), dest.getZ());
+            }
+            else {
+                return String.format(moduleDestination.getXz(), dest.getX(), dest.getZ());
+            }
+        }
+        public static String getDistanceModule(Player player) {
+            int distance = Destination.dest.getDist(player);
+            // if no destination is set, return empty
+            if (distance == -1) return "";
+
+            return String.format(Data.getModuleText().getDistance().getNumber(),
+                    distance);
+        }
+        public static String getTrackingModule(Player player) {
+            // if the module isn't enabled, return empty
+            if (!player.getPCache().getHud().getModule(Module.tracking)) return "";
+
+            // pointer target
+            Loc pointLoc = null;
+            // player tracking mode
+            ModuleTrackingTarget trackingTarget = Enums.get(player.getPCache().getHud().getSetting(Setting.module__tracking_target),ModuleTrackingTarget.class);
+            boolean hybrid = (boolean) player.getPCache().getHud().getSetting(Setting.module__tracking_hybrid);
+
+            // if PLAYER or HYBRID (TRACKING CHECK)
+            if (trackingTarget.equals(ModuleTrackingTarget.player) || hybrid) {
+                // get the target
+                Player target = Destination.social.track.getTarget(player);
+                // make sure the player is real
+                if (target.isValid()) {
+                    Loc plLoc = new Loc(target);
+                    // not in the same dimension
+                    if (!player.getDimension().equals(target.getDimension())) {
+                        // can convert and autoconvert is on
+                        if (Dimension.canConvert(player.getDimension(),target.getDimension()) &&
+                                player.getPCache().getDEST().getDestSettings().getAutoconvert()) {
+                            plLoc.convertTo(player.getDimension());
+                        }
+                        // else no tracking
+                        else plLoc = null;
+                    }
+                    // set the loc
+                    pointLoc = plLoc;
+                }
+            }
+            // DEST or (HYBRID & NULL TRACKER)
+            if (trackingTarget.equals(ModuleTrackingTarget.dest) || (hybrid && pointLoc == null)) {
+                // make sure theres a dest
+                if (Destination.dest.get(player).hasXYZ())
+                    pointLoc = Destination.dest.get(player);
+            }
+            // check if there's a point set, otherwise return nothing
+            if (pointLoc == null) return "";
+
+            ModuleTrackingType trackingType = Enums.get(String.valueOf(player.getPCache().getHud().getSetting(Setting.module__tracking_type)),ModuleTrackingType.class);
+            boolean simple = trackingType.equals(ModuleTrackingType.simple);
+
+            // pointer logic
+            int x = pointLoc.getX()-player.getBlockX();
+            int z = (pointLoc.getZ()-player.getBlockZ())*-1;
+            double target = Math.toDegrees(Math.atan2(x, z));
+            double rotation = (player.getYaw() - 180) % 360;
+            // make sure 0 - 360
+            if (rotation < 0) rotation += 360;
+            if (target < 0) target += 360;
+
+            String data;
+            ModuleText.ModuleTracking.Assets assets = Data.getModuleText().getTracking().getAssets();
+            ModuleText.ModuleTracking.Assets.Simple simpleArrows = assets.getSimple();
+            ModuleText.ModuleTracking.Assets.Compact compactArrows = assets.getCompact();
+            ModuleText.ModuleTracking.Assets.Elevation elevationArrows = assets.getElevation();
+
+            // NORTH
+            if (Num.inBetween(rotation, Num.wSubtract(target,15,360), Num.wAdd(target,15,360)))
+                data = simple?simpleArrows.getNorth():compactArrows.getNorth();
+            // NORTH WEST
+            else if (Num.inBetween(rotation, target, Num.wAdd(target,65,360)))
+                data = simple?simpleArrows.getNorthWest():compactArrows.getNorthWest();
+            // WEST
+            else if (Num.inBetween(rotation, target, Num.wAdd(target,115,360)))
+                data = simple?simpleArrows.getWest():compactArrows.getWest();
+            // SOUTH WEST
+            else if (Num.inBetween(rotation, target, Num.wAdd(target,165,360)))
+                data = simple?simpleArrows.getSouthWest():compactArrows.getSouthWest();
+            // NORTH EAST
+            else if (Num.inBetween(rotation, Num.wSubtract(target, 65, 360), target))
+                data = simple?simpleArrows.getNorthEast():compactArrows.getNorthEast();
+            // EAST
+            else if (Num.inBetween(rotation, Num.wSubtract(target, 115, 360), target))
+                data = simple?simpleArrows.getEast():compactArrows.getEast();
+            // SOUTH EAST
+            else if (Num.inBetween(rotation, Num.wSubtract(target, 165, 360), target))
+                data = simple?simpleArrows.getSouthEast():compactArrows.getSouthEast();
+            // SOUTH
+            else data = simple?simpleArrows.getSouth():compactArrows.getSouth();
+
+            // todo add elevation toggle
+//            // if compact and the ylevel is different & there's a y level on the loc
+//            if (!simple && !(boolean) player.getPCache().getDEST().getDestSettings().getYlevel() && pointLoc.getY() != null) {
+//                tracking.add("p|");
+//                int playerY = player.getLoc().getY(), targetY = pointLoc.getY();
+//                // dash if in Y range
+//                if (playerY-2 < targetY && targetY < playerY+2)
+//                    tracking.add("s-");
+//                    // down if higher
+//                else if (player.getLoc().getY() > pointLoc.getY())
+//                    tracking.add("s"+arrows.south);
+//                    // up if lower
+//                else tracking.add("s"+arrows.north);
+//            }
+
+            return String.format(Data.getModuleText().getTracking().getTracking(), data);
         }
 
-        public static ArrayList<String> getWeatherModule(Player player) {
-            ArrayList<String> weather = new ArrayList<>();
+        public static String getDirectionModule(Player player) {
+            double rotation = player.getYaw()+180;
+            ModuleText.ModuleDirection.Assets.Cardinal cardinals = Data.getModuleText().getDirection().getAssets().getCardinal();
+            String data;
+
+            if (Num.inBetween(rotation,22.5,67.5)) data = cardinals.getNorthEast();
+            else if (Num.inBetween(rotation,67.5,112.5)) data = cardinals.getEast();
+            else if (Num.inBetween(rotation,112.5,157.5)) data = cardinals.getSouthEast();
+            else if (Num.inBetween(rotation,157.5,202.5)) data = cardinals.getSouth();
+            else if (Num.inBetween(rotation,202.5,247.5)) data = cardinals.getSouthWest();
+            else if (Num.inBetween(rotation,247.5,292.5)) data = cardinals.getWest();
+            else if (Num.inBetween(rotation,292.5,337.5)) data = cardinals.getNorthWest();
+            else data = cardinals.getNorth();
+
+            return String.format(Data.getModuleText().getDirection().getFacing(),data);
+        }
+
+        public static String getWeatherModule(Player player) {
             Time timeSettings = Dimension.getTimeSettings(player.getDimension());
             Weather weatherSettings = timeSettings.getWeather();
 
-            // if not enabled, return
-            if (!timeSettings.getEnabled() || !weatherSettings.getEnabled()) return weather;
+            // if not enabled, return empty
+            if (!timeSettings.getEnabled() || !weatherSettings.getEnabled()) return "";
 
             // get the variables
             int timeTicks = player.getTimeOfDay();
             Weather.NightTicks nightTicks = weatherSettings.getNightTicks();
             Weather.Icons weatherIcons = weatherSettings.getIcons();
-            String extraIcons = "";
+            String extraIcons = null;
             boolean night;
 
             // get the extra icons and if It's night or not
             if (player.hasThunderstorm()) {
-                extraIcons += weatherIcons.thunderstorm();
+                extraIcons = weatherIcons.thunderstorm();
                 night = Num.inBetween(timeTicks,nightTicks.thunderstorm().startTick(),nightTicks.thunderstorm().endTick());
             }
             else if (player.hasStorm()) {
-                extraIcons += weatherIcons.storm();
+                extraIcons = weatherIcons.storm();
                 night = Num.inBetween(timeTicks,nightTicks.storm().startTick(),nightTicks.storm().endTick());
             }
             else {
                 night = Num.inBetween(timeTicks,nightTicks.normal().startTick(),nightTicks.normal().endTick());
             }
-            // build the module
-            weather.add("p"+(night?weatherIcons.night():weatherIcons.day())+extraIcons);
-            return weather;
+            // get the weather time of day icon
+            String weatherIcon = night?weatherIcons.night():weatherIcons.day();
+
+            // if no extra icons, single weather
+            if (extraIcons == null) return String.format(Data.getModuleText().getWeather().getWeatherSingle(), weatherIcon);
+            // if not, dual weather module
+            return String.format(Data.getModuleText().getWeather().getWeather(), weatherIcon, extraIcons);
         }
 
-        /**
-         * @return the time module instructions
-         */
-        public static ArrayList<String> getTimeModule(Player player) {
-            ArrayList<String> time = new ArrayList<>();
+        public static String getTimeModule(Player player) {
             Time timeSettings = Dimension.getTimeSettings(player.getDimension());
 
-            // if not enabled, return
-            if (!timeSettings.getEnabled()) return time;
+            // if not enabled, return empty
+            if (!timeSettings.getEnabled()) return "";
 
-            // assume that a day ANYWHERE is 24000 ticks (please dont make a mod that changes that)
+            // assume that a day ANYWHERE is 24000 ticks (PEOPLE please don't make a mod that changes that)
             int timeTicks = player.getTimeOfDay();
 
             // (add 6 to account for the day starting at 6 am);
@@ -327,125 +452,51 @@ public class Hud {
             String min = "0"+minute;
             min = min.substring(min.length()-2);
 
-            if (!(boolean)player.getPCache().getHud().getSetting(Setting.module__time_24hr)) {
+            // assets
+            ModuleText.ModuleTime.Assets assets = Data.getModuleText().getTime().getAssets();
+            boolean time12 = !(boolean)player.getPCache().getHud().getSetting(Setting.module__time_24hr);
+
+            // if 12 hr, fix the hour mark
+            if (time12) {
                 int hr = hour % 12;
                 // if hr % 12 = 0, its 12 am/pm
-                if (hr == 0) hr = 12;
-                // add to Arraylist
-                time.add("s"+hr+":"+min);
-                time.add("p "+(hour>=12?"PM":"AM"));
-            } else time.add("s"+hour+":"+min);
+                if (hr == 0) hour = 12;
+            }
+            // get the time as a string
+            String timeString = hour + assets.getTimeSeparator() + min;
 
-            return time;
+            // return based on 12 or 24 hour
+            if (time12) return String.format(Data.getModuleText().getTime().getHour12(), timeString,
+                    hour>=12?assets.getPM():assets.getAM());
+            return String.format(Data.getModuleText().getTime().getHour24(),timeString);
         }
 
-        public static ArrayList<String> getTrackingModule(Player player) {
-            ArrayList<String> tracking = new ArrayList<>();
-            if (!player.getPCache().getHud().getModule(Module.tracking)) return tracking;
-            // pointer target
-            Loc pointLoc = null;
-            // player tracking mode
-            ModuleTrackingTarget trackingTarget = Enums.get(player.getPCache().getHud().getSetting(Setting.module__tracking_target),ModuleTrackingTarget.class);
-            boolean hybrid = (boolean) player.getPCache().getHud().getSetting(Setting.module__tracking_hybrid);
-            // PLAYER or HYBRID
-            if (trackingTarget.equals(Setting.ModuleTrackingTarget.player) || hybrid) {
-                Player target = Destination.social.track.getTarget(player);
-                // make sure the player is real
-                if (target.isValid()) {
-                    Loc plLoc = new Loc(target);
-                    // not in the same dimension
-                    if (!player.getDimension().equals(target.getDimension())) {
-                        // can convert and autoconvert is on
-                        if (Dimension.canConvert(player.getDimension(),target.getDimension()) && player.getPCache().getDEST().getDestSettings().getAutoconvert()) {
-                            plLoc.convertTo(player.getDimension());
-                        } else plLoc = null;
-                    }
-                    // set the loc
-                    pointLoc = plLoc;
-                }
-            }
-            // DEST or (HYBRID & NULL TRACKER)
-            if (trackingTarget.equals(Setting.ModuleTrackingTarget.dest) || (hybrid && pointLoc == null)) {
-                // make sure theres a dest
-                if (Destination.dest.get(player).hasXYZ())
-                    pointLoc = Destination.dest.get(player);
-            }
-            // check if there's a point set, otherwise return nothing
-            if (pointLoc == null) return tracking;
-
-            Setting.ModuleTrackingType trackingType = Enums.get(String.valueOf(player.getPCache().getHud().getSetting(Setting.module__tracking_type)),ModuleTrackingType.class);
-            boolean simple = trackingType.equals(Setting.ModuleTrackingType.simple);
-            tracking.add("/p["); // add the key bracket
-            // pointer logic
-            int x = pointLoc.getX()-player.getBlockX();
-            int z = (pointLoc.getZ()-player.getBlockZ())*-1;
-            double target = Math.toDegrees(Math.atan2(x, z));
-            double rotation = (player.getYaw() - 180) % 360;
-            // make sure 0 - 360
-            if (rotation < 0) rotation += 360;
-            if (target < 0) target += 360;
-
-            if (Num.inBetween(rotation, Num.wSubtract(target,15,360), Num.wAdd(target,15,360)))
-                tracking.add("s"+(simple?"-"+ arrows.up+"-" : arrows.north));
-            // NORTH
-            else if (Num.inBetween(rotation, target, Num.wAdd(target,65,360)))
-                tracking.add("s"+(simple? arrows.left+ arrows.up+"-" : arrows.north_west));
-            // NORTH WEST
-            else if (Num.inBetween(rotation, target, Num.wAdd(target,115,360)))
-                tracking.add("s"+(simple? arrows.left+"--" : arrows.west));
-            // WEST
-            else if (Num.inBetween(rotation, target, Num.wAdd(target,165,360)))
-                tracking.add("s"+(simple? arrows.left+ arrows.down+"-" : arrows.south_west));
-            // SOUTH WEST
-            else if (Num.inBetween(rotation, Num.wSubtract(target, 65, 360), target))
-                tracking.add("s"+(simple?"-"+ arrows.up+ arrows.right : arrows.north_east));
-            // NORTH EAST
-            else if (Num.inBetween(rotation, Num.wSubtract(target, 115, 360), target))
-                tracking.add("s"+(simple?"--"+ arrows.right : arrows.east));
-            // EAST
-            else if (Num.inBetween(rotation, Num.wSubtract(target, 165, 360), target))
-                tracking.add("s"+(simple?"-"+ arrows.down+ arrows.right : arrows.south_east));
-            // SOUTH EAST
-            else tracking.add("s"+(simple?"-"+ arrows.down+"-" : arrows.south));
-            // SOUTH
-            // if compact and the ylevel is different & there's a y level on the loc
-            if (!simple && !(boolean) player.getPCache().getDEST().getDestSettings().getYlevel() && pointLoc.getY() != null) {
-                tracking.add("p|");
-                int playerY = player.getLoc().getY(), targetY = pointLoc.getY();
-                // dash if in Y range
-                if (playerY-2 < targetY && targetY < playerY+2)
-                    tracking.add("s-");
-                // down if higher
-                else if (player.getLoc().getY() > pointLoc.getY())
-                    tracking.add("s"+arrows.south);
-                // up if lower
-                else tracking.add("s"+arrows.north);
-            }
-            tracking.add("/p]");
-            return tracking;
-        }
-
-        public static ArrayList<String> getSpeedModule(Player player) {
-            ArrayList<String> speed = new ArrayList<>();
-            if (!player.getPCache().getHud().getModule(Module.speed)) return speed;
-            DecimalFormat f = new DecimalFormat((String) player.getPCache().getHud().getSetting(Setting.module__speed_pattern));
-            speed.add("s"+f.format(player.getPCache().getSpeedData().getSpeed()));
-            speed.add("p"+" B/S");
-            return speed;
-        }
-
-        public static ArrayList<String> getAngleModule(Player player) {
-            ArrayList<String> angle = new ArrayList<>();
-            DecimalFormat f = new DecimalFormat("0.0");
+        public static String getAngleModule(Player player) {
+            // if the module isnt enabled, return empty
+            if (!player.getPCache().getHud().getModule(Module.angle)) return "";
+            // assets
+            DecimalFormat df = new DecimalFormat("0.0");
             ModuleAngleDisplay playerType = Enums.get(player.getPCache().getHud().getSetting(Setting.module__angle_display),ModuleAngleDisplay.class);
-            if (playerType.equals(ModuleAngleDisplay.yaw) || playerType.equals(ModuleAngleDisplay.both)) {
-                angle.add("s"+f.format(player.getYaw()));
-            }
-            if (playerType.equals(ModuleAngleDisplay.pitch) || playerType.equals(ModuleAngleDisplay.both)) {
-                if (playerType.equals(ModuleAngleDisplay.both)) angle.add("p"+"/");
-                angle.add("s"+f.format(player.getPitch()));
-            }
-            return angle;
+            String yaw = df.format(player.getYaw()), pitch = df.format(player.getPitch());
+
+            return switch (playerType) {
+                case yaw -> String.format(Data.getModuleText().getAngle().getYaw(), yaw);
+                case pitch -> String.format(Data.getModuleText().getAngle().getPitch(), pitch);
+                case both -> String.format(Data.getModuleText().getAngle().getBoth(), yaw, pitch);
+            };
+        }
+
+        public static String getSpeedModule(Player player) {
+            // if the module isnt enabled, return empty
+            if (!player.getPCache().getHud().getModule(Module.speed)) return "";
+
+            // assets
+            boolean speed3D = (boolean)player.getPCache().getHud().getSetting(Setting.module__speed_3d);
+            DecimalFormat df = new DecimalFormat((String) player.getPCache().getHud().getSetting(Setting.module__speed_pattern));
+            String speed = df.format(player.getPCache().getSpeedData().getSpeed());
+
+            if (speed3D) String.format(Data.getModuleText().getSpeed().getXyzSpeed(), speed);
+            return String.format(Data.getModuleText().getSpeed().getXzSpeed(), speed);
         }
     }
 
@@ -741,7 +792,7 @@ public class Hud {
         }
 
         /**
-         * gets the sample of the given module as a CTxT
+         * gets the sample of the given module as a CTxT todo make data driven
          * @param onlyExample to return only the example
          * @return returns the sample of the HUD module
          */
@@ -749,47 +800,47 @@ public class Hud {
             // get the hover info for each module
             CTxT info = CTxT.of("");
             if (module.equals(Module.coordinates))
-                info.append(color.addColor(player,"XYZ: ",1,15,20))
-                        .append(color.addColor(player,"0 0 0",2,95,20));
+                info.append(color.addColor(player,"XYZ: ",1,new Rainbow(15,20)))
+                        .append(color.addColor(player,"0 0 0",2,new Rainbow(95,20)));
             if (module.equals(Module.distance))
-                info.append(color.addColor(player,"[",1,15,20))
-                        .append(color.addColor(player,"0",2,35,20))
-                        .append(color.addColor(player,"]",1,55,20));
+                info.append(color.addColor(player,"[",1,new Rainbow(15,20)))
+                        .append(color.addColor(player,"0",2,new Rainbow(35,20)))
+                        .append(color.addColor(player,"]",1,new Rainbow(55,20)));
             if (module.equals(Module.destination))
-                info.append(color.addColor(player,"[",1,15,20))
-                        .append(color.addColor(player,"0 0 0",2,35,20))
-                        .append(color.addColor(player,"]",1,95,20));
+                info.append(color.addColor(player,"[",1,new Rainbow(15,20)))
+                        .append(color.addColor(player,"0 0 0",2,new Rainbow(35,20)))
+                        .append(color.addColor(player,"]",1,new Rainbow(95,20)));
             if (module.equals(Module.direction))
-                info.append(color.addColor(player,"N",1,15,20));
+                info.append(color.addColor(player,"N",1,new Rainbow(15,20)));
             if (module.equals(Module.tracking)) {
                 if (Enums.get(player.getPCache().getHud().getSetting(Setting.module__tracking_type),ModuleTrackingType.class)
-                        .equals(Setting.ModuleTrackingType.simple))
-                    info.append(color.addColor(player,"[",1,15,20).strikethrough(true))
-                            .append(color.addColor(player,"-"+ arrows.up+ arrows.right,2,35,20))
-                            .append(color.addColor(player,"]",1,55,20).strikethrough(true));
-                else info.append(color.addColor(player,"[",1,15,20).strikethrough(true))
-                        .append(color.addColor(player,arrows.north,2,35,20))
-                        .append(color.addColor(player,"|",1,55,20).strikethrough(true))
-                        .append(color.addColor(player,arrows.south,2,75,20))
-                        .append(color.addColor(player,"]",1,95,20).strikethrough(true));
+                        .equals(ModuleTrackingType.simple))
+                    info.append(color.addColor(player,"[",1,new Rainbow(15,20)).strikethrough(true))
+                            .append(color.addColor(player,"-"+ arrows.up+ arrows.right,2,new Rainbow(35,20)))
+                            .append(color.addColor(player,"]",1,new Rainbow(55,20)).strikethrough(true));
+                else info.append(color.addColor(player,"[",1,new Rainbow(15,20)).strikethrough(true))
+                        .append(color.addColor(player,arrows.north,2,new Rainbow(35,20)))
+                        .append(color.addColor(player,"|",1,new Rainbow(55,20)).strikethrough(true))
+                        .append(color.addColor(player,arrows.south,2,new Rainbow(75,20)))
+                        .append(color.addColor(player,"]",1,new Rainbow(95,20)).strikethrough(true));
             }
             if (module.equals(Module.time)) {
                 if ((boolean) player.getPCache().getHud().getSetting(Setting.module__time_24hr))
-                    info.append(color.addColor(player,"22:22",1,15,20));
-                else info.append(color.addColor(player,"11:11 ",2,15,20))
-                            .append(color.addColor(player,"AM",1,115,20));
+                    info.append(color.addColor(player,"22:22",1,new Rainbow(15,20)));
+                else info.append(color.addColor(player,"11:11 ",2,new Rainbow(15,20)))
+                            .append(color.addColor(player,"AM",1,new Rainbow(115,20)));
             }
             if (module.equals(Module.weather))
-                info.append(color.addColor(player,Assets.symbols.sun,1,15,20));
+                info.append(color.addColor(player,Assets.symbols.sun,1,new Rainbow(15,20)));
             DecimalFormat f = new DecimalFormat((String) player.getPCache().getHud().getSetting(Setting.module__speed_pattern));
             String speed = f.format(12.3456789);
             if (module.equals(Module.speed))
-                info.append(color.addColor(player,speed,2,15,20))
-                        .append(color.addColor(player," B/S",1,(speed.length()*20)+15,20));
+                info.append(color.addColor(player,speed,2,new Rainbow(15,20)))
+                        .append(color.addColor(player," B/S",1,new Rainbow((speed.length()*20)+15,20)));
             if (module.equals(Module.angle)) {
-                info.append(color.addColor(player,"-15.1",2,15,20));
+                info.append(color.addColor(player,"-15.1",2,new Rainbow(15,20)));
                 if (Enums.get(player.getPCache().getHud().getSetting(Setting.module__angle_display),ModuleAngleDisplay.class).equals(ModuleAngleDisplay.both))
-                    info.append(color.addColor(player,"/",1,135,20)).append(color.addColor(player,"55.1",2,155,20));
+                    info.append(color.addColor(player,"/",1,new Rainbow(135,20))).append(color.addColor(player,"55.1",2,new Rainbow(155,20)));
             }
             if (onlyExample.length == 0) info.append("\n").append(LANG.get("info."+module).color('7'));
             return info;
@@ -1113,11 +1164,11 @@ public class Hud {
             if (aboveTxT != null) msg.append(aboveTxT).append("\n");
             msg.append(" ").append(LANG.ui().rainbow(new Rainbow(15f,45f))).append(line).append("\n ")
                     //PRIMARY
-                    .append(addColor(player,LANG.btn("primary"),1,15,20).btn(true).click(1,"/hud color primary edit")
-                            .hover(LANG.hover("edit",addColor(player,LANG.get("primary"),1,15,20)))).append(" ")
+                    .append(addColor(player,LANG.btn("primary"),1,new Rainbow(15,20)).btn(true).click(1,"/hud color primary edit")
+                            .hover(LANG.hover("edit",addColor(player,LANG.get("primary"),1,new Rainbow(15,20))))).append(" ")
                     //SECONDARY
-                    .append(addColor(player,LANG.btn("secondary"),2,15,20).btn(true).click(1,"/hud color secondary edit")
-                            .hover(LANG.hover("edit",addColor(player,LANG.get("secondary"),2,15,20)))).append("\n\n      ")
+                    .append(addColor(player,LANG.btn("secondary"),2,new Rainbow(15,20)).btn(true).click(1,"/hud color secondary edit")
+                            .hover(LANG.hover("edit",addColor(player,LANG.get("secondary"),2,new Rainbow(15,20))))).append("\n\n      ")
                     //RESET
                     .append(CUtl.LANG.btn("reset").btn(true).color('c').click(1,"/hud color reset-r all")
                             .hover(LANG.hover("reset",LANG.get("all").color('c')))).append("  ")

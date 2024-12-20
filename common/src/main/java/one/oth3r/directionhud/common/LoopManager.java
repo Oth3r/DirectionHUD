@@ -1,18 +1,15 @@
 package one.oth3r.directionhud.common;
 
-import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.files.Data;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.playerdata.CachedPData;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
-import one.oth3r.directionhud.common.utils.Helper.Enums;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.common.utils.ParticleType;
 import one.oth3r.directionhud.common.utils.Vec;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class LoopManager {
@@ -97,13 +94,14 @@ public class LoopManager {
     private static void HUDTickLogic(Player player) {
         // if the HUD is enabled
         if ((boolean) player.getPCache().getHud().getSetting(Hud.Setting.state)) {
-            HashMap<Hud.Module, ArrayList<String>> HUDData = Hud.build.getHUDInstructions(player);
-            // if the client has directionhud and the hud type is the actionBar, send as a packet
-            if (DirectionHUD.clientPlayers.contains(player) &&
-                    Enums.get(player.getPCache().getHud().getSetting(Hud.Setting.type), Hud.Setting.DisplayType.class).equals(Hud.Setting.DisplayType.actionbar))
-                player.sendHUDPackets(HUDData);
+            HashMap<Hud.Module, String> HUDData = Hud.build.getHUDInstructions(player);
+            // if the client has directionhud and the hud type is the actionBar, send as a packet todo
+//          todo  if (DirectionHUD.clientPlayers.contains(player) &&
+//                    Enums.get(player.getPCache().getHud().getSetting(Hud.Setting.type), Hud.Setting.DisplayType.class).equals(Hud.Setting.DisplayType.actionbar))
+//                player.sendHUDPackets(HUDData);
             // if not do a normal display
-            else player.displayHUD(Hud.build.compile(player,HUDData));
+//            else
+                player.displayHUD(Hud.build.compile(player,HUDData));
         }
         // if player has a DEST, AutoClear is on, and the distance is in the AutoClear range, clear
         if (Destination.dest.get(player).hasXYZ() && player.getPCache().getDEST().getDestSettings().getAutoclear() &&

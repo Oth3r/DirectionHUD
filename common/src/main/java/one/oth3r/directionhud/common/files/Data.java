@@ -17,6 +17,16 @@ public class Data {
         config = new Config(newConfig);
     }
 
+    private static ModuleText moduleText = new ModuleText();
+
+    public static ModuleText getModuleText() {
+        return moduleText;
+    }
+
+//    public static void setModuleText(ModuleText moduleText) {
+//        Data.moduleText = moduleText;
+//    }
+
     /**
      * global destinations
      */

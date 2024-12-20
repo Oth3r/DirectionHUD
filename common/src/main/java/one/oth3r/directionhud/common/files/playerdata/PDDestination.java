@@ -278,6 +278,8 @@ public class PDDestination {
             public Particles() {}
 
             public Particles(Particles particles) {
+//              note to Pookie
+//              You will never see this but mocha update soon
                 this.dest = particles.dest;
                 this.destColor = particles.destColor;
                 this.line = particles.line;
