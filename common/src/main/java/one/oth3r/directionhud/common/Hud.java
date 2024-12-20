@@ -554,7 +554,7 @@ public class Hud {
                 msg.append(LANG.msg("reset_all", CUtl.LANG.btn("all").color('c')));
             } else {
                 // reset order
-                ArrayList<Hud.Module> order = player.getPData().getHud().getOrder();
+                ArrayList<Module> order = player.getPData().getHud().getOrder();
                 order.remove(module);
                 order.add(getDefaultOrder().indexOf(module),module);
                 player.getPData().getHud().setOrder(order);
@@ -689,17 +689,17 @@ public class Hud {
                                 .append(settings.LANG.hover("set",settings.LANG.get(type.toString()),CUtl.toggleTxT(!state))))
                         .click(1,"/hud settings set-m "+type+" "+(state?"off":"on")));
                 type = Setting.module__tracking_target;
-                Setting.ModuleTrackingTarget currentTarget = Enums.get(player.getPCache().getHud().getSetting(type),ModuleTrackingTarget.class);
-                Setting.ModuleTrackingTarget nextTarget = Enums.next(currentTarget,Setting.ModuleTrackingTarget.class);
+                ModuleTrackingTarget currentTarget = Enums.get(player.getPCache().getHud().getSetting(type),ModuleTrackingTarget.class);
+                ModuleTrackingTarget nextTarget = Enums.next(currentTarget, ModuleTrackingTarget.class);
                 button.append(settings.LANG.get(type+"."+currentTarget).btn(true).color(CUtl.s()).hover(CTxT.of("")
                                 .append(settings.LANG.get(type+".ui").color('e')).append("\n")
                                 .append(settings.LANG.hover("info",settings.LANG.get(type.toString())).color('7')).append("\n\n")
                                 .append(settings.LANG.hover("set",settings.LANG.get(type.toString()),settings.LANG.get(type+"."+nextTarget).color(CUtl.s()))))
                         .click(1,"/hud settings set-m "+type+" "+nextTarget));
                 type = Setting.module__tracking_type;
-                Setting.ModuleTrackingType currentType = Enums.get(player.getPCache().getHud().getSetting(type),ModuleTrackingType.class);
-                Setting.ModuleTrackingType nextType = Enums.next(currentType,Setting.ModuleTrackingType.class);
-                button.append(CTxT.of(currentType.equals(Setting.ModuleTrackingType.simple)?arrows.up:arrows.north).btn(true).color(CUtl.s()).hover(CTxT.of("")
+                ModuleTrackingType currentType = Enums.get(player.getPCache().getHud().getSetting(type),ModuleTrackingType.class);
+                ModuleTrackingType nextType = Enums.next(currentType, ModuleTrackingType.class);
+                button.append(CTxT.of(currentType.equals(ModuleTrackingType.simple)?arrows.up:arrows.north).btn(true).color(CUtl.s()).hover(CTxT.of("")
                                 .append(settings.LANG.get(type+".ui").color('e')).append(" - ")
                                 .append(moduleInfo(player,Module.tracking,true).color(CUtl.s())).append("\n")
                                 .append(settings.LANG.get(type+"."+currentType+".info").color('7')).append("\n\n")
@@ -807,10 +807,10 @@ public class Hud {
             boolean yellow = false;
             if (!Destination.dest.get(player).hasXYZ()) {
                 if (module.equals(Module.destination) || module.equals(Module.distance) || (module.equals(Module.tracking) &&
-                        Enums.get(player.getPCache().getHud().getSetting(Setting.module__tracking_target),ModuleTrackingTarget.class).equals(Setting.ModuleTrackingTarget.dest)))
+                        Enums.get(player.getPCache().getHud().getSetting(Setting.module__tracking_target),ModuleTrackingTarget.class).equals(ModuleTrackingTarget.dest)))
                     yellow = true;
             }
-            if (module.equals(Module.tracking) && !Destination.social.track.getTarget(player).isValid() && Enums.get(player.getPCache().getHud().getSetting(Setting.module__tracking_target),ModuleTrackingTarget.class).equals(Setting.ModuleTrackingTarget.player))
+            if (module.equals(Module.tracking) && !Destination.social.track.getTarget(player).isValid() && Enums.get(player.getPCache().getHud().getSetting(Setting.module__tracking_target),ModuleTrackingTarget.class).equals(ModuleTrackingTarget.player))
                 yellow = true;
             if (yellow) return "#fff419";
             return "#19ff21";
@@ -1195,19 +1195,19 @@ public class Hud {
                 }
                 // type
                 if (args[1].equalsIgnoreCase(Setting.type.toString()))
-                    suggester.addAll(Enums.toStringList(Enums.toArrayList(Setting.DisplayType.values())));
+                    suggester.addAll(Enums.toStringList(Enums.toArrayList(DisplayType.values())));
                 // bossbar.color
                 if (args[1].equalsIgnoreCase(Setting.bossbar__color.toString()))
-                    suggester.addAll(Enums.toStringList(Enums.toArrayList(Setting.BarColor.values())));
+                    suggester.addAll(Enums.toStringList(Enums.toArrayList(BarColor.values())));
                 // bossbar.distance_max
                 if (args[1].equalsIgnoreCase(Setting.bossbar__distance_max.toString()))
                     suggester.add("0");
                 // module.tracking_target
                 if (args[1].equalsIgnoreCase(Setting.module__tracking_target.toString()))
-                    suggester.addAll(Enums.toStringList(Enums.toArrayList(Setting.ModuleTrackingTarget.values())));
+                    suggester.addAll(Enums.toStringList(Enums.toArrayList(ModuleTrackingTarget.values())));
                 // module.tracking_type
                 if (args[1].equalsIgnoreCase(Setting.module__tracking_type.toString()))
-                    suggester.addAll(Enums.toStringList(Enums.toArrayList(Setting.ModuleTrackingType.values())));
+                    suggester.addAll(Enums.toStringList(Enums.toArrayList(ModuleTrackingType.values())));
                 // module.speed_pattern
                 if (args[1].equalsIgnoreCase(Setting.module__speed_pattern.toString()))
                     suggester.add("\"0.0#\"");
@@ -1276,7 +1276,7 @@ public class Hud {
             }
             // ---- CUSTOM HANDLING ----
             if (setting.equals(Setting.type)) {
-                Setting.DisplayType displayType = Setting.DisplayType.get(state);
+                DisplayType displayType = DisplayType.get(state);
                 player.getPData().getHud().setSetting(setting,displayType);
                 setTxT.append(LANG.get(setting+"."+displayType).color(CUtl.s()));
             }
@@ -1376,7 +1376,7 @@ public class Hud {
                 button.append(CUtl.toggleBtn((boolean) player.getPCache().getHud().getSetting(setting),"/hud settings set-r "+setting+" ")).append(" ");
             }
             if (setting.equals(Setting.type)) {
-                Setting.DisplayType nextType = Setting.DisplayType.valueOf((String) player.getPCache().getHud().getSetting(setting)).next();
+                DisplayType nextType = DisplayType.valueOf((String) player.getPCache().getHud().getSetting(setting)).next();
                 button.append(LANG.get(setting+"."+ player.getPCache().getHud().getSetting(setting)).btn(true).color(CUtl.s())
                         .click(1,"/hud settings set-r "+setting+" "+nextType)
                         .hover(LANG.hover("set",LANG.get("category",
@@ -1385,7 +1385,7 @@ public class Hud {
             }
             if (setting.equals(Setting.bossbar__color)) {
                 button.append(LANG.get(setting+"."+player.getPCache().getHud().getSetting(setting)).btn(true)
-                        .color(Assets.barColor((Setting.BarColor.valueOf((String) player.getPCache().getHud().getSetting(setting)))))
+                        .color(Assets.barColor((BarColor.valueOf((String) player.getPCache().getHud().getSetting(setting)))))
                         .click(2,"/hud settings set-r "+setting+" ")
                         .hover(LANG.hover("set.custom",LANG.get("category",
                                 LANG.get("category.bossbar"),LANG.get(setting.toString())))));
