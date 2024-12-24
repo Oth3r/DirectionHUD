@@ -6,7 +6,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.google.gson.stream.MalformedJsonException;
 import one.oth3r.directionhud.common.DHud;
-import one.oth3r.directionhud.common.files.Data;
+import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
@@ -259,7 +259,7 @@ public class Helper {
                 ArrayList<String> filtered = new ArrayList<>();
 
                 // todo have a personal fallback, as everyone doesn't speak english 🦅
-                if (Data.getConfig().getLang().equals("en_us")) {
+                if (FileData.getConfig().getLang().equals("en_us")) {
                     FuzzyScore fuzzyScore = new FuzzyScore(Locale.ENGLISH);
 
                     double minimumScore = current.length() * 1.5;

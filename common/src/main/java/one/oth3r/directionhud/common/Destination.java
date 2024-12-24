@@ -1,6 +1,6 @@
 package one.oth3r.directionhud.common;
 
-import one.oth3r.directionhud.common.files.Data;
+import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.files.GlobalDest;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
@@ -756,7 +756,7 @@ public class Destination {
             }
 
             if (args[0].equals("set")) {
-                if (pos == 1) suggester.addAll(getCMDNames(Data.getGlobal().getDestinations()));
+                if (pos == 1) suggester.addAll(getCMDNames(FileData.getGlobal().getDestinations()));
                 // add convert
                 if (pos == 2) suggester.add("convert");
             }
@@ -765,7 +765,7 @@ public class Destination {
             if (!Helper.checkEnabled(player).globalEditing()) return suggester;
             switch (args[0]) {
                 case "delete" -> {
-                    if (pos == 1) suggester.addAll(getCMDNames(Data.getGlobal().getDestinations()));
+                    if (pos == 1) suggester.addAll(getCMDNames(FileData.getGlobal().getDestinations()));
                 }
                 case "add" -> {
                     return addCMDSuggester(player,pos-1, Helper.trimStart(args,1));
@@ -839,7 +839,7 @@ public class Destination {
                 return suggester;
             }
             // saved edit type (name)
-            if (pos == 1) suggester.addAll(getCMDNames(global ? Data.getGlobal().getDestinations() : getList(player)));
+            if (pos == 1) suggester.addAll(getCMDNames(global ? FileData.getGlobal().getDestinations() : getList(player)));
             // saved edit type name (<arg>)
             if (args[0].equalsIgnoreCase("location")) {
                 if (pos == 2) {
@@ -938,7 +938,7 @@ public class Destination {
              * get the dest list depending on the global state
              */
             private static ArrayList<Dest> getListType(Player player, boolean global) {
-                return global ? Data.getGlobal().getDestinations() : saved.getList(player);
+                return global ? FileData.getGlobal().getDestinations() : saved.getList(player);
             }
 
             /**
@@ -959,7 +959,7 @@ public class Destination {
             private void save() {
                 if (global) {
                     // set the list to the edited list
-                    Data.getGlobal().setDestinations(list);
+                    FileData.getGlobal().setDestinations(list);
                     // save changes to file
                     GlobalDest.save();
                 } else player.getPData().getDEST().setSaved(list);
@@ -1093,7 +1093,7 @@ public class Destination {
             // if errors were sent (invalid), return
             if (destination.sendErrors()) return;
             // if there are the max amount of saved destinations
-            if (destination.getList().size() >= Data.getConfig().getDestination().getMaxSaved()) {
+            if (destination.getList().size() >= FileData.getConfig().getDestination().getMaxSaved()) {
                 player.sendMessage(LANG.error("max"));
                 return;
             }
@@ -1357,7 +1357,7 @@ public class Destination {
          * @param pg page to show
          */
         public static void globalUI(Player player, int pg) {
-            ListPage<Dest> listPage = new ListPage<>(new ArrayList<>(Data.getGlobal().getDestinations()), PER_PAGE);
+            ListPage<Dest> listPage = new ListPage<>(new ArrayList<>(FileData.getGlobal().getDestinations()), PER_PAGE);
             // build the message
             CTxT msg = CTxT.of(" "), line = CTxT.of("\n                                             ").strikethrough(true);
             msg.append(LANG.ui("global").color(Assets.mainColors.global)).append(line).append("\n");
@@ -1421,7 +1421,7 @@ public class Destination {
                 //add to the top of the list
                 deaths.add(0,loc);
                 // WHILE more than max, remove the last entry (to deal with the size changing to be smaller in the future)
-                while (deaths.size() > Data.getConfig().getDestination().getLastDeath().getMaxDeaths()) deaths.remove(deaths.size()-1);
+                while (deaths.size() > FileData.getConfig().getDestination().getLastDeath().getMaxDeaths()) deaths.remove(deaths.size()-1);
             }
             player.getPData().getDEST().setLastdeath(deaths);
         }
@@ -1574,7 +1574,7 @@ public class Destination {
 
                 // LOGIC
                 // add the cooldown
-                player.getPCache().setSocialCooldown(Data.getConfig().getSocial().getCooldown());
+                player.getPCache().setSocialCooldown(FileData.getConfig().getSocial().getCooldown());
 
                 player.sendMessage(CUtl.tag().append(LANG.msg("sent",CTxT.of(target.getName()).color(CUtl.s()),
                         CTxT.of("\n ").append(dest.getBadge()))));
@@ -1745,7 +1745,7 @@ public class Destination {
              */
             public static void set(Player player, Player target) {
                 // if online, use UUID, if not use the target NAME
-                if (Data.getConfig().getOnline()) player.getPData().getDEST().setTracking(target.getUUID());
+                if (FileData.getConfig().getOnline()) player.getPData().getDEST().setTracking(target.getUUID());
                 else player.getPData().getDEST().setTracking(target.getName());
                 // get both players as CTxT
                 CTxT playerTxT = CTxT.of(player.getName()).color(CUtl.s()), targetTxT = CTxT.of(target.getName()).color(CUtl.s());
@@ -1790,7 +1790,7 @@ public class Destination {
                 // logic
 
                 // add the cooldown
-                player.getPCache().setSocialCooldown(Data.getConfig().getSocial().getCooldown());
+                player.getPCache().setSocialCooldown(FileData.getConfig().getSocial().getCooldown());
 
                 // target has instant tracking
                 if (Enums.get(player.getPData().getDEST().getSetting(Setting.features__track_request_mode),Setting.TrackingRequestMode.class)
@@ -2281,10 +2281,10 @@ public class Destination {
                             .append(LANG.get(Setting.particles__tracking+".info").color('7'))))
                     .append(": ").append(getButtons(player, Setting.particles__tracking)).append("\n ");
             // only show if needed
-            if (Data.getConfig().getSocial().getEnabled() || Data.getConfig().getDestination().getLastDeath().getSaving()) {
+            if (FileData.getConfig().getSocial().getEnabled() || FileData.getConfig().getDestination().getLastDeath().getSaving()) {
                 //FEATURES
                 msg.append(LANG.ui("category.features").color(CUtl.p())).append(":\n  ");
-                if (Data.getConfig().getSocial().getEnabled()) {
+                if (FileData.getConfig().getSocial().getEnabled()) {
                     msg     //SEND
                             .append(resetBtn(player, Setting.features__send)).append(" ")
                             .append(LANG.get(Setting.features__send+".ui").hover(LANG.get(Setting.features__send+".ui").append("\n")
@@ -2298,7 +2298,7 @@ public class Destination {
                                     .append(LANG.get(Setting.features__track_request_mode+".info").color('7'))))
                             .append(": ").append(getButtons(player, Setting.features__track)).append("\n  ");
                 }
-                if (Data.getConfig().getDestination().getLastDeath().getSaving()) {
+                if (FileData.getConfig().getDestination().getLastDeath().getSaving()) {
                     msg     //LASTDEATH
                             .append(resetBtn(player, Setting.features__lastdeath)).append(" ")
                             .append(LANG.get(Setting.features__lastdeath.toString()).hover(LANG.get(Setting.features__lastdeath.toString()).append("\n")
@@ -2313,9 +2313,9 @@ public class Destination {
                 // if reset is on quit the loop
                 if (resetOn) break;
                 // if lastdeath is off in the config, skip
-                if (!Data.getConfig().getDestination().getLastDeath().getSaving() && t.equals(Setting.features__lastdeath)) continue;
+                if (!FileData.getConfig().getDestination().getLastDeath().getSaving() && t.equals(Setting.features__lastdeath)) continue;
                 // if social is off in the config, skip
-                if (!Data.getConfig().getSocial().getEnabled() && (t.equals(Setting.features__send) || t.equals(Setting.features__track))) continue;
+                if (!FileData.getConfig().getSocial().getEnabled() && (t.equals(Setting.features__send) || t.equals(Setting.features__track))) continue;
                 resetOn = canBeReset(player,t);
             }
             if (resetOn) reset.color('c').click(1,"/dest settings reset-r all")

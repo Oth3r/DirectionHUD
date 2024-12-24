@@ -1,7 +1,7 @@
 package one.oth3r.directionhud.common;
 
 import one.oth3r.directionhud.DirectionHUD;
-import one.oth3r.directionhud.common.files.Data;
+import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.utils.CUtl;
@@ -22,14 +22,14 @@ public class Events {
         } catch (Exception e) {
             DirectionHUD.LOGGER.info("Failed to create playerdata directory.");
         }
-        Data.loadFiles(true);
+        FileData.loadFiles(true);
         DirectionHUD.LOGGER.info("Started server!");
     }
 
     public static void serverEnd() {
         for (Player player: Utl.getPlayers()) playerLeave(player);
         // clear everything as serverEnd on client can just be exiting single-player
-        Data.clearServerData();
+        FileData.clearServerData();
         PlayerData.clearPlayerData();
         PlayerData.clearPlayerCache();
         DirectionHUD.clear();

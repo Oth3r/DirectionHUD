@@ -3,7 +3,7 @@ package one.oth3r.directionhud.common.files;
 import one.oth3r.directionhud.common.files.dimension.DimensionSettings;
 import one.oth3r.directionhud.common.files.playerdata.PData;
 
-public class Data {
+public class FileData {
     /**
      * directionHUD config file
      */
@@ -17,15 +17,18 @@ public class Data {
         config = new Config(newConfig);
     }
 
+    /**
+     * module display data
+     */
     private static ModuleText moduleText = new ModuleText();
 
     public static ModuleText getModuleText() {
         return moduleText;
     }
 
-//    public static void setModuleText(ModuleText moduleText) {
-//        Data.moduleText = moduleText;
-//    }
+    public static void setModuleText(ModuleText moduleText) {
+        FileData.moduleText = moduleText;
+    }
 
     /**
      * global destinations
@@ -37,7 +40,7 @@ public class Data {
     }
 
     public static void setGlobalDestinations(GlobalDest globalDestinations) {
-        Data.globalDestinations = new GlobalDest(globalDestinations);
+        FileData.globalDestinations = new GlobalDest(globalDestinations);
     }
 
     public static void loadFiles(boolean tryLegacy) {

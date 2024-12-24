@@ -16,7 +16,7 @@ import net.minecraft.util.WorldSavePath;
 import one.oth3r.directionhud.commands.ModCommands;
 import one.oth3r.directionhud.common.Events;
 import one.oth3r.directionhud.common.LoopManager;
-import one.oth3r.directionhud.common.files.Data;
+import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.packet.Payloads;
 import one.oth3r.directionhud.utils.BossBarManager;
 import one.oth3r.directionhud.utils.Player;
@@ -45,7 +45,7 @@ public class DirectionHUD implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		Data.loadFiles(true);
+		FileData.loadFiles(true);
 		// SERVER START/STOP
 		ServerLifecycleEvents.SERVER_STARTED.register(s -> {
 			DirectionHUD.playerManager = s.getPlayerManager();

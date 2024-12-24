@@ -334,7 +334,7 @@ public class Config {
         }
         try (BufferedWriter writer = Files.newBufferedWriter(getFile().toPath())) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            writer.write(gson.toJson(Data.getConfig()));
+            writer.write(gson.toJson(FileData.getConfig()));
         } catch (Exception e) {
             DirectionHUD.LOGGER.info(String.format("ERROR SAVING '%s`",getFile().getName()));
             e.printStackTrace();

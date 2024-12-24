@@ -577,7 +577,7 @@ public class Updater {
             globalDest = update(globalDest);
 
             // set the global destinations
-            Data.setGlobalDestinations(globalDest);
+            FileData.setGlobalDestinations(globalDest);
         }
 
         /**
@@ -652,7 +652,7 @@ public class Updater {
             config = update(config);
 
             // set the DefaultPData
-            Data.setConfig(config);
+            FileData.setConfig(config);
         }
 
         /**
@@ -707,7 +707,7 @@ public class Updater {
             }
 
             public static void loadVersion(Properties properties, float version) {
-                Config config = Data.getConfig();
+                Config config = FileData.getConfig();
 
                 DefaultPData DEFAULTS = PlayerData.getDefaults();
                 PDDestination.Settings destSettings = DEFAULTS.getDEST().getSetting();
@@ -891,7 +891,7 @@ public class Updater {
                         hudModules.setTracking(Boolean.parseBoolean((String) properties.computeIfAbsent("compass", a -> String.valueOf(hudModules.getTracking()))));
 
                     // moving to the new defaults system & config system
-                    Data.setConfig(config);
+                    FileData.setConfig(config);
                     PlayerData.setDefaults(DEFAULTS);
                     DefaultPData.saveDefaults();
                 } catch (Exception e) {

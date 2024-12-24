@@ -4,7 +4,7 @@ import one.oth3r.directionhud.common.Assets.symbols.arrows;
 import one.oth3r.directionhud.common.Hud.Setting.ModuleAngleDisplay;
 import one.oth3r.directionhud.common.Hud.Setting.ModuleTrackingTarget;
 import one.oth3r.directionhud.common.Hud.Setting.*;
-import one.oth3r.directionhud.common.files.Data;
+import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.files.ModuleText;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.dimension.DimensionEntry.*;
@@ -234,7 +234,7 @@ public class Hud {
         }
 
         public static String getCoordinatesModule(Player player) {
-            return String.format(Data.getModuleText().getCoordinates().getXyz(),
+            return String.format(FileData.getModuleText().getCoordinates().getXyz(),
                     player.getBlockX(), player.getBlockY(), player.getBlockZ());
 
         }
@@ -243,7 +243,7 @@ public class Hud {
             // if no destination is set, empty
             if (!dest.hasXYZ()) return "";
             // get the destination assets
-            ModuleText.ModuleDestination moduleDestination = Data.getModuleText().getDestination();
+            ModuleText.ModuleDestination moduleDestination = FileData.getModuleText().getDestination();
 
             // return based on the destination
             if (dest.hasDestRequirements()) {
@@ -261,7 +261,7 @@ public class Hud {
             // if no destination is set, return empty
             if (distance == -1) return "";
 
-            return String.format(Data.getModuleText().getDistance().getNumber(),
+            return String.format(FileData.getModuleText().getDistance().getNumber(),
                     distance);
         }
         public static String getTrackingModule(Player player) {
@@ -317,7 +317,7 @@ public class Hud {
             if (target < 0) target += 360;
 
             String data;
-            ModuleText.ModuleTracking.Assets assets = Data.getModuleText().getTracking().getAssets();
+            ModuleText.ModuleTracking.Assets assets = FileData.getModuleText().getTracking().getAssets();
             ModuleText.ModuleTracking.Assets.Simple simpleArrows = assets.getSimple();
             ModuleText.ModuleTracking.Assets.Compact compactArrows = assets.getCompact();
             ModuleText.ModuleTracking.Assets.Elevation elevationArrows = assets.getElevation();
@@ -361,11 +361,11 @@ public class Hud {
 //                else tracking.add("s"+arrows.north);
 //            }
 
-            return String.format(Data.getModuleText().getTracking().getTracking(), data);
+            return String.format(FileData.getModuleText().getTracking().getTracking(), data);
         }
         public static String getDirectionModule(Player player) {
             double rotation = player.getYaw()+180;
-            ModuleText.ModuleDirection.Assets.Cardinal cardinals = Data.getModuleText().getDirection().getAssets().getCardinal();
+            ModuleText.ModuleDirection.Assets.Cardinal cardinals = FileData.getModuleText().getDirection().getAssets().getCardinal();
             String data;
 
             if (Num.inBetween(rotation,22.5,67.5)) data = cardinals.getNorthEast();
@@ -377,7 +377,7 @@ public class Hud {
             else if (Num.inBetween(rotation,292.5,337.5)) data = cardinals.getNorthWest();
             else data = cardinals.getNorth();
 
-            return String.format(Data.getModuleText().getDirection().getFacing(),data);
+            return String.format(FileData.getModuleText().getDirection().getFacing(),data);
         }
         public static String getWeatherModule(Player player) {
             Time timeSettings = Dimension.getTimeSettings(player.getDimension());
@@ -409,9 +409,9 @@ public class Hud {
             String weatherIcon = night?weatherIcons.night():weatherIcons.day();
 
             // if no extra icons, single weather
-            if (extraIcons == null) return String.format(Data.getModuleText().getWeather().getWeatherSingle(), weatherIcon);
+            if (extraIcons == null) return String.format(FileData.getModuleText().getWeather().getWeatherSingle(), weatherIcon);
             // if not, dual weather module
-            return String.format(Data.getModuleText().getWeather().getWeather(), weatherIcon, extraIcons);
+            return String.format(FileData.getModuleText().getWeather().getWeather(), weatherIcon, extraIcons);
         }
         public static String getTimeModule(Player player) {
             Time timeSettings = Dimension.getTimeSettings(player.getDimension());
@@ -431,7 +431,7 @@ public class Hud {
             min = min.substring(min.length()-2);
 
             // assets
-            ModuleText.ModuleTime.Assets assets = Data.getModuleText().getTime().getAssets();
+            ModuleText.ModuleTime.Assets assets = FileData.getModuleText().getTime().getAssets();
             boolean time12 = !(boolean)player.getPCache().getHud().getSetting(Setting.module__time_24hr);
 
             // if 12 hr, fix the hour mark
@@ -444,9 +444,9 @@ public class Hud {
             String timeString = hour + assets.getTimeSeparator() + min;
 
             // return based on 12 or 24 hour
-            if (time12) return String.format(Data.getModuleText().getTime().getHour12(), timeString,
+            if (time12) return String.format(FileData.getModuleText().getTime().getHour12(), timeString,
                     hour>=12?assets.getPM():assets.getAM());
-            return String.format(Data.getModuleText().getTime().getHour24(),timeString);
+            return String.format(FileData.getModuleText().getTime().getHour24(),timeString);
         }
         public static String getAngleModule(Player player) {
             // if the module isnt enabled, return empty
@@ -457,9 +457,9 @@ public class Hud {
             String yaw = df.format(player.getYaw()), pitch = df.format(player.getPitch());
 
             return switch (playerType) {
-                case yaw -> String.format(Data.getModuleText().getAngle().getYaw(), yaw);
-                case pitch -> String.format(Data.getModuleText().getAngle().getPitch(), pitch);
-                case both -> String.format(Data.getModuleText().getAngle().getBoth(), yaw, pitch);
+                case yaw -> String.format(FileData.getModuleText().getAngle().getYaw(), yaw);
+                case pitch -> String.format(FileData.getModuleText().getAngle().getPitch(), pitch);
+                case both -> String.format(FileData.getModuleText().getAngle().getBoth(), yaw, pitch);
             };
         }
         public static String getSpeedModule(Player player) {
@@ -471,8 +471,8 @@ public class Hud {
             DecimalFormat df = new DecimalFormat((String) player.getPCache().getHud().getSetting(Setting.module__speed_pattern));
             String speed = df.format(player.getPCache().getSpeedData().getSpeed());
 
-            if (speed3D) String.format(Data.getModuleText().getSpeed().getXyzSpeed(), speed);
-            return String.format(Data.getModuleText().getSpeed().getXzSpeed(), speed);
+            if (speed3D) String.format(FileData.getModuleText().getSpeed().getXyzSpeed(), speed);
+            return String.format(FileData.getModuleText().getSpeed().getXzSpeed(), speed);
         }
     }
 

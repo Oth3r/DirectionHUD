@@ -4,7 +4,7 @@ package one.oth3r.directionhud.common.files.playerdata;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import one.oth3r.directionhud.DirectionHUD;
-import one.oth3r.directionhud.common.files.Data;
+import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.exception.UnsupportedVersionException;
 import one.oth3r.directionhud.common.files.Updater;
 import one.oth3r.directionhud.utils.Player;
@@ -32,7 +32,7 @@ public class PData extends DefaultPData {
 
     // LOADING AND SAVING
     public static File getPlayerFile(Player player) {
-        if (Data.getConfig().getOnline()) return new File(DirectionHUD.DATA_DIR+"playerdata/" +player.getUUID()+".json");
+        if (FileData.getConfig().getOnline()) return new File(DirectionHUD.DATA_DIR+"playerdata/" +player.getUUID()+".json");
         else return new File(DirectionHUD.DATA_DIR+"playerdata/"+player.getName()+".json");
     }
 

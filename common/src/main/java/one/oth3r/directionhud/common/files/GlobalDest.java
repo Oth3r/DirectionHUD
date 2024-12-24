@@ -66,7 +66,7 @@ public class GlobalDest {
         }
         try (BufferedWriter writer = Files.newBufferedWriter(getFile().toPath(), StandardCharsets.UTF_8)) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            writer.write(gson.toJson(Data.getGlobal()));
+            writer.write(gson.toJson(FileData.getGlobal()));
         } catch (Exception e) {
             DirectionHUD.LOGGER.info(String.format("ERROR WRITING `%s`: %s",FILE_NAME,e.getMessage()));
         }

@@ -1,6 +1,6 @@
 package one.oth3r.directionhud.common;
 
-import one.oth3r.directionhud.common.files.Data;
+import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.playerdata.CachedPData;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
@@ -27,14 +27,14 @@ public class LoopManager {
         HUDTick++;
         ParticleTick++;
 
-        if (HUDTick >= Data.getConfig().getHud().getLoop()) {
+        if (HUDTick >= FileData.getConfig().getHud().getLoop()) {
             HUDTick = 0;
             for (Player player : Utl.getPlayers()) {
                 HUDTickLogic(player);
             }
         }
 
-        if (ParticleTick >= Data.getConfig().getDestination().getLoop()) {
+        if (ParticleTick >= FileData.getConfig().getDestination().getLoop()) {
             ParticleTick = 0;
             for (Player player :Utl.getPlayers()) particles(player);
         }

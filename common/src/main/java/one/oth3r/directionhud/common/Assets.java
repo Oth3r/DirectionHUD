@@ -1,8 +1,5 @@
 package one.oth3r.directionhud.common;
 
-import one.oth3r.directionhud.common.files.Data;
-import one.oth3r.directionhud.utils.CTxT;
-
 public class Assets {
 
     public static class mainColors {

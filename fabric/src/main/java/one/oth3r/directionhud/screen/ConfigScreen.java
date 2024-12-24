@@ -9,7 +9,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Util;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.files.Config;
-import one.oth3r.directionhud.common.files.Data;
+import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.files.dimension.DimensionSettings;
 import one.oth3r.directionhud.common.files.playerdata.DefaultPData;
 import one.oth3r.directionhud.common.utils.Lang;
@@ -65,7 +65,7 @@ public class ConfigScreen extends Screen {
         addDrawableChild(
                 ButtonWidget.builder(LANG.btn("save").b(), button -> {
                             client.setScreen(PARENT);
-                            Data.loadFiles(false);
+                            FileData.loadFiles(false);
                         })
                         .dimensions(width / 2-100, height-30, 200, 20)
                         .tooltip(Tooltip.of(LANG.get("tooltip.save").b()))

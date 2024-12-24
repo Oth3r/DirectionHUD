@@ -1,7 +1,7 @@
 package one.oth3r.directionhud.common;
 
 import one.oth3r.directionhud.DirectionHUD;
-import one.oth3r.directionhud.common.files.Data;
+import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.utils.*;
 import one.oth3r.directionhud.common.utils.Helper.Enums;
 import one.oth3r.directionhud.common.utils.Helper.*;
@@ -41,7 +41,7 @@ public class DHud {
         ArrayList<String> suggester = new ArrayList<>();
         if (!Helper.checkEnabled(player).hud()) return suggester;
         if (pos == 1) {
-            if (Data.getConfig().getSocial().getEnabled()) suggester.add("inbox");
+            if (FileData.getConfig().getSocial().getEnabled()) suggester.add("inbox");
             if (Helper.checkEnabled(player).reload()) suggester.add("reload");
             if (Helper.checkEnabled(player).destination()) suggester.add("dest");
             if (Helper.checkEnabled(player).hud()) suggester.add("hud");
@@ -74,7 +74,7 @@ public class DHud {
      * @param player null if reloading from the console
      */
     public static void reload(Player player) {
-        Data.loadFiles(false);
+        FileData.loadFiles(false);
         // fully reload the players
         for (Player pl: Utl.getPlayers()) {
             Events.playerSoftLeave(pl);
@@ -94,7 +94,7 @@ public class DHud {
                 .hover(CTxT.of(Assets.cmdUsage.inbox).color(Assets.mainColors.inbox).append("\n").append(LANG.hover()));
 
         public static void CMDExecutor(Player player, String[] args) {
-            if (!Data.getConfig().getSocial().getEnabled()) return;
+            if (!FileData.getConfig().getSocial().getEnabled()) return;
             // UI
             if (args.length <= 1) {
                 if (args.length == 0) UI(player,1);
@@ -162,7 +162,7 @@ public class DHud {
                             Type.track_request : Type.track_pending;
                     // use name if online mode is off
                     Player target = new Player(entry.get("player_uuid"));
-                    if (!Data.getConfig().getOnline()) target = new Player(entry.get("player_name"));
+                    if (!FileData.getConfig().getOnline()) target = new Player(entry.get("player_name"));
                     if (target.isValid()) {
                         // search for the opposite type of the player and the id to match it in target inbox and remove
                         removeEntry(target, DHud.inbox.search(target, type,"id",entry.get("id")));
@@ -298,7 +298,7 @@ public class DHud {
             // get the entry name
             String name = entry.get("player_name");
             // get name from UUID if online mode is on
-            if (Data.getConfig().getOnline()) {
+            if (FileData.getConfig().getOnline()) {
                 Player player_uuid = new Player(entry.get("player_uuid"));
                 if (player_uuid.isValid()) name = player_uuid.getName();
             }
@@ -739,7 +739,7 @@ public class DHud {
                 msg.append(LANG.ui("custom").color(Assets.mainColors.presets)).append(line);
                 CTxT addBtn = CTxT.of("+").btn(true).color('a').click(2,"/dhud preset save-r ").hover(LANG.hover("save").color('a'));
                 // disable if max saved colors reached
-                if (player.getPData().getColorPresets().size() >= Data.getConfig().getMaxColorPresets()) addBtn.color('7').click(1,null).hover(null);
+                if (player.getPData().getColorPresets().size() >= FileData.getConfig().getMaxColorPresets()) addBtn.color('7').click(1,null).hover(null);
                 ListPage<ColorPreset> listPage = new ListPage<>(player.getPData().getColorPresets(),PER_PAGE);
 
                 for (ColorPreset preset : listPage.getPage(pg)) {
@@ -836,7 +836,7 @@ public class DHud {
                     player.sendMessage(CUtl.LANG.error("length",Helper.MAX_NAME));
                     return;
                 }
-                if (presets.size() >= Data.getConfig().getMaxColorPresets()) {
+                if (presets.size() >= FileData.getConfig().getMaxColorPresets()) {
                     player.sendMessage(LANG.error("max"));
                     return;
                 }
@@ -926,7 +926,7 @@ public class DHud {
         // presets
         if (Helper.checkEnabled(player).customPresets()) msg.append(preset.BUTTON).append(" ");
         // inbox
-        if (Data.getConfig().getSocial().getEnabled()) msg.append(inbox.BUTTON);
+        if (FileData.getConfig().getSocial().getEnabled()) msg.append(inbox.BUTTON);
         // reload (if enabled)
         if (Helper.checkEnabled(player).reload()) msg.append("\n\n ").append(RELOAD_BUTTON);
         msg.append(line);
