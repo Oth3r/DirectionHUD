@@ -158,9 +158,7 @@ public class Hud {
             case "settings" -> settings.CMDExecutor(player,trimmedArgs);
             case "color" -> color.cmdExecutor(player, trimmedArgs);
             case "toggle" -> settings.change(player,Setting.state,(boolean) player.getPCache().getHud().getSetting(Setting.state)?"off":"on",false);
-//            default -> player.sendMessage(CUtl.error("command")); todo
-            default -> player.sendMessage(CUtl.parse(player, args[0]));
-
+            default -> player.sendMessage(CUtl.error("command"));
         }
     }
 
@@ -187,6 +185,7 @@ public class Hud {
     }
 
     public static class build {
+
         /**
          * builds the HUD for actionBar & BossBar use
          * @param moduleInstructions a HashMap with the instructions for building the HUD
@@ -194,46 +193,28 @@ public class Hud {
          */
         public static CTxT compile(Player player, HashMap<Module, String> moduleInstructions) {
             // returns a CTxT with the fully built HUD
-            int start = 1;
             player.getPCache().getRainbow(1).setPosition(LoopManager.rainbowF);
             CTxT msg = CTxT.of("");
             // loop for all enabled modules
             int count = 0;
             for (Module module: modules.getEnabled(player)) {
                 count++;
-                // if dest isn't set
+                // if module is empty, skip
                 if (moduleInstructions.get(module).isEmpty()) continue;
-
+                // append the parsed module text
                 msg.append(CUtl.parse(player,moduleInstructions.get(module)));
-
-//                for (String str : moduleInstructions.get(module)) {
-//                    String string = str.substring(1);
-//                    boolean strike = false;
-//                    // if '/', remove the char and enable strikethrough for the text
-//                    if (str.charAt(0) == '/') {
-//                        str = str.substring(1);
-//                        string = string.substring(1);
-//                        strike = true;
-//                    }
-//                    // if 'p' use primary color, 's' for secondary
-//                    int typ = str.charAt(0) == 'p'?1:2;
-//                    // add the color and style
-//                    msg.append(color.addColor(player,string,typ,LoopManager.rainbowF+start,5)
-//                            .strikethrough(strike));
-//                    // if rainbow, move the starting position by how many characters were turned into a rainbow, for a seamless rainbow
-//                    if (color.getEntry(player,typ).getRainbow()) {
-//                        String rgbStr = string.replaceAll("\\s", "");
-//                        start = start + rgbStr.codePointCount(0, rgbStr.length())*5;
-//                    }
-//                }
-
+                // if there's another module after the current one, add a space
                 if (count < modules.getEnabled(player).size()) msg.append(" ");
             }
-            if (msg.equals(CTxT.of(""))) return CTxT.of("");
+            // if the built string is empty, just return
+            if (msg.isEmpty()) return msg;
+
             //make the click event unique for detecting if an actionbar is from DirectionHUD or not
             msg.click(3,"https://modrinth.com/mod/directionhud");
+
             return msg;
         }
+
         /**
          * puts all HUD building instructions into a HashMap
          * @return HUD building instructions
@@ -382,7 +363,6 @@ public class Hud {
 
             return String.format(Data.getModuleText().getTracking().getTracking(), data);
         }
-
         public static String getDirectionModule(Player player) {
             double rotation = player.getYaw()+180;
             ModuleText.ModuleDirection.Assets.Cardinal cardinals = Data.getModuleText().getDirection().getAssets().getCardinal();
@@ -399,7 +379,6 @@ public class Hud {
 
             return String.format(Data.getModuleText().getDirection().getFacing(),data);
         }
-
         public static String getWeatherModule(Player player) {
             Time timeSettings = Dimension.getTimeSettings(player.getDimension());
             Weather weatherSettings = timeSettings.getWeather();
@@ -434,7 +413,6 @@ public class Hud {
             // if not, dual weather module
             return String.format(Data.getModuleText().getWeather().getWeather(), weatherIcon, extraIcons);
         }
-
         public static String getTimeModule(Player player) {
             Time timeSettings = Dimension.getTimeSettings(player.getDimension());
 
@@ -470,7 +448,6 @@ public class Hud {
                     hour>=12?assets.getPM():assets.getAM());
             return String.format(Data.getModuleText().getTime().getHour24(),timeString);
         }
-
         public static String getAngleModule(Player player) {
             // if the module isnt enabled, return empty
             if (!player.getPCache().getHud().getModule(Module.angle)) return "";
@@ -485,7 +462,6 @@ public class Hud {
                 case both -> String.format(Data.getModuleText().getAngle().getBoth(), yaw, pitch);
             };
         }
-
         public static String getSpeedModule(Player player) {
             // if the module isnt enabled, return empty
             if (!player.getPCache().getHud().getModule(Module.speed)) return "";
