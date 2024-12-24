@@ -148,6 +148,10 @@ public abstract class ChatText<T, C extends ChatText<T, C>> {
         return hoverEvent;
     }
 
+    public boolean isEmpty() {
+        return this.toString().isEmpty();
+    }
+
     // helper to return the subclass instance
     @SuppressWarnings("unchecked")
     protected C self() {
