@@ -5,7 +5,7 @@ import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.Text;
 import one.oth3r.directionhud.DirectionHUDClient;
-import one.oth3r.directionhud.common.Hud;
+import one.oth3r.directionhud.common.hud.Hud;
 import one.oth3r.directionhud.utils.Player;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

@@ -3,7 +3,7 @@ package one.oth3r.directionhud.common.files.playerdata;
 
 import com.google.gson.annotations.SerializedName;
 import one.oth3r.directionhud.DirectionHUD;
-import one.oth3r.directionhud.common.Hud;
+import one.oth3r.directionhud.common.hud.Hud;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.utils.Player;
 

@@ -1,9 +1,13 @@
-package one.oth3r.directionhud.common;
+package one.oth3r.directionhud.common.hud;
 
+import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.Assets.symbols.arrows;
-import one.oth3r.directionhud.common.Hud.Setting.ModuleAngleDisplay;
-import one.oth3r.directionhud.common.Hud.Setting.ModuleTrackingTarget;
-import one.oth3r.directionhud.common.Hud.Setting.*;
+import one.oth3r.directionhud.common.DHud;
+import one.oth3r.directionhud.common.Destination;
+import one.oth3r.directionhud.common.LoopManager;
+import one.oth3r.directionhud.common.hud.Hud.Setting.ModuleAngleDisplay;
+import one.oth3r.directionhud.common.hud.Hud.Setting.ModuleTrackingTarget;
+import one.oth3r.directionhud.common.hud.Hud.Setting.*;
 import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.files.ModuleText;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
@@ -843,6 +847,33 @@ public class Hud {
             return "#19ff21";
         }
 
+//        /**
+//         * UI for editing a specific module
+//         * @param aboveTxT the text to show above the UI
+//         * @param module the module to edit
+//         */
+//        public static void editUI(Player player, CTxT aboveTxT, Module module) {
+//            // data
+//            Helper.ListPage<Module> listPage = new Helper.ListPage<>(player.getPCache().getHud().getOrder(),PER_PAGE);
+//            CTxT msg = CTxT.of(""), line = CUtl.makeLine(37);
+//
+//            // add the text above if available
+//            if (aboveTxT != null) msg.append(aboveTxT).append("\n");
+//            // make the top bar
+//            msg.append(" ").append(LANG.ui().color(Assets.mainColors.edit)).append(line);
+//
+//            //ORDER
+//            msg.append(CTxT.of(String.valueOf(listPage.getIndexOf(module)+1)).btn(true).color(CUtl.p())
+//                    .click(2,"/hud modules order-r "+module+" ")
+//                    .hover(CUtl.LANG.hover("order").color(CUtl.p())))
+//                    //TOGGLE
+//                    .append(CTxT.of(Assets.symbols.toggle).btn(true).color(CUtl.toggleColor(state))
+//                            .click(1,"/hud modules toggle-r "+module)
+//                            .hover(LANG.hover("toggle",
+//                                    CTxT.of(module.toString()).color(CUtl.s()),
+//                                    CUtl.LANG.btn(!state?"on":"off").color(!state?'a':'c')))).append(" ")
+//        }
+
         /**
          * the HUD Modules chat UI
          * @param aboveTxT a messages that displays above the UI
@@ -857,6 +888,8 @@ public class Hud {
             if (aboveTxT != null) msg.append(aboveTxT).append("\n");
             // make the top bar
             msg.append(" ").append(LANG.ui().color(Assets.mainColors.edit)).append(line);
+
+
             //MAKE THE TEXT
             for (Module module: listPage.getPage(pg)) {
                 boolean state = player.getPCache().getHud().getModule(module);
@@ -877,11 +910,13 @@ public class Hud {
                 //EXTRA BUTTONS
                 msg.append(getButtons(player,module));
             }
+
             //BOTTOM ROW
             msg.append("\n\n ").append(CUtl.LANG.btn("reset").btn(true).color('c').click(1,"/hud modules reset-r")
                             .hover(CUtl.LANG.hover("reset",CUtl.LANG.btn("all").color('c'),LANG.hover("reset_fill"))))
                     .append(" ").append(listPage.getNavButtons(pg,"/hud modules ")).append(" ").append(CUtl.CButton.back("/hud"))
                     .append(line);
+
             player.sendMessage(msg);
         }
     }

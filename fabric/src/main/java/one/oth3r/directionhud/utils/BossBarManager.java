@@ -4,7 +4,7 @@ import net.minecraft.entity.boss.BossBar;
 import net.minecraft.util.Identifier;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.Destination;
-import one.oth3r.directionhud.common.Hud;
+import one.oth3r.directionhud.common.hud.Hud;
 import one.oth3r.directionhud.common.utils.Helper;
 
 import java.util.HashMap;
