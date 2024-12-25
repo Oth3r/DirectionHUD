@@ -862,7 +862,7 @@ public class Hud {
                                 .click(2,"/hud modules order-r "+module+" ")
                                 .hover(CUtl.LANG.hover("order").color(CUtl.p())))
                         //TOGGLE
-                        .append(CTxT.of(Assets.symbols.toggle).btn(true).color(CUtl.p())
+                        .append(CTxT.of(Assets.symbols.toggle).btn(true).color(CUtl.toggleColor(state))
                                 .click(1,"/hud modules toggle-r "+module)
                                 .hover(LANG.hover("toggle",
                                         CTxT.of(module.toString()).color(CUtl.s()),
