@@ -850,8 +850,12 @@ public class Hud {
          */
         public static void UI(Player player, CTxT aboveTxT, int pg) {
             Helper.ListPage<Module> listPage = new Helper.ListPage<>(player.getPCache().getHud().getOrder(),PER_PAGE);
-            CTxT msg = CTxT.of(""), line = CTxT.of("\n                                     ").strikethrough(true);
+
+            CTxT msg = CTxT.of(""), line = CUtl.makeLine(37);
+
+            // add the text above if available
             if (aboveTxT != null) msg.append(aboveTxT).append("\n");
+            // make the top bar
             msg.append(" ").append(LANG.ui().color(Assets.mainColors.edit)).append(line);
             //MAKE THE TEXT
             for (Module module: listPage.getPage(pg)) {
