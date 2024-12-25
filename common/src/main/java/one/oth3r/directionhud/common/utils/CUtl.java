@@ -76,6 +76,15 @@ public class CUtl {
     }
 
     /**
+     * makes UI line based on the length provided
+     */
+    public static CTxT makeLine(int length) {
+        // add a space for the length of the int
+        // return the CTxT
+        return CTxT.of("\n"+ " ".repeat(Math.max(0, length))).strikethrough(true);
+    }
+
+    /**
      * parses a coded string into a colored CTxT <br>
      * <p>
      *     &1 - primary color <br>
