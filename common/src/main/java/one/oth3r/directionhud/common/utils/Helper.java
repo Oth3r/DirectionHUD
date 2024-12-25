@@ -462,6 +462,8 @@ public class Helper {
     public static Gson getGson() {
         return new GsonBuilder()
                 .registerTypeAdapterFactory(new LenientTypeAdapterFactory())
+                .disableHtmlEscaping()
+                .setPrettyPrinting()
                 .create();
     }
 
