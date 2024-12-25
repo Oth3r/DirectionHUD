@@ -1,9 +1,12 @@
 package one.oth3r.directionhud.common.files;
 
 import com.google.gson.annotations.SerializedName;
+import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.Assets.symbols.arrows;
+import one.oth3r.directionhud.common.template.CustomFile;
+import org.jetbrains.annotations.NotNull;
 
-public class ModuleText {
+public class ModuleText implements CustomFile<ModuleText> {
     @SerializedName("coordinates")
     private ModuleCoordinates coordinates = new ModuleCoordinates();
     @SerializedName("destination")
@@ -57,6 +60,52 @@ public class ModuleText {
 
     public ModuleSpeed getSpeed() {
         return speed;
+    }
+
+    @Override
+    public void reset() {
+        coordinates = new ModuleCoordinates();
+        destination = new ModuleDestination();
+        distance = new ModuleDistance();
+        tracking = new ModuleTracking();
+        direction = new ModuleDirection();
+        weather = new ModuleWeather();
+        time = new ModuleTime();
+        angle = new ModuleAngle();
+        speed = new ModuleSpeed();
+    }
+
+    @Override
+    public @NotNull Class<ModuleText> getFileClass() {
+        return ModuleText.class;
+    }
+
+    @Override
+    public void loadFileData(ModuleText newFile) {
+        this.coordinates = newFile.coordinates;
+        this.destination = newFile.destination;
+        this.distance = newFile.distance;
+        this.tracking = newFile.tracking;
+        this.direction = newFile.direction;
+        this.weather = newFile.weather;
+        this.time = newFile.time;
+        this.angle = newFile.angle;
+        this.speed = newFile.speed;
+    }
+
+    @Override
+    public void update() {
+
+    }
+
+    @Override
+    public String getFileName() {
+        return "module-text.json";
+    }
+
+    @Override
+    public String getDirectory() {
+        return DirectionHUD.CONFIG_DIR;
     }
 
     public static class ModuleCoordinates {

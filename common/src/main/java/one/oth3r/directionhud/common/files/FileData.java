@@ -20,14 +20,10 @@ public class FileData {
     /**
      * module display data
      */
-    private static ModuleText moduleText = new ModuleText();
+    private static final ModuleText moduleText = new ModuleText();
 
     public static ModuleText getModuleText() {
         return moduleText;
-    }
-
-    public static void setModuleText(ModuleText moduleText) {
-        FileData.moduleText = moduleText;
     }
 
     /**
@@ -48,6 +44,7 @@ public class FileData {
         PData.loadDefaults();
         LangReader.loadLanguageFile();
         DimensionSettings.load();
+        moduleText.load();
         if (config.getDestination().getGlobal()) GlobalDest.load();
     }
 
