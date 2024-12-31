@@ -38,11 +38,12 @@ public class Events {
     }
 
     public static void playerJoin(Player player) {
+        PlayerData.addPlayer(player);
+
         // add the bossbar on player join to fix duplicate boss bar issue on spigot
         if (player.getPCache().getHud().getSetting().getType().equals(Hud.Setting.DisplayType.bossbar.toString())) {
             DirectionHUD.bossBarManager.addPlayer(player);
         }
-        PlayerData.addPlayer(player);
     }
 
     public static void playerLeave(Player player) {
