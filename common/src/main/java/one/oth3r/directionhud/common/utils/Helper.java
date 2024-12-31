@@ -471,6 +471,29 @@ public class Helper {
     }
 
     /**
+     * move an item in an arraylist to a new index
+     * @param list the list to modify
+     * @param currentIndex the index of the item to move
+     * @param targetIndex the new index of the item
+     * @param <T> the list object
+     */
+    public static <T> void moveTo(ArrayList<T> list, int currentIndex, int targetIndex) {
+        if (currentIndex < 0 || currentIndex >= list.size()) {
+            throw new IndexOutOfBoundsException("Current index is out of bounds.");
+        }
+
+        // Remove the element and save it
+        T element = list.remove(currentIndex);
+
+        // Adjust target index if it's out of bounds
+        if (targetIndex >= list.size()) {
+            list.add(element); // Add to the end if too high
+        } else {
+            list.add(targetIndex, element); // Insert at the specified position
+        }
+    }
+
+    /**
      * gets a Gson with the LenientTypeAdapter
      */
     public static Gson getGson() {
