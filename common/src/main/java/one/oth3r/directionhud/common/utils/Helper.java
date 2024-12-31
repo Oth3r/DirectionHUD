@@ -8,6 +8,8 @@ import com.google.gson.stream.MalformedJsonException;
 import one.oth3r.directionhud.common.DHud;
 import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
+import one.oth3r.directionhud.common.hud.module.BaseModule;
+import one.oth3r.directionhud.common.hud.module.BaseModuleAdapter;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
@@ -472,7 +474,9 @@ public class Helper {
      * gets a Gson with the LenientTypeAdapter
      */
     public static Gson getGson() {
+
         return new GsonBuilder()
+                .registerTypeAdapter(BaseModule.class, new BaseModuleAdapter())
                 .registerTypeAdapterFactory(new LenientTypeAdapterFactory())
                 .disableHtmlEscaping()
                 .setPrettyPrinting()
