@@ -2,10 +2,7 @@ package one.oth3r.directionhud.common.files.playerdata;
 
 import one.oth3r.directionhud.utils.Player;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class PlayerData {
@@ -35,7 +32,8 @@ public class PlayerData {
             Iterator<Player> iterator = SAVE.iterator();
             while (iterator.hasNext()) {
                 Player player = iterator.next();
-                PData.savePlayer(player);
+                player.getPData().save();
+                // remove player from the save list
                 iterator.remove();
             }
             // tick everyone in the expire map, and remove the pData for the expired people
@@ -103,6 +101,7 @@ public class PlayerData {
         return playerCache.get(player);
     }
 
+
     private static final Map<Player, PData> playerData = new HashMap<>();
 
     /**
@@ -117,11 +116,7 @@ public class PlayerData {
      */
     public static void setPlayerData(Player player, PData pData) {
         // make sure the pData isnt null, if it is and the player doesn't have a pData, make a new one for them
-        if (pData != null) {
-            playerData.put(player,pData);
-        } else if (!playerData.containsKey(player)) {
-            playerData.put(player,new PData(player));
-        }
+        playerData.put(player, Objects.requireNonNullElseGet(pData, () -> new PData(player)));
     }
 
     public static void removePlayerData(Player player) {
@@ -134,18 +129,24 @@ public class PlayerData {
      */
     public static PData getPData(Player player) {
         if (!playerData.containsKey(player)) {
-            PData.loadPlayer(player);
+            addPlayer(player);
         }
-        // accessing the pData, bump the timer
+        // we're accessing the pData, bump the timer
         Queue.updateExpireTime(player);
+        // return the playerData
         return playerData.get(player);
     }
 
     /**
-     * adds the player into the system (when they first join)
+     * adds the player into the system (eg. when they first join)
      */
     public static void addPlayer(Player player) {
-        PData.loadPlayer(player);
+        // get a new pData object
+        PData pData = new PData(player);
+        // load the pData object
+        pData.load();
+        // put the pData into the map
+        playerData.put(player, pData);
     }
 
     /**
@@ -154,10 +155,14 @@ public class PlayerData {
     public static void removePlayer(Player player) {
         // only clear the playerData if the player has it
         if (playerData.containsKey(player)) {
-            PData.savePlayer(player);
+            // save the playerdata
+            getPData(player).save();
+            // remove them from the player data
             removePlayerData(player);
         }
+        // remove the player from any queues
         Queue.clearPlayer(player);
+        // clear the player's cache
         removePlayerCache(player);
     }
 }

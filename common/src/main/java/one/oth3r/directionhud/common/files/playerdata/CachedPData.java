@@ -31,7 +31,7 @@ public class CachedPData {
     private Integer socialCooldown;
     private ArrayList<HashMap<String,String>> inbox;
 
-    public CachedPData(DefaultPData pData) {
+    public CachedPData(PData pData) {
         this.hud = new PDHud(pData.getHud());
         this.destination = new CachedDestination(pData.getDEST());
         this.speedData = new SpeedData(pData.getPlayer());
@@ -44,7 +44,7 @@ public class CachedPData {
      * update the cache with new data
      * @param pData updated data
      */
-    public void update(DefaultPData pData) {
+    public void update(BasePData pData) {
         this.hud = new PDHud(pData.getHud());
         this.destination = new CachedDestination(pData.getDEST());
     }

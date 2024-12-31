@@ -21,7 +21,7 @@ public class PDDestination {
     
     private void save() {
         if (player == null) return;
-        player.getPData().save();
+        player.getPData().queueSave();
     }
     
     private transient Player player;

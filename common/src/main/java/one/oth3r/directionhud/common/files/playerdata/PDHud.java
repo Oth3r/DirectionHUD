@@ -4,6 +4,9 @@ package one.oth3r.directionhud.common.files.playerdata;
 import com.google.gson.annotations.SerializedName;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.hud.Hud;
+import one.oth3r.directionhud.common.hud.module.BaseModule;
+import one.oth3r.directionhud.common.hud.module.*;
+import one.oth3r.directionhud.common.hud.module.Module;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.utils.Player;
 
@@ -19,70 +22,70 @@ public class PDHud {
     
     private void save() {
         if (player == null) return;
-        player.getPData().save();
+        player.getPData().queueSave();
     }
     
     private transient Player player;
 
-    @SerializedName("module")
-    private Modules module = new Modules();
+    @SerializedName("modules")
+    private ArrayList<BaseModule> modules = new ArrayList<>() {{
+        add(new ModuleCoordinates(0, true));
+        add(new ModuleDestination(1, true));
+        add(new ModuleDistance(2, true));
+        add(new ModuleTracking(3, false, true, ModuleTracking.Target.player, ModuleTracking.Type.simple));
+        add(new ModuleDirection(4, true));
+        add(new ModuleWeather(5, true));
+        add(new ModuleTime(6, true, false));
+        add(new ModuleAngle(7, false, ModuleAngle.Display.both));
+        add(new ModuleSpeed(8, false, false, "0.00"));
+    }};
     @SerializedName("setting")
     private Settings setting = new Settings();
-    @SerializedName("order")
-    private ArrayList<Hud.Module> order = Hud.modules.getDefaultOrder();
     @SerializedName("primary")
-    private Color primary = new PDHud.Color(
+    private Color primary = new Color(
             DirectionHUD.PRIMARY,false,false,false);
     @SerializedName("secondary")
-    private Color secondary = new PDHud.Color(
+    private Color secondary = new Color(
             "#ffffff",false,false,false);
 
     public PDHud() {}
 
     public PDHud(PDHud hud) {
-        this.module = new Modules(hud.module);
+        ArrayList<BaseModule> baseModules = new ArrayList<>();
+        for (BaseModule module : hud.modules) baseModules.add(module.clone());
+        this.modules = baseModules;
         this.setting = new Settings(hud.setting);
-        this.order = hud.order;
         this.primary = new Color(hud.getPrimary());
         this.secondary = new Color(hud.getSecondary());
     }
 
-    public Modules getModule() {
-        return module;
+    public ArrayList<BaseModule> getModules() {
+        return modules;
     }
 
-    public boolean getModule(Hud.Module module) {
-        return switch (module) {
-            case destination -> getModule().getDestination();
-            case time -> getModule().getTime();
-            case angle -> getModule().getAngle();
-            case speed -> getModule().getSpeed();
-            case weather -> getModule().getWeather();
-            case distance -> getModule().getDistance();
-            case tracking -> getModule().getTracking();
-            case direction -> getModule().getDirection();
-            case coordinates -> getModule().getCoordinates();
-            default -> false;
-        };
+    @SuppressWarnings("unchecked")
+    public <T extends BaseModule> T getModule(Module module) {
+        for (BaseModule m : modules) {
+            if (module.getModuleClass().isInstance(m)) {
+                return (T) m;
+            }
+        }
+        // todo this shouldn't happen, probably throw an execution instead
+        // null if module isn't found
+        return null;
     }
 
-    public void setModule(Modules module) {
-        this.module = module;
+    public void setModule(Module module, BaseModule setModule) {
+        for (int i = 0; i < modules.size(); i++) {
+            if (module.getModuleClass().isInstance(modules.get(i))) {
+                modules.set(i,setModule);
+            }
+        }
         save();
     }
 
-    public void setModule(Hud.Module module, boolean state) {
-        switch (module) {
-            case coordinates -> getModule().setCoordinates(state);
-            case destination -> getModule().setDestination(state);
-            case direction -> getModule().setDirection(state);
-            case distance -> getModule().setDistance(state);
-            case speed -> getModule().setSpeed(state);
-            case angle -> getModule().setAngle(state);
-            case tracking -> getModule().setTracking(state);
-            case weather -> getModule().setWeather(state);
-            case time -> getModule().setTime(state);
-        }
+    public void setModules(ArrayList<BaseModule> module) {
+        this.modules = module;
         save();
     }
 
@@ -131,15 +134,6 @@ public class PDHud {
         save();
     }
 
-    public ArrayList<Hud.Module> getOrder() {
-        return order;
-    }
-
-    public void setOrder(ArrayList<Hud.Module> order) {
-        this.order = order;
-        save();
-    }
-
     public Color getPrimary() {
         return primary;
     }
@@ -166,7 +160,7 @@ public class PDHud {
 
         private void save() {
             if (player == null) return;
-            player.getPData().save();
+            player.getPData().queueSave();
         }
 
         private transient Player player;
@@ -419,114 +413,6 @@ public class PDHud {
                 this.time24hr = time24hr;
             }
 
-        }
-    }
-
-    public static class Modules {
-
-        @SerializedName("coordinates")
-        private Boolean coordinates = true;
-        @SerializedName("destination")
-        private Boolean destination = true;
-        @SerializedName("distance")
-        private Boolean distance = true;
-        @SerializedName("tracking")
-        private Boolean tracking = false;
-        @SerializedName("direction")
-        private Boolean direction = true;
-        @SerializedName("weather")
-        private Boolean weather = true;
-        @SerializedName("time")
-        private Boolean time = true;
-        @SerializedName("angle")
-        private Boolean angle = false;
-        @SerializedName("speed")
-        private Boolean speed = false;
-
-        public Modules() {}
-
-        public Modules(Modules modules) {
-            this.coordinates = modules.coordinates;
-            this.destination = modules.destination;
-            this.distance = modules.distance;
-            this.tracking = modules.tracking;
-            this.direction = modules.direction;
-            this.weather = modules.weather;
-            this.time = modules.time;
-            this.angle = modules.angle;
-            this.speed = modules.speed;
-        }
-
-        public Boolean getDistance() {
-            return distance;
-        }
-
-        public void setDistance(Boolean distance) {
-            this.distance = distance;
-        }
-
-        public Boolean getCoordinates() {
-            return coordinates;
-        }
-
-        public void setCoordinates(Boolean coordinates) {
-            this.coordinates = coordinates;
-        }
-
-        public Boolean getDestination() {
-            return destination;
-        }
-
-        public void setDestination(Boolean destination) {
-            this.destination = destination;
-        }
-
-        public Boolean getWeather() {
-            return weather;
-        }
-
-        public void setWeather(Boolean weather) {
-            this.weather = weather;
-        }
-
-        public Boolean getAngle() {
-            return angle;
-        }
-
-        public void setAngle(Boolean angle) {
-            this.angle = angle;
-        }
-
-        public Boolean getTime() {
-            return time;
-        }
-
-        public void setTime(Boolean time) {
-            this.time = time;
-        }
-
-        public Boolean getTracking() {
-            return tracking;
-        }
-
-        public void setTracking(Boolean tracking) {
-            this.tracking = tracking;
-        }
-
-        public Boolean getSpeed() {
-            return speed;
-        }
-
-        public void setSpeed(Boolean speed) {
-            this.speed = speed;
-        }
-
-        public Boolean getDirection() {
-            return direction;
-        }
-
-        public void setDirection(Boolean direction) {
-            this.direction = direction;
         }
     }
 }
