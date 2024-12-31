@@ -18,6 +18,7 @@ import one.oth3r.directionhud.common.LoopManager;
 import one.oth3r.directionhud.common.files.playerdata.CachedPData;
 import one.oth3r.directionhud.common.files.playerdata.PData;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
+import one.oth3r.directionhud.common.hud.module.Module;
 import one.oth3r.directionhud.packet.PacketSender;
 import one.oth3r.directionhud.packet.Payloads;
 import one.oth3r.directionhud.utils.Player;
@@ -125,7 +126,7 @@ public class DirectionHUDClient implements ClientModInitializer {
 
     public static void hudPacketLogic(MinecraftClient client, String packet) {
         client.execute(() -> {
-            Type hashMapToken = new TypeToken<HashMap<Hud.Module, ArrayList<String>>>() {}.getType();
+            Type hashMapToken = new TypeToken<HashMap<Module, ArrayList<String>>>() {}.getType();
             Gson gson = new GsonBuilder().disableHtmlEscaping().create();
             // if there is no actionbar override, build and send the HUD
             if (overrideCd <= 0) {

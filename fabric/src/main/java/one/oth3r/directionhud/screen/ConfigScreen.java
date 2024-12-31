@@ -11,7 +11,6 @@ import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.files.Config;
 import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.files.dimension.DimensionSettings;
-import one.oth3r.directionhud.common.files.playerdata.DefaultPData;
 import one.oth3r.directionhud.common.utils.Lang;
 
 import java.nio.file.Paths;
@@ -44,14 +43,14 @@ public class ConfigScreen extends Screen {
                 .dimensions(width / 2-100, 35, 200, 20)
                 .tooltip(Tooltip.of(LANG.get("tooltip.file").b()))
                 .build());
-        // default pData file
-        addDrawableChild(
-                ButtonWidget.builder(Text.literal(DefaultPData.getDefaultFile().getName()), button -> {
-                    Util.getOperatingSystem().open(DefaultPData.getDefaultFile());
-                })
-                .dimensions(width / 2-100, 60, 200, 20)
-                .tooltip(Tooltip.of(LANG.get("tooltip.file").b()))
-                .build());
+        // default pData file todo
+//        addDrawableChild(
+//                ButtonWidget.builder(Text.literal(BasePData.getDefaultFile().getName()), button -> {
+//                    Util.getOperatingSystem().open(BasePData.getDefaultFile());
+//                })
+//                .dimensions(width / 2-100, 60, 200, 20)
+//                .tooltip(Tooltip.of(LANG.get("tooltip.file").b()))
+//                .build());
         // open folder button
         addDrawableChild(
                 ButtonWidget.builder(LANG.btn("folder").b(), button -> {
