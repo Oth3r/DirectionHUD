@@ -471,6 +471,17 @@ public class Helper {
     }
 
     /**
+     * removes duplicate classes seen in an array <br>
+     * perfect for an array for an abstract class, and making sure each item in the array is a unique subclass
+     * @param list the list to check
+     * @param <T> the list object
+     */
+    public static <T> void removeDuplicateSubclasses(ArrayList<T> list) {
+        Set<Class<?>> seenClasses = new HashSet<>();
+        list.removeIf(item -> !seenClasses.add(item.getClass()));
+    }
+
+    /**
      * move an item in an arraylist to a new index
      * @param list the list to modify
      * @param currentIndex the index of the item to move
