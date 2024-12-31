@@ -60,11 +60,14 @@ public class PlayerData {
         }
     }
 
-    private static DefaultPData defaults = new DefaultPData();
+    private static final DefaultPData defaults = new DefaultPData();
 
-    public static void setDefaults(DefaultPData defaults) {
-        if (defaults == null) return;
-        PlayerData.defaults = new DefaultPData(defaults);
+    /**
+     * loads the `default-playerdata` file into the system <br>
+     * this is only a separate method because we cant get the original defaults file using the get() as it provides a copy
+     */
+    public static void loadDefaults() {
+        defaults.load();
     }
     
     public static DefaultPData getDefaults() {
