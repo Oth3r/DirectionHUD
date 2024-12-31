@@ -1,7 +1,7 @@
 package one.oth3r.directionhud.common.files;
 
 import one.oth3r.directionhud.common.files.dimension.DimensionSettings;
-import one.oth3r.directionhud.common.files.playerdata.PData;
+import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 
 public class FileData {
     /**
@@ -41,7 +41,7 @@ public class FileData {
 
     public static void loadFiles(boolean tryLegacy) {
         Config.load(tryLegacy);
-        PData.loadDefaults();
+        PlayerData.loadDefaults();
         LangReader.loadLanguageFile();
         DimensionSettings.load();
         moduleText.load();
