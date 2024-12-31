@@ -1,5 +1,6 @@
 package one.oth3r.directionhud.common.files;
 
+import com.google.gson.JsonElement;
 import com.google.gson.annotations.SerializedName;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.Assets.symbols.arrows;
@@ -81,7 +82,7 @@ public class ModuleText implements CustomFile<ModuleText> {
     }
 
     @Override
-    public void loadFileData(ModuleText newFile) {
+    public void copyFileData(ModuleText newFile) {
         this.coordinates = newFile.coordinates;
         this.destination = newFile.destination;
         this.distance = newFile.distance;
@@ -94,7 +95,7 @@ public class ModuleText implements CustomFile<ModuleText> {
     }
 
     @Override
-    public void update() {
+    public void update(JsonElement json) {
 
     }
 

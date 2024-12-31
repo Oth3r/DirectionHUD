@@ -1,5 +1,7 @@
 package one.oth3r.directionhud.common.template;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import net.fabricmc.loader.api.FabricLoader;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.utils.Helper;
@@ -10,6 +12,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 
 public interface CustomFile <T extends CustomFile<T>> {
@@ -20,7 +23,7 @@ public interface CustomFile <T extends CustomFile<T>> {
      * saves the current instance to file
      */
     default void save() {
-        if (!getFile().exists()) {
+        if (!Files.exists(getFile().toPath())) {
             DirectionHUD.LOGGER.info(String.format("Creating new `%s`", getFile().getName()));
         }
         try (BufferedWriter writer = Files.newBufferedWriter(getFile().toPath(), StandardCharsets.UTF_8)) {
@@ -35,45 +38,56 @@ public interface CustomFile <T extends CustomFile<T>> {
      */
     default void load() {
         File file = getFile();
-        if (!file.exists()) fileNotExist();
+        if (!Files.exists(getFile().toPath())) fileNotExist();
+
         // try reading the file
         try (BufferedReader reader = Files.newBufferedReader(file.toPath(), StandardCharsets.UTF_8)) {
             updateFromReader(reader);
-        } catch (Exception e) {
+        }
+        // rare, but if the file doesn't exist at this stage, try again
+        catch (NoSuchFileException ignored) {
+            fileNotExist();
+        }
+        // cant load for some reason
+        catch (Exception e) {
             DirectionHUD.LOGGER.error(String.format("ERROR LOADING '%s`: %s", file.getName(),e.getMessage()));
         }
+        // save after loading
+        save();
     }
 
     default void updateFromReader(BufferedReader reader) {
         // try to read the json
         T file;
+        JsonElement json = JsonParser.parseReader(reader);
         try {
-            file = Helper.getGson().fromJson(reader, getFileClass());
+            file = Helper.getGson().fromJson(json, getFileClass());
         } catch (Exception e) {
             throw new NullPointerException();
         }
-        // throw null if the fileData is null or version is null
-        if (file == null) throw new NullPointerException();
 
         // update the instance
-        file.update();
+        file.update(json);
         // load the file to the current object
-        loadFileData(file);
+        copyFileData(file);
     }
 
+    /**
+     * @return the class of the File
+     */
     @NotNull
     Class<T> getFileClass();
 
     /**
-     * loads the data from the file object into the current object
+     * loads the data from the file object into the current object - DEEP COPY
      * @param newFile the file to take the properties from
      */
-    void loadFileData(T newFile);
+    void copyFileData(T newFile);
 
     /**
      * updates the file based on the version number of the current instance
      */
-    void update();
+    void update(JsonElement json);
 
     /**
      * logic for the file not existing when loading, defaults to saving
@@ -89,6 +103,10 @@ public interface CustomFile <T extends CustomFile<T>> {
         save();
     }
 
+    /**
+     * gets the file name - including the extension
+     * @return ex. custom-file.json
+     */
     String getFileName();
 
     default String getDirectory() {
