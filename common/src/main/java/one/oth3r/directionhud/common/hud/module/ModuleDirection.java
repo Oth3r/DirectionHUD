@@ -5,8 +5,6 @@ import one.oth3r.directionhud.common.files.playerdata.BasePData;
 public class ModuleDirection extends BaseModule {
     public ModuleDirection() {
         super(Module.DIRECTION);
-        // todo get default
-        BasePData pData = new BasePData();
         this.order = 1;
         this.state = true;
     }

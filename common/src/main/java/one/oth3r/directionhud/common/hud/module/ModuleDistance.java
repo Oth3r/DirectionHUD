@@ -5,8 +5,6 @@ import one.oth3r.directionhud.common.files.playerdata.BasePData;
 public class ModuleDistance extends BaseModule {
     public ModuleDistance() {
         super(Module.DISTANCE);
-        // todo get default
-        BasePData pData = new BasePData();
         this.order = 1;
         this.state = true;
     }

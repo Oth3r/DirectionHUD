@@ -9,8 +9,6 @@ public class ModuleTime extends BaseModule {
 
     public ModuleTime() {
         super(Module.TIME);
-        // todo get default
-        BasePData pData = new BasePData();
         this.order = 1;
         this.state = true;
         this.hour24 = false;
