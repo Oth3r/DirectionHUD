@@ -398,10 +398,14 @@ public class Helper {
         }
     }
 
+    /**
+     * helps separate lists into page sized chunks
+     * @param <T> the type of list
+     */
     public static class ListPage<T> {
-        // helps separate lists into page sized chunks
         private final ArrayList<T> list;
         private final int perPage;
+
         public ListPage(ArrayList<T> list, int perPage) {
             this.list = list;
             this.perPage = perPage;
@@ -413,14 +417,21 @@ public class Helper {
         public ArrayList<T> getList() {
             return list;
         }
+
         public int getPageOf(T item) {
             // get the quotient of the index and the amount of items per page rounded to the next integer to get page of the current item
-            if (list.contains(item)) return (int) Math.ceil((double) (list.indexOf(item) + 1) / perPage);
-            else return 1;
+            return getPageOf(getIndexOf(item));
         }
+
+        public int getPageOf(int index) {
+            // get the quotient of the index and the amount of items per page rounded to the next integer to get page of the current item
+            return (int) Math.ceil((double) (index + 1) / perPage);
+        }
+
         public int getIndexOf(T item) {
             return list.indexOf(item);
         }
+
         public ArrayList<T> getPage(int page) {
             //return a list with the entries in the page given
             int max = getTotalPages();
@@ -435,6 +446,7 @@ public class Helper {
             }
             return pageList;
         }
+
         public CTxT getNavButtons(int page, String command) {
             // return the buttons to change page
             int max = getTotalPages();
