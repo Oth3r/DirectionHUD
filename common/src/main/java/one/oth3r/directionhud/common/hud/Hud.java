@@ -663,6 +663,9 @@ public class Hud {
             // if the size of the list is still bigger than the default list, return the default
             if (list.size() > defaultList.size()) return defaultList;
 
+            // sort the list
+            list.sort(Comparator.comparingInt(BaseModule::getOrder));
+
             // set each order in the list from 1 - max
             setOrder(list);
 
