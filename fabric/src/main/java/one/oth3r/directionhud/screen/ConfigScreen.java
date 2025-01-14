@@ -30,8 +30,8 @@ public class ConfigScreen extends Screen {
     protected void init() {
         super.init();
         // config file
-        addDrawableChild(ButtonWidget.builder(Text.literal(Config.getFile().getName()), button -> {
-                    Util.getOperatingSystem().open(Config.getFile());
+        addDrawableChild(ButtonWidget.builder(Text.literal(FileData.getConfig().getFileName()), button -> {
+                    Util.getOperatingSystem().open(FileData.getConfig().getFileName());
                 })
                 .dimensions(width / 2-100, 10, 200, 20)
                 .tooltip(Tooltip.of(LANG.get("tooltip.file").b()))

@@ -39,8 +39,8 @@ public class FileData {
         FileData.globalDestinations = new GlobalDest(globalDestinations);
     }
 
-        Config.load(tryLegacy);
     public static void loadFiles() {
+        config.load();
         PlayerData.loadDefaults();
         LangReader.loadLanguageFile();
         DimensionSettings.load();
