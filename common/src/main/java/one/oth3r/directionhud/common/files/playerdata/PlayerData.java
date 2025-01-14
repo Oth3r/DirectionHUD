@@ -61,6 +61,15 @@ public class PlayerData {
     private static final DefaultPData defaults = new DefaultPData();
 
     /**
+     * sets the DirectionHUD defaults
+     * @param newDefaults the new default playerdata settings
+     */
+    public static void setDefaults(DefaultPData newDefaults, boolean save) {
+        defaults.copyFileData(newDefaults);
+        if (save) defaults.save();
+    }
+
+    /**
      * loads the `default-playerdata` file into the system <br>
      * this is only a separate method because we cant get the original defaults file using the get() as it provides a copy
      */
