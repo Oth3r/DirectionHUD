@@ -1,7 +1,5 @@
 package one.oth3r.directionhud.common.hud.module;
 
-import one.oth3r.directionhud.common.files.playerdata.BasePData;
-
 public class ModuleCoordinates extends BaseModule {
     public ModuleCoordinates() {
         super(Module.COORDINATES);

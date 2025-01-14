@@ -1,7 +1,6 @@
 package one.oth3r.directionhud.common.hud.module;
 
 import com.google.gson.annotations.SerializedName;
-import one.oth3r.directionhud.common.files.playerdata.BasePData;
 
 public class ModuleTime extends BaseModule {
     @SerializedName("24hr-clock")

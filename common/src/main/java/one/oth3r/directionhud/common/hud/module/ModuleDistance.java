@@ -1,7 +1,5 @@
 package one.oth3r.directionhud.common.hud.module;
 
-import one.oth3r.directionhud.common.files.playerdata.BasePData;
-
 public class ModuleDistance extends BaseModule {
     public ModuleDistance() {
         super(Module.DISTANCE);
