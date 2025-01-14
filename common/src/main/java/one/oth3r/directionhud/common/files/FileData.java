@@ -7,14 +7,14 @@ public class FileData {
     /**
      * directionHUD config file
      */
-    private static Config config = new Config();
+    private static final Config config = new Config();
 
     public static Config getConfig() {
         return new Config(config);
     }
 
     public static void setConfig(Config newConfig) {
-        config = new Config(newConfig);
+        config.copyFileData(newConfig);
     }
 
     /**
@@ -39,8 +39,8 @@ public class FileData {
         FileData.globalDestinations = new GlobalDest(globalDestinations);
     }
 
-    public static void loadFiles(boolean tryLegacy) {
         Config.load(tryLegacy);
+    public static void loadFiles() {
         PlayerData.loadDefaults();
         LangReader.loadLanguageFile();
         DimensionSettings.load();

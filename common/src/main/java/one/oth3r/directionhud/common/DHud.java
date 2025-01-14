@@ -75,7 +75,7 @@ public class DHud {
      * @param player null if reloading from the console
      */
     public static void reload(Player player) {
-        FileData.loadFiles(false);
+        FileData.loadFiles();
         // fully reload the players
         for (Player pl: Utl.getPlayers()) {
             Events.playerSoftLeave(pl);

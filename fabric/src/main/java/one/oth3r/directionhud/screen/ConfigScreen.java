@@ -64,7 +64,7 @@ public class ConfigScreen extends Screen {
         addDrawableChild(
                 ButtonWidget.builder(LANG.btn("save").b(), button -> {
                             client.setScreen(PARENT);
-                            FileData.loadFiles(false);
+                            FileData.loadFiles();
                         })
                         .dimensions(width / 2-100, height-30, 200, 20)
                         .tooltip(Tooltip.of(LANG.get("tooltip.save").b()))

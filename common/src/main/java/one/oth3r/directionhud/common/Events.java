@@ -23,7 +23,7 @@ public class Events {
         } catch (Exception e) {
             DirectionHUD.LOGGER.info("Failed to create playerdata directory.");
         }
-        FileData.loadFiles(true);
+        FileData.loadFiles();
         DirectionHUD.LOGGER.info("Started server!");
     }
 

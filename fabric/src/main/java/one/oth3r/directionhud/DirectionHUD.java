@@ -45,7 +45,7 @@ public class DirectionHUD implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		FileData.loadFiles(true);
+		FileData.loadFiles();
 		// SERVER START/STOP
 		ServerLifecycleEvents.SERVER_STARTED.register(s -> {
 			DirectionHUD.playerManager = s.getPlayerManager();
