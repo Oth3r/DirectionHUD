@@ -69,12 +69,18 @@ public class PDHud {
                 new RuntimeException("Invalid HUD Module playerdata for "+(player == null ? "a file with no player set" : player.getName())+"!"));
     }
 
-    public void setModule(Module module, BaseModule setModule) {
+    /**
+     * replaces the old module in the BaseModule ArrayList with the new BaseModule type provided
+     *
+     * @param setModule the module to replace
+     */
+    public void setModule(BaseModule setModule) {
         for (int i = 0; i < modules.size(); i++) {
-            if (module.getModuleClass().isInstance(modules.get(i))) {
+            if (setModule.getModuleType().equals(modules.get(i).getModuleType())) {
                 modules.set(i,setModule);
             }
         }
+        // save after editing any player data object
         save();
     }
 
