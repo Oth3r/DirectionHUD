@@ -128,6 +128,24 @@ public class Helper {
             return (num+add)%max;
         }
 
+        /**
+         * formats a given number to have a specific number of digits (good for clocks etc.) <br>
+         * the method adds leading 0's as necessary, and if the original number is too big, it will be cut off
+         *
+         * @param number the number to be formatted
+         * @param digits the total number of digits the output string should have
+         * @return a formatted string of the number with the specified number of digits
+         */
+        public static String formatToXDigits(int number, int digits) {
+            // put digit -1 amount of zeros in front of the original number
+            String result = "0".repeat(Math.max(0,digits-1)) + number;
+            // return the string shortened to the right size
+            return result.substring(result.length() - digits);
+        }
+
+        public static String formatToTwoDigits(int number) {
+            return formatToXDigits(number,2);
+        }
     }
 
     public static class Command {
