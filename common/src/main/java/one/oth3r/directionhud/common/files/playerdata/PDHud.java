@@ -63,6 +63,11 @@ public class PDHud {
         return modules;
     }
 
+    /**
+     * gets the module via the Module enum from the BaseModule arraylist
+     * @param module the module type to get
+     * @return the module that was fetched
+     */
     @SuppressWarnings("unchecked")
     public <T extends BaseModule> T getModule(Module module) {
         return (T) BaseModule.findInArrayList(modules,module).orElseThrow(() ->
@@ -84,8 +89,13 @@ public class PDHud {
         save();
     }
 
+    /**
+     * sets the whole BaseModule Arraylist
+     * @param module the new ArrayList of BaseModules
+     */
     public void setModules(ArrayList<BaseModule> module) {
         this.modules = module;
+        // save after editing any player data object
         save();
     }
 
