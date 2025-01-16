@@ -27,6 +27,10 @@ public abstract class BasePData {
     public BasePData() {}
 
     public BasePData(BasePData newFile) {
+        copyBaseFileData(newFile);
+    }
+
+    protected void copyBaseFileData(BasePData newFile) {
         this.version = newFile.version;
         this.hud = new PDHud(newFile.hud);
         this.destination = new PDDestination();
