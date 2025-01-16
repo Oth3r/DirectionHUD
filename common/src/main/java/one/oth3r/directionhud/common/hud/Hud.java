@@ -563,7 +563,7 @@ public class Hud {
                 // update the other orders
                 setOrder(list);
                 // set the module to the reset one (saves)
-                player.getPData().getHud().setModule(module, resetModule);
+                player.getPData().getHud().setModule(resetModule);
 
                 // reset message
                 msg.append(LANG.msg("reset",CUtl.LANG.btn("reset").color('c'),CTxT.of(module.toString()).color(CUtl.s())));

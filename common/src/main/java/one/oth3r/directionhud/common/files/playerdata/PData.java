@@ -127,12 +127,7 @@ public class PData extends BasePData implements CustomFile<PData> {
      */
     @Override
     public void copyFileData(PData newFile) {
-        this.version = newFile.version;
-        this.hud = new PDHud(newFile.hud);
-        this.destination = new PDDestination();
-        this.colorPresets = newFile.colorPresets.stream()
-                .map(record -> new Helper.ColorPreset(record.name(), record.color()))
-                .collect(Collectors.toCollection(ArrayList::new));
+        super.copyBaseFileData(newFile);
         // pData fields
         this.name = newFile.name;
         this.inbox = newFile.inbox.stream()

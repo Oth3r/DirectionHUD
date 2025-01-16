@@ -63,29 +63,39 @@ public class PDHud {
         return modules;
     }
 
+    /**
+     * gets the module via the Module enum from the BaseModule arraylist
+     * @param module the module type to get
+     * @return the module that was fetched
+     */
     @SuppressWarnings("unchecked")
     public <T extends BaseModule> T getModule(Module module) {
-        for (BaseModule m : modules) {
-            if (module.getModuleClass().isInstance(m)) {
-                return (T) m;
-            }
-        }
-        // todo this shouldn't happen, probably throw an execution instead
-        // null if module isn't found
-        return null;
+        return (T) BaseModule.findInArrayList(modules,module).orElseThrow(() ->
+                new RuntimeException("Invalid HUD Module playerdata for "+(player == null ? "a file with no player set" : player.getName())+"!"));
     }
 
-    public void setModule(Module module, BaseModule setModule) {
+    /**
+     * replaces the old module in the BaseModule ArrayList with the new BaseModule type provided
+     *
+     * @param setModule the module to replace
+     */
+    public void setModule(BaseModule setModule) {
         for (int i = 0; i < modules.size(); i++) {
-            if (module.getModuleClass().isInstance(modules.get(i))) {
+            if (setModule.getModuleType().equals(modules.get(i).getModuleType())) {
                 modules.set(i,setModule);
             }
         }
+        // save after editing any player data object
         save();
     }
 
+    /**
+     * sets the whole BaseModule Arraylist
+     * @param module the new ArrayList of BaseModules
+     */
     public void setModules(ArrayList<BaseModule> module) {
         this.modules = module;
+        // save after editing any player data object
         save();
     }
 
