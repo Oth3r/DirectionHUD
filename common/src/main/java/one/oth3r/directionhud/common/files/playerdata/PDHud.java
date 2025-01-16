@@ -65,14 +65,8 @@ public class PDHud {
 
     @SuppressWarnings("unchecked")
     public <T extends BaseModule> T getModule(Module module) {
-        for (BaseModule m : modules) {
-            if (module.getModuleClass().isInstance(m)) {
-                return (T) m;
-            }
-        }
-        // todo this shouldn't happen, probably throw an execution instead
-        // null if module isn't found
-        return null;
+        return (T) BaseModule.findInArrayList(modules,module).orElseThrow(() ->
+                new RuntimeException("Invalid HUD Module playerdata for "+(player == null ? "a file with no player set" : player.getName())+"!"));
     }
 
     public void setModule(Module module, BaseModule setModule) {
