@@ -401,37 +401,39 @@ public class Hud {
         }
         public static String getTimeModule(Player player) {
             Time timeSettings = Dimension.getTimeSettings(player.getDimension());
-
             // if not enabled, return empty
             if (!timeSettings.getEnabled()) return "";
+
+            // assets
+            ModuleText.ModuleTime.Assets assets = FileData.getModuleText().getTime().getAssets();
+            boolean time12 = !(boolean)player.getPCache().getHud().getSetting(Setting.module__time_24hr);
 
             // assume that a day ANYWHERE is 24000 ticks (PEOPLE please don't make a mod that changes that)
             int timeTicks = player.getTimeOfDay();
 
             // (add 6 to account for the day starting at 6 am);
             int hour = (timeTicks / 1000 + 6) % 24;
-            int minute = ((timeTicks % 1000) * 60 / 1000);
-
-            // add 0 to the start, then set the string to the last two numbers to always have a 2-digit number
-            String min = "0"+minute;
-            min = min.substring(min.length()-2);
-
-            // assets
-            ModuleText.ModuleTime.Assets assets = FileData.getModuleText().getTime().getAssets();
-            boolean time12 = !(boolean)player.getPCache().getHud().getSetting(Setting.module__time_24hr);
-
+            String hr;
             // if 12 hr, fix the hour mark
             if (time12) {
-                int hr = hour % 12;
+                int hourMod = hour % 12;
                 // if hr % 12 = 0, its 12 am/pm
-                if (hr == 0) hour = 12;
+                if (hourMod == 0) hr = String.valueOf(12);
+                else hr = String.valueOf(hourMod);
+            } else {
+                hr = Num.formatToTwoDigits(hour);
             }
+
+            int minute = ((timeTicks % 1000) * 60 / 1000);
+            // add 0 to the start, then set the string to the last two numbers to always have a 2-digit number
+            String min = Num.formatToTwoDigits(minute);
+
             // get the time as a string
-            String timeString = hour + assets.getTimeSeparator() + min;
+            String timeString = hr + assets.getTimeSeparator() + min;
 
             // return based on 12 or 24 hour
             if (time12) return String.format(FileData.getModuleText().getTime().getHour12(), timeString,
-                    hour>=12?assets.getPM():assets.getAM());
+                    hour >= 12 ? assets.getPM():assets.getAM());
             return String.format(FileData.getModuleText().getTime().getHour24(),timeString);
         }
         public static String getAngleModule(Player player) {
