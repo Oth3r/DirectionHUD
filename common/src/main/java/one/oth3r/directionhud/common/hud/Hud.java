@@ -831,57 +831,36 @@ public class Hud {
 //        }
 
         /**
-         * gets the sample of the given module as a CTxT todo make data driven
+         * gets the sample of the given module as a CTxT
          * @param onlyExample to return only the example
          * @return returns the sample of the HUD module
          */
-        public static CTxT moduleInfo(Player player, Module module, boolean... onlyExample) {
+        public static CTxT moduleInfo(Player player, Module module, boolean onlyExample) {
             // get the hover info for each module
             CTxT info = CTxT.of("");
-            if (module.equals(Module.COORDINATES))
-                info.append(color.addColor(player,"XYZ: ",1,new Rainbow(15,20)))
-                        .append(color.addColor(player,"0 0 0",2,new Rainbow(95,20)));
-            if (module.equals(Module.DISTANCE))
-                info.append(color.addColor(player,"[",1,new Rainbow(15,20)))
-                        .append(color.addColor(player,"0",2,new Rainbow(35,20)))
-                        .append(color.addColor(player,"]",1,new Rainbow(55,20)));
-            if (module.equals(Module.DESTINATION))
-                info.append(color.addColor(player,"[",1,new Rainbow(15,20)))
-                        .append(color.addColor(player,"0 0 0",2,new Rainbow(35,20)))
-                        .append(color.addColor(player,"]",1,new Rainbow(95,20)));
-            if (module.equals(Module.DIRECTION))
-                info.append(color.addColor(player,"N",1,new Rainbow(15,20)));
-            if (module.equals(Module.TRACKING)) {
-                if (Enums.get(player.getPCache().getHud().getSetting(Setting.module__tracking_type),ModuleTrackingType.class)
-                        .equals(ModuleTrackingType.simple))
-                    info.append(color.addColor(player,"[",1,new Rainbow(15,20)).strikethrough(true))
-                            .append(color.addColor(player,"-"+ arrows.up+ arrows.right,2,new Rainbow(35,20)))
-                            .append(color.addColor(player,"]",1,new Rainbow(55,20)).strikethrough(true));
-                else info.append(color.addColor(player,"[",1,new Rainbow(15,20)).strikethrough(true))
-                        .append(color.addColor(player,arrows.north,2,new Rainbow(35,20)))
-                        .append(color.addColor(player,"|",1,new Rainbow(55,20)).strikethrough(true))
-                        .append(color.addColor(player,arrows.south,2,new Rainbow(75,20)))
-                        .append(color.addColor(player,"]",1,new Rainbow(95,20)).strikethrough(true));
-            }
-            if (module.equals(Module.TIME)) {
-                if ((boolean) player.getPCache().getHud().getSetting(Setting.module__time_24hr))
-                    info.append(color.addColor(player,"22:22",1,new Rainbow(15,20)));
-                else info.append(color.addColor(player,"11:11 ",2,new Rainbow(15,20)))
-                            .append(color.addColor(player,"AM",1,new Rainbow(115,20)));
-            }
-            if (module.equals(Module.WEATHER))
-                info.append(color.addColor(player,Assets.symbols.sun,1,new Rainbow(15,20)));
-            DecimalFormat f = new DecimalFormat((String) player.getPCache().getHud().getSetting(Setting.module__speed_pattern));
-            String speed = f.format(12.3456789);
-            if (module.equals(Module.SPEED))
-                info.append(color.addColor(player,speed,2,new Rainbow(15,20)))
-                        .append(color.addColor(player," B/S",1,new Rainbow((speed.length()*20)+15,20)));
-            if (module.equals(Module.ANGLE)) {
-                info.append(color.addColor(player,"-15.1",2,new Rainbow(15,20)));
-                if (Enums.get(player.getPCache().getHud().getSetting(Setting.module__angle_display),ModuleAngleDisplay.class).equals(ModuleAngleDisplay.both))
-                    info.append(color.addColor(player,"/",1,new Rainbow(135,20))).append(color.addColor(player,"55.1",2,new Rainbow(155,20)));
-            }
-            if (onlyExample.length == 0) info.append("\n").append(LANG.get("info."+module).color('7'));
+
+            BaseModule mod = player.getPData().getHud().getModule(module);
+            Random random = new Random();
+            Loc randomLoc = new Loc(
+                    random.nextInt(5000),random.nextInt(200),random.nextInt(5000));
+            float randomRotation = random.nextFloat(0,360);
+            Weather.Icons defaultIcons = Weather.Icons.defaultIcons();
+
+            info.append(CUtl.parse(player,switch (module) {
+                case DISTANCE -> build.getDistanceModule((ModuleDistance) mod,random.nextInt(50,250));
+                case DESTINATION -> build.getDestinationModule((ModuleDestination) mod, new Dest(randomLoc,"a","#ffffff"));
+                case DIRECTION -> build.getDirectionModule((ModuleDirection) mod,randomRotation);
+                case TRACKING -> build.getTrackingModule((ModuleTracking) mod,randomRotation,player.getLoc(),randomLoc);
+                case TIME -> build.getTimeModule((ModuleTime) mod,random.nextInt(1,25), random.nextInt(0,60));
+                case WEATHER -> build.getWeatherModule((ModuleWeather) mod,random.nextBoolean() ? defaultIcons.day():defaultIcons.night(),
+                        random.nextBoolean() ? null : random.nextBoolean() ? defaultIcons.storm() : defaultIcons.thunderstorm());
+                case SPEED -> build.getSpeedModule((ModuleSpeed) mod,random.nextFloat(1,12));
+                case ANGLE -> build.getAngleModule((ModuleAngle) mod,random.nextFloat(-180,180.1f),random.nextFloat(-90,90.1f));
+                // default is coordinates module
+                default -> build.getCoordinatesModule((ModuleCoordinates) mod,player.getLoc());
+            }));
+            // if not only the example, include the module info
+            if (!onlyExample) info.append("\n").append(LANG.get("info."+module.getName()).color('7'));
             return info;
         }
 
@@ -987,7 +966,7 @@ public class Hud {
                                         CUtl.LANG.btn(!state?"on":"off").color(!state?'a':'c')))).append(" ")
                         //NAME
                         .append(CTxT.of(name).color(stateColor(player,mod.getModuleType()))
-                                .hover(moduleInfo(player,mod.getModuleType()))).append(" ");
+                                .hover(moduleInfo(player,mod.getModuleType(),false))).append(" ");
                 //EXTRA BUTTONS
 //                msg.append(getButtons(player,module));
             }
