@@ -15,15 +15,14 @@ import one.oth3r.directionhud.common.files.dimension.DimensionEntry.*;
 import one.oth3r.directionhud.common.files.dimension.DimensionEntry.Time.*;
 import one.oth3r.directionhud.common.files.playerdata.PDHud;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
-import one.oth3r.directionhud.common.hud.module.BaseModule;
-import one.oth3r.directionhud.common.hud.module.ModuleTracking;
+import one.oth3r.directionhud.common.hud.module.*;
+import one.oth3r.directionhud.common.hud.module.Module;
 import one.oth3r.directionhud.common.utils.*;
 import one.oth3r.directionhud.common.utils.Helper.Command.Suggester;
 import one.oth3r.directionhud.common.utils.Helper.Enums;
 import one.oth3r.directionhud.common.utils.Helper.Num;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
-import one.oth3r.directionhud.common.hud.module.Module;
 
 import java.text.DecimalFormat;
 import java.util.*;
@@ -220,17 +219,31 @@ public class Hud {
         }
 
         public static String getCoordinatesModule(Player player) {
-            return String.format(FileData.getModuleText().getCoordinates().getXyz(),
-                    player.getBlockX(), player.getBlockY(), player.getBlockZ());
+            ModuleCoordinates module = player.getPCache().getHud().getModule(Module.COORDINATES);
+            // if the module isn't enabled, return empty
+            if (!module.isEnabled()) return "";
 
+            return getCoordinatesModule(module, player.getLoc());
         }
+        public static String getCoordinatesModule(ModuleCoordinates coordinatesModule, Loc loc) {
+            return String.format(FileData.getModuleText().getCoordinates().getXyz(),
+                    loc.getX(), loc.getY(), loc.getZ());
+        }
+
         public static String getDestinationModule(Player player) {
+            ModuleDestination module = player.getPCache().getHud().getModule(Module.DESTINATION);
+            // if the module isn't enabled, return empty
+            if (!module.isEnabled()) return "";
+
             Dest dest = Destination.dest.get(player);
             // if no destination is set, empty
             if (!dest.hasXYZ()) return "";
-            // get the destination assets
-            ModuleText.ModuleDestination moduleDestination = FileData.getModuleText().getDestination();
 
+            return getDestinationModule(module, dest);
+        }
+        public static String getDestinationModule(ModuleDestination destinationModule, Dest dest) {
+            // assets
+            ModuleText.ModuleDestination moduleDestination = FileData.getModuleText().getDestination();
             // return based on the destination
             if (dest.hasDestRequirements()) {
                 return String.format(moduleDestination.getName(), dest.getName());
@@ -242,17 +255,27 @@ public class Hud {
                 return String.format(moduleDestination.getXz(), dest.getX(), dest.getZ());
             }
         }
+
         public static String getDistanceModule(Player player) {
+            ModuleDistance module = player.getPCache().getHud().getModule(Module.DISTANCE);
+            // if the module isn't enabled, return empty
+            if (!module.isEnabled()) return "";
+
             int distance = Destination.dest.getDist(player);
             // if no destination is set, return empty
             if (distance == -1) return "";
 
+            return getDistanceModule(module, distance);
+        }
+        public static String getDistanceModule(ModuleDistance distanceModule, int distance) {
             return String.format(FileData.getModuleText().getDistance().getNumber(),
                     distance);
         }
+
         public static String getTrackingModule(Player player) {
+            ModuleTracking module = player.getPCache().getHud().getModule(Module.TRACKING);
             // if the module isn't enabled, return empty
-            if (!player.getPCache().getHud().getModule(Module.TRACKING).isEnabled()) return "";
+            if (!module.isEnabled()) return "";
 
             // pointer target
             Loc pointLoc = null;
@@ -290,46 +313,50 @@ public class Hud {
             // check if there's a point set, otherwise return nothing
             if (pointLoc == null) return "";
 
-            ModuleTrackingType trackingType = Enums.get(String.valueOf(player.getPCache().getHud().getSetting(Setting.module__tracking_type)),ModuleTrackingType.class);
-            boolean simple = trackingType.equals(ModuleTrackingType.simple);
+            // add 180 to the player's yaw (-180 - 180) to get the rotation
+            double rotation = player.getYaw()+180;
 
-            // pointer logic
-            int x = pointLoc.getX()-player.getBlockX();
-            int z = (pointLoc.getZ()-player.getBlockZ())*-1;
-            double target = Math.toDegrees(Math.atan2(x, z));
-            double rotation = (player.getYaw() - 180) % 360;
-            // make sure 0 - 360
-            if (rotation < 0) rotation += 360;
-            if (target < 0) target += 360;
-
+            return getTrackingModule(module, rotation, player.getLoc(), pointLoc);
+        }
+        public static String getTrackingModule(ModuleTracking trackingModule, double originRotation, Loc originLoc, Loc targetLoc) {
+            // assets
+            boolean simple = trackingModule.getType().equals(ModuleTracking.Type.simple);
+            double target;
             String data;
             ModuleText.ModuleTracking.Assets assets = FileData.getModuleText().getTracking().getAssets();
             ModuleText.ModuleTracking.Assets.Simple simpleArrows = assets.getSimple();
             ModuleText.ModuleTracking.Assets.Compact compactArrows = assets.getCompact();
             ModuleText.ModuleTracking.Assets.Elevation elevationArrows = assets.getElevation();
 
+
+            // find the rotation needed for the originloc to 'face' the targetloc
+            int x = targetLoc.getX()-originLoc.getX();
+            int z = (targetLoc.getZ()-originLoc.getZ())*-1;
+            target = Math.toDegrees(Math.atan2(x, z));
+            if (target < 0) target += 360;
+
             // NORTH
-            if (Num.inBetween(rotation, Num.wSubtract(target,15,360), Num.wAdd(target,15,360)))
+            if (Num.inBetween(originRotation, Num.wSubtract(target,15,360), Num.wAdd(target,15,360)))
                 data = simple?simpleArrows.getNorth():compactArrows.getNorth();
-            // NORTH WEST
-            else if (Num.inBetween(rotation, target, Num.wAdd(target,65,360)))
+                // NORTH WEST
+            else if (Num.inBetween(originRotation, target, Num.wAdd(target,65,360)))
                 data = simple?simpleArrows.getNorthWest():compactArrows.getNorthWest();
-            // WEST
-            else if (Num.inBetween(rotation, target, Num.wAdd(target,115,360)))
+                // WEST
+            else if (Num.inBetween(originRotation, target, Num.wAdd(target,115,360)))
                 data = simple?simpleArrows.getWest():compactArrows.getWest();
-            // SOUTH WEST
-            else if (Num.inBetween(rotation, target, Num.wAdd(target,165,360)))
+                // SOUTH WEST
+            else if (Num.inBetween(originRotation, target, Num.wAdd(target,165,360)))
                 data = simple?simpleArrows.getSouthWest():compactArrows.getSouthWest();
-            // NORTH EAST
-            else if (Num.inBetween(rotation, Num.wSubtract(target, 65, 360), target))
+                // NORTH EAST
+            else if (Num.inBetween(originRotation, Num.wSubtract(target, 65, 360), target))
                 data = simple?simpleArrows.getNorthEast():compactArrows.getNorthEast();
-            // EAST
-            else if (Num.inBetween(rotation, Num.wSubtract(target, 115, 360), target))
+                // EAST
+            else if (Num.inBetween(originRotation, Num.wSubtract(target, 115, 360), target))
                 data = simple?simpleArrows.getEast():compactArrows.getEast();
-            // SOUTH EAST
-            else if (Num.inBetween(rotation, Num.wSubtract(target, 165, 360), target))
+                // SOUTH EAST
+            else if (Num.inBetween(originRotation, Num.wSubtract(target, 165, 360), target))
                 data = simple?simpleArrows.getSouthEast():compactArrows.getSouthEast();
-            // SOUTH
+                // SOUTH
             else data = simple?simpleArrows.getSouth():compactArrows.getSouth();
 
             // todo add elevation toggle
@@ -349,28 +376,39 @@ public class Hud {
 
             return String.format(FileData.getModuleText().getTracking().getTracking(), data);
         }
+
         public static String getDirectionModule(Player player) {
+            ModuleDirection module = player.getPCache().getHud().getModule(Module.DIRECTION);
+            // if the module isn't enabled, return empty
+            if (!module.isEnabled()) return "";
+            // add 180 to the player's yaw (-180 - 180) to get the rotation
             double rotation = player.getYaw()+180;
-            ModuleText.ModuleDirection.Assets.Cardinal cardinals = FileData.getModuleText().getDirection().getAssets().getCardinal();
-            String data;
 
-            if (Num.inBetween(rotation,22.5,67.5)) data = cardinals.getNorthEast();
-            else if (Num.inBetween(rotation,67.5,112.5)) data = cardinals.getEast();
-            else if (Num.inBetween(rotation,112.5,157.5)) data = cardinals.getSouthEast();
-            else if (Num.inBetween(rotation,157.5,202.5)) data = cardinals.getSouth();
-            else if (Num.inBetween(rotation,202.5,247.5)) data = cardinals.getSouthWest();
-            else if (Num.inBetween(rotation,247.5,292.5)) data = cardinals.getWest();
-            else if (Num.inBetween(rotation,292.5,337.5)) data = cardinals.getNorthWest();
-            else data = cardinals.getNorth();
-
-            return String.format(FileData.getModuleText().getDirection().getFacing(),data);
+            return getDirectionModule(module,rotation);
         }
+        public static String getDirectionModule(ModuleDirection directionModule, double rotation) {
+            ModuleText.ModuleDirection.Assets.Cardinal cardinals = FileData.getModuleText().getDirection().getAssets().getCardinal();
+            String cardinal;
+
+            if (Num.inBetween(rotation,22.5,67.5)) cardinal = cardinals.getNorthEast();
+            else if (Num.inBetween(rotation,67.5,112.5)) cardinal = cardinals.getEast();
+            else if (Num.inBetween(rotation,112.5,157.5)) cardinal = cardinals.getSouthEast();
+            else if (Num.inBetween(rotation,157.5,202.5)) cardinal = cardinals.getSouth();
+            else if (Num.inBetween(rotation,202.5,247.5)) cardinal = cardinals.getSouthWest();
+            else if (Num.inBetween(rotation,247.5,292.5)) cardinal = cardinals.getWest();
+            else if (Num.inBetween(rotation,292.5,337.5)) cardinal = cardinals.getNorthWest();
+            else cardinal = cardinals.getNorth();
+
+            return String.format(FileData.getModuleText().getDirection().getFacing(),cardinal);
+        }
+
         public static String getWeatherModule(Player player) {
+            ModuleWeather module = player.getPCache().getHud().getModule(Module.WEATHER);
             Time timeSettings = Dimension.getTimeSettings(player.getDimension());
             Weather weatherSettings = timeSettings.getWeather();
 
             // if not enabled, return empty
-            if (!timeSettings.getEnabled() || !weatherSettings.getEnabled()) return "";
+            if (!module.isEnabled() || !timeSettings.getEnabled() || !weatherSettings.getEnabled()) return "";
 
             // get the variables
             int timeTicks = player.getTimeOfDay();
@@ -394,25 +432,34 @@ public class Hud {
             // get the weather time of day icon
             String weatherIcon = night?weatherIcons.night():weatherIcons.day();
 
+            return getWeatherModule(module,weatherIcon,extraIcons);
+        }
+        public static String getWeatherModule(ModuleWeather weatherModule, String weatherIcon, String extraIcons) {
             // if no extra icons, single weather
             if (extraIcons == null) return String.format(FileData.getModuleText().getWeather().getWeatherSingle(), weatherIcon);
             // if not, dual weather module
             return String.format(FileData.getModuleText().getWeather().getWeather(), weatherIcon, extraIcons);
         }
+
         public static String getTimeModule(Player player) {
+            ModuleTime module = player.getPCache().getHud().getModule(Module.TIME);
             Time timeSettings = Dimension.getTimeSettings(player.getDimension());
             // if not enabled, return empty
-            if (!timeSettings.getEnabled()) return "";
+            if (!module.isEnabled() || !timeSettings.getEnabled()) return "";
 
-            // assets
-            ModuleText.ModuleTime.Assets assets = FileData.getModuleText().getTime().getAssets();
-            boolean time12 = !(boolean)player.getPCache().getHud().getSetting(Setting.module__time_24hr);
-
-            // assume that a day ANYWHERE is 24000 ticks (PEOPLE please don't make a mod that changes that)
             int timeTicks = player.getTimeOfDay();
 
             // (add 6 to account for the day starting at 6 am);
             int hour = (timeTicks / 1000 + 6) % 24;
+            int minute = ((timeTicks % 1000) * 60 / 1000);
+
+            return getTimeModule(module, hour, minute);
+        }
+        public static String getTimeModule(ModuleTime timeModule, int hour, int minute) {
+            // assets
+            ModuleText.ModuleTime.Assets assets = FileData.getModuleText().getTime().getAssets();
+            boolean time12 = !timeModule.isHour24();
+
             String hr;
             // if 12 hr, fix the hour mark
             if (time12) {
@@ -424,7 +471,6 @@ public class Hud {
                 hr = Num.formatToTwoDigits(hour);
             }
 
-            int minute = ((timeTicks % 1000) * 60 / 1000);
             // add 0 to the start, then set the string to the last two numbers to always have a 2-digit number
             String min = Num.formatToTwoDigits(minute);
 
@@ -432,35 +478,46 @@ public class Hud {
             String timeString = hr + assets.getTimeSeparator() + min;
 
             // return based on 12 or 24 hour
-            if (time12) return String.format(FileData.getModuleText().getTime().getHour12(), timeString,
+            if (!timeModule.isHour24()) return String.format(FileData.getModuleText().getTime().getHour12(), timeString,
                     hour >= 12 ? assets.getPM():assets.getAM());
             return String.format(FileData.getModuleText().getTime().getHour24(),timeString);
         }
+
         public static String getAngleModule(Player player) {
+            ModuleAngle module = player.getPCache().getHud().getModule(Module.ANGLE);
             // if the module isnt enabled, return empty
-            if (!player.getPCache().getHud().getModule(Module.ANGLE).isEnabled()) return "";
+            if (!module.isEnabled()) return "";
+
+            // assets
+            return getAngleModule(module, player.getYaw(), player.getPitch());
+        }
+        public static String getAngleModule(ModuleAngle angleModule, float yaw, float pitch) {
             // assets
             DecimalFormat df = new DecimalFormat("0.0");
-            ModuleAngleDisplay playerType = Enums.get(player.getPCache().getHud().getSetting(Setting.module__angle_display),ModuleAngleDisplay.class);
-            String yaw = df.format(player.getYaw()), pitch = df.format(player.getPitch());
-
-            return switch (playerType) {
-                case yaw -> String.format(FileData.getModuleText().getAngle().getYaw(), yaw);
-                case pitch -> String.format(FileData.getModuleText().getAngle().getPitch(), pitch);
-                case both -> String.format(FileData.getModuleText().getAngle().getBoth(), yaw, pitch);
+            String y = df.format(yaw), p = df.format(pitch);
+            return switch (angleModule.getDisplay()) {
+                case yaw -> String.format(FileData.getModuleText().getAngle().getYaw(), y);
+                case pitch -> String.format(FileData.getModuleText().getAngle().getPitch(), p);
+                case both -> String.format(FileData.getModuleText().getAngle().getBoth(), y, p);
             };
         }
+
         public static String getSpeedModule(Player player) {
-            // if the module isnt enabled, return empty
-            if (!player.getPCache().getHud().getModule(Module.SPEED).isEnabled()) return "";
+            ModuleSpeed module = player.getPCache().getHud().getModule(Module.SPEED);
+            // if the module isn't enabled, return empty
+            if (!module.isEnabled()) return "";
 
             // assets
-            boolean speed3D = (boolean)player.getPCache().getHud().getSetting(Setting.module__speed_3d);
-            DecimalFormat df = new DecimalFormat((String) player.getPCache().getHud().getSetting(Setting.module__speed_pattern));
-            String speed = df.format(player.getPCache().getSpeedData().getSpeed());
+            return getSpeedModule(module, player.getPCache().getSpeedData().getSpeed());
+        }
+        public static String getSpeedModule(ModuleSpeed speedModule, double speed) {
+            // assets
+            boolean speed2D = speedModule.isCalculation2D();
+            DecimalFormat df = new DecimalFormat(speedModule.getDisplayPattern());
+            String data = df.format(speed);
 
-            if (speed3D) String.format(FileData.getModuleText().getSpeed().getXyzSpeed(), speed);
-            return String.format(FileData.getModuleText().getSpeed().getXzSpeed(), speed);
+            if (speed2D) return String.format(FileData.getModuleText().getSpeed().getXzSpeed(), data);
+            return String.format(FileData.getModuleText().getSpeed().getXyzSpeed(), data);
         }
     }
 
