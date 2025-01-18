@@ -694,17 +694,17 @@ public class Hud {
             else player.sendMessage(msg);
         }
 
-        public static ArrayList<BaseModule> fixOrder(ArrayList<BaseModule> list) {
-            return fixOrder(list, false);
+        public static void fixOrder(ArrayList<BaseModule> list) {
+            fixOrder(list, false);
         }
 
         /**
          * module order fixer, removes unknown modules, and fills in the gaps if modules are missing
-         * @param list the list that needs to be fixed
+         *
+         * @param list              the list that needs to be fixed
          * @param getFactoryDefault if the list to check against should be the factory default or not
-         * @return the fixed list
          */
-        public static ArrayList<BaseModule> fixOrder(ArrayList<BaseModule> list, boolean getFactoryDefault) {
+        public static void fixOrder(ArrayList<BaseModule> list, boolean getFactoryDefault) {
             /*
             1. removes duplicates and invalid entries
             2. sorts based on module.getOrder()
@@ -720,7 +720,11 @@ public class Hud {
             Helper.removeDuplicateSubclasses(list);
 
             // if the size of the list is still bigger than the default list, return the default
-            if (list.size() > defaultList.size()) return defaultList;
+            if (list.size() > defaultList.size()) {
+                list.clear();
+                list.addAll(defaultList);
+                return;
+            }
 
             // sort the list
             list.sort(Comparator.comparingInt(BaseModule::getOrder));
@@ -732,8 +736,6 @@ public class Hud {
             defaultList.stream()
                     .filter(mod -> list.stream().noneMatch(module -> module.getClass().equals(mod.getClass())))
                     .forEach(list::add);
-
-            return list;
         }
 
         /**
