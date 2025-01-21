@@ -62,12 +62,19 @@ public class Helper {
          */
         public static <T extends Enum<T>> T get(Object enumString, Class<T> enumType) {
             T[] values = enumType.getEnumConstants();
-            for (T all : values) {
-                // check if there is a match for any of the enum names
-                if (enumString.toString().equals(all.name())) return all;
-            }
             // if there's no match return the first entry
-            return values[0];
+            return search(enumString,enumType).orElse(values[0]);
+        }
+
+        /**
+         * searches for an enum constant by its name in the specified enum type class
+         *
+         * @param <T> the type of the enum
+         * @return an {@code Optional} containing the matching enum constant if found, otherwise an empty {@code Optional}
+         */
+        public static <T extends Enum<T>> Optional<T> search(Object enumString, Class<T> enumType) {
+            T[] values = enumType.getEnumConstants();
+            return Arrays.stream(values).filter(entry -> entry.name().equals(enumString.toString())).findFirst();
         }
     }
 
