@@ -78,6 +78,9 @@ public class Assets {
             public static final String right = "\u25b6";
             public static final String leftRight = "\u2b0c";
             public static final String upDown = "\u2b0d";
+            public static final String leftEnd = "\u23ee";
+            public static final String rightEnd = "\u23ed";
+            public static final String shuffle = "\uD83D\uDD00";
         }
         public static final String square = "\u2588";
         public static final String x = "\u2715";
