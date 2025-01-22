@@ -1,6 +1,7 @@
 package one.oth3r.directionhud.common.files.dimension;
 
 import com.google.gson.annotations.SerializedName;
+import one.oth3r.directionhud.common.Assets;
 
 public class DimensionEntry {
 
@@ -135,6 +136,9 @@ public class DimensionEntry {
 
             public record Icons(
                     String day, String night, String storm, String thunderstorm) {
+                public static Icons defaultIcons() {
+                    return new Icons(Assets.symbols.sun,Assets.symbols.moon,Assets.symbols.rain,Assets.symbols.lighting_bolt);
+                }
 
                 @Override
                 public String day() {
