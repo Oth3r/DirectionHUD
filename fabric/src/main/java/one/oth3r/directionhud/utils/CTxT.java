@@ -5,7 +5,9 @@ import net.minecraft.util.Formatting;
 import one.oth3r.directionhud.common.template.ChatText;
 
 public class CTxT extends ChatText<MutableText, CTxT> {
-    public CTxT() {}
+    public CTxT() {
+        this.text = Text.literal("");
+    }
 
     public CTxT(CTxT main) {
         super(main);
