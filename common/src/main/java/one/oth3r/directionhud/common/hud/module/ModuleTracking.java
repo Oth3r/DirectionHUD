@@ -3,12 +3,22 @@ package one.oth3r.directionhud.common.hud.module;
 import com.google.gson.annotations.SerializedName;
 
 public class ModuleTracking extends BaseModule {
+    public static final String targetID = "target";
     @SerializedName("target")
     protected Target target;
+
+    public static final String hybridID = "hybrid";
     @SerializedName("hybrid")
     protected boolean hybrid;
+
+    public static final String typeID = "display-type";
     @SerializedName("display-type")
     protected Type type;
+
+    @Override
+    public String[] getSettingIDs() {
+        return new String[] { targetID, hybridID, typeID };
+    }
 
     public ModuleTracking() {
         super(Module.TRACKING);

@@ -3,8 +3,14 @@ package one.oth3r.directionhud.common.hud.module;
 import com.google.gson.annotations.SerializedName;
 
 public class ModuleTime extends BaseModule {
+    public static final String hour24ID = "24hr-clock";
     @SerializedName("24hr-clock")
     protected boolean hour24;
+
+    @Override
+    public String[] getSettingIDs() {
+        return new String[] { hour24ID };
+    }
 
     public ModuleTime() {
         super(Module.TIME);

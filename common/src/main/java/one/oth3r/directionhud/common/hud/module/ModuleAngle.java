@@ -3,8 +3,14 @@ package one.oth3r.directionhud.common.hud.module;
 import com.google.gson.annotations.SerializedName;
 
 public class ModuleAngle extends BaseModule {
+    public static final String displayID = "display";
     @SerializedName("display")
     protected Display display;
+
+    @Override
+    public String[] getSettingIDs() {
+        return new String[] { displayID };
+    }
 
     public ModuleAngle() {
         super(Module.ANGLE);

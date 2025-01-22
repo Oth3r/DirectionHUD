@@ -3,10 +3,18 @@ package one.oth3r.directionhud.common.hud.module;
 import com.google.gson.annotations.SerializedName;
 
 public class ModuleSpeed extends BaseModule {
+    public static final String calculation2DID = "2d-calculation";
     @SerializedName("2d-calculation")
     protected boolean calculation2D;
+
+    public static final String displayPatternID = "display-pattern";
     @SerializedName("display-pattern")
     protected String displayPattern;
+
+    @Override
+    public String[] getSettingIDs() {
+        return new String[] { calculation2DID, displayPatternID };
+    }
 
     public ModuleSpeed() {
         super(Module.SPEED);

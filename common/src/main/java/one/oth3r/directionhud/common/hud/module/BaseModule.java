@@ -13,7 +13,6 @@ public abstract class BaseModule implements Cloneable {
     @SerializedName("state")
     protected boolean state;
 
-
     public BaseModule(Module moduleType) {
         this.moduleType = moduleType;
     }
@@ -26,6 +25,22 @@ public abstract class BaseModule implements Cloneable {
 
     public int getOrder() {
         return order;
+    }
+
+    /**
+     * returns the settings IDs for the module, empty if no extra settings are in the module
+     * @return an array of IDs
+     */
+    public String[] getSettingIDs() {
+        return new String[0];
+    }
+
+    /**
+     * if the module has extra settings apart from the base settings <br>
+     * checks if {@link #getSettingIDs()} is empty
+     */
+    public boolean hasExtraSettings() {
+        return getSettingIDs().length > 0;
     }
 
     public void setOrder(int order) {
