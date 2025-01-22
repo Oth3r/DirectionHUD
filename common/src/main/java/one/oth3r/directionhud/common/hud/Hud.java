@@ -5,8 +5,6 @@ import one.oth3r.directionhud.common.Assets.symbols.arrows;
 import one.oth3r.directionhud.common.DHud;
 import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.LoopManager;
-import one.oth3r.directionhud.common.hud.Hud.Setting.ModuleAngleDisplay;
-import one.oth3r.directionhud.common.hud.Hud.Setting.ModuleTrackingTarget;
 import one.oth3r.directionhud.common.hud.Hud.Setting.*;
 import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.files.ModuleText;
@@ -36,13 +34,6 @@ public class Hud {
         bossbar__color,
         bossbar__distance,
         bossbar__distance_max,
-        module__time_24hr,
-        module__tracking_target,
-        module__tracking_type,
-        module__tracking_hybrid,
-        module__speed_pattern,
-        module__speed_3d,
-        module__angle_display,
         none;
         @Override
         public String toString() {
@@ -61,33 +52,16 @@ public class Hud {
             // without module settings & none
             ArrayList<Setting> list = new ArrayList<>(Arrays.asList(values()));
             list.remove(none);
-            list.removeAll(moduleSettings());
             return list;
         }
-        public static ArrayList<Setting> moduleSettings() {
-            ArrayList<Setting> list = new ArrayList<>();
-            for (Setting setting : values())
-                if (setting.toString().startsWith("module.")) list.add(setting);
-            return list;
-        }
+
         public static ArrayList<Setting> boolSettings() {
             ArrayList<Setting> list = new ArrayList<>();
             list.add(state);
             list.add(bossbar__distance);
-            list.add(module__time_24hr);
-            list.add(module__speed_3d);
-            list.add(module__tracking_hybrid);
             return list;
         }
-        /**
-         * @return a list of modules that use booleans but have custom names for the boolean states
-         */
-        public static ArrayList<Setting> customBool() {
-            ArrayList<Setting> list = new ArrayList<>();
-            list.add(module__time_24hr);
-            list.add(module__speed_3d);
-            return list;
-        }
+
         public enum DisplayType {
             actionbar,
             bossbar;
@@ -111,19 +85,6 @@ public class Hud {
             yellow,
             purple,
             white
-        }
-        public enum ModuleTrackingTarget {
-            player,
-            dest
-        }
-        public enum ModuleTrackingType {
-            simple,
-            compact
-        }
-        public enum ModuleAngleDisplay {
-            yaw,
-            pitch,
-            both
         }
     }
 
@@ -280,11 +241,12 @@ public class Hud {
             // pointer target
             Loc pointLoc = null;
             // player tracking mode
-            ModuleTrackingTarget trackingTarget = Enums.get(player.getPCache().getHud().getSetting(Setting.module__tracking_target),ModuleTrackingTarget.class);
-            boolean hybrid = (boolean) player.getPCache().getHud().getSetting(Setting.module__tracking_hybrid);
+            ModuleTracking tracking = player.getPCache().getHud().getModule(Module.TRACKING);
+            ModuleTracking.Target trackingTarget = tracking.getTarget();
+            boolean hybrid = tracking.isHybrid();
 
             // if PLAYER or HYBRID (TRACKING CHECK)
-            if (trackingTarget.equals(ModuleTrackingTarget.player) || hybrid) {
+            if (trackingTarget.equals(ModuleTracking.Target.player) || hybrid) {
                 // get the target
                 Player target = Destination.social.track.getTarget(player);
                 // make sure the player is real
@@ -305,7 +267,7 @@ public class Hud {
                 }
             }
             // DEST or (HYBRID & NULL TRACKER)
-            if (trackingTarget.equals(ModuleTrackingTarget.dest) || (hybrid && pointLoc == null)) {
+            if (trackingTarget.equals(ModuleTracking.Target.dest) || (hybrid && pointLoc == null)) {
                 // make sure theres a dest
                 if (Destination.dest.get(player).hasXYZ())
                     pointLoc = Destination.dest.get(player);

@@ -446,7 +446,6 @@ public class Config implements CustomFile<Config> {
             PDHud hud = DEFAULTS.getHud();
             PDHud.Settings hudSettings = hud.getSetting();
             PDHud.Settings.Bossbar hudSBossbar = hudSettings.getBossbar();
-            PDHud.Settings.Module hudSModule = hudSettings.getModule();
 
             try {
                 Gson gson = new GsonBuilder().disableHtmlEscaping().create();

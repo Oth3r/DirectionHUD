@@ -6,6 +6,7 @@ import one.oth3r.directionhud.common.files.playerdata.CachedPData;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.hud.Hud;
 import one.oth3r.directionhud.common.hud.module.Module;
+import one.oth3r.directionhud.common.hud.module.ModuleSpeed;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.common.utils.ParticleType;
 import one.oth3r.directionhud.common.utils.Vec;
@@ -83,7 +84,7 @@ public class LoopManager {
             speedData.setWorldTime(player.getWorldTime());
 
             // only do x and y if 3d is off
-            if (!(boolean) player.getPCache().getHud().getSetting(Hud.Setting.module__speed_3d)) {
+            if (((ModuleSpeed)player.getPCache().getHud().getModule(Module.SPEED)).isCalculation2D()) {
                 pos = new Vec(pos.getX(),0,pos.getZ());
                 oldPos = new Vec(oldPos.getX(),0,oldPos.getZ());
             }
