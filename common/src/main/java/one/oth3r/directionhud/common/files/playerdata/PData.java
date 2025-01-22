@@ -431,7 +431,7 @@ public class PData extends BasePData implements CustomFile<PData> {
                 Map<String,Object> hudSettingModule = new HashMap<>();
                 hudSettingModule.put("time_24hr",hudSetting.get("time24h"));
                 hudSetting.put("time24h",null);
-                hudSettingModule.put("tracking_target", HUDSETTINGS.getModule().getTrackingTarget());
+                hudSettingModule.put("tracking_target", "player");
                 hudSetting.put("module",hudSettingModule);
                 hud.put("order", Helper.Enums.toEnumList(new ArrayList<>(List.of(((String) hud.get("order")).split(" "))), Module.class));
                 hud.put("setting",hudSetting);
@@ -462,11 +462,11 @@ public class PData extends BasePData implements CustomFile<PData> {
                 // new hud module settings
                 Map<String,Object> hudSetting = (Map<String, Object>) hud.get("setting");
                 Map<String,Object> hudModuleSetting = (Map<String, Object>) hudSetting.get("module");
-                hudModuleSetting.put("tracking_hybrid", HUDSETTINGS.getModule().getTrackingHybrid());
-                hudModuleSetting.put("tracking_type", HUDSETTINGS.getModule().getTrackingType());
-                hudModuleSetting.put("speed_pattern", HUDSETTINGS.getModule().getSpeedPattern());
-                hudModuleSetting.put("speed_3d", HUDSETTINGS.getModule().getSpeed3d());
-                hudModuleSetting.put("angle_display", HUDSETTINGS.getModule().getAngleDisplay());
+                hudModuleSetting.put("tracking_hybrid", true);
+                hudModuleSetting.put("tracking_type", "simple");
+                hudModuleSetting.put("speed_pattern", "0.00");
+                hudModuleSetting.put("speed_3d", true);
+                hudModuleSetting.put("angle_display", "both");
                 hudSetting.put("module",hudModuleSetting);
                 hud.put("setting",hudSetting);
                 // new hud modules
