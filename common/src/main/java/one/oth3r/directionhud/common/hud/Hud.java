@@ -571,14 +571,6 @@ public class Hud {
         }
 
         /**
-         * gets the default module enabled state from the given module
-         * @return default state
-         */
-        public static boolean getDefaultState(Module module) {
-            return PlayerData.getDefaults().getHud().getModule(module).isEnabled();
-        }
-
-        /**
          * reset module(s) to their default config state
          * @param module module to reset, unknown to reset all
          * @param Return to return to the modules UI
