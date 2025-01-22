@@ -110,13 +110,6 @@ public class PDHud {
             case bossbar__color -> getSetting().getBossbar().getColor();
             case bossbar__distance -> getSetting().getBossbar().getDistance();
             case bossbar__distance_max -> getSetting().getBossbar().getDistanceMax();
-            case module__angle_display -> getSetting().getModule().getAngleDisplay();
-            case module__speed_3d -> getSetting().getModule().getSpeed3d();
-            case module__speed_pattern -> getSetting().getModule().getSpeedPattern();
-            case module__tracking_target -> getSetting().getModule().getTrackingTarget();
-            case module__tracking_hybrid -> getSetting().getModule().getTrackingHybrid();
-            case module__tracking_type -> getSetting().getModule().getTrackingType();
-            case module__time_24hr -> getSetting().getModule().getTime24hr();
             default -> null;
         };
     }
@@ -128,13 +121,6 @@ public class PDHud {
             case bossbar__color -> getSetting().getBossbar().setColor(setting.toString());
             case bossbar__distance -> getSetting().getBossbar().setDistance((Boolean) setting);
             case bossbar__distance_max -> getSetting().getBossbar().setDistanceMax((int) setting);
-            case module__angle_display -> getSetting().getModule().setAngleDisplay(setting.toString());
-            case module__speed_3d -> getSetting().getModule().setSpeed3d((Boolean) setting);
-            case module__speed_pattern -> getSetting().getModule().setSpeedPattern((String) setting);
-            case module__tracking_hybrid -> getSetting().getModule().setTrackingHybrid((Boolean) setting);
-            case module__tracking_type -> getSetting().getModule().setTrackingType(setting.toString());
-            case module__tracking_target -> getSetting().getModule().setTrackingTarget(setting.toString());
-            case module__time_24hr -> getSetting().getModule().setTime24hr((Boolean) setting);
         }
         save();
     }
@@ -248,8 +234,6 @@ public class PDHud {
 
         @SerializedName("bossbar")
         private Bossbar bossbar = new Bossbar();
-        @SerializedName("module")
-        private Module module = new Module();
         @SerializedName("state")
         private Boolean state = true;
         @SerializedName("type")
@@ -259,7 +243,6 @@ public class PDHud {
 
         public Settings(Settings settings) {
             this.bossbar = new Bossbar(settings.getBossbar());
-            this.module = new Module(settings.getModule());
             this.state = settings.state;
             this.type = settings.type;
         }
@@ -270,14 +253,6 @@ public class PDHud {
 
         public void setBossbar(Bossbar bossbar) {
             this.bossbar = bossbar;
-        }
-
-        public Module getModule() {
-            return module;
-        }
-
-        public void setModule(Module module) {
-            this.module = module;
         }
 
         public Boolean getState() {
@@ -336,93 +311,6 @@ public class PDHud {
             public void setDistanceMax(Integer distanceMax) {
                 this.distanceMax = distanceMax;
             }
-        }
-
-        public static class Module {
-
-            @SerializedName("time_24hr")
-            private Boolean time24hr = false;
-            @SerializedName("tracking_type")
-            private Hud.Setting.ModuleTrackingType trackingType = Hud.Setting.ModuleTrackingType.simple;
-            @SerializedName("tracking_target")
-            private Hud.Setting.ModuleTrackingTarget trackingTarget = Hud.Setting.ModuleTrackingTarget.player;
-            @SerializedName("tracking_hybrid")
-            private Boolean trackingHybrid = true;
-            @SerializedName("speed_3d")
-            private Boolean speed3d = true;
-            @SerializedName("speed_pattern")
-            private String speedPattern = "0.00";
-            @SerializedName("angle_display")
-            private Hud.Setting.ModuleAngleDisplay angleDisplay = Hud.Setting.ModuleAngleDisplay.both;
-
-            public Module() {}
-
-            public Module(Module module) {
-                this.time24hr = module.time24hr;
-                this.trackingType = module.trackingType;
-                this.trackingTarget = module.trackingTarget;
-                this.trackingHybrid = module.trackingHybrid;
-                this.speed3d = module.speed3d;
-                this.speedPattern = module.speedPattern;
-                this.angleDisplay = module.angleDisplay;
-            }
-
-            public Boolean getSpeed3d() {
-                return speed3d;
-            }
-
-            public void setSpeed3d(Boolean speed3d) {
-                this.speed3d = speed3d;
-            }
-
-            public String getTrackingType() {
-                return trackingType.toString();
-            }
-
-            public void setTrackingType(String trackingType) {
-                this.trackingType = Helper.Enums.get(trackingType, Hud.Setting.ModuleTrackingType.class);
-            }
-
-            public String getTrackingTarget() {
-                return trackingTarget.toString();
-            }
-
-            public void setTrackingTarget(String trackingTarget) {
-                this.trackingTarget = Helper.Enums.get(trackingTarget, Hud.Setting.ModuleTrackingTarget.class);
-            }
-
-            public String getSpeedPattern() {
-                return speedPattern;
-            }
-
-            public void setSpeedPattern(String speedPattern) {
-                this.speedPattern = speedPattern;
-            }
-
-            public String getAngleDisplay() {
-                return angleDisplay.toString();
-            }
-
-            public void setAngleDisplay(String angleDisplay) {
-                this.angleDisplay = Helper.Enums.get(angleDisplay, Hud.Setting.ModuleAngleDisplay.class);
-            }
-
-            public Boolean getTrackingHybrid() {
-                return trackingHybrid;
-            }
-
-            public void setTrackingHybrid(Boolean trackingHybrid) {
-                this.trackingHybrid = trackingHybrid;
-            }
-
-            public Boolean getTime24hr() {
-                return time24hr;
-            }
-
-            public void setTime24hr(Boolean time24hr) {
-                this.time24hr = time24hr;
-            }
-
         }
     }
 }
