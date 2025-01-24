@@ -625,12 +625,15 @@ public class Hud {
             setOrder(list);
             // make sure everything is saved
             player.getPData().queueSave();
+            // get the new order number (formatted for user)
+            int order = BaseModule.findInArrayList(list,module).orElse(
+                    player.getPData().getHud().getModule(module)).getOrder();
 
 
             // set the order of module to <>
             CTxT msg = CUtl.tag().append(LANG.msg("order",
                     CTxT.of(module.toString()).color(CUtl.s()),
-                    CTxT.of(String.valueOf(pos+1)).color(CUtl.s())));
+                    CTxT.of(String.valueOf(order)).color(CUtl.s())));
 
             if (Return) Edit.UI(player, msg, module);
             else player.sendMessage(msg);
