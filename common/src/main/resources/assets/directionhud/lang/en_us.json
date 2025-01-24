@@ -173,6 +173,10 @@
   "hud.module.setting.hover.set.toggle": "Click to toggle %1$s %2$s.",
   "hud.module.setting.hover.set.custom": "Click to set the %s.",
 
+  "hud.module.setting.error.no_settings": "The %s module doesn't have any settings to edit!",
+  "hud.module.setting.error.invalid": "Invalid setting entered for the %s module!",
+  "hud.module.setting.error.invalid.setting_value": "Invalid %s entered!",
+
   "hud.module.setting.time.24hr-clock": "clock display type",
   "hud.module.setting.time.24hr-clock.ui": "Clock Display Type",
   "hud.module.setting.time.24hr-clock.on": "24HR",
