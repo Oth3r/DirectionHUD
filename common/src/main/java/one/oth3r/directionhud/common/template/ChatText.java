@@ -5,6 +5,7 @@ import one.oth3r.directionhud.common.utils.Helper.Pair;
 import one.oth3r.directionhud.common.utils.Rainbow;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 public abstract class ChatText<T, C extends ChatText<T, C>> {
     protected T text;
@@ -23,18 +24,25 @@ public abstract class ChatText<T, C extends ChatText<T, C>> {
     public ChatText() {}
 
     public ChatText(C main) {
-        this.text = main.text;
-        this.button = main.button;
-        this.color = main.color;
-        this.clickEvent = main.clickEvent;
-        this.hoverEvent = main.hoverEvent;
-        this.bold = main.bold;
-        this.italic = main.italic;
-        this.strikethrough = main.strikethrough;
-        this.underline = main.underline;
-        this.append = main.append;
-        this.rainbow = main.rainbow;
+        copyFromObject(main);
     }
+
+    public void copyFromObject(C old) {
+        this.text = old.text;
+        this.button = old.button;
+        this.color = old.color;
+        this.clickEvent = old.clickEvent;
+        this.hoverEvent = old.hoverEvent;
+        this.bold = old.bold;
+        this.italic = old.italic;
+        this.strikethrough = old.strikethrough;
+        this.underline = old.underline;
+        this.append = old.append.stream().map(ChatText::clone).collect(Collectors.toCollection(ArrayList::new));;
+        this.rainbow = old.rainbow;
+    }
+
+    @Override
+    public abstract C clone();
 
     public abstract C text(String text);
 

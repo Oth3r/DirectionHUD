@@ -11,8 +11,6 @@ public class CTxT extends ChatText<MutableText, CTxT> {
 
     public CTxT(CTxT main) {
         super(main);
-        // create a copy of the mutable
-        this.text = text.copy();
     }
 
     public CTxT(MutableText text) {
@@ -27,11 +25,24 @@ public class CTxT extends ChatText<MutableText, CTxT> {
     public static CTxT of(String of) {
         return new CTxT(of);
     }
+
     public static CTxT of(MutableText of) {
         return new CTxT(of);
     }
+
     public static CTxT of(CTxT of) {
         return new CTxT(of);
+    }
+
+    @Override
+    public void copyFromObject(CTxT old) {
+        super.copyFromObject(old);
+        this.text = old.text.copy();
+    }
+
+    @Override
+    public CTxT clone() {
+        return new CTxT(this);
     }
 
     @Override
