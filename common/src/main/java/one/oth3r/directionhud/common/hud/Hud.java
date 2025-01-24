@@ -532,7 +532,7 @@ public class Hud {
             if (args[0].equals("edit")) {
                 // send error if cmd length isn't long enough
                 if (args.length < 2) player.sendMessage(CUtl.error("args"));
-                else editUI(player, null, Module.fromString(args[1]));
+                else Edit.UI(player, null, Module.fromString(args[1]));
             }
             // TOGGLE
             if (args[0].equals("setting")) {
