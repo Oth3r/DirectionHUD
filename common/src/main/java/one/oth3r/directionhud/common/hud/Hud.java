@@ -632,7 +632,7 @@ public class Hud {
                     CTxT.of(module.toString()).color(CUtl.s()),
                     CTxT.of(String.valueOf(pos+1)).color(CUtl.s())));
 
-            if (Return) editUI(player, msg, module);
+            if (Return) Edit.UI(player, msg, module);
             else player.sendMessage(msg);
         }
 
@@ -662,7 +662,7 @@ public class Hud {
                     CUtl.toggleTxT(toggle),
                     CTxT.of(module.toString()).color(CUtl.s())));
 
-            if (Return) editUI(player, msg, module);
+            if (Return) Edit.UI(player, msg, module);
             else player.sendMessage(msg);
         }
 
@@ -823,7 +823,7 @@ public class Hud {
                 }
             }
 
-            if (Return) editUI(player,msg,module);
+            if (Return) Edit.UI(player,msg,module);
             else player.sendMessage(msg);
         }
 
@@ -1038,135 +1038,150 @@ public class Hud {
             return "#19ff21";
         }
 
-        /**
-         * UI for editing a specific module
-         * @param aboveTxT the text to show above the UI
-         * @param module the module to edit
-         */
-        public static void editUI(Player player, CTxT aboveTxT, Module module) {
-            // data
-            CTxT msg = CTxT.of(""), line = CUtl.makeLine(37);
+        public static class Edit {
+            public static final Lang LANG = new Lang("hud.module.edit.");
 
-            // add the text above if available
-            if (aboveTxT != null) msg.append(aboveTxT).append("\n");
+            /**
+             * UI for editing a specific module
+             * @param aboveTxT the text to show above the UI
+             * @param module the module to edit
+             */
+            public static void UI(Player player, CTxT aboveTxT, Module module) {
+                // data
+                CTxT msg = CTxT.of(""), line = CUtl.makeLine(37);
 
-            BaseModule mod = player.getPCache().getHud().getModule(module);
-            //state
-            boolean state = mod.isEnabled();
-            CTxT toggle = CTxT.of(Assets.symbols.toggle).btn(true).color(CUtl.toggleColor(state))
-                    .click(1,"/hud modules toggle-r "+module)
-                    .hover(LANG.hover("toggle",
-                            CTxT.of(module.toString()).color(CUtl.s()),
-                            CUtl.LANG.btn(!state?"on":"off").color(!state?'a':'c')));
+                // add the text above if available
+                if (aboveTxT != null) msg.append(aboveTxT).append("\n");
 
-            // make the top bar
-            msg.append(CTxT.of(" Edit Module").color(Assets.mainColors.edit).append(line));
-            msg.append("\n ").append(moduleExample(player,module));
+                BaseModule mod = player.getPCache().getHud().getModule(module);
+                //state
+                boolean state = mod.isEnabled();
+                CTxT toggle = CTxT.of(Assets.symbols.toggle).btn(true).color(CUtl.toggleColor(state))
+                        .click(1,"/hud modules toggle-r "+module)
+                        .hover(LANG.hover("toggle").color(Assets.mainColors.edit).append("\n").append(LANG.hover("toggle.click",
+                                CTxT.of(module.getName()).color(CUtl.s()),
+                                CUtl.LANG.btn(!state?"on":"off").color(!state?'a':'c'))));
 
-            msg.append(line);
-            // ORDER
-            msg.append("\n ").append(toggle).append(" ").append(createModuleOrderUI(player, module)).append(" ");
+                // make the top bar
+                msg.append(CTxT.of(" Edit Module").color(Assets.mainColors.edit).append(line));
+                msg.append("\n ").append(moduleExample(player,module));
 
-            // extra settings section
-            CTxT extraSettings = getSettingButtons(player, module);
-            if (!extraSettings.isEmpty()) msg.append("\n\n ").append(extraSettings);
+                msg.append(line);
+                // ORDER
+                msg.append("\n ").append(toggle).append(" ").append(createModuleOrderUI(player, module)).append(" ");
 
-            // toggle and module switcher row
-            msg.append("\n\n ").append(createModuleSwitcher(player, module));
+                // extra settings section
+                CTxT extraSettings = getSettingButtons(player, module);
+                if (!extraSettings.isEmpty()) msg.append("\n\n ").append(extraSettings);
 
-            // bottom buttons
-            msg.append("\n\n ").append(CUtl.LANG.btn("reset").btn(true).color('7') // todo
-//                    .click(1,"/hud modules reset-r "+module.getName())
-//                    .hover(LANG.hover("reset.singular",CTxT.of(module.toString()).color('c')))
-            );
-            msg.append("  ").append(CUtl.CButton.back("/hud modules"));
+                // toggle and module switcher row
+                msg.append("\n\n ").append(createModuleSwitcher(player, module));
 
-            // bottom line
-            msg.append(line);
+                // bottom buttons
+                msg.append("\n\n ").append(CUtl.LANG.btn("reset").btn(true).color('7') // todo
+    //                    .click(1,"/hud modules reset-r "+module.getName())
+    //                    .hover(LANG.hover("reset.singular",CTxT.of(module.toString()).color('c')))
+                );
+                msg.append("  ").append(CUtl.CButton.back("/hud modules"));
 
-            player.sendMessage(msg);
-        }
+                // bottom line
+                msg.append(line);
 
-        private static CTxT createModuleSwitcher(Player player, Module module) {
-            ArrayList<BaseModule> modules = player.getPCache().getHud().getModules();
-            BaseModule mod = player.getPCache().getHud().getModule(module);
-            // the module index starts at 1, so adjust accordingly
-            int moduleIndex = mod.getOrder() - 1;
-            boolean leftEnabled = moduleIndex > 0, rightEnabled = moduleIndex < modules.size()-1;
+                player.sendMessage(msg);
+            }
 
-            // arrows to cycle the module to edit
-            CTxT leftArrow = CTxT.of(arrows.left).btn(true).color(Assets.mainColors.gray),
-                    rightArrow = CTxT.of(arrows.right).btn(true).color(Assets.mainColors.gray);
+            private static CTxT createModuleSwitcher(Player player, Module module) {
+                ArrayList<BaseModule> modules = player.getPCache().getHud().getModules();
+                BaseModule mod = player.getPCache().getHud().getModule(module);
+                // the module index starts at 1, so adjust accordingly
+                int moduleIndex = mod.getOrder() - 1;
+                boolean leftEnabled = moduleIndex > 0, rightEnabled = moduleIndex < modules.size()-1;
 
-            // add functionality if the button is enabled
-            if (leftEnabled) leftArrow.color(Assets.mainColors.edit)
-                    .hover(CTxT.of("click to go to prev module"))
-                    .click(1,"/hud modules edit "+modules.get(moduleIndex-1).getModuleType().getName());
+                // arrows to cycle the module to edit
+                CTxT leftArrow = CTxT.of(arrows.left).btn(true).color(Assets.mainColors.gray),
+                        rightArrow = CTxT.of(arrows.right).btn(true).color(Assets.mainColors.gray);
 
-            if (rightEnabled) rightArrow.color(Assets.mainColors.edit)
-                    .hover(CTxT.of("click to go to next module"))
-                    .click(1,"/hud modules edit "+modules.get(moduleIndex+1).getModuleType().getName());
+                CTxT hover = LANG.hover().color(Assets.mainColors.edit).append("\n");
 
-            CTxT moduleTxT = CTxT.of(module.getName()).btn(true)
-                    .color(stateColor(player, module))
-                    .hover(CTxT.of("click to choose the module to edit")) //todo
-                    .click(2, "/hud modules edit ");
+                // add functionality if the button is enabled
+                if (leftEnabled) leftArrow.color(Assets.mainColors.edit)
+                        .hover(CTxT.of(hover).append(LANG.hover("cycle",LANG.hover("cycle.previous").color(CUtl.s()))))
+                        .click(1,"/hud modules edit "+modules.get(moduleIndex-1).getModuleType().getName());
 
-            return new CTxT().append(leftArrow).append(" ").append(moduleTxT).append(" ").append(rightArrow);
-        }
+                if (rightEnabled) rightArrow.color(Assets.mainColors.edit)
+                        .hover(CTxT.of(hover).append(LANG.hover("cycle",LANG.hover("cycle.next").color(CUtl.s()))))
+                        .click(1,"/hud modules edit "+modules.get(moduleIndex+1).getModuleType().getName());
 
-        private static CTxT createNavigationButton(String text, String color, String hoverText, boolean isClickable, String command) {
-            CTxT button = LANG.btn().text(text).btn(true).color(color).hover(CTxT.of(hoverText));
-            return isClickable ? button.click(1, command) : button.click(null).hover(null);
-        }
+                CTxT moduleTxT = CTxT.of(module.getName()).btn(true)
+                        .color(stateColor(player, module))
+                        .hover(CTxT.of(hover).append(LANG.hover("change")))
+                        .click(2, "/hud modules edit ");
 
-        private static CTxT createModuleOrderUI(Player player, Module module) {
-            // order starts at 1, index starts at 0
-            int currentOrder = player.getPCache().getHud().getModule(module).getOrder(), moduleIndex = currentOrder - 1;
-            boolean leftEnabled = moduleIndex > 0, rightEnabled = moduleIndex < player.getPCache().getHud().getModules().size()-1;
+                return new CTxT().append(leftArrow).append(" ").append(moduleTxT).append(" ").append(rightArrow);
+            }
+
+            private static CTxT createNavButton(String text, String color, String hoverKey, String hoverKeySecondary, boolean isClickable, String cmd) {
+                CTxT button = LANG.btn().text(text).btn(true).color(color)
+                        // key would be something like (move.)most and the secondary would be like (move.)most.first
+                        // move.most = Click to move teh module to the ___ pos
+                        // move.most.first = first
+                        .hover(LANG.hover("order").color(Assets.mainColors.edit).append("\n").append(
+                                LANG.hover("order.move."+hoverKey, LANG.hover("order.move."+hoverKey+"."+hoverKeySecondary).color(CUtl.s()))));
+                return isClickable ? button.click(1, cmd) : button.click(null).hover(null);
+            }
+
+            private static CTxT createModuleOrderUI(Player player, Module module) {
+                // order starts at 1, index starts at 0
+                int currentOrder = player.getPCache().getHud().getModule(module).getOrder(), moduleIndex = currentOrder - 1;
+                boolean leftEnabled = moduleIndex > 0, rightEnabled = moduleIndex < player.getPCache().getHud().getModules().size()-1;
 
 
-            // Define navigation button properties
-            String moduleName = module.getName();
-            final String enabledColor = CUtl.s(), disabledColor = Assets.mainColors.gray;
+                // Define navigation button properties
+                String moduleName = module.getName();
+                final String enabledColor = CUtl.s(), disabledColor = Assets.mainColors.gray;
 
-            // Create each button
-            CTxT moveLeftMost = createNavigationButton(
-                    arrows.leftEnd, leftEnabled ? enabledColor : disabledColor,
-                    "Move to first", leftEnabled,
-                    "/hud modules order-r " + moduleName + " 1"
-            );
+                String cmd = "/hud modules order-r ";
 
-            CTxT moveLeft = createNavigationButton(
-                    arrows.left, leftEnabled ? enabledColor : disabledColor,
-                    "Move left", leftEnabled,
-                    "/hud modules order-r " + moduleName + " " + (currentOrder - 1)
-            );
+                // Create each button
+                CTxT moveLeftMost = createNavButton(
+                        arrows.leftEnd, leftEnabled ? enabledColor : disabledColor,
+                        "most", "first",
+                        leftEnabled, cmd + moduleName + " 1"
+                );
 
-            CTxT currentPosition = LANG.btn()
-                    .text(String.valueOf(currentOrder))
-                    .btn(true)
-                    .color(CUtl.p())
-                    .hover(CTxT.of("Current module position"))
-                    .click(2, "/hud modules order-r " + moduleName + " ");
+                CTxT moveLeft = createNavButton(
+                        arrows.left, leftEnabled ? enabledColor : disabledColor,
+                        "one", "up",
+                        leftEnabled, cmd + moduleName + " " + (currentOrder - 1)
+                );
 
-            CTxT moveRight = createNavigationButton(
-                    arrows.right, rightEnabled ? enabledColor : disabledColor,
-                    "Move right", rightEnabled,
-                    "/hud modules order-r " + moduleName + " " + (currentOrder + 1)
-            );
+                CTxT currentPosition = LANG.btn()
+                        .text(String.valueOf(currentOrder))
+                        .btn(true)
+                        .color(Assets.mainColors.edit)
+                        .hover(LANG.hover("order").color(Assets.mainColors.edit).append("\n")
+                                .append(LANG.hover("order.info").color('7')).append("\n\n")
+                                .append(LANG.hover("order.set")))
+                        .click(2, cmd + moduleName + " ");
 
-            CTxT moveRightMost = createNavigationButton(
-                    arrows.rightEnd, rightEnabled ? enabledColor : disabledColor,
-                    "Move to last", rightEnabled,
-                    "/hud modules order-r " + moduleName + " 100"
-            );
+                CTxT moveRight = createNavButton(
+                        arrows.right, rightEnabled ? enabledColor : disabledColor,
+                        "one", "down", rightEnabled,
+                        cmd + moduleName + " " + (currentOrder + 1)
+                );
 
-            // Combine all buttons into the UI
-            return CTxT.of("")
-                    .append(moveLeftMost).append(moveLeft)
-                    .append(currentPosition)
-                    .append(moveRight).append(moveRightMost);
+                CTxT moveRightMost = createNavButton(
+                        arrows.rightEnd, rightEnabled ? enabledColor : disabledColor,
+                        "most", "last", rightEnabled,
+                        cmd + moduleName + " 100"
+                );
+
+                // Combine all buttons into the UI
+                return new CTxT()
+                        .append(moveLeftMost).append(moveLeft)
+                        .append(currentPosition)
+                        .append(moveRight).append(moveRightMost);
+            }
         }
 
         /**

@@ -129,7 +129,7 @@
   "hud.module.hover.reset.all.alt": "ALL",
   "hud.module.hover.reset.singular": "Click to reset the %s module.",
   "hud.module.hover": "Click to edit and rearrange the HUD modules.",
-  "hud.module.hover.toggle": "Click to toggle %s module %s.",
+
   "hud.module.info": "Configures the default state for each HUD module.",
   "hud.module.info.order": "Configures the default HUD module order.",
   "hud.module.info.coordinates": "Displays the current location.",
@@ -145,6 +145,25 @@
   "hud.module.msg.reset": "%s %s module!",
   "hud.module.msg.order": "Set %s module order to %s!",
   "hud.module.msg.toggle": "Toggled %s %s module.",
+
+  "hud.module.edit.hover.order": "Order",
+  "hud.module.edit.hover.order.info": "The current position of the module in the HUD display.",
+  "hud.module.edit.hover.order.set": "Click to enter a new module position.",
+  "hud.module.edit.hover.order.move.most": "Click to move the module to the %s position.",
+  "hud.module.edit.hover.order.move.most.first": "first",
+  "hud.module.edit.hover.order.move.most.last": "last",
+  "hud.module.edit.hover.order.move.one": "Click to move the module %s one position.",
+  "hud.module.edit.hover.order.move.one.up": "up",
+  "hud.module.edit.hover.order.move.one.down": "down",
+
+  "hud.module.edit.hover.toggle": "State",
+  "hud.module.edit.hover.toggle.click": "Click to toggle the %s module %s.",
+
+  "hud.module.edit.hover": "Edit",
+  "hud.module.edit.hover.cycle": "Click to edit the %s module.",
+  "hud.module.edit.hover.cycle.previous": "previous",
+  "hud.module.edit.hover.cycle.next": "next",
+  "hud.module.edit.hover.change": "Click to set the module to edit.",
 
   "hud.module.setting.msg.set": "Set the %s to %s!",
   "hud.module.setting.msg.set.toggle": "Toggled %1$s %2$s!",
