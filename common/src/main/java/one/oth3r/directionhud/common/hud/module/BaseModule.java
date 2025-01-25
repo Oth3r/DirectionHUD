@@ -3,6 +3,7 @@ package one.oth3r.directionhud.common.hud.module;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Optional;
 
 public abstract class BaseModule implements Cloneable {
@@ -77,5 +78,16 @@ public abstract class BaseModule implements Cloneable {
      */
     public static Optional<BaseModule> findInArrayList(ArrayList<BaseModule> modules, Module moduleType) {
         return modules.stream().filter(baseModule -> baseModule.getModuleType().equals(moduleType)).findFirst();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof BaseModule that)) return false;
+        return order == that.order && state == that.state && moduleType == that.moduleType;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(moduleType, order, state);
     }
 }

@@ -2,6 +2,8 @@ package one.oth3r.directionhud.common.hud.module;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Objects;
+
 public class ModuleTime extends BaseModule {
     public static final String hour24ID = "24hr-clock";
     @SerializedName("24hr-clock")
@@ -35,5 +37,18 @@ public class ModuleTime extends BaseModule {
     @Override
     public ModuleTime clone() {
         return new ModuleTime(this.order, this.state, this.hour24);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        ModuleTime that = (ModuleTime) o;
+        return hour24 == that.hour24;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), hour24);
     }
 }

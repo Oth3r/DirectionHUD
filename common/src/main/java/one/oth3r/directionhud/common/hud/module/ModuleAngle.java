@@ -2,6 +2,8 @@ package one.oth3r.directionhud.common.hud.module;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Objects;
+
 public class ModuleAngle extends BaseModule {
     public static final String displayID = "display";
     @SerializedName("display")
@@ -41,5 +43,18 @@ public class ModuleAngle extends BaseModule {
     @Override
     public ModuleAngle clone() {
         return new ModuleAngle(this.order,this.state,this.display);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        ModuleAngle that = (ModuleAngle) o;
+        return display == that.display;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), display);
     }
 }

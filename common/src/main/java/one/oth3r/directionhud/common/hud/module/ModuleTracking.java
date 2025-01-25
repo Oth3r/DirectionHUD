@@ -2,6 +2,8 @@ package one.oth3r.directionhud.common.hud.module;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Objects;
+
 public class ModuleTracking extends BaseModule {
     public static final String targetID = "target";
     @SerializedName("target")
@@ -72,5 +74,18 @@ public class ModuleTracking extends BaseModule {
     @Override
     public BaseModule clone() {
         return new ModuleTracking(this.order, this.state, this.hybrid, this.target, this.type);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        ModuleTracking that = (ModuleTracking) o;
+        return hybrid == that.hybrid && target == that.target && type == that.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), target, hybrid, type);
     }
 }

@@ -2,6 +2,8 @@ package one.oth3r.directionhud.common.hud.module;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Objects;
+
 public class ModuleSpeed extends BaseModule {
     public static final String calculation2DID = "2d-calculation";
     @SerializedName("2d-calculation")
@@ -45,5 +47,18 @@ public class ModuleSpeed extends BaseModule {
     @Override
     public ModuleSpeed clone() {
         return new ModuleSpeed(this.order, this.state, this.calculation2D, this.displayPattern);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        ModuleSpeed that = (ModuleSpeed) o;
+        return calculation2D == that.calculation2D && Objects.equals(displayPattern, that.displayPattern);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), calculation2D, displayPattern);
     }
 }
