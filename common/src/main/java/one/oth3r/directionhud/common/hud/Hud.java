@@ -979,6 +979,7 @@ public class Hud {
                                     .append(lang.hover("set.toggle",moduleLang.get(hybridID),CUtl.toggleTxT(!hybrid))))
                             .click(1,setCMD+hybridID+" "+(hybrid?"off":"on")));
 
+                    button.append(" ");
 
                     String targetID = ModuleTracking.targetID;
                     ModuleTracking.Target currentTarget = trackingModule.getTarget();
@@ -989,6 +990,7 @@ public class Hud {
                                     .append(lang.hover("set",moduleLang.get(targetID),moduleLang.get(targetID+"."+nextTarget).color(CUtl.s()))))
                             .click(1,setCMD+targetID+" "+nextTarget));
 
+                    button.append(" ");
 
                     String typeID = ModuleTracking.typeID;
                     ModuleTracking.Type currentType = trackingModule.getType();
@@ -1010,6 +1012,8 @@ public class Hud {
                                     .append(moduleLang.get(calculation2DID+"."+(is2D?"on":"off")+".info").color('7')).append("\n\n")
                                     .append(lang.hover("set",moduleLang.get(calculation2DID),moduleLang.get(calculation2DID+"."+(is2D?"off":"on")).color(CUtl.s()))))
                             .click(1,setCMD+calculation2DID+" "+(is2D?"off":"on")));
+
+                    button.append(" ");
 
                     String patternID = ModuleSpeed.displayPatternID;
                     button.append(CTxT.of(speedModule.getDisplayPattern()).btn(true).color(CUtl.s()).hover(CTxT.of("")
