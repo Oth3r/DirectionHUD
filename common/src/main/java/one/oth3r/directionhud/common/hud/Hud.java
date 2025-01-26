@@ -771,10 +771,17 @@ public class Hud {
         }
 
         /**
-         * returns the color of the module -
-         * grey if off
-         * yellow if on but can't display
-         * green if on and displaying
+         * the colors for each state a module can be in
+         */
+        public static final String STATE_GREEN = "#19ff21";
+        public static final String STATE_YELLOW = "#fff419";
+        public static final String STATE_GRAY = Assets.mainColors.gray;
+
+        /**
+         * returns the color of the module
+         * <br>{@link #STATE_GRAY} when off
+         * <br>{@link #STATE_YELLOW} when on but can't display
+         * <br>{@link #STATE_GREEN} when on and displaying
          * @return the HEX code of the color
          */
         public static String stateColor(Player player, Module module) {
@@ -784,7 +791,7 @@ public class Hud {
             BaseModule mod = player.getPCache().getHud().getModule(module);
 
             // if off return gray
-            if (!mod.isEnabled()) return Assets.mainColors.gray;
+            if (!mod.isEnabled()) return STATE_GRAY;
 
             // see if the text should be yellow
             boolean yellow = false;
@@ -808,8 +815,8 @@ public class Hud {
             }
 
             // return based on yellow, if not green
-            if (yellow) return "#fff419";
-            return "#19ff21";
+            if (yellow) return STATE_YELLOW;
+            return STATE_GREEN;
         }
 
         /**
