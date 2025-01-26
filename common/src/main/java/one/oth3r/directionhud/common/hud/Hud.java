@@ -806,6 +806,15 @@ public class Hud {
             return "#19ff21";
         }
 
+        /**
+         * checks if a module has been edited
+         * @return true if the module has been edited, as it can reset
+         */
+        public static boolean canReset(BaseModule module) {
+            BaseModule defaultModule = PlayerData.getDefaults().getHud().getModule(module.getModuleType());
+            return !defaultModule.equals(module);
+        }
+
         public static class Setting {
             public static final Lang LANG = new Lang("hud.module.setting.");
 
