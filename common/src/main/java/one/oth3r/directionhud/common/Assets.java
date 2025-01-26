@@ -81,6 +81,7 @@ public class Assets {
             public static final String leftEnd = "\u23ee";
             public static final String rightEnd = "\u23ed";
             public static final String shuffle = "\uD83D\uDD00";
+            public static final String repeat = "\uD83D\uDD01";
         }
         public static final String square = "\u2588";
         public static final String x = "\u2715";
