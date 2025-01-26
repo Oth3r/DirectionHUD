@@ -579,19 +579,19 @@ public class Hud {
             CTxT msg = CUtl.tag();
             if (module.equals(Module.UNKNOWN)) {
                 // reset everything
-                ArrayList<BaseModule> modules = player.getPData().getHud().getModules();
-                ArrayList<BaseModule> newModules = PlayerData.getDefaults().getHud().getModules();
                 player.getPData().getHud().setModules(PlayerData.getDefaults().getHud().getModules());
-                modules = player.getPData().getHud().getModules();
+
                 msg.append(LANG.msg("reset_all", CUtl.LANG.btn("all").color('c')));
             } else {
                 // the module to reset to
                 BaseModule resetModule = PlayerData.getDefaults().getHud().getModule(module);
+                // the original module
+                BaseModule mod = player.getPData().getHud().getModule(module);
 
                 // get the order
                 ArrayList<BaseModule> list = player.getPData().getHud().getModules();
-                // move the module in the list
-                Helper.moveTo(list, list.indexOf(resetModule), resetModule.getOrder());
+                // move the module in the list (-1 because module order starts from 1)
+                Helper.moveTo(list, mod.getOrder()-1, resetModule.getOrder()-1);
                 // update the other orders
                 setOrder(list);
                 // set the module to the reset one (saves)
@@ -599,6 +599,12 @@ public class Hud {
 
                 // reset message
                 msg.append(LANG.msg("reset",CUtl.LANG.btn("reset").color('c'),CTxT.of(module.toString()).color(CUtl.s())));
+
+                // if returning
+                if (Return) {
+                    Edit.UI(player, msg, module);
+                    return;
+                }
             }
             if (Return) UI(player, msg, 1);
             else player.sendMessage(msg);
