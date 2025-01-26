@@ -176,7 +176,7 @@ public class ModuleText implements CustomFile<ModuleText> {
                     this.north = "-" + arrows.up + "-";
                     this.northWest = arrows.left + arrows.up + "-";
                     this.west = arrows.left + "--";
-                    this.southWest = arrows.left + arrows.south + "-";
+                    this.southWest = arrows.left + arrows.down + "-";
                     this.south = "-" + arrows.down + "-";
                     this.southEast = "-" + arrows.down + arrows.right;
                     this.east = "--" + arrows.right;
