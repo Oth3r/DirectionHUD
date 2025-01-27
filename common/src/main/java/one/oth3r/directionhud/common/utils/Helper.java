@@ -42,16 +42,26 @@ public class Helper {
             return toStringList(new ArrayList<>(List.of(enumArray)));
         }
 
-        public static <T extends Enum<T>> ArrayList<T> toEnumList(ArrayList<String> stringList, Class<T> enumType, boolean... setting) {
-            boolean settingMode = setting != null;
+        /**
+         * turns an {@link ArrayList} of enum strings into an ArrayList of {@link  Enum} <br>
+         * if the enum cannot be found for one of the strings in the list, it will be skipped
+         * @param stringList the list of enum strings
+         * @param enumType the class of the enum
+         * @return the converted {@link ArrayList} of enums
+         */
+        public static <T extends Enum<T>> ArrayList<T> toEnumList(ArrayList<String> stringList, Class<T> enumType) {
             ArrayList<T> moduleList = new ArrayList<>();
-            for (String module:stringList) {
+
+            // for each string in the enum string list
+            for (String module : stringList) {
+                // try to get the Enum from the string, if it throws an Exception, ignore it (invalid strings get ignored)
                 try {
                     T enumValue = Enum.valueOf(enumType, module);
-                    if (settingMode) enumValue = Enum.valueOf(enumType, module.replace(".","__"));
                     moduleList.add(enumValue);
                 } catch (IllegalArgumentException ignored) {}
             }
+
+            // return the new list
             return moduleList;
         }
 
