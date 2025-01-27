@@ -486,6 +486,10 @@ public class Hud {
     public static class modules {
         private static final int PER_PAGE = 5;
 
+        public static final String SETTING_ON = "on";
+        public static final String SETTING_OFF = "off";
+        public static final List<String> SUGGESTER_ON_OFF = List.of(SETTING_ON, SETTING_OFF);
+
         public static final Lang LANG = new Lang("hud.module.");
 
         /**
