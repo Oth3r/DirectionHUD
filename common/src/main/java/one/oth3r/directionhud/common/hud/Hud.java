@@ -1691,9 +1691,6 @@ public class Hud {
             // if there is -r, remove it and enable returning
             boolean Return = args[0].contains("-r");
             args[0] = args[0].replace("-r","");
-            // if there is -m, remove it and enable module settings
-            boolean module = args[0].contains("-m");
-            args[0] = args[0].replace("-m","");
 
             // RESET
             if (args[0].equals("reset")) {
@@ -1704,14 +1701,7 @@ public class Hud {
             // SET
             if (args[0].equals("set")) {
                 if (args.length != 3) player.sendMessage(CUtl.error("args"));
-                // return to module UI if -m
-                else if (module) {
-                    change(player, Setting.get(args[1]),args[2],false);
-                    // todo
-//                    modules.UI(player,null,modules.getPageFromSetting(player,Setting.get(args[1])));
-                }
-                // else normal return handling
-                else change(player, Setting.get(args[1]),args[2],Return);
+                change(player, Setting.get(args[1]),args[2],Return);
             }
         }
         public static ArrayList<String> CMDSuggester(int pos, String[] args) {
