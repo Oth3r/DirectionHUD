@@ -18,6 +18,7 @@ import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Helper {
     public static final int MAX_NAME = 16;
@@ -31,6 +32,15 @@ public class Helper {
             for (T entry:enumList) stringList.add(entry.toString());
             return stringList;
         }
+
+        /**
+         * method overload of {@link #toStringList(ArrayList)}
+         * @param enumArray an array of custom enum
+         */
+        public static <T extends Enum<T>> ArrayList<String> toStringList(T[] enumArray) {
+            return toStringList(new ArrayList<>(List.of(enumArray)));
+        }
+
         public static <T extends Enum<T>> ArrayList<T> toEnumList(ArrayList<String> stringList, Class<T> enumType, boolean... setting) {
             boolean settingMode = setting != null;
             ArrayList<T> moduleList = new ArrayList<>();
