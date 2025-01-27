@@ -554,7 +554,7 @@ public class Hud {
         }
         public static ArrayList<String> CMDSuggester(Player player, int pos, String[] args) {
             ArrayList<String> suggester = new ArrayList<>();
-            // modules
+            // /modules [subcommand]
             if (pos == 0) {
                 suggester.add("order");
                 suggester.add("toggle");
@@ -562,15 +562,60 @@ public class Hud {
                 suggester.add("edit");
                 suggester.add("setting");
                 return suggester;
-            } //todo suggest new subcommands
+            }
+
             // if -r is attached, remove it and continue with the suggester
             args[0] = args[0].replaceAll("-r", "");
-            // modules (order/toggle/reset) [module]
+
+            // modules (order/toggle/reset/edit/setting) [module]
             if (pos == 1) suggester.addAll(
                     PlayerData.getDefaults().getHud().getModules().stream().map(mod -> mod.getModuleType().getName()).toList());
+
             // modules order (module) [order]
-            if (pos == 2 && args[0].equalsIgnoreCase("order"))
+            if (pos == 2 && args[0].equalsIgnoreCase("order")) {
                 suggester.add(String.valueOf(player.getPCache().getHud().getModule(Module.fromString(args[1])).getOrder()));
+            }
+
+            // /module order setting
+            if (args[0].equalsIgnoreCase("setting")) {
+                // [setting-id]
+                if (pos == 3) {
+                    // get the selected module
+                    Module module = Module.fromString(args[1]);
+
+                    // if unknown, return
+                    if (module.equals(Module.UNKNOWN)) return suggester;
+
+                    // get the module & module settings
+                    BaseModule mod = player.getPCache().getHud().getModule(module);
+                    String[] settingIDs = mod.getSettingIDs();
+
+                    // if the module doesn't have any settings, return
+                    if (settingIDs.length == 0) return suggester;
+
+                    // add all the setting ids to the suggester
+                    suggester.addAll(Arrays.asList(settingIDs));
+                }
+                // setting-id [value]
+                if (pos == 4) {
+                    // get the setting ID
+                    String settingID = args[2];
+                    // add items to the suggester based on the ID
+                    switch (settingID) {
+                        // ANGLE
+                        case ModuleAngle.displayID -> suggester.addAll(Enums.toStringList(ModuleAngle.Display.values()));
+                        // TIME
+                        case ModuleTime.hour24ID -> suggester.addAll(SUGGESTER_ON_OFF);
+                        // SPEED
+                        case ModuleSpeed.calculation2DID -> suggester.addAll(SUGGESTER_ON_OFF);
+                        case ModuleSpeed.displayPatternID -> suggester.addAll(List.of("0.00", "0.##", "0.00##"));
+                        // TRACKING
+                        case ModuleTracking.hybridID -> suggester.addAll(SUGGESTER_ON_OFF);
+                        case ModuleTracking.typeID -> suggester.addAll(Enums.toStringList(ModuleTracking.Type.values()));
+                        case ModuleTracking.targetID -> suggester.addAll(Enums.toStringList(ModuleTracking.Target.values()));
+                    }
+                }
+            }
             return suggester;
         }
 
