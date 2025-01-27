@@ -27,10 +27,14 @@ public class Helper {
         public static <T extends Enum<T>> ArrayList<T> toArrayList(T[] array) {
             return new ArrayList<>(Arrays.asList(array));
         }
+
+        /**
+         * converts an arraylist of enums to an arraylist of strings of the enum names using {@link Enum#name()}
+         * @param enumList the arraylist of Enums
+         * @return the converted arraylist of strings
+         */
         public static <T extends Enum<T>> ArrayList<String> toStringList(ArrayList<T> enumList) {
-            ArrayList<String> stringList = new ArrayList<>();
-            for (T entry:enumList) stringList.add(entry.toString());
-            return stringList;
+            return (ArrayList<String>) enumList.stream().map(Enum::name).collect(Collectors.toList());
         }
 
         /**
