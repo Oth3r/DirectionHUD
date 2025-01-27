@@ -1733,10 +1733,10 @@ public class Hud {
                 }
                 // type
                 if (args[1].equalsIgnoreCase(Setting.type.toString()))
-                    suggester.addAll(Enums.toStringList(Enums.toArrayList(DisplayType.values())));
+                    suggester.addAll(Enums.toStringList(DisplayType.values()));
                 // bossbar.color
                 if (args[1].equalsIgnoreCase(Setting.bossbar__color.toString()))
-                    suggester.addAll(Enums.toStringList(Enums.toArrayList(BarColor.values())));
+                    suggester.addAll(Enums.toStringList(BarColor.values()));
                 // bossbar.distance_max
                 if (args[1].equalsIgnoreCase(Setting.bossbar__distance_max.toString()))
                     suggester.add("0");

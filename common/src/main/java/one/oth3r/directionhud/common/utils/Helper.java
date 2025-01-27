@@ -24,9 +24,6 @@ public class Helper {
     public static final int MAX_NAME = 16;
 
     public static class Enums {
-        public static <T extends Enum<T>> ArrayList<T> toArrayList(T[] array) {
-            return new ArrayList<>(Arrays.asList(array));
-        }
 
         /**
          * converts an arraylist of enums to an arraylist of strings of the enum names using {@link Enum#name()}
