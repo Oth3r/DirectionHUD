@@ -54,17 +54,30 @@ public class Helper {
             }
             return moduleList;
         }
+
+        /**
+         * finds the next enum in the enum array, wrapping around if the enum is at the end of the array
+         * @param current the current enum
+         * @param enumType the class type of the enum
+         * @param exclude the list of enums to 'skip' over when finding the next enum
+         * @return the next enum in the array
+         */
         @SafeVarargs
         public static <T extends Enum<T>> T next(T current, Class<T> enumType, T... exclude) {
             T[] values = enumType.getEnumConstants();
+            // get the next enum in the values list, wrapping around if necessary
             T next = values[(current.ordinal()+1)%values.length];
+
+            // if the exclude list isn't empty
             if (exclude != null) {
-                for (T item:exclude)
-                    if (item.equals(next))
-                        return next(next,enumType,exclude);
+                // if the next enum is in the exclude list, find the next one after the current next one
+                if (Arrays.asList(exclude).contains(next)) return next(next, enumType, exclude);
             }
+
+            // return the next Enum
             return next;
         }
+
         /**
          * gets an enum from a string without returning null
          * @param enumString the string of the enum
