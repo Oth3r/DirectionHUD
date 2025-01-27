@@ -2032,7 +2032,7 @@ public class Destination {
                     suggester.addAll(Suggester.colors(player,Suggester.getCurrent(args,pos),true));
                 // tracking request
                 if (setting.equals(Setting.features__track_request_mode))
-                    suggester.addAll(Enums.toStringList(Enums.toArrayList(TrackingRequestMode.values())));
+                    suggester.addAll(Enums.toStringList(TrackingRequestMode.values()));
                 // autoclear.rad
                 if (setting.equals(Setting.autoclear_rad))
                     suggester.add("0");

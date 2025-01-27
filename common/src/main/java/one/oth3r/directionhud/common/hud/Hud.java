@@ -486,6 +486,10 @@ public class Hud {
     public static class modules {
         private static final int PER_PAGE = 5;
 
+        public static final String SETTING_ON = "on";
+        public static final String SETTING_OFF = "off";
+        public static final List<String> SUGGESTER_ON_OFF = List.of(SETTING_ON, SETTING_OFF);
+
         public static final Lang LANG = new Lang("hud.module.");
 
         /**
@@ -550,7 +554,7 @@ public class Hud {
         }
         public static ArrayList<String> CMDSuggester(Player player, int pos, String[] args) {
             ArrayList<String> suggester = new ArrayList<>();
-            // modules
+            // /modules [subcommand]
             if (pos == 0) {
                 suggester.add("order");
                 suggester.add("toggle");
@@ -558,15 +562,60 @@ public class Hud {
                 suggester.add("edit");
                 suggester.add("setting");
                 return suggester;
-            } //todo suggest new subcommands
+            }
+
             // if -r is attached, remove it and continue with the suggester
             args[0] = args[0].replaceAll("-r", "");
-            // modules (order/toggle/reset) [module]
+
+            // modules (order/toggle/reset/edit/setting) [module]
             if (pos == 1) suggester.addAll(
                     PlayerData.getDefaults().getHud().getModules().stream().map(mod -> mod.getModuleType().getName()).toList());
+
             // modules order (module) [order]
-            if (pos == 2 && args[0].equalsIgnoreCase("order"))
+            if (pos == 2 && args[0].equalsIgnoreCase("order")) {
                 suggester.add(String.valueOf(player.getPCache().getHud().getModule(Module.fromString(args[1])).getOrder()));
+            }
+
+            // /module order setting
+            if (args[0].equalsIgnoreCase("setting")) {
+                // [setting-id]
+                if (pos == 3) {
+                    // get the selected module
+                    Module module = Module.fromString(args[1]);
+
+                    // if unknown, return
+                    if (module.equals(Module.UNKNOWN)) return suggester;
+
+                    // get the module & module settings
+                    BaseModule mod = player.getPCache().getHud().getModule(module);
+                    String[] settingIDs = mod.getSettingIDs();
+
+                    // if the module doesn't have any settings, return
+                    if (settingIDs.length == 0) return suggester;
+
+                    // add all the setting ids to the suggester
+                    suggester.addAll(Arrays.asList(settingIDs));
+                }
+                // setting-id [value]
+                if (pos == 4) {
+                    // get the setting ID
+                    String settingID = args[2];
+                    // add items to the suggester based on the ID
+                    switch (settingID) {
+                        // ANGLE
+                        case ModuleAngle.displayID -> suggester.addAll(Enums.toStringList(ModuleAngle.Display.values()));
+                        // TIME
+                        case ModuleTime.hour24ID -> suggester.addAll(SUGGESTER_ON_OFF);
+                        // SPEED
+                        case ModuleSpeed.calculation2DID -> suggester.addAll(SUGGESTER_ON_OFF);
+                        case ModuleSpeed.displayPatternID -> suggester.addAll(List.of("0.00", "0.##", "0.00##"));
+                        // TRACKING
+                        case ModuleTracking.hybridID -> suggester.addAll(SUGGESTER_ON_OFF);
+                        case ModuleTracking.typeID -> suggester.addAll(Enums.toStringList(ModuleTracking.Type.values()));
+                        case ModuleTracking.targetID -> suggester.addAll(Enums.toStringList(ModuleTracking.Target.values()));
+                    }
+                }
+            }
             return suggester;
         }
 
@@ -1642,9 +1691,6 @@ public class Hud {
             // if there is -r, remove it and enable returning
             boolean Return = args[0].contains("-r");
             args[0] = args[0].replace("-r","");
-            // if there is -m, remove it and enable module settings
-            boolean module = args[0].contains("-m");
-            args[0] = args[0].replace("-m","");
 
             // RESET
             if (args[0].equals("reset")) {
@@ -1655,14 +1701,7 @@ public class Hud {
             // SET
             if (args[0].equals("set")) {
                 if (args.length != 3) player.sendMessage(CUtl.error("args"));
-                // return to module UI if -m
-                else if (module) {
-                    change(player, Setting.get(args[1]),args[2],false);
-                    // todo
-//                    modules.UI(player,null,modules.getPageFromSetting(player,Setting.get(args[1])));
-                }
-                // else normal return handling
-                else change(player, Setting.get(args[1]),args[2],Return);
+                change(player, Setting.get(args[1]),args[2],Return);
             }
         }
         public static ArrayList<String> CMDSuggester(int pos, String[] args) {
@@ -1694,10 +1733,10 @@ public class Hud {
                 }
                 // type
                 if (args[1].equalsIgnoreCase(Setting.type.toString()))
-                    suggester.addAll(Enums.toStringList(Enums.toArrayList(DisplayType.values())));
+                    suggester.addAll(Enums.toStringList(DisplayType.values()));
                 // bossbar.color
                 if (args[1].equalsIgnoreCase(Setting.bossbar__color.toString()))
-                    suggester.addAll(Enums.toStringList(Enums.toArrayList(BarColor.values())));
+                    suggester.addAll(Enums.toStringList(BarColor.values()));
                 // bossbar.distance_max
                 if (args[1].equalsIgnoreCase(Setting.bossbar__distance_max.toString()))
                     suggester.add("0");

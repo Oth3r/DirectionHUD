@@ -374,7 +374,7 @@ public class DHud {
         public static void colorCMDExecutor(Player player, String[] args) {
             if (args.length != 5) return;
             // /dhud color (settings) (type) (subtype) (set/preset) (color/page)
-            if (Enums.toStringList(Enums.toArrayList(Type.values())).contains(args[1])) {
+            if (Enums.toStringList(Type.values()).contains(args[1])) {
                 Type type = Type.get(args[1]);
                 if (args[3].equals("set")) setColor(player,args[0],type,args[2],args[4]);
                 if (args[3].equals("preset")) UI(player,args[0],type,args[2],args[4]);
