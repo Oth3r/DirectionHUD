@@ -38,9 +38,12 @@
   "hover.deny": "Click to deny.",
   "button.cancel": "CANCEL",
   "hover.cancel": "Click to cancel.",
+
   "button.reset": "RESET",
-  "hover.reset": "Click to reset %s %s.",
-  "hover.reset.settings": "settings",
+  "hover.reset": "Reset",
+  "hover.reset.settings": "Click to %1$s %2$s settings.",
+  "hover.reset.fill": "reset",
+
   "button.add": "ADD",
   "button.all": "ALL",
 
@@ -125,9 +128,10 @@
   "hud.module.ui": "HUD Modules",
   "hud.module.ui.order": "Module Order",
   "hud.module.button": "MODULES",
-  "hud.module.hover.reset.all": "Click to reset %s modules.",
-  "hud.module.hover.reset.all.alt": "ALL",
-  "hud.module.hover.reset.singular": "Click to reset the %s module.",
+
+  "hud.module.hover.reset.all": "Click to %1$s %2$s hud modules.",
+  "hud.module.hover.reset.all.fill": "all",
+
   "hud.module.hover": "Click to edit and rearrange the HUD modules.",
 
   "hud.module.info": "Configures the default state for each HUD module.",
@@ -178,9 +182,7 @@
   "hud.module.edit.hover.status.no_data": "Enabled, no data to display",
   "hud.module.edit.hover.status.disabled": "Disabled",
 
-  "hud.module.edit.hover.reset": "Reset",
-  "hud.module.edit.hover.reset.click": "Click to %s the %s module.",
-  "hud.module.edit.hover.reset.click.fill": "reset",
+  "hud.module.edit.hover.reset.click": "Click to %1$s the %2$s module.",
 
 
   "hud.module.setting.msg.set": "Set the %s to %s!",
@@ -272,6 +274,7 @@
   "hud.setting.hover.info.toggle": "Toggles the %s.",
   "hud.setting.hover.set": "Click to set the %s to %s.",
   "hud.setting.hover.set.custom": "Click to set the %s.",
+  "hud.setting.hover.reset": "Click to %1$s %2$s %3$s settings.",
 
   "hud.setting.category": "%s %s",
   "hud.setting.category.hud": "HUD",

@@ -2153,9 +2153,9 @@ public class Destination {
             CTxT msg = CTxT.of(Assets.symbols.x).btn(true).color('7');
             if (canBeReset(player,setting)) {
                 msg.color('c').click(1, "/dest settings reset-r " + setting)
-                        .hover(CUtl.LANG.hover("reset",
-                                LANG.get(setting.toString()).color('c'),
-                                CUtl.LANG.hover("reset.settings")));
+                        .hover(CUtl.LANG.hover("reset.settings",
+                                CUtl.LANG.hover("reset.fill").color('c'),
+                                LANG.get(setting.toString()).color(CUtl.s())));
             }
             return msg;
         }
@@ -2319,7 +2319,7 @@ public class Destination {
                 resetOn = canBeReset(player,t);
             }
             if (resetOn) reset.color('c').click(1,"/dest settings reset-r all")
-                    .hover(CUtl.LANG.hover("reset",CUtl.LANG.btn("all").color('c'),CUtl.LANG.hover("reset.settings")));
+                    .hover(CUtl.LANG.hover("reset.settings",CUtl.LANG.hover("reset.fill").color('c'),CUtl.LANG.btn("all").color(CUtl.s())));
             // bottom row
             msg.append("\n     ").append(reset).append("  ").append(CUtl.CButton.back("/dest")).append(line);
             player.sendMessage(msg);

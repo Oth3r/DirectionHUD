@@ -484,7 +484,6 @@ public class Hud {
     }
 
     public static class modules {
-        private static final int PER_PAGE = 5;
 
         public static final String SETTING_ON = "on";
         public static final String SETTING_OFF = "off";
@@ -1197,9 +1196,9 @@ public class Hud {
                 if (canReset(mod)) {
                     reset.color('c')
                             .click(1,"/hud modules reset-r "+module.getName())
-                            .hover(new CTxT(LANG.hover("reset").color('c'))
+                            .hover(new CTxT(CUtl.LANG.hover("reset").color('c'))
                                     .append("\n").append(LANG.hover("reset.click",
-                                            LANG.hover("reset.click.fill").color('c'),
+                                            CUtl.LANG.hover("reset.fill").color('c'),
                                             new CTxT(module.getName()).color(CUtl.s()))));
                 }
 
@@ -1368,9 +1367,8 @@ public class Hud {
          * @param pg the module page to display
          */
         public static void UI(Player player, CTxT aboveTxT, int pg) {
-            Helper.ListPage<BaseModule> listPage = new Helper.ListPage<>(player.getPCache().getHud().getModules(),PER_PAGE);
 
-            CTxT msg = CTxT.of(""), line = CUtl.makeLine(37);
+            CTxT msg = CTxT.of(""), line = CUtl.makeLine(45);
 
             // add the text above if available
             if (aboveTxT != null) msg.append(aboveTxT).append("\n");
@@ -1378,24 +1376,53 @@ public class Hud {
             msg.append(" ").append(LANG.ui().color(Assets.mainColors.edit)).append(line);
 
 
-            //MAKE THE TEXT
-            for (BaseModule mod : listPage.getPage(pg)) {
-                String name = mod.getModuleType().getName();
-                msg.append("\n ")
-                        // EDIT
-                        .append(CTxT.of(Assets.symbols.pencil).btn(true).color(CUtl.p())
-                                .click(1, "/hud modules edit "+name)
-                                .hover(CTxT.of("click to edit "+name+ " module"))) //todo
-                        .append(" ")
-                        // NAME
-                        .append(CTxT.of(name).color(stateColor(player,mod.getModuleType()))
-                                .hover(moduleExample(player,mod.getModuleType()).append("\n").append(moduleInfo(mod.getModuleType()).color('7')))).append(" ");
+            HashMap<Module,CTxT> modules = new HashMap<>();
+            // get the modules
+            for (Module module : Module.values()) {
+                // skip if it's the unknown module
+                if (module.equals(Module.UNKNOWN)) continue;
+
+                String name = module.getName();
+
+                CTxT moduleButton = new CTxT(name).btn(true)
+                        .color(stateColor(player,module))
+                        .click(1, "/hud modules edit "+name)
+                        .hover(new CTxT()
+                                .append(CTxT.of(name).color(Assets.mainColors.edit)).append(": ").append(moduleExample(player,module))
+                                .append("\n").append(moduleInfo(module).color('7'))
+                                .append("\n\n").append(Edit.LANG.hover("cycle",new CTxT(name).color(CUtl.s())))
+                        );
+
+                modules.put(module,moduleButton);
             }
 
+            // build the ui
+            msg.append("\n ");
+            msg.append(modules.get(Module.COORDINATES)).append(" ");
+            msg.append(modules.get(Module.WEATHER)).append(" ");
+            msg.append(modules.get(Module.TIME)).append(" ");
+            msg.append("\n\n ");
+            msg.append(modules.get(Module.DESTINATION)).append(" ");
+            msg.append(modules.get(Module.DISTANCE)).append(" ");
+            msg.append(modules.get(Module.TRACKING)).append(" ");
+            msg.append("\n\n ");
+            msg.append(modules.get(Module.DIRECTION)).append(" ");
+            msg.append(modules.get(Module.ANGLE)).append(" ");
+            msg.append(modules.get(Module.SPEED)).append(" ");
+
+
+            // the reset button
+            CTxT reset = CUtl.LANG.btn("reset").btn(true).color('c')
+                    .click(1,"/hud modules reset-r")
+                    .hover(CUtl.LANG.hover("reset").color('c').append("\n")
+                            // click to [reset] [all] modules.
+                            .append(LANG.hover("reset.all",
+                                    CUtl.LANG.hover("reset.fill").color('c'),
+                                    LANG.hover("reset.all.fill").color(CUtl.s()))));
+
             //BOTTOM ROW
-            msg.append("\n\n ").append(CUtl.LANG.btn("reset").btn(true).color('c').click(1,"/hud modules reset-r")
-                            .hover(CUtl.LANG.hover("reset",CUtl.LANG.btn("all").color('c'),LANG.hover("reset_fill"))))
-                    .append(" ").append(listPage.getNavButtons(pg,"/hud modules ")).append(" ").append(CUtl.CButton.back("/hud"))
+            msg.append("\n\n ")
+                    .append(reset).append("  ").append(CUtl.CButton.back("/hud"))
                     .append(line);
 
             player.sendMessage(msg);
@@ -1853,11 +1880,10 @@ public class Hud {
             CTxT msg = CTxT.of(Assets.symbols.x).btn(true).color('7');
             if (canBeReset(player,setting)) {
                 msg.color('c').click(1, "/hud settings reset-r " + setting)
-                        .hover(CUtl.LANG.hover("reset",
-                                LANG.get("category",
-                                        LANG.get("category." + (setting.toString().startsWith("bossbar") ? "bossbar" : "hud")),
-                                        LANG.get(setting.toString())).color('c'),
-                                CUtl.LANG.hover("reset.settings")));
+                        .hover(LANG.hover("reset",
+                                CUtl.LANG.hover("reset.fill").color('c'),
+                                LANG.get("category." + (setting.toString().startsWith("bossbar") ? "bossbar" : "hud")),
+                                LANG.get(setting.toString()).color(CUtl.s())));
             }
             return msg;
         }
@@ -1945,7 +1971,7 @@ public class Hud {
                 resetOn = canBeReset(player,t);
             }
             if (resetOn) reset.color('c').click(1,"/hud settings reset-r all")
-                    .hover(CUtl.LANG.hover("reset",CUtl.LANG.btn("all").color('c'),CUtl.LANG.hover("reset.settings")));
+                    .hover(CUtl.LANG.hover("reset.settings",CUtl.LANG.hover("reset.fill"),CUtl.LANG.btn("all").color(CUtl.s())));
             msg.append("\n    ").append(reset).append("  ").append(CUtl.CButton.back("/hud")).append("\n")
                     .append(CTxT.of("                              ").strikethrough(true));
             player.sendMessage(msg);
