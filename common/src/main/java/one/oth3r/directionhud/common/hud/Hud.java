@@ -1412,13 +1412,17 @@ public class Hud {
 
 
             // the reset button
-            CTxT reset = CUtl.LANG.btn("reset").btn(true).color('c')
-                    .click(1,"/hud modules reset-r")
-                    .hover(CUtl.LANG.hover("reset").color('c').append("\n")
-                            // click to [reset] [all] modules.
-                            .append(LANG.hover("reset.all",
-                                    CUtl.LANG.hover("reset.fill").color('c'),
-                                    LANG.hover("reset.all.fill").color(CUtl.s()))));
+            CTxT reset = CUtl.LANG.btn("reset").btn(true).color('7');
+            // only make it clickable if any of the modules can reset
+            if (player.getPData().getHud().getModules().stream().anyMatch(Hud.modules::canReset)) {
+                reset.color('c')
+                        .click(1,"/hud modules reset-r")
+                        .hover(CUtl.LANG.hover("reset").color('c').append("\n")
+                                // click to [reset] [all] modules.
+                                .append(LANG.hover("reset.all",
+                                        CUtl.LANG.hover("reset.fill").color('c'),
+                                        LANG.hover("reset.all.fill").color(CUtl.s()))));
+            }
 
             //BOTTOM ROW
             msg.append("\n\n ")
