@@ -510,11 +510,10 @@ public class Hud {
         public static void CMDExecutor(Player player, String[] args) {
             // UI
             if (args.length == 0) {
-                UI(player, null, 1);
+                UI(player, null);
                 return;
             }
-            // UI (page)
-            if (Num.isInt(args[0])) UI(player,null,Integer.parseInt(args[0]));
+
             // if there is -r, remove it and enable returning
             boolean Return = args[0].contains("-r");
             args[0] = args[0].replace("-r","");
@@ -654,7 +653,7 @@ public class Hud {
                     return;
                 }
             }
-            if (Return) UI(player, msg, 1);
+            if (Return) UI(player, msg);
             else player.sendMessage(msg);
         }
 
@@ -1364,9 +1363,8 @@ public class Hud {
         /**
          * the HUD Modules chat UI
          * @param aboveTxT a messages that displays above the UI
-         * @param pg the module page to display
          */
-        public static void UI(Player player, CTxT aboveTxT, int pg) {
+        public static void UI(Player player, CTxT aboveTxT) {
 
             CTxT msg = CTxT.of(""), line = CUtl.makeLine(45);
 
