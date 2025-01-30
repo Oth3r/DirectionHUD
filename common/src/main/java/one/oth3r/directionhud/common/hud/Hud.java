@@ -1040,7 +1040,7 @@ public class Hud {
                     button.append(moduleLang.get(settingID+"."+(state?"on":"off")).btn(true).color(CUtl.s())
                             .hover(CTxT.of("")
                                     .append(moduleLang.get(settingID+".ui").color('e')).append("\n")
-                                    .append(lang.hover("info",moduleLang.get(settingID).color('7')).color('7')).append("\n\n")
+                                    .append(lang.hover("info",moduleLang.get(settingID).color('7')).color('7')).append("\n\n") //todo check if this exists
                                     .append(lang.hover("set",moduleLang.get(settingID),moduleLang.get(settingID+"."+(state?"off":"on")).color(CUtl.s()))))
                             .click(1,setCMD+settingID+" "+(state?"off":"on")));
                 }
