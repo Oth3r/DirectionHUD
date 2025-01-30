@@ -100,12 +100,6 @@ public class CUtl {
      * @return colored CTxT
      */
     public static CTxT parse(Player player, String input) {
-        // todo rainbow start and step
-        /*
-        THE SELECTORS THAT STOP THE PROCESSING CHUNK
-        &p &s
-         */
-
         // assets
         ArrayList<Character> selectors = new ArrayList<>(List.of('1','2','b','i','s','u','o','r'));
         CTxT output = CTxT.of("");
