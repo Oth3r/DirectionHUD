@@ -574,7 +574,7 @@ public class Hud {
                 suggester.add(String.valueOf(player.getPCache().getHud().getModule(Module.fromString(args[1])).getOrder()));
             }
 
-            // /module order setting
+            // /module order setting todo make sure this works
             if (args[0].equalsIgnoreCase("setting")) {
                 // [setting-id]
                 if (pos == 3) {
