@@ -506,7 +506,7 @@ public class Config implements CustomFile<Config> {
                                 Boolean.parseBoolean(properties.getProperty("hud.module.tracking", String.valueOf(false))),
                                 Boolean.parseBoolean(properties.getProperty("hud.settings.module.tracking_hybrid", String.valueOf(true))),
                                 Helper.Enums.get(properties.getProperty("hud.settings.module.tracking_target", ModuleTracking.Target.player.toString()), ModuleTracking.Target.class),
-                                Helper.Enums.get(properties.getProperty("hud.settings.module.tracking_type", ModuleTracking.Type.simple.toString()), ModuleTracking.Type.class));
+                                Helper.Enums.get(properties.getProperty("hud.settings.module.tracking_type", ModuleTracking.Type.simple.toString()), ModuleTracking.Type.class), false);
                         case DIRECTION -> new ModuleDirection(i,
                                 Boolean.parseBoolean(properties.getProperty("hud.module.direction", String.valueOf(true))));
                         case WEATHER -> new ModuleWeather(i,
@@ -614,7 +614,7 @@ public class Config implements CustomFile<Config> {
                                     Boolean.parseBoolean(properties.getProperty("distance", String.valueOf(true))));
                             case TRACKING -> new ModuleTracking(i,
                                     Boolean.parseBoolean(properties.getProperty("tracking", String.valueOf(false))),
-                                    true, ModuleTracking.Target.player, ModuleTracking.Type.simple);
+                                    true, ModuleTracking.Target.player, ModuleTracking.Type.simple, false);
                             case DIRECTION -> new ModuleDirection(i,
                                     Boolean.parseBoolean(properties.getProperty("direction", String.valueOf(true))));
                             case WEATHER -> new ModuleWeather(i,

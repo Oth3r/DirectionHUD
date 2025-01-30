@@ -321,21 +321,24 @@ public class Hud {
                 // SOUTH
             else data = simple?simpleArrows.getSouth():compactArrows.getSouth();
 
-            // todo add elevation toggle
-//            // if compact and the ylevel is different & there's a y level on the loc
-//            if (!simple && !(boolean) player.getPCache().getDEST().getDestSettings().getYlevel() && pointLoc.getY() != null) {
-//                tracking.add("p|");
-//                int playerY = player.getLoc().getY(), targetY = pointLoc.getY();
-//                // dash if in Y range
-//                if (playerY-2 < targetY && targetY < playerY+2)
-//                    tracking.add("s-");
-//                    // down if higher
-//                else if (player.getLoc().getY() > pointLoc.getY())
-//                    tracking.add("s"+arrows.south);
-//                    // up if lower
-//                else tracking.add("s"+arrows.north);
-//            }
-
+            // if the elevation is enabled
+            if (trackingModule.hasElevation()) {
+                int originY = originLoc.getY(), targetY = targetLoc.getY();
+                String elevation;
+                // a dash if in Y range or the target has no Y
+                if (!targetLoc.hasY() || (originY-2 < targetY && targetY < originY+2)) {
+                    elevation = elevationArrows.getSame();
+                }
+                else if (originY > targetY) {
+                    elevation = elevationArrows.getBelow();
+                }
+                else {
+                    elevation = elevationArrows.getAbove();
+                }
+                // return the formatted elevation version of the module
+                return String.format(FileData.getModuleText().getTracking().getElevationTracking(), data, elevation);
+            }
+            // return the non elevation version of the module
             return String.format(FileData.getModuleText().getTracking().getTracking(), data);
         }
 
@@ -942,6 +945,12 @@ public class Hud {
                                 // get the correct set message
                                 msg.append(SetMSG.enumString(module, settingID, newType.name()));
                             }
+                            case ModuleTracking.elevationID -> {
+                                // update the module
+                                trackingModule.setElevation(state);
+                                // get the correct set message
+                                msg.append(SetMSG.toggle(module, settingID, state));
+                            }
                             default -> {
                                 player.sendMessage(LANG.error("invalid", CTxT.of(module.getName()).color(CUtl.s())));
                                 return;
@@ -1070,6 +1079,18 @@ public class Hud {
                                     .append(moduleLang.get(typeID+"."+currentType+".info").color('7')).append("\n\n")
                                     .append(lang.hover("set",moduleLang.get(typeID),moduleLang.get(typeID+"."+nextType).color(CUtl.s()))))
                             .click(1,setCMD+typeID+" "+nextType));
+
+                    button.append(" ");
+
+                    String elevationID = ModuleTracking.elevationID;
+                    // todo test
+                    boolean elevation = trackingModule.isHybrid();
+                    button.append(CTxT.of(Assets.symbols.mountain).btn(true).color(elevation?'a':'c')
+                            .hover(CTxT.of("")
+                                    .append(moduleLang.get(elevationID+".ui").color('e')).append("\n")
+                                    .append(moduleLang.get(elevationID+".info").color('7')).append("\n\n")
+                                    .append(lang.hover("set.toggle",moduleLang.get(elevationID),CUtl.toggleTxT(!hybrid))))
+                            .click(1,setCMD+elevationID+" "+(hybrid?"off":"on")));
                 }
 
                 if (module.equals(Module.SPEED)) {

@@ -201,6 +201,7 @@
   "hud.module.setting.time.24hr-clock.ui": "Clock Display Type",
   "hud.module.setting.time.24hr-clock.on": "24HR",
   "hud.module.setting.time.24hr-clock.off": "12HR",
+
   "hud.module.setting.tracking.hybrid": "hybrid tracking",
   "hud.module.setting.tracking.hybrid.ui": "Hybrid Tracking",
   "hud.module.setting.tracking.hybrid.btn": "HYBRID",
@@ -216,6 +217,10 @@
   "hud.module.setting.tracking.display-type.simple.info": "Simple tracking arrow, only shows the direction of the target.",
   "hud.module.setting.tracking.display-type.compact": "Compact",
   "hud.module.setting.tracking.display-type.compact.info": "Compact tracking arrow, shows both the direction and the elevation of the target.",
+  "hud.module.setting.tracking.show-elevation": "tracking elevation",
+  "hud.module.setting.tracking.show-elevation.ui": "Tracking Elevation",
+  "hud.module.setting.tracking.show-elevation.info": "Adds the ability to see the elevation difference to the target on the tracker.",
+
   "hud.module.setting.speed.2d-calculation": "speed calculation type",
   "hud.module.setting.speed.2d-calculation.ui": "Speed Calculation",
   "hud.module.setting.speed.2d-calculation.off": "3D",

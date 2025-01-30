@@ -111,7 +111,7 @@ public abstract class BasePData {
                             moduleSettings.getAsJsonPrimitive("tracking_target").getAsString()
                                     .equals("player")? ModuleTracking.Target.player : ModuleTracking.Target.dest,
                             moduleSettings.getAsJsonPrimitive("tracking_type").getAsString()
-                                    .equals("simple")? ModuleTracking.Type.simple : ModuleTracking.Type.compact));
+                                    .equals("simple")? ModuleTracking.Type.simple : ModuleTracking.Type.compact, false));
                     case DIRECTION -> newModules.add(new ModuleDirection(i, state));
                     case WEATHER -> newModules.add(new ModuleWeather(i, state));
                     case TIME -> newModules.add(new ModuleTime(i, state,

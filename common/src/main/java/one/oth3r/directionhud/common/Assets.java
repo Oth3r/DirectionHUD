@@ -97,6 +97,7 @@ public class Assets {
         public static final String toggle = "\u21C4";
         public static final String local = "\uD83D\uDCDA";
         public static final String global = "\uD83E\uDDED";
+        public static final String mountain = "\uD83D\uDDFB";
     }
 
     public enum packets {

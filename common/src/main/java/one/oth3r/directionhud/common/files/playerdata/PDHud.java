@@ -33,7 +33,7 @@ public class PDHud {
         add(new ModuleCoordinates(0, true));
         add(new ModuleDestination(1, true));
         add(new ModuleDistance(2, true));
-        add(new ModuleTracking(3, false, true, ModuleTracking.Target.player, ModuleTracking.Type.simple));
+        add(new ModuleTracking(3, false, true, ModuleTracking.Target.player, ModuleTracking.Type.simple, false));
         add(new ModuleDirection(4, true));
         add(new ModuleWeather(5, true));
         add(new ModuleTime(6, true, false));
