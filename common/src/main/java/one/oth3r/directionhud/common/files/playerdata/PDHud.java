@@ -4,6 +4,7 @@ package one.oth3r.directionhud.common.files.playerdata;
 import com.google.gson.annotations.SerializedName;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.hud.Hud;
+import one.oth3r.directionhud.common.hud.HudColor;
 import one.oth3r.directionhud.common.hud.module.BaseModule;
 import one.oth3r.directionhud.common.hud.module.*;
 import one.oth3r.directionhud.common.hud.module.Module;
@@ -128,6 +129,10 @@ public class PDHud {
     public void setSetting(Settings setting) {
         this.setting = setting;
         save();
+    }
+
+    public Color getColor(HudColor color) {
+        return color.equals(HudColor.PRIMARY) ? primary : secondary;
     }
 
     public Color getPrimary() {

@@ -4,6 +4,7 @@ import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.hud.Hud;
 import one.oth3r.directionhud.common.files.LangReader;
+import one.oth3r.directionhud.common.hud.HudColor;
 import one.oth3r.directionhud.common.utils.Helper.*;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
@@ -105,10 +106,11 @@ public class CUtl {
         &p &s
          */
 
+        // assets
         ArrayList<Character> selectors = new ArrayList<>(List.of('1','2','b','i','s','u','o','r'));
         CTxT output = CTxT.of("");
-        // the color type VIA Hud.color types
-        int color = 1;
+
+        HudColor color = HudColor.PRIMARY;
         StringBuilder current = new StringBuilder();
         boolean bold = false,
                 italic = false,
@@ -132,8 +134,8 @@ public class CUtl {
 
                 // apply the code
                 switch (code) {
-                    case '1' -> color = 1;
-                    case '2' -> color = 2;
+                    case '1' -> color = HudColor.PRIMARY;
+                    case '2' -> color = HudColor.SECONDARY;
                     case 'b' -> bold = true;
                     case 'i' -> italic = true;
                     case 's' -> strikethrough = true;
@@ -166,7 +168,7 @@ public class CUtl {
      * colorizes the string using the settings provided + player hud colors
      * @return colored CTxT
      */
-    public static CTxT colorize(Player player, String text, int color,
+    public static CTxT colorize(Player player, String text, HudColor color,
                                 boolean bold, boolean italic, boolean strikethrough,
                                 boolean underline, boolean obfuscated) {
         // append the currently built string using the hud rainbow object

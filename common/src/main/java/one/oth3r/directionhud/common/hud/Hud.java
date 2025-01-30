@@ -138,7 +138,7 @@ public class Hud {
          */
         public static CTxT compile(Player player, HashMap<Module, String> moduleInstructions) {
             // returns a CTxT with the fully built HUD
-            player.getPCache().getRainbow(1).setPosition(LoopManager.rainbowF);
+            player.getPCache().getRainbow(HudColor.PRIMARY).setPosition(LoopManager.rainbowF);
             CTxT msg = CTxT.of("");
             // loop for all enabled modules
             int count = 0;
@@ -1453,6 +1453,7 @@ public class Hud {
             return LANG.btn().btn(true).rainbow(new Rainbow(15f,45f)).click(1,"/hud color")
                     .hover(CTxT.of(Assets.cmdUsage.hudColor).rainbow(new Rainbow(15f,45f)).append("\n").append(LANG.hover()));
         }
+
         public static void cmdExecutor(Player player, String[] args) {
             if (args.length == 0) {
                 UI(player, null);
@@ -1473,7 +1474,7 @@ public class Hud {
             if (args[0].equals("primary") || args[0].equals("secondary")) {
                 // color (type) edit (settings)
                 if (args[1].equals("edit")) {
-                    changeUI(player, args.length==3?args[2]: DHud.preset.DEFAULT_UI_SETTINGS, args[0], null);
+                    changeUI(player, args.length==3?args[2]: DHud.preset.DEFAULT_UI_SETTINGS, HudColor.fromName(args[0]), null);
                     return;
                 }
                 if (args.length < 3) return;
@@ -1520,6 +1521,7 @@ public class Hud {
             }
             return suggester;
         }
+
         /**
          * gets the default PlayerData entry for each color typ
          * @param typ default HUD color type to get
@@ -1572,7 +1574,7 @@ public class Hud {
             }
             CTxT msg = CUtl.tag().append(LANG.msg("reset",LANG.get(type).color('c')));
             if (Return && type.equals("all")) UI(player,msg);
-            else if (Return) changeUI(player,UISettings,type,msg);
+            else if (Return) changeUI(player,UISettings,HudColor.fromName(type),msg);
             else player.sendMessage(msg);
         }
         /**
@@ -1588,7 +1590,7 @@ public class Hud {
             colorEntry.setColor(CUtl.color.colorHandler(player,color,defaultEntry(player,typ).getColor()));
             setEntry(player,typ,colorEntry);
 
-            if (Return) changeUI(player,UISettings,type,null);
+            if (Return) changeUI(player,UISettings,HudColor.fromName(type),null);
             else player.sendMessage(CUtl.tag().append(LANG.msg("set",LANG.get(type),CUtl.color.getBadge(colorEntry.getColor()))));
         }
         /**
@@ -1616,64 +1618,71 @@ public class Hud {
             setEntry(player,typ,colorEntry);
             // generate the message
             CTxT msg = CUtl.tag().append(LANG.msg("toggle",CUtl.toggleTxT(state),LANG.get(colorType),LANG.get(colorToggle.toString())));
-            if (Return) changeUI(player,UISettings,colorType,msg);
+            if (Return) changeUI(player,UISettings,HudColor.fromName(colorType),msg);
             else player.sendMessage(msg);
         }
 
         /**
          * formats the given text with the hud colors selected
          * @param txt text to be formatted
-         * @param typ primary/secondary
+         * @param color primary/secondary
          * @param rainbow the rainbow object to use for when the hud color needs a rainbow object
          * @return returns a {@link CTxT} colored using the player's hud color
          */
-        public static CTxT addColor(Player player, String txt, int typ, Rainbow rainbow) {
-            CTxT output = CTxT.of(txt).italic(getEntry(player,typ).getItalics()).bold(getEntry(player,typ).getBold());
-            if (getEntry(player,typ).getRainbow()) return output.rainbow(rainbow);
-            return output.color(getEntry(player,typ).getColor());
+        public static CTxT addColor(Player player, String txt, HudColor color, Rainbow rainbow) {
+            // get the color settings for the hud color
+            PDHud.Color colorSettings = color.getSettings(player);
+
+            CTxT output = CTxT.of(txt).italic(colorSettings.getItalics()).bold(colorSettings.getBold());
+            if (colorSettings.getRainbow()) return output.rainbow(rainbow);
+            return output.color(colorSettings.getColor());
         }
 
         /**
-         * overflow of {@link #addColor(Player, String, int, Rainbow)} but with a CTxT input instead of a string input
+         * overflow of {@link #addColor(Player, String, HudColor, Rainbow)} but with a CTxT input instead of a string input
          */
-        public static CTxT addColor(Player player, CTxT txt, int typ, Rainbow rainbow) {
-            return addColor(player,txt.toString(),typ,rainbow);
+        public static CTxT addColor(Player player, CTxT txt, HudColor color, Rainbow rainbow) {
+            return addColor(player,txt.toString(),color,rainbow);
         }
 
         /**
          * the chat UI for editing a HUD color
          * @param setting the color UI settings
-         * @param type HUD color type
+         * @param color HUD color
          * @param aboveTxT text that gets placed above the UI
          */
-        public static void changeUI(Player player, String setting, String type, CTxT aboveTxT) {
-            CTxT msg = CTxT.of(""), line = CTxT.of("\n                               ").strikethrough(true);
-            if (aboveTxT != null) msg.append(aboveTxT).append("\n");
-            int typ = type.equals("primary")?1:2;
-            // if not primary or secondary
-            if (typ == 2 && !type.equals("secondary")) {
+        public static void changeUI(Player player, String setting, HudColor color, CTxT aboveTxT) {
+            // if invalid
+            if (color == null) {
                 player.sendMessage(CUtl.error("args"));
                 return;
             }
+
+            CTxT msg = CTxT.of(""), line = CUtl.makeLine(31);
+            if (aboveTxT != null) msg.append(aboveTxT).append("\n");
+
+            PDHud.Color colorSettings = color.getSettings(player);
+            String colorName = color.getName();
+
             // message header
-            msg.append(" ").append(addColor(player,LANG.btn(type),typ,new Rainbow(15,20))).append(line).append("\n");
+            msg.append(" ").append(addColor(player,LANG.btn(setting),color,new Rainbow(15,20))).append(line).append("\n");
             // make the buttons
-            CTxT reset = CUtl.LANG.btn("reset").btn(true).color('c').click(1, "/hud color reset-r "+type+" "+setting)
-                    .hover(LANG.hover("reset",addColor(player,LANG.get(type),typ,new Rainbow(15,20))));
+            CTxT reset = CUtl.LANG.btn("reset").btn(true).color('c').click(1, "/hud color reset-r "+setting+" "+setting)
+                    .hover(LANG.hover("reset",addColor(player,LANG.get(setting),color,new Rainbow(15,20))));
             // bold
-            CTxT boldButton = LANG.btn("bold").btn(true).color(CUtl.toggleColor(getEntry(player,typ).getBold()))
-                    .click(1,String.format("/hud color %s-r bold %s %s",type,(getEntry(player,typ).getBold()?"off":"on"),setting))
-                    .hover(LANG.hover("toggle",CUtl.toggleTxT(!getEntry(player,typ).getBold()),LANG.get("bold").bold(true)));
+            CTxT boldButton = LANG.btn("bold").btn(true).color(CUtl.toggleColor(colorSettings.getBold()))
+                    .click(1,String.format("/hud color %s-r bold %s %s",setting,(colorSettings.getBold()?"off":"on"),setting))
+                    .hover(LANG.hover("toggle",CUtl.toggleTxT(!colorSettings.getBold()),LANG.get("bold").bold(true)));
             // italics
-            CTxT italicsButton = LANG.btn("italics").btn(true).color(CUtl.toggleColor(getEntry(player,typ).getItalics()))
-                    .click(1,String.format("/hud color %s-r italics %s %s",type,(getEntry(player,typ).getItalics()?"off":"on"),setting))
-                    .hover(LANG.hover("toggle",CUtl.toggleTxT(!getEntry(player,typ).getItalics()),LANG.get("italics").italic(true)));
+            CTxT italicsButton = LANG.btn("italics").btn(true).color(CUtl.toggleColor(colorSettings.getItalics()))
+                    .click(1,String.format("/hud color %s-r italics %s %s",setting,(colorSettings.getItalics()?"off":"on"),setting))
+                    .hover(LANG.hover("toggle",CUtl.toggleTxT(!colorSettings.getItalics()),LANG.get("italics").italic(true)));
             // rainbow
-            CTxT rgbButton = LANG.btn("rgb").btn(true).color(CUtl.toggleColor(getEntry(player,typ).getRainbow()))
-                    .click(1,String.format("/hud color %s-r rainbow %s %s",type,(getEntry(player,typ).getRainbow()?"off":"on"),setting))
-                    .hover(LANG.hover("toggle",CUtl.toggleTxT(!getEntry(player,typ).getRainbow()),LANG.get("rainbow").rainbow(new Rainbow(15f,20f))));
+            CTxT rgbButton = LANG.btn("rgb").btn(true).color(CUtl.toggleColor(colorSettings.getRainbow()))
+                    .click(1,String.format("/hud color %s-r rainbow %s %s",setting,(colorSettings.getRainbow()?"off":"on"),setting))
+                    .hover(LANG.hover("toggle",CUtl.toggleTxT(!colorSettings.getRainbow()),LANG.get("rainbow").rainbow(new Rainbow(15f,20f))));
             // build the message
-            msg.append(DHud.preset.colorEditor(getEntry(player,typ).getColor(),setting, DHud.preset.Type.hud,type,"/hud color "+type+" edit %s"))
+            msg.append(DHud.preset.colorEditor(colorSettings.getColor(),setting, DHud.preset.Type.hud,setting,"/hud color "+setting+" edit %s"))
                     .append("\n\n ").append(boldButton).append(" ").append(italicsButton).append(" ").append(rgbButton)
                     .append("\n\n     ").append(reset).append(" ").append(CUtl.CButton.back("/hud color")).append(line);
             player.sendMessage(msg);
@@ -1687,11 +1696,11 @@ public class Hud {
             if (aboveTxT != null) msg.append(aboveTxT).append("\n");
             msg.append(" ").append(LANG.ui().rainbow(new Rainbow(15f,45f))).append(line).append("\n ")
                     //PRIMARY
-                    .append(addColor(player,LANG.btn("primary"),1,new Rainbow(15,20)).btn(true).click(1,"/hud color primary edit")
-                            .hover(LANG.hover("edit",addColor(player,LANG.get("primary"),1,new Rainbow(15,20))))).append(" ")
+                    .append(addColor(player,LANG.btn("primary"),HudColor.PRIMARY,new Rainbow(15,20)).btn(true).click(1,"/hud color primary edit")
+                            .hover(LANG.hover("edit",addColor(player,LANG.get("primary"),HudColor.PRIMARY,new Rainbow(15,20))))).append(" ")
                     //SECONDARY
-                    .append(addColor(player,LANG.btn("secondary"),2,new Rainbow(15,20)).btn(true).click(1,"/hud color secondary edit")
-                            .hover(LANG.hover("edit",addColor(player,LANG.get("secondary"),2,new Rainbow(15,20))))).append("\n\n      ")
+                    .append(addColor(player,LANG.btn("secondary"),HudColor.SECONDARY,new Rainbow(15,20)).btn(true).click(1,"/hud color secondary edit")
+                            .hover(LANG.hover("edit",addColor(player,LANG.get("secondary"),HudColor.SECONDARY,new Rainbow(15,20))))).append("\n\n      ")
                     //RESET
                     .append(CUtl.LANG.btn("reset").btn(true).color('c').click(1,"/hud color reset-r all")
                             .hover(LANG.hover("reset",LANG.get("all").color('c')))).append("  ")

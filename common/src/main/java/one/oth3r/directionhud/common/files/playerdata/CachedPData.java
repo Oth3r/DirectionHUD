@@ -1,7 +1,8 @@
 package one.oth3r.directionhud.common.files.playerdata;
 
+import one.oth3r.directionhud.common.hud.HudColor;
 import one.oth3r.directionhud.common.utils.Dest;
-import one.oth3r.directionhud.common.utils.HudRainbow;
+import one.oth3r.directionhud.common.hud.HudRainbow;
 import one.oth3r.directionhud.common.utils.Rainbow;
 import one.oth3r.directionhud.common.utils.Vec;
 import one.oth3r.directionhud.utils.Player;
@@ -65,8 +66,8 @@ public class CachedPData {
      * get rainbow based on hud color type
      * @return rainbow for the hud color type
      */
-    public Rainbow getRainbow(int typ) {
-        return this.hudRainbow.select(typ);
+    public Rainbow getRainbow(HudColor color) {
+        return this.hudRainbow.select(color);
     }
 
     public ArrayList<String> getMsgKeys() {
