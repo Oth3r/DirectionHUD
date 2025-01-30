@@ -899,6 +899,15 @@ public class Hud {
 
                 boolean state = value.equalsIgnoreCase("on");
                 switch (module) {
+                    case COORDINATES -> {
+                        ModuleCoordinates coordinatesModule = (ModuleCoordinates) mod;
+                        // update the module
+                        coordinatesModule.setXyz(state);
+                        player.getPData().getHud().setModule(coordinatesModule);
+
+                        // build the set message
+                        msg.append(SetMSG.customToggle(module, settingID, state));
+                    }
                     case TIME -> {
                         ModuleTime timeModule = (ModuleTime) mod;
                         // update the module
@@ -1032,6 +1041,18 @@ public class Hud {
 
                 CTxT button = CTxT.of("");
 
+                if (module.equals(Module.COORDINATES)) {
+                    ModuleCoordinates coordinatesModule = (ModuleCoordinates) mod;
+                    String settingID = ModuleCoordinates.xyzID;
+
+                    boolean state = coordinatesModule.isXyz();
+                    button.append(moduleLang.get(settingID+"."+(state?"on":"off")).btn(true).color(CUtl.s())
+                            .hover(CTxT.of("")
+                                    .append(moduleLang.get(settingID+".ui").color('e')).append("\n")
+                                    .append(lang.hover("info",moduleLang.get(settingID).color('7')).color('7')).append("\n\n")
+                                    .append(lang.hover("set",moduleLang.get(settingID),moduleLang.get(settingID+"."+(state?"off":"on")).color(CUtl.s()))))
+                            .click(1,setCMD+settingID+" "+(state?"off":"on")));
+                }
                 if (module.equals(Module.TIME)) {
                     ModuleTime timeModule = (ModuleTime) mod;
                     String settingID = ModuleTime.hour24ID;

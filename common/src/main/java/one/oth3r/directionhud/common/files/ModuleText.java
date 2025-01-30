@@ -112,9 +112,15 @@ public class ModuleText implements CustomFile<ModuleText> {
     public static class ModuleCoordinates {
         @SerializedName("xyz")
         private String xyz = "&1XYZ: &2%s %s %s";
+        @SerializedName("xy")
+        private String xy = "&1XY: &2%s %s";
 
         public String getXyz() {
             return xyz;
+        }
+
+        public String getXy() {
+            return xy;
         }
     }
 

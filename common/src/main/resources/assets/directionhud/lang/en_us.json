@@ -197,6 +197,12 @@
   "hud.module.setting.error.invalid": "Invalid setting entered for the %s module!",
   "hud.module.setting.error.invalid.setting_value": "Invalid %s entered!",
 
+  "hud.module.setting.coordinates.xyz-display": "coordinates display type",
+  "hud.module.setting.coordinates.xyz-display.ui": "Coordinates Display Type",
+  "hud.module.setting.coordinates.xyz-display.info": "Changes how the coordinates are displayed in the module.",
+  "hud.module.setting.coordinates.xyz-display.on": "XYZ",
+  "hud.module.setting.coordinates.xyz-display.off": "XY",
+
   "hud.module.setting.time.24hr-clock": "clock display type",
   "hud.module.setting.time.24hr-clock.ui": "Clock Display Type",
   "hud.module.setting.time.24hr-clock.on": "24HR",

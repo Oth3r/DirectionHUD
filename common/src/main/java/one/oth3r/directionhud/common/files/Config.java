@@ -497,7 +497,7 @@ public class Config implements CustomFile<Config> {
 
                     hudModules.add(switch (mod) {
                         case COORDINATES -> new ModuleCoordinates(i,
-                                Boolean.parseBoolean(properties.getProperty("hud.module.coordinates", String.valueOf(true))));
+                                Boolean.parseBoolean(properties.getProperty("hud.module.coordinates", String.valueOf(true))),true);
                         case DESTINATION -> new ModuleDestination(i,
                                 Boolean.parseBoolean(properties.getProperty("hud.module.destination", String.valueOf(true))));
                         case DISTANCE -> new ModuleDistance(i,
@@ -607,7 +607,7 @@ public class Config implements CustomFile<Config> {
 
                         hudModules.add(switch (mod) {
                             case COORDINATES -> new ModuleCoordinates(i,
-                                    Boolean.parseBoolean(properties.getProperty("coordinates", String.valueOf(true))));
+                                    Boolean.parseBoolean(properties.getProperty("coordinates", String.valueOf(true))),true);
                             case DESTINATION -> new ModuleDestination(i,
                                     Boolean.parseBoolean(properties.getProperty("destination", String.valueOf(true))));
                             case DISTANCE -> new ModuleDistance(i,

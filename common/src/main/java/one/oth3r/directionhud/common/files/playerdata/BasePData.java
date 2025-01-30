@@ -103,7 +103,7 @@ public abstract class BasePData {
                 boolean state = modules.getAsJsonPrimitive(module.getName()).getAsBoolean();
 
                 switch (module) {
-                    case COORDINATES -> newModules.add(new ModuleCoordinates(i,state));
+                    case COORDINATES -> newModules.add(new ModuleCoordinates(i,state, true));
                     case DESTINATION -> newModules.add(new ModuleDestination(i, state));
                     case DISTANCE -> newModules.add(new ModuleDistance(i, state));
                     case TRACKING -> newModules.add(new ModuleTracking(i, state,
