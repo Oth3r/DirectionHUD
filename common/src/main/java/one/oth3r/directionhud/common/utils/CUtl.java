@@ -169,8 +169,9 @@ public class CUtl {
     public static CTxT colorize(Player player, String text, int color,
                                 boolean bold, boolean italic, boolean strikethrough,
                                 boolean underline, boolean obfuscated) {
-        // append the currently built string
-        CTxT build = Hud.color.addColor(player,new CTxT(text),color);
+        // append the currently built string using the hud rainbow object
+        Rainbow hudRainbow = player.getPCache().getRainbow(color);
+        CTxT build = Hud.color.addColor(player,new CTxT(text),color,hudRainbow);
 
         // only apply bold and italic if enabled
         if (bold) build.bold(true);

@@ -1624,22 +1624,20 @@ public class Hud {
          * formats the given text with the hud colors selected
          * @param txt text to be formatted
          * @param typ primary/secondary
+         * @param rainbow the rainbow object to use for when the hud color needs a rainbow object
+         * @return returns a {@link CTxT} colored using the player's hud color
          */
         public static CTxT addColor(Player player, String txt, int typ, Rainbow rainbow) {
             CTxT output = CTxT.of(txt).italic(getEntry(player,typ).getItalics()).bold(getEntry(player,typ).getBold());
             if (getEntry(player,typ).getRainbow()) return output.rainbow(rainbow);
             return output.color(getEntry(player,typ).getColor());
         }
-        public static CTxT addColor(Player player, CTxT txt, int typ, Rainbow rainbow) {
-            return addColor(player,txt.toString(),typ,rainbow);
-        }
 
         /**
-         * add the color to the text, using the hud color
+         * overflow of {@link #addColor(Player, String, int, Rainbow)} but with a CTxT input instead of a string input
          */
-        public static CTxT addColor(Player player, CTxT txt, int typ) {
-            Rainbow rainbow = player.getPCache().getRainbow(typ);
-            return addColor(player, txt, typ, rainbow);
+        public static CTxT addColor(Player player, CTxT txt, int typ, Rainbow rainbow) {
+            return addColor(player,txt.toString(),typ,rainbow);
         }
 
         /**
