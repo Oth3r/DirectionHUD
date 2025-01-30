@@ -219,7 +219,9 @@ public class Destination {
             Dest current = get(player);
             // get the reason for clearing
             CTxT reasonTxT = LANG.msg("cleared." + switch (reason) {
-                default -> "command"; case 2 -> "reached"; case 3 -> "dimension";
+                case 2 -> "reached";
+                case 3 -> "dimension";
+                default -> "command";
             }).append(" ");
             // add the set buttons
             reasonTxT.append(setButtons(current,
@@ -1719,7 +1721,9 @@ public class Destination {
                 }
                 // get the reason for clearing
                 CTxT reasonTxT = LANG.msg("cleared." + switch (reason) {
-                    default -> "command"; case 2 -> "tracking_off"; case 3 -> "tracking_off_target";
+                    case 2 -> "tracking_off";
+                    case 3 -> "tracking_off_target";
+                    default -> "command";
                 }).color('7');
                 // clear the tracker
                 clear(player);
