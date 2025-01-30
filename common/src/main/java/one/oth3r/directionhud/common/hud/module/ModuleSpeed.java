@@ -6,11 +6,11 @@ import java.util.Objects;
 
 public class ModuleSpeed extends BaseModule {
     public static final String calculation2DID = "2d-calculation";
-    @SerializedName("2d-calculation")
+    @SerializedName(calculation2DID)
     protected boolean calculation2D;
 
     public static final String displayPatternID = "display-pattern";
-    @SerializedName("display-pattern")
+    @SerializedName(displayPatternID)
     protected String displayPattern;
 
     @Override

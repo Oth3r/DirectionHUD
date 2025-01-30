@@ -6,7 +6,7 @@ import java.util.Objects;
 
 public class ModuleTime extends BaseModule {
     public static final String hour24ID = "24hr-clock";
-    @SerializedName("24hr-clock")
+    @SerializedName(hour24ID)
     protected boolean hour24;
 
     @Override

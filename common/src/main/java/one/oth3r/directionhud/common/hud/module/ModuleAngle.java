@@ -6,7 +6,7 @@ import java.util.Objects;
 
 public class ModuleAngle extends BaseModule {
     public static final String displayID = "display";
-    @SerializedName("display")
+    @SerializedName(displayID)
     protected Display display;
 
     @Override
