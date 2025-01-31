@@ -187,8 +187,14 @@ public class Hud {
             return getCoordinatesModule(module, player.getLoc());
         }
         public static String getCoordinatesModule(ModuleCoordinates coordinatesModule, Loc loc) {
-            return String.format(FileData.getModuleText().getCoordinates().getXyz(),
-                    loc.getX(), loc.getY(), loc.getZ());
+            if (coordinatesModule.isXyz()) {
+                return String.format(FileData.getModuleText().getCoordinates().getXyz(),
+                        loc.getX(), loc.getY(), loc.getZ());
+            }
+            else {
+                return String.format(FileData.getModuleText().getCoordinates().getXy(),
+                        loc.getX(), loc.getZ());
+            }
         }
 
         public static String getDestinationModule(Player player) {
@@ -569,18 +575,26 @@ public class Hud {
             args[0] = args[0].replaceAll("-r", "");
 
             // modules (order/toggle/reset/edit/setting) [module]
-            if (pos == 1) suggester.addAll(
-                    PlayerData.getDefaults().getHud().getModules().stream().map(mod -> mod.getModuleType().getName()).toList());
+            if (pos == 1) {
+                if (args[0].equals("setting")) {
+                    suggester.addAll(PlayerData.getDefaults().getHud().getModules().stream()
+                            .filter(BaseModule::hasExtraSettings) // only get the modules with editable settings
+                            .map(mod -> mod.getModuleType().getName())
+                            .toList());
+                } else {
+                    suggester.addAll(PlayerData.getDefaults().getHud().getModules().stream().map(mod -> mod.getModuleType().getName()).toList());
+                }
+            }
 
             // modules order (module) [order]
             if (pos == 2 && args[0].equalsIgnoreCase("order")) {
                 suggester.add(String.valueOf(player.getPCache().getHud().getModule(Module.fromString(args[1])).getOrder()));
             }
 
-            // /module order setting todo make sure this works
+            // /module order setting
             if (args[0].equalsIgnoreCase("setting")) {
                 // [setting-id]
-                if (pos == 3) {
+                if (pos == 2) {
                     // get the selected module
                     Module module = Module.fromString(args[1]);
 
@@ -598,11 +612,13 @@ public class Hud {
                     suggester.addAll(Arrays.asList(settingIDs));
                 }
                 // setting-id [value]
-                if (pos == 4) {
+                if (pos == 3) {
                     // get the setting ID
                     String settingID = args[2];
                     // add items to the suggester based on the ID
                     switch (settingID) {
+                        // COORDINATES
+                        case ModuleCoordinates.xyzID -> suggester.addAll(SUGGESTER_ON_OFF);
                         // ANGLE
                         case ModuleAngle.displayID -> suggester.addAll(Enums.toStringList(ModuleAngle.Display.values()));
                         // TIME
@@ -614,6 +630,7 @@ public class Hud {
                         case ModuleTracking.hybridID -> suggester.addAll(SUGGESTER_ON_OFF);
                         case ModuleTracking.typeID -> suggester.addAll(Enums.toStringList(ModuleTracking.Type.values()));
                         case ModuleTracking.targetID -> suggester.addAll(Enums.toStringList(ModuleTracking.Target.values()));
+                        case ModuleTracking.elevationID -> suggester.addAll(SUGGESTER_ON_OFF);
                     }
                 }
             }
@@ -897,7 +914,7 @@ public class Hud {
                 // start building the message
                 CTxT msg = CUtl.tag(), invalidSettingValue = LANG.error("invalid.setting_value", LANG.get(module.getName()+"."+settingID).color(CUtl.s()));
 
-                boolean state = value.equalsIgnoreCase("on");
+                boolean state = value.equals(SETTING_ON);
                 switch (module) {
                     case COORDINATES -> {
                         ModuleCoordinates coordinatesModule = (ModuleCoordinates) mod;
@@ -1046,12 +1063,12 @@ public class Hud {
                     String settingID = ModuleCoordinates.xyzID;
 
                     boolean state = coordinatesModule.isXyz();
-                    button.append(moduleLang.get(settingID+"."+(state?"on":"off")).btn(true).color(CUtl.s())
+                    button.append(moduleLang.get(settingID+"."+(state?SETTING_ON:SETTING_OFF)).btn(true).color(CUtl.s())
                             .hover(CTxT.of("")
                                     .append(moduleLang.get(settingID+".ui").color('e')).append("\n")
-                                    .append(lang.hover("info",moduleLang.get(settingID).color('7')).color('7')).append("\n\n")
-                                    .append(lang.hover("set",moduleLang.get(settingID),moduleLang.get(settingID+"."+(state?"off":"on")).color(CUtl.s()))))
-                            .click(1,setCMD+settingID+" "+(state?"off":"on")));
+                                    .append(moduleLang.get(settingID+".info").color('7')).append("\n\n")
+                                    .append(lang.hover("set",moduleLang.get(settingID),moduleLang.get(settingID+"."+(state?SETTING_OFF:SETTING_ON)).color(CUtl.s()))))
+                            .click(1,setCMD+settingID+" "+(state?SETTING_OFF:SETTING_ON)));
                 }
                 if (module.equals(Module.TIME)) {
                     ModuleTime timeModule = (ModuleTime) mod;
@@ -1061,7 +1078,7 @@ public class Hud {
                     button.append(moduleLang.get(settingID+"."+(state?"on":"off")).btn(true).color(CUtl.s())
                             .hover(CTxT.of("")
                                     .append(moduleLang.get(settingID+".ui").color('e')).append("\n")
-                                    .append(lang.hover("info",moduleLang.get(settingID).color('7')).color('7')).append("\n\n") //todo check if this exists
+                                    .append(moduleLang.get(settingID+".info").color('7')).append("\n\n")
                                     .append(lang.hover("set",moduleLang.get(settingID),moduleLang.get(settingID+"."+(state?"off":"on")).color(CUtl.s()))))
                             .click(1,setCMD+settingID+" "+(state?"off":"on")));
                 }
@@ -1104,14 +1121,14 @@ public class Hud {
                     button.append(" ");
 
                     String elevationID = ModuleTracking.elevationID;
-                    // todo test
-                    boolean elevation = trackingModule.isHybrid();
+
+                    boolean elevation = trackingModule.hasElevation();
                     button.append(CTxT.of(Assets.symbols.mountain).btn(true).color(elevation?'a':'c')
                             .hover(CTxT.of("")
                                     .append(moduleLang.get(elevationID+".ui").color('e')).append("\n")
                                     .append(moduleLang.get(elevationID+".info").color('7')).append("\n\n")
-                                    .append(lang.hover("set.toggle",moduleLang.get(elevationID),CUtl.toggleTxT(!hybrid))))
-                            .click(1,setCMD+elevationID+" "+(hybrid?"off":"on")));
+                                    .append(lang.hover("set.toggle",moduleLang.get(elevationID),CUtl.toggleTxT(!elevation))))
+                            .click(1,setCMD+elevationID+" "+(elevation?"off":"on")));
                 }
 
                 if (module.equals(Module.SPEED)) {
