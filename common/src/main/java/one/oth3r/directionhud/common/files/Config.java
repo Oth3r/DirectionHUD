@@ -437,6 +437,7 @@ public class Config implements CustomFile<Config> {
 
         public void loadVersion(Properties properties, float version) {
             //todo test
+            // 1.1 - done
             Config config = FileData.getConfig();
 
             DefaultPData DEFAULTS = PlayerData.getDefaults();
@@ -451,7 +452,6 @@ public class Config implements CustomFile<Config> {
                 Gson gson = new GsonBuilder().disableHtmlEscaping().create();
                 // json maps
                 Type arrayListMap = new TypeToken<ArrayList<String>>() {}.getType();
-                Type moduleListMap = new TypeToken<ArrayList<Module>>() {}.getType();
                 // CONFIG
                 config.getLocation().setMaxXZ(Integer.parseInt((String) properties.computeIfAbsent("max-xz", a -> String.valueOf(config.getLocation().getMaxXZ()))));
                 config.getLocation().setMaxY(Integer.parseInt((String) properties.computeIfAbsent("max-y", a -> String.valueOf(config.getLocation().getMaxY()))));
@@ -493,7 +493,7 @@ public class Config implements CustomFile<Config> {
                 for (String module : order) {
                     Module mod = Module.fromString(module);
                     // not valid
-                    if (mod.equals(Module.UNKNOWN)) return;
+                    if (mod.equals(Module.UNKNOWN)) continue;
 
                     hudModules.add(switch (mod) {
                         case COORDINATES -> new ModuleCoordinates(i,
@@ -603,7 +603,7 @@ public class Config implements CustomFile<Config> {
                     for (String module : orderList) {
                         Module mod = Module.fromString(module);
                         // not valid
-                        if (mod.equals(Module.UNKNOWN)) return;
+                        if (mod.equals(Module.UNKNOWN)) continue;
 
                         hudModules.add(switch (mod) {
                             case COORDINATES -> new ModuleCoordinates(i,
@@ -657,9 +657,21 @@ public class Config implements CustomFile<Config> {
                     destSParticles.setTrackingColor(CUtl.color.updateOld((String) properties.computeIfAbsent("tracking-particle-color", a -> ""), destSParticles.getTrackingColor()));
                 }
                 // only in 1.1
-                if (version == 1.1f)
-                    hud.getModule(Module.TRACKING).setState(Boolean.parseBoolean(properties.getProperty("compass",
-                            String.valueOf(hud.getModule(Module.TRACKING).isEnabled()))));
+                if (version == 1.1f) {
+                    // fix the name of the tracking module enabled setting, it was called compass back then
+
+                    ArrayList<BaseModule> modules = hud.getModules();
+                    // only replace an existing module if the tracking module is present
+                    if (BaseModule.findInArrayList(modules,Module.TRACKING).isPresent()) {
+                        hud.getModule(Module.TRACKING).setState(Boolean.parseBoolean(properties.getProperty("compass",
+                                String.valueOf(hud.getModule(Module.TRACKING).isEnabled()))));
+                    } else {
+                        // the order number is redundant, it will be fixed later
+                        modules.add(new ModuleTracking(9,Boolean.parseBoolean(properties.getProperty("compass",
+                                String.valueOf(false))),true, ModuleTracking.Target.player, ModuleTracking.Type.simple, false));
+                    }
+                }
+
 
                 // moving to the new defaults system & config system
                 this.config.copyFileData(config);
