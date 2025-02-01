@@ -33,7 +33,7 @@ public abstract class BasePData {
     protected void copyBaseFileData(BasePData newFile) {
         this.version = newFile.version;
         this.hud = new PDHud(newFile.hud);
-        this.destination = new PDDestination();
+        this.destination = new PDDestination(newFile.destination);
         this.colorPresets = newFile.colorPresets.stream()
                 .map(record -> new Helper.ColorPreset(record.name(), record.color()))
                 .collect(Collectors.toCollection(ArrayList::new));
