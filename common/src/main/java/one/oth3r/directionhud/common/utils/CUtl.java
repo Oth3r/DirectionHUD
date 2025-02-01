@@ -214,7 +214,10 @@ public class CUtl {
                 case "gray" -> "#AAAAAA";
                 case "dark_gray" -> "#555555";
                 case "black" -> "#000000";
-                default -> string.charAt(0) == '#' ? format(string) : format(defaultColor);
+                default -> {
+                    if (string.isEmpty() || string.charAt(0) != '#') yield format(defaultColor);
+                    else yield format(string);
+                }
             };
         }
 
