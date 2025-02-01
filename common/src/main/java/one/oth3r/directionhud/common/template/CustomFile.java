@@ -28,7 +28,12 @@ public interface CustomFile <T extends CustomFile<T>> {
         }
         try (BufferedWriter writer = Files.newBufferedWriter(getFile().toPath(), StandardCharsets.UTF_8)) {
             writer.write(Helper.getGson().toJson(this));
-        } catch (Exception e) {
+        }
+        // if the file doesn't exist at this stage it would be because of a bad directory, try fileNotExist() to create the directory
+        catch (NoSuchFileException ignored) {
+            fileNotExist();
+        }
+        catch (Exception e) {
             DirectionHUD.LOGGER.error(String.format("ERROR SAVING '%s`: %s", getFile().getName(), e.getMessage()));
         }
     }
