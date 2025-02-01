@@ -5,6 +5,7 @@ import com.google.gson.annotations.SerializedName;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.Destination;
+import one.oth3r.directionhud.common.hud.module.BaseModule;
 import one.oth3r.directionhud.common.utils.Dest;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Loc;
@@ -39,12 +40,22 @@ public class PDDestination {
 
     public PDDestination() {}
 
-    public PDDestination(ArrayList<Dest> saved, Dest dest, String tracking, List<Loc> lastdeath, Settings setting) {
+    /**
+     * deep copy constructor
+     */
+    public PDDestination(PDDestination destination) {
+        ArrayList<Dest> saved = new ArrayList<>();
+        for (Dest dest : destination.saved) saved.add(new Dest(dest));
         this.saved = saved;
-        this.dest = dest;
-        this.tracking = tracking;
+
+        this.dest = new Dest(destination.dest);
+        this.tracking = destination.tracking;
+
+        ArrayList<Loc> lastdeath = new ArrayList<>();
+        for (Loc loc : destination.lastdeath) lastdeath.add(new Loc(loc));
         this.lastdeath = lastdeath;
-        this.setting = setting;
+
+        this.setting = new Settings(destination.setting);
     }
 
     public ArrayList<Dest> getSaved() {
