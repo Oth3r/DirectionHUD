@@ -475,14 +475,15 @@ public class Config implements CustomFile<Config> {
                 config.setMaxColorPresets(Integer.parseInt((String) properties.computeIfAbsent("max-color-presets", a -> String.valueOf(config.getMaxColorPresets()))));
 
                 // update destinations to new system
+                DimensionSettings dimensionSettings = Dimension.getDimensionSettings();
                 try {
-                    Dimension.getDimensionSettings().setDimensions(Dimension.convertLegacyDimensions(gson.fromJson((String) properties.computeIfAbsent("dimensions", a -> ""), arrayListMap)));
+                    dimensionSettings.setDimensions(Dimension.convertLegacyDimensions(gson.fromJson((String) properties.computeIfAbsent("dimensions", a -> ""), arrayListMap)));
                 } catch (JsonSyntaxException ignored) {}
                 // update ratios to new system
                 try {
-                    Dimension.getDimensionSettings().setRatios(Dimension.convertLegacyRatios(gson.fromJson((String) properties.computeIfAbsent("dimension-ratios", a -> ""), arrayListMap)));
+                    dimensionSettings.setRatios(Dimension.convertLegacyRatios(gson.fromJson((String) properties.computeIfAbsent("dimension-ratios", a -> ""), arrayListMap)));
                 } catch (JsonSyntaxException ignored) {}
-                DimensionSettings.save();
+                Dimension.setDimensionSettings(dimensionSettings,true);
 
                 // PLAYER DEFAULTS
                 // HUD

@@ -26,6 +26,13 @@ public class DimensionEntry {
         this.time = time;
     }
 
+    public DimensionEntry(DimensionEntry dimensionEntry) {
+        this.id = dimensionEntry.id;
+        this.name = dimensionEntry.name;
+        this.color = dimensionEntry.color;
+        this.time = new Time(this.time);
+    }
+
     public Time getTime() {
         return time;
     }
@@ -77,6 +84,11 @@ public class DimensionEntry {
             this.weather = weather;
         }
 
+        public Time(Time time) {
+            this.enabled = time.enabled;
+            this.weather = new Weather(time.weather);
+        }
+
         public Boolean getEnabled() {
             return enabled;
         }
@@ -101,6 +113,12 @@ public class DimensionEntry {
                 this.icons = icons;
                 this.nightTicks = nightTicks;
                 this.enabled = true;
+            }
+
+            public Weather(Weather weather) {
+                this.enabled = weather.enabled;
+                this.nightTicks = weather.nightTicks;
+                this.icons = weather.icons;
             }
 
             public Boolean getEnabled() {

@@ -2,12 +2,9 @@ package one.oth3r.directionhud.common.files;
 
 import com.google.gson.reflect.TypeToken;
 import one.oth3r.directionhud.DirectionHUD;
-import one.oth3r.directionhud.common.files.dimension.Dimension;
-import one.oth3r.directionhud.common.files.dimension.DimensionSettings;
 import one.oth3r.directionhud.common.utils.Dest;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Loc;
-import one.oth3r.directionhud.utils.Utl;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -15,51 +12,6 @@ import java.nio.file.Files;
 import java.util.*;
 
 public class Updater {
-    public static class DimSettings {
-
-        /**
-         * runs the updater from the file reader and sets the loaded settings when finished, adding the missing dimensions
-         * @param reader the file reader
-         * @throws NullPointerException if the file is null
-         */
-        public static void run(BufferedReader reader)
-                throws NullPointerException {
-            // try to read the json
-            DimensionSettings dimensionSettings;
-            try {
-                dimensionSettings = Helper.getGson().fromJson(reader, DimensionSettings.class);
-            } catch (Exception e) {
-                throw new NullPointerException();
-            }
-
-            // throw null if the fileData is null or version is null
-            if (dimensionSettings == null) throw new NullPointerException();
-
-            // get the file version
-            Double version = dimensionSettings.getVersion();
-
-            // if there's no version, throw
-            if (version == null) throw new NullPointerException();
-
-            // update the default pData
-            dimensionSettings = update(dimensionSettings);
-
-            // add missing dimensions
-            Utl.dim.addMissing(dimensionSettings);
-
-            // set the DefaultPData
-            Dimension.setDimensionSettings(dimensionSettings);
-        }
-
-        /**
-         * updates the file
-         */
-        public static DimensionSettings update(DimensionSettings old) {
-            DimensionSettings dimensionSettings = new DimensionSettings(old);
-            return dimensionSettings;
-        }
-    }
-
     public static class Global {
 
         /**

@@ -1,6 +1,6 @@
 package one.oth3r.directionhud.common.files;
 
-import one.oth3r.directionhud.common.files.dimension.DimensionSettings;
+import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 
 public class FileData {
@@ -43,7 +43,7 @@ public class FileData {
         config.load();
         PlayerData.loadDefaults();
         LangReader.loadLanguageFile();
-        DimensionSettings.load();
+        Dimension.loadDimensionSettings();
         moduleText.load();
         if (config.getDestination().getGlobal()) GlobalDest.load();
     }

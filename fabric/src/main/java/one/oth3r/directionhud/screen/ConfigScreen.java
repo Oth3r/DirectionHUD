@@ -10,6 +10,7 @@ import net.minecraft.util.Util;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.files.Config;
 import one.oth3r.directionhud.common.files.FileData;
+import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.dimension.DimensionSettings;
 import one.oth3r.directionhud.common.utils.Lang;
 
@@ -37,8 +38,8 @@ public class ConfigScreen extends Screen {
                 .tooltip(Tooltip.of(LANG.get("tooltip.file").b()))
                 .build());
         // dimension settings file
-        addDrawableChild(ButtonWidget.builder(Text.literal(DimensionSettings.getFile().getName()), button -> {
-                    Util.getOperatingSystem().open(DimensionSettings.getFile());
+        addDrawableChild(ButtonWidget.builder(Text.literal(Dimension.getDimensionSettings().getFile().getName()), button -> {
+                    Util.getOperatingSystem().open(Dimension.getDimensionSettings().getFile());
                 })
                 .dimensions(width / 2-100, 35, 200, 20)
                 .tooltip(Tooltip.of(LANG.get("tooltip.file").b()))

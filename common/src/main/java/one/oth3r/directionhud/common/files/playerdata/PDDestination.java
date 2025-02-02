@@ -5,7 +5,6 @@ import com.google.gson.annotations.SerializedName;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.Destination;
-import one.oth3r.directionhud.common.hud.module.BaseModule;
 import one.oth3r.directionhud.common.utils.Dest;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Loc;

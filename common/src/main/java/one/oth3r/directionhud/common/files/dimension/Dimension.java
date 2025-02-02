@@ -19,14 +19,23 @@ public class Dimension {
                     new DimensionEntry.Time.Weather.NightTicks(new DimensionEntry.Time.TimePair(12542,0),new DimensionEntry.Time.TimePair(12010,0),new DimensionEntry.Time.TimePair(0,24000)),
                     new DimensionEntry.Time.Weather.Icons(Assets.symbols.sun,Assets.symbols.moon,Assets.symbols.rain,Assets.symbols.thunder)));
 
-    private static DimensionSettings dimensionSettings = new DimensionSettings();
+    private static final DimensionSettings dimensionSettings = new DimensionSettings();
 
-    public static void setDimensionSettings(DimensionSettings dimensionSettings) {
-        Dimension.dimensionSettings = new DimensionSettings(dimensionSettings);
+    public static void setDimensionSettings(DimensionSettings dimensionSettings, boolean save) {
+        Dimension.dimensionSettings.copyFileData(dimensionSettings);
+        if (save) dimensionSettings.save();
     }
 
     public static DimensionSettings getDimensionSettings() {
-        return dimensionSettings;
+        return new DimensionSettings(dimensionSettings);
+    }
+
+    /**
+     * loads the `dimension-settings` file into the system <br>
+     * this is only a separate method because we cant get the original settings object using {@link #getDimensionSettings()} as it provides a copy
+     */
+    public static void loadDimensionSettings() {
+        dimensionSettings.load();
     }
 
     /**
