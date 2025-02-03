@@ -71,10 +71,16 @@ public interface CustomFile <T extends CustomFile<T>> {
             throw new NullPointerException();
         }
 
-        // update the instance
-        file.update(json);
-        // load the file to the current object
-        copyFileData(file);
+        // if the file couldn't be parsed, (null) try using the custom update method using the JsonElement on the current file
+        // if not use the new file object that is loaded with the file data, and call update using that
+        if (file == null) {
+            this.update(json);
+        } else {
+            // update the instance
+            file.update(json);
+            // load the file to the current object
+            copyFileData(file);
+        }
     }
 
     /**
