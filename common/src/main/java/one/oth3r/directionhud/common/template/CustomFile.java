@@ -55,7 +55,7 @@ public interface CustomFile <T extends CustomFile<T>> {
         }
         // cant load for some reason
         catch (Exception e) {
-            DirectionHUD.LOGGER.error(String.format("ERROR LOADING '%s`: %s", file.getName(),e.getMessage()));
+            DirectionHUD.LOGGER.error(String.format("ERROR LOADING '%s': %s", file.getName(),e.getMessage()));
         }
         // save after loading
         save();
