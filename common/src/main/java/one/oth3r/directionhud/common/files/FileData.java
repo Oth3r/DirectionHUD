@@ -1,5 +1,6 @@
 package one.oth3r.directionhud.common.files;
 
+import one.oth3r.directionhud.common.ModData;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 
@@ -29,14 +30,22 @@ public class FileData {
     /**
      * global destinations
      */
-    private static GlobalDest globalDestinations = new GlobalDest();
+    private static final GlobalDest globalDestinations = new GlobalDest();
 
     public static GlobalDest getGlobal() {
-        return globalDestinations;
+        return new GlobalDest(globalDestinations);
     }
 
-    public static void setGlobalDestinations(GlobalDest globalDestinations) {
-        FileData.globalDestinations = new GlobalDest(globalDestinations);
+    public static void setGlobalDestinations(GlobalDest globalDestinations, boolean save) {
+        FileData.globalDestinations.copyFileData(globalDestinations);
+        if (save) globalDestinations.save();
+    }
+
+    /**
+     * loads the global destinations to object, as {@link #getGlobal()} returns a copy of the object
+     */
+    public static void loadGlobalDestinations() {
+        globalDestinations.load();
     }
 
     public static void loadFiles() {
@@ -45,13 +54,14 @@ public class FileData {
         LangReader.loadLanguageFile();
         Dimension.loadDimensionSettings();
         moduleText.load();
-        if (config.getDestination().getGlobal()) GlobalDest.load();
+        // the server has to be started to edit per world data
+        if (ModData.isServerStarted() && config.getDestination().getGlobal()) loadGlobalDestinations();
     }
 
     /**
      * clears the per-server data
      */
     public static void clearServerData() {
-        globalDestinations = new GlobalDest();
+        globalDestinations.copyFileData(new GlobalDest());
     }
 }

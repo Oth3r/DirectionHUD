@@ -960,10 +960,12 @@ public class Destination {
              */
             private void save() {
                 if (global) {
+                    GlobalDest globalDest = FileData.getGlobal();
                     // set the list to the edited list
-                    FileData.getGlobal().setDestinations(list);
-                    // save changes to file
-                    GlobalDest.save();
+                    globalDest.setDestinations(list);
+                    // save the global destinations to file
+                    FileData.setGlobalDestinations(globalDest,true);
+
                 } else player.getPData().getDEST().setSaved(list);
             }
 

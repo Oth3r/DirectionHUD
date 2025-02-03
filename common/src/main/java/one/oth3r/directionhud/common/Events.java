@@ -18,6 +18,7 @@ import java.nio.file.Paths;
 
 public class Events {
     public static void serverStart() {
+        ModData.setServerStarted(true);
         try {
             Files.createDirectories(Paths.get(DirectionHUD.DATA_DIR+"playerdata/"));
         } catch (Exception e) {
@@ -35,6 +36,7 @@ public class Events {
         PlayerData.clearPlayerCache();
         DirectionHUD.clear();
         DirectionHUD.LOGGER.info("Safely shutdown DirectionHUD server!");
+        ModData.setServerStarted(false);
     }
 
     public static void playerJoin(Player player) {
