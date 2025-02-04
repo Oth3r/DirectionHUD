@@ -687,15 +687,15 @@ public class DHud {
                 ArrayList<ColorPreset> output = new ArrayList<>();
                 for (String preset: list) {
                     // if not formatted properly, remove
-                    if (!preset.contains("|#")) break;
+                    if (!preset.contains("|#")) continue;
                     String name = preset.substring(0, preset.lastIndexOf("|#"));
                     String color = preset.substring(preset.lastIndexOf("|#")+1);
 
                     // if name too long, remove
-                    if (name.length() > Helper.MAX_NAME) break;
+                    if (name.length() > Helper.MAX_NAME) continue;
 
                     // if color is invalid, remove
-                    if (!color.equals("#ffffff") && CUtl.color.format(color).equals("#ffffff")) break;
+                    if (!color.equals("#ffffff") && CUtl.color.format(color).equals("#ffffff")) continue;
                     output.add(new ColorPreset(name, color));
                 }
                 return output;

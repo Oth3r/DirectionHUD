@@ -436,8 +436,6 @@ public class Config implements CustomFile<Config> {
         }
 
         public void loadVersion(Properties properties, float version) {
-            //todo test
-            // 1.1 - done
             Config config = FileData.getConfig();
 
             DefaultPData DEFAULTS = PlayerData.getDefaults();
@@ -488,7 +486,11 @@ public class Config implements CustomFile<Config> {
                 // PLAYER DEFAULTS
                 // HUD
                 // MODULE UPDATER
-                String[] order = properties.getProperty("hud.order", "").split(" ");
+                ArrayList<String> order = new ArrayList<>();
+                try {
+                    order = gson.fromJson((String) properties.computeIfAbsent("hud.order", a -> ""), arrayListMap);
+                } catch (JsonSyntaxException ignored) {}
+
                 ArrayList<BaseModule> hudModules = new ArrayList<>();
                 int i = 1;
                 for (String module : order) {
@@ -651,6 +653,7 @@ public class Config implements CustomFile<Config> {
 
                     destSFeatures.setSend(Boolean.parseBoolean((String) properties.computeIfAbsent("send", a -> String.valueOf(destSFeatures.getSend()))));
                     destSFeatures.setTrack(Boolean.parseBoolean((String) properties.computeIfAbsent("track", a -> String.valueOf(destSFeatures.getTrack()))));
+                    destSFeatures.setLastdeath(Boolean.parseBoolean((String) properties.computeIfAbsent("lastdeath", a -> String.valueOf(destSFeatures.getLastdeath()))));
 
                     destSParticles.setLine(Boolean.parseBoolean((String) properties.computeIfAbsent("line-particles", a -> String.valueOf(destSParticles.getLine()))));
                     destSParticles.setDest(Boolean.parseBoolean((String) properties.computeIfAbsent("dest-particles", a -> String.valueOf(destSParticles.getDest()))));
