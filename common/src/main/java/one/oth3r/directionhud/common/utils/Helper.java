@@ -579,6 +579,7 @@ public class Helper {
     /**
      * the LenientTypeAdapter, doesn't throw anything when reading a weird JSON entry, good for human entered JSONs
      */
+    @SuppressWarnings("unchecked")
     public static class LenientTypeAdapterFactory implements TypeAdapterFactory {
         public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
             final TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
@@ -596,7 +597,25 @@ public class Helper {
                     } catch (JsonSyntaxException | MalformedJsonException e) {
                         // don't throw anything if there's a weird JSON, just return null
                         in.skipValue();
-                        return null;
+
+                        // try to provide a default instance for common types
+                        Class<? super T> rawType = type.getRawType();
+
+                        if (List.class.isAssignableFrom(rawType)) {
+                            return (T) new ArrayList<>();
+                        } else if (Map.class.isAssignableFrom(rawType)) {
+                            return (T) new HashMap<>();
+                        }
+
+                        // attempt to create a new instance using a no-arg constructor
+                        try {
+                            Constructor<? super T> ctor = rawType.getDeclaredConstructor();
+                            ctor.setAccessible(true);
+                            return (T) ctor.newInstance();
+                        } catch (Exception ex) {
+                            // no default instance is available, fallback to null
+                            return null;
+                        }
                     }
                 }
             };
