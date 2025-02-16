@@ -25,6 +25,10 @@ public class Loc {
      * @param loc Loc to copy
      */
     public Loc(Loc loc) {
+        copyFrom(loc);
+    }
+
+    public void copyFrom(Loc loc) {
         x = loc.getX();
         y = loc.getY();
         z = loc.getZ();
