@@ -77,6 +77,11 @@ public class Loc {
      */
     public Loc(boolean legacy, String xyz) {
         if (xyz == null || xyz.equals("null")) return;
+        // if not legacy
+        if (xyz.charAt(0)=='{' && xyz.charAt(xyz.length()-1)=='}') {
+            copyFrom(new Loc(xyz));
+            return;
+        }
         if (xyz.charAt(0)=='[' && xyz.charAt(xyz.length()-1)==']') {
             String[] list = xyz.substring(1, xyz.length() - 1).split(", ");
             if (list.length >= 3)  {
