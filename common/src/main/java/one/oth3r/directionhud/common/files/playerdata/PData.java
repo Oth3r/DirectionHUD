@@ -4,6 +4,7 @@ package one.oth3r.directionhud.common.files.playerdata;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import one.oth3r.directionhud.DirectionHUD;
@@ -181,10 +182,12 @@ public class PData extends BasePData implements CustomFile<PData> {
     @Override
     public void update(JsonElement json) {
         // todo test pre 2.0 updater
+        //  1.0 - DONE
+        //  1.1+ STILL TESTING
         if (this.version == null || this.version < 2) {
             // unsupported playerdata version
-            DirectionHUD.LOGGER.info(String.format("Pre 2.0 PlayerData version detected for %s! Trying to load from legacy...", player.getName()));
-            new legacy(player, getFile()).update();
+            DirectionHUD.LOGGER.info("Pre 2.0 PlayerData version detected! Trying to load from legacy...");
+            new legacy(getFile()).update();
             // restart the file loading as the file was written to
             load();
             // end updater as the method will be called again
@@ -200,11 +203,9 @@ public class PData extends BasePData implements CustomFile<PData> {
      * the legacy updater for directionhud
      */
     public static class legacy {
-        private final Player player;
         private final File file;
 
-        public legacy(Player player, File file) {
-            this.player = player;
+        public legacy(File file) {
             this.file = file;
         }
 
@@ -256,16 +257,16 @@ public class PData extends BasePData implements CustomFile<PData> {
          */
         @SuppressWarnings("unchecked")
         private void mapUpdate(Map<String,Object> base) {
+            // make sure this updates to the right json - it seems to be malformed
             PDDestination DESTINATION = PlayerData.getDefaults().getDEST();
             PDDestination.Settings DESTSETTINGS = DESTINATION.getSetting();
             PDHud HUD_defaults = PlayerData.getDefaults().getHud();
             PDHud.Settings HUDSETTINGS = HUD_defaults.getSetting();
-            base.put("name", player.getName());
             if (base.get("version").equals(1.0)) {
                 base.put("version",1.1);
                 Map<String,Object> dest = (Map<String, Object>) base.get("destination");
                 Map<String,Object> dSet = (Map<String, Object>) dest.get("setting");
-                dSet.put("lastdeath", DESTINATION.getLastdeath());
+                dSet.put("lastdeath", DESTINATION.getSetting().getFeatures().getLastdeath());
                 dest.put("setting",dSet);
                 base.put("destination",dest);
                 // reload the file after updating a version
@@ -329,7 +330,7 @@ public class PData extends BasePData implements CustomFile<PData> {
                     }
                 }
                 dest.put("lastdeath",lastdeath);
-                base.put("dest",dest);
+                base.put("destination",dest);
                 // reload the file after updating a version
                 base = saveLoad(base);
             }
@@ -356,7 +357,7 @@ public class PData extends BasePData implements CustomFile<PData> {
                     dest.put("tracking",xyz);
                 } else {
                     String[] sp = xyz.split(" ");
-                    Loc loc = new Loc(xyz);
+                    Loc loc = new Loc(true, xyz);
                     if (sp[1].equals("n")) loc = new Loc(sp[0]+" "+sp[2]);
                     dest.put("dest",loc.toString());
                 }
@@ -373,7 +374,7 @@ public class PData extends BasePData implements CustomFile<PData> {
                 for (String s: saved) {
                     String[] split = s.split(" ");
                     String[] coordS = split[1].split("_");
-                    Loc loc = new Loc(Helper.Num.toInt(coordS[0]), Helper.Num.toInt(coordS[1]), Helper.Num.toInt(coordS[2]),split[2]);
+                    Loc loc = new Loc(Helper.Num.toInt(coordS[0]), Helper.Num.toInt(coordS[1]), Helper.Num.toInt(coordS[2]),Utl.dim.updateLegacy(split[2]));
                     savedN.add(saved.indexOf(s), Arrays.asList(split[0],loc.toString(),split[3]));
                 }
                 dest.put("saved",savedN);
@@ -388,7 +389,7 @@ public class PData extends BasePData implements CustomFile<PData> {
                             Integer.valueOf(xyzArray[0]),
                             Integer.valueOf(xyzArray[1]),
                             Integer.valueOf(xyzArray[2]),
-                            split[0]).toString());
+                            Utl.dim.updateLegacy(split[0])).toString());
                 }
                 dest.put("lastdeath",lastdeath);
                 //ADD NEW PARTICLES & AUTOCONVERT
@@ -457,7 +458,9 @@ public class PData extends BasePData implements CustomFile<PData> {
                 hudSetting.put("time24h",null);
                 hudSettingModule.put("tracking_target", "player");
                 hudSetting.put("module",hudSettingModule);
-                hud.put("order", Helper.Enums.toEnumList(new ArrayList<>(List.of(((String) hud.get("order")).split(" "))), Module.class));
+                hud.put("order",
+                        Helper.Enums.toEnumList((a,b) -> Module.fromString(b),
+                                new ArrayList<>(List.of(((String) hud.get("order")).split(" "))), Module.class));
                 hud.put("setting",hudSetting);
                 base.put("destination",dest);
                 base.put("hud",hud);
@@ -535,8 +538,8 @@ public class PData extends BasePData implements CustomFile<PData> {
                 // get the old styles, split by the old delimiter
                 String[] primary = ((String) hud.get("primary")).split("-"), secondary = ((String) hud.get("secondary")).split("-");
                 // set to the new PD_hud_color system
-                hud.put("primary",new PDHud.Color(player,primary[0],primary[1].equals("true"),primary[2].equals("true"),primary[3].equals("true")));
-                hud.put("secondary",new PDHud.Color(player,secondary[0],secondary[1].equals("true"),secondary[2].equals("true"),secondary[3].equals("true")));
+                hud.put("primary",new PDHud.Color(primary[0],primary[1].equals("true"),primary[2].equals("true"),primary[3].equals("true")));
+                hud.put("secondary",new PDHud.Color(secondary[0],secondary[1].equals("true"),secondary[2].equals("true"),secondary[3].equals("true")));
 
                 // update all destination Locs
                 Map<String,Object> dest = (Map<String, Object>) base.get("destination");
@@ -554,7 +557,7 @@ public class PData extends BasePData implements CustomFile<PData> {
                 ArrayList<Loc> newLastdeath = lastdeath.stream().map(string -> {
                     Loc loc = new Loc(true, string);
                     // update dimension
-                    loc.setDimension(Utl.dim.updateLegacy(loc.getDimension()));
+                    if (loc.getDimension() != null) loc.setDimension(Utl.dim.updateLegacy(loc.getDimension()));
                     return loc;
                 }).collect(Collectors.toCollection(ArrayList::new));
                 dest.put("lastdeath", newLastdeath);
@@ -563,13 +566,17 @@ public class PData extends BasePData implements CustomFile<PData> {
                 ArrayList<ArrayList<String>> saved = (ArrayList<ArrayList<String>>) dest.get("saved");
                 ArrayList<Dest> newSaved = saved.stream().map(entry -> {
                     // ENTRY: NAME, LOC, COLOR
-                    Loc loc = new Loc(true,entry.get(1));
+                    Loc loc = new Loc(true, entry.get(1));
                     Dest destLoc = new Dest(loc,entry.get(0),entry.get(2));
                     // update dimension
                     destLoc.setDimension(Utl.dim.updateLegacy(loc.getDimension()));
                     return destLoc;
                 }).collect(Collectors.toCollection(ArrayList::new));
                 dest.put("saved",newSaved);
+
+                // update tracked target
+                dest.put("tracking", dest.get("track"));
+                dest.put("track", null);
             }
             // save at the end
             mapToFile(base);
