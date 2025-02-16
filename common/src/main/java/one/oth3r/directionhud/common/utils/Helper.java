@@ -4,7 +4,6 @@ import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import com.google.gson.stream.MalformedJsonException;
 import one.oth3r.directionhud.common.DHud;
 import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
@@ -17,7 +16,9 @@ import org.apache.commons.text.similarity.FuzzyScore;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 public class Helper {
@@ -50,13 +51,16 @@ public class Helper {
          * @return the converted {@link ArrayList} of enums
          */
         public static <T extends Enum<T>> ArrayList<T> toEnumList(ArrayList<String> stringList, Class<T> enumType) {
+            return toEnumList(Enum::valueOf, stringList, enumType);
+        }
+        public static <T extends Enum<T>> ArrayList<T> toEnumList(BiFunction<Class<T>,String, T> function, ArrayList<String> stringList, Class<T> enumType) {
             ArrayList<T> moduleList = new ArrayList<>();
 
             // for each string in the enum string list
             for (String module : stringList) {
                 // try to get the Enum from the string, if it throws an Exception, ignore it (invalid strings get ignored)
                 try {
-                    T enumValue = Enum.valueOf(enumType, module);
+                    T enumValue = function.apply(enumType, module);
                     moduleList.add(enumValue);
                 } catch (IllegalArgumentException ignored) {}
             }
