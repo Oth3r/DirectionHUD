@@ -181,7 +181,7 @@ public class PData extends BasePData implements CustomFile<PData> {
     @Override
     public void update(JsonElement json) {
         // todo test pre 2.0 updater
-        if (this.version < 2) {
+        if (this.version == null || this.version < 2) {
             // unsupported playerdata version
             DirectionHUD.LOGGER.info(String.format("Pre 2.0 PlayerData version detected for %s! Trying to load from legacy...", player.getName()));
             new legacy(player, getFile()).update();
