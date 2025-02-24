@@ -181,9 +181,6 @@ public class PData extends BasePData implements CustomFile<PData> {
      */
     @Override
     public void update(JsonElement json) {
-        // todo test pre 2.0 updater
-        //  1.0 - DONE
-        //  1.1+ STILL TESTING
         if (this.version == null || this.version < 2) {
             // unsupported playerdata version
             DirectionHUD.LOGGER.info("Pre 2.0 PlayerData version detected! Trying to load from legacy...");
@@ -517,7 +514,8 @@ public class PData extends BasePData implements CustomFile<PData> {
                 base.put("version",1.72);
                 Map<String,Object> hud = (Map<String, Object>) base.get("hud");
                 // update the HUD order, forgot to do that in 1.7
-                hud.put("order", Helper.Enums.toEnumList((ArrayList<String>) hud.get("order"), Module.class));
+                hud.put("order", Helper.Enums.toEnumList((a,b) -> Module.fromString(b.toLowerCase()),
+                        (ArrayList<String>) hud.get("order"), Module.class));
                 base.put("hud",hud);
                 // remove the extra module tab found in the base from a broken past update
                 base.put("module",null);
