@@ -598,8 +598,8 @@ public class Helper {
                     try {
                         //Try to read value using default TypeAdapter
                         return delegate.read(in);
-                    } catch (JsonSyntaxException | MalformedJsonException e) {
-                        // don't throw anything if there's a weird JSON, just return null
+                    } catch (Exception e) {
+                        // skip the invalid json value
                         in.skipValue();
 
                         // try to provide a default instance for common types
