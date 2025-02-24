@@ -72,7 +72,7 @@ public class Events {
                 //DEST AutoConvert logic
                 Dest dest = Destination.dest.get(player);
                 dest.convertTo(toDIM);
-                Destination.dest.set(player,new Dest());
+                Destination.dest.set(player,dest);
                 player.sendMessage(CUtl.tag().append(Destination.LANG.msg("autoconvert.destination",
                         CTxT.of("\n ").append(Destination.LANG.msg("autoconvert.destination.2",loc.getBadge(),dest.getBadge())))));
             } else if ((boolean) player.getPData().getDEST().getSetting(Destination.Setting.autoclear)) {
