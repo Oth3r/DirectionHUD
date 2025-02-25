@@ -860,12 +860,12 @@ public class Hud {
             // if off return gray
             if (!mod.isEnabled()) return STATE_GRAY;
 
-            // see if the text should be yellow
-            boolean yellow = false;
+            String color = STATE_GREEN;
+
             // if no destination
             if (!Destination.dest.get(player).hasXYZ()) {
                 // if destination or distance
-                if (module.equals(Module.DESTINATION) || module.equals(Module.DISTANCE)) yellow = true;
+                if (module.equals(Module.DESTINATION) || module.equals(Module.DISTANCE)) color = STATE_YELLOW;
             }
             // if tracking
             if (module.equals(Module.TRACKING)) {
@@ -873,17 +873,23 @@ public class Hud {
                 boolean hasDest = Destination.dest.get(player).hasXYZ();
                 ModuleTracking.Target target = ((ModuleTracking)mod).getTarget();
 
-                // if player tracking and no player, yellow
-                if (!hasPlayer && target.equals(ModuleTracking.Target.player)) yellow = true;
-                    // if dest tracking and no dest, yellow
-                else if (hasDest && target.equals(ModuleTracking.Target.dest)) yellow = true;
-                    // if hybrid tracking and nether, yellow
-                else if (!hasDest || !hasPlayer && (((ModuleTracking)mod).isHybrid())) yellow = true;
+                if (((ModuleTracking)mod).isHybrid()) {
+                    if (!(hasPlayer || hasDest)) {
+                        color = STATE_YELLOW;
+                    }
+                } else if (target.equals(ModuleTracking.Target.player)) {
+                    if (!hasPlayer) {
+                        color = STATE_YELLOW;
+                    }
+                } else if (target.equals(ModuleTracking.Target.dest)) {
+                    if (!hasDest) {
+                        color = STATE_YELLOW;
+                    }
+                }
             }
 
             // return based on yellow, if not green
-            if (yellow) return STATE_YELLOW;
-            return STATE_GREEN;
+            return color;
         }
 
         /**
