@@ -1,8 +1,11 @@
-package one.oth3r.directionhud.common.hud.module;
+package one.oth3r.directionhud.common.hud.module.modules;
+
+import one.oth3r.directionhud.common.hud.module.BaseModule;
+import one.oth3r.directionhud.common.hud.module.Module;
 
 public class ModuleDestination extends BaseModule {
     public ModuleDestination() {
-        super(Module.DESTINATION);
+        super(one.oth3r.directionhud.common.hud.module.Module.DESTINATION);
         this.order = 2;
         this.state = true;
     }

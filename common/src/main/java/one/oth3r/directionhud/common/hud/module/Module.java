@@ -1,5 +1,7 @@
 package one.oth3r.directionhud.common.hud.module;
 
+import one.oth3r.directionhud.common.hud.module.modules.*;
+
 public enum Module {
     COORDINATES("coordinates", ModuleCoordinates.class),
     DESTINATION("destination", ModuleDestination.class),

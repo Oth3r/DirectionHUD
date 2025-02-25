@@ -1,6 +1,8 @@
-package one.oth3r.directionhud.common.hud.module;
+package one.oth3r.directionhud.common.hud.module.modules;
 
 import com.google.gson.annotations.SerializedName;
+import one.oth3r.directionhud.common.hud.module.BaseModule;
+import one.oth3r.directionhud.common.hud.module.Module;
 
 import java.util.Objects;
 
@@ -27,7 +29,7 @@ public class ModuleTracking extends BaseModule {
     }
 
     public ModuleTracking() {
-        super(Module.TRACKING);
+        super(one.oth3r.directionhud.common.hud.module.Module.TRACKING);
         this.order = 2;
         this.state = true;
         this.hybrid = true;

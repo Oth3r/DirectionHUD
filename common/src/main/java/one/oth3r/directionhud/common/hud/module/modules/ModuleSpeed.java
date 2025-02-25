@@ -1,6 +1,8 @@
-package one.oth3r.directionhud.common.hud.module;
+package one.oth3r.directionhud.common.hud.module.modules;
 
 import com.google.gson.annotations.SerializedName;
+import one.oth3r.directionhud.common.hud.module.BaseModule;
+import one.oth3r.directionhud.common.hud.module.Module;
 
 import java.util.Objects;
 
@@ -19,7 +21,7 @@ public class ModuleSpeed extends BaseModule {
     }
 
     public ModuleSpeed() {
-        super(Module.SPEED);
+        super(one.oth3r.directionhud.common.hud.module.Module.SPEED);
     }
 
     public ModuleSpeed(int order, boolean state, boolean calculation2D, String displayPattern) {

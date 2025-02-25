@@ -1,6 +1,8 @@
-package one.oth3r.directionhud.common.hud.module;
+package one.oth3r.directionhud.common.hud.module.modules;
 
 import com.google.gson.annotations.SerializedName;
+import one.oth3r.directionhud.common.hud.module.BaseModule;
+import one.oth3r.directionhud.common.hud.module.Module;
 
 import java.util.Objects;
 
@@ -15,7 +17,7 @@ public class ModuleTime extends BaseModule {
     }
 
     public ModuleTime() {
-        super(Module.TIME);
+        super(one.oth3r.directionhud.common.hud.module.Module.TIME);
         this.order = 1;
         this.state = true;
         this.hour24 = false;

@@ -15,6 +15,7 @@ import one.oth3r.directionhud.common.files.playerdata.PDHud;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.hud.module.*;
 import one.oth3r.directionhud.common.hud.module.Module;
+import one.oth3r.directionhud.common.hud.module.modules.*;
 import one.oth3r.directionhud.common.utils.*;
 import one.oth3r.directionhud.common.utils.Helper.Command.Suggester;
 import one.oth3r.directionhud.common.utils.Helper.Enums;

@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
 import one.oth3r.directionhud.common.hud.module.*;
 import one.oth3r.directionhud.common.hud.module.Module;
+import one.oth3r.directionhud.common.hud.module.modules.*;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Helper.*;
 

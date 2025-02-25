@@ -1,8 +1,11 @@
-package one.oth3r.directionhud.common.hud.module;
+package one.oth3r.directionhud.common.hud.module.modules;
+
+import one.oth3r.directionhud.common.hud.module.BaseModule;
+import one.oth3r.directionhud.common.hud.module.Module;
 
 public class ModuleWeather extends BaseModule {
     public ModuleWeather() {
-        super(Module.WEATHER);
+        super(one.oth3r.directionhud.common.hud.module.Module.WEATHER);
         this.order = 1;
         this.state = true;
     }

@@ -6,8 +6,8 @@ import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.hud.Hud;
 import one.oth3r.directionhud.common.hud.HudColor;
 import one.oth3r.directionhud.common.hud.module.BaseModule;
-import one.oth3r.directionhud.common.hud.module.*;
 import one.oth3r.directionhud.common.hud.module.Module;
+import one.oth3r.directionhud.common.hud.module.modules.*;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.utils.Player;
 

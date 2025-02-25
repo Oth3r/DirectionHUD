@@ -1,6 +1,8 @@
-package one.oth3r.directionhud.common.hud.module;
+package one.oth3r.directionhud.common.hud.module.modules;
 
 import com.google.gson.annotations.SerializedName;
+import one.oth3r.directionhud.common.hud.module.BaseModule;
+import one.oth3r.directionhud.common.hud.module.Module;
 
 import java.util.Objects;
 
@@ -15,7 +17,7 @@ public class ModuleCoordinates extends BaseModule {
     }
 
     public ModuleCoordinates() {
-        super(Module.COORDINATES);
+        super(one.oth3r.directionhud.common.hud.module.Module.COORDINATES);
         this.order = 1;
         this.state = true;
         this.xyz = true;
