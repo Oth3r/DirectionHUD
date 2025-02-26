@@ -173,7 +173,7 @@ public class Dimension {
             DimensionEntry data = new DimensionEntry(
                     Utl.dim.updateLegacy(entries[0]), entries[1], entries[2],
                     // only enable time by default if DirectionHUD is a mod, because plugins have different times for different worlds.
-                    new DimensionEntry.Time(DirectionHUD.isMod)
+                    new DimensionEntry.Time(DirectionHUD.getData().isMod())
             );
 
             // if overworld add overworld time settings

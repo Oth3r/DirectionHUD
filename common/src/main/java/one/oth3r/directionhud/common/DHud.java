@@ -916,7 +916,7 @@ public class DHud {
     public static void UI(Player player) {
         CTxT msg = CTxT.of(" "), line = CTxT.of("\n                             ").strikethrough(true);
         msg.append(CTxT.of("DirectionHUD").color(CUtl.p())
-                        .hover(CTxT.of(DirectionHUD.VERSION+Assets.symbols.link).color(CUtl.s()))
+                        .hover(CTxT.of(DirectionHUD.getData().getVersion()+Assets.symbols.link).color(CUtl.s()))
                         .click(3,"https://modrinth.com/mod/directionhud/changelog"))
                 .append(line).append("\n ");
         // hud

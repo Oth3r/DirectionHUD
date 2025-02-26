@@ -18,9 +18,9 @@ import java.nio.file.Paths;
 
 public class Events {
     public static void serverStart() {
-        ModData.setServerStarted(true);
+        DirectionHUD.getData().setServerStarted(true);
         try {
-            Files.createDirectories(Paths.get(DirectionHUD.DATA_DIR+"playerdata/"));
+            Files.createDirectories(Paths.get(DirectionHUD.getData().getDataDirectory()+"playerdata/"));
         } catch (Exception e) {
             DirectionHUD.LOGGER.info("Failed to create playerdata directory.");
         }
@@ -34,9 +34,8 @@ public class Events {
         FileData.clearServerData();
         PlayerData.clearPlayerData();
         PlayerData.clearPlayerCache();
-        DirectionHUD.clear();
+        DirectionHUD.getData().clear();
         DirectionHUD.LOGGER.info("Safely shutdown DirectionHUD server!");
-        ModData.setServerStarted(false);
     }
 
     public static void playerJoin(Player player) {
@@ -44,13 +43,13 @@ public class Events {
 
         // add the bossbar on player join to fix duplicate boss bar issue on spigot
         if (player.getPCache().getHud().getSetting().getType().equals(Hud.Setting.DisplayType.bossbar.toString())) {
-            DirectionHUD.bossBarManager.addPlayer(player);
+            DirectionHUD.getData().getBossBarManager().addPlayer(player);
         }
     }
 
     public static void playerLeave(Player player) {
         playerSoftLeave(player);
-        DirectionHUD.clientPlayers.remove(player);
+        DirectionHUD.getData().getClientPlayers().remove(player);
     }
 
     /**
@@ -59,7 +58,7 @@ public class Events {
     public static void playerSoftLeave(Player player) {
         DHud.inbox.removeAllTracking(player);
         PlayerData.removePlayer(player);
-        DirectionHUD.bossBarManager.removePlayer(player);
+        DirectionHUD.getData().getBossBarManager().removePlayer(player);
     }
 
     public static void playerChangeWorld(Player player, String fromDIM, String toDIM) {

@@ -1,6 +1,6 @@
 package one.oth3r.directionhud.common.files;
 
-import one.oth3r.directionhud.common.ModData;
+import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 
@@ -55,7 +55,7 @@ public class FileData {
         Dimension.loadDimensionSettings();
         moduleText.load();
         // the server has to be started to edit per world data
-        if (ModData.isServerStarted() && config.getDestination().getGlobal()) loadGlobalDestinations();
+        if (DirectionHUD.getData().isServerStarted() && config.getDestination().getGlobal()) loadGlobalDestinations();
     }
 
     /**

@@ -22,10 +22,10 @@ public class CUtl {
         return CTxT.of("").append(CTxT.of("DirectionHUD").btn(true).color(p())).append(" ");
     }
     public static String p() {
-        return DirectionHUD.PRIMARY;
+        return DirectionHUD.getData().getPrimary();
     }
     public static String s() {
-        return DirectionHUD.SECONDARY;
+        return DirectionHUD.getData().getSecondary();
     }
     public static CTxT error(String key, Object... args) {
         return error().append(getLangEntry("error."+key, args));
@@ -45,7 +45,7 @@ public class CUtl {
      */
     public static CTxT getLangEntry(String key, Object... args) {
         // if the directionHUD client, use the built-in lang reader
-        if (DirectionHUD.isClient) {
+        if (DirectionHUD.getData().isClient()) {
             // we have to first convert all the CTxT's to the built version because minecraft lang reader doesn't know how to process it
             // make a array with the same size of the args
             Object[] fixedArgs = new Object[args.length];

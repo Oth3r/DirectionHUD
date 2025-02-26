@@ -106,7 +106,7 @@ public class ModuleText implements CustomFile<ModuleText> {
 
     @Override
     public String getDirectory() {
-        return DirectionHUD.CONFIG_DIR;
+        return DirectionHUD.getData().getConfigDirectory();
     }
 
     public static class ModuleCoordinates {

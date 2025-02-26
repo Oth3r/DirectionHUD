@@ -1,19 +1,20 @@
 package one.oth3r.directionhud.common;
 
+import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.playerdata.CachedPData;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.hud.Hud;
 import one.oth3r.directionhud.common.hud.module.Module;
-import one.oth3r.directionhud.common.hud.module.ModuleSpeed;
+import one.oth3r.directionhud.common.hud.module.ModuleInstructions;
+import one.oth3r.directionhud.common.hud.module.modules.ModuleSpeed;
+import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.common.utils.ParticleType;
 import one.oth3r.directionhud.common.utils.Vec;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
-
-import java.util.HashMap;
 
 public class LoopManager {
 
@@ -22,10 +23,16 @@ public class LoopManager {
     private static int HUDTick;
     private static int ParticleTick;
 
+    public static void tickRainbow() {
+        rainbowF += 10;
+        // reset the rainbow at 360
+        if (rainbowF >= 360) rainbowF = 0;
+    }
+
     public static void tick() {
         // tick the counters
         secondTick++;
-        rainbowF += 10;
+        tickRainbow();
 
         HUDTick++;
         ParticleTick++;
@@ -42,8 +49,7 @@ public class LoopManager {
             for (Player player :Utl.getPlayers()) particles(player);
         }
 
-        // reset the rainbow at 360
-        if (rainbowF >= 360) rainbowF = 0;
+
 
         // tick every 2
         if (secondTick % 2 == 0) {
@@ -97,14 +103,14 @@ public class LoopManager {
     private static void HUDTickLogic(Player player) {
         // if the HUD is enabled
         if ((boolean) player.getPCache().getHud().getSetting(Hud.Setting.state)) {
-            HashMap<Module, String> HUDData = Hud.build.getHUDInstructions(player);
-            // if the client has directionhud and the hud type is the actionBar, send as a packet todo
-//          todo  if (DirectionHUD.clientPlayers.contains(player) &&
-//                    Enums.get(player.getPCache().getHud().getSetting(Hud.Setting.type), Hud.Setting.DisplayType.class).equals(Hud.Setting.DisplayType.actionbar))
-//                player.sendHUDPackets(HUDData);
+            ModuleInstructions instructions = Hud.build.getModuleInstructions(player);
+            // if the client has directionhud and the hud type is the actionBar, send as a packet
+          if (DirectionHUD.getData().getClientPlayers().contains(player) &&
+                    Helper.Enums.get(player.getPCache().getHud().getSetting(Hud.Setting.type), Hud.Setting.DisplayType.class).equals(Hud.Setting.DisplayType.actionbar))
+                player.sendHUDPackets(instructions);
             // if not do a normal display
-//            else
-                player.displayHUD(Hud.build.compile(player,HUDData));
+            else
+                player.displayHUD(Hud.build.compile(player,instructions));
         }
         // if player has a DEST, AutoClear is on, and the distance is in the AutoClear range, clear
         if (Destination.dest.get(player).hasXYZ() && player.getPCache().getDEST().getDestSettings().getAutoclear() &&

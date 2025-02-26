@@ -275,11 +275,11 @@ public class PDDestination {
             @SerializedName("dest")
             private Boolean dest = true;
             @SerializedName("dest_color")
-            private String destColor = DirectionHUD.PRIMARY;
+            private String destColor = DirectionHUD.getData().getPrimary();
             @SerializedName("line")
             private Boolean line = true;
             @SerializedName("line_color")
-            private String lineColor = DirectionHUD.SECONDARY;
+            private String lineColor = DirectionHUD.getData().getSecondary();
             @SerializedName("tracking")
             private Boolean tracking = true;
             @SerializedName("tracking_color")

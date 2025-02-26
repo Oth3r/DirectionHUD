@@ -149,7 +149,7 @@ public class PData extends BasePData implements CustomFile<PData> {
 
     @Override
     public String getDirectory() {
-        return DirectionHUD.DATA_DIR+"playerdata/";
+        return DirectionHUD.getData().getDataDirectory()+"playerdata/";
     }
 
     @Override

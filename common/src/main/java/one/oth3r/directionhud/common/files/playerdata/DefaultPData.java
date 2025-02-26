@@ -44,6 +44,6 @@ public class DefaultPData extends BasePData implements CustomFile<DefaultPData> 
 
     @Override
     public String getDirectory() {
-        return DirectionHUD.CONFIG_DIR;
+        return DirectionHUD.getData().getConfigDirectory();
     }
 }

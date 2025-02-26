@@ -99,7 +99,7 @@ public class DimensionSettings implements CustomFile<DimensionSettings> {
 
     @Override
     public String getDirectory() {
-        return DirectionHUD.CONFIG_DIR;
+        return DirectionHUD.getData().getConfigDirectory();
     }
 
     @Override

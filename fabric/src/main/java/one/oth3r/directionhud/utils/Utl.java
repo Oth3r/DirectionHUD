@@ -32,7 +32,7 @@ public class Utl {
     }
     public static List<Player> getPlayers() {
         ArrayList<Player> array = new ArrayList<>();
-        for (ServerPlayerEntity p : DirectionHUD.server.getPlayerManager().getPlayerList())
+        for (ServerPlayerEntity p : DirectionHUD.getData().getServer().getPlayerManager().getPlayerList())
             array.add(new Player(p));
         return array;
     }
@@ -44,22 +44,22 @@ public class Utl {
 
         @Override
         public boolean globalEditing() {
-            return super.globalEditing() && (player.getPlayer().hasPermissionLevel(2) || DirectionHUD.singleplayer);
+            return super.globalEditing() && (player.getPlayer().hasPermissionLevel(2) || DirectionHUD.getData().isSingleplayer());
         }
 
         @Override
         public boolean send() {
-            return super.send() && DirectionHUD.server.isRemote();
+            return super.send() && DirectionHUD.getData().getServer().isRemote();
         }
 
         @Override
         public boolean track() {
-            return super.track() && DirectionHUD.server.isRemote();
+            return super.track() && DirectionHUD.getData().getServer().isRemote();
         }
 
         @Override
         public boolean reload() {
-            return player.getPlayer().hasPermissionLevel(2) || DirectionHUD.singleplayer;
+            return player.getPlayer().hasPermissionLevel(2) || DirectionHUD.getData().isSingleplayer();
         }
     }
 
@@ -100,10 +100,10 @@ public class Utl {
          */
         public static void addMissing(DimensionSettings dimensionSettings) {
             Random random = new Random();
-            if (DirectionHUD.server == null) return;
+            if (DirectionHUD.getData().getServer() == null) return;
             ArrayList<DimensionEntry> dimensions = dimensionSettings.getDimensions();
             //ADD MISSING DIMS TO MAP
-            for (ServerWorld world : DirectionHUD.server.getWorlds()) {
+            for (ServerWorld world : DirectionHUD.getData().getServer().getWorlds()) {
                 String currentDIM = format(world.getRegistryKey());
                 // if already exist, continue
                 if (dimensions.stream()

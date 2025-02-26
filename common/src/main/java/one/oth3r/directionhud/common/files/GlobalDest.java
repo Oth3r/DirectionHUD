@@ -104,7 +104,7 @@ public class GlobalDest implements CustomFile<GlobalDest> {
 
     @Override
     public String getDirectory() {
-        return DirectionHUD.DATA_DIR;
+        return DirectionHUD.getData().getDataDirectory();
     }
 
     @Override

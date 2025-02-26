@@ -383,7 +383,7 @@ public class Config implements CustomFile<Config> {
 
     @Override
     public String getDirectory() {
-        return DirectionHUD.CONFIG_DIR;
+        return DirectionHUD.getData().getConfigDirectory();
     }
 
     public static class Legacy {
@@ -400,9 +400,10 @@ public class Config implements CustomFile<Config> {
          */
         public File getLegacyFile() {
             // spigot file
-            if (!DirectionHUD.isMod) return new File(DirectionHUD.CONFIG_DIR+"DirectionHUD.properties");
+            String configDirectory = DirectionHUD.getData().getConfigDirectory();
+            if (!DirectionHUD.getData().isMod()) return new File(configDirectory +"DirectionHUD.properties");
             // fabric file, strip the new directory
-            return new File(DirectionHUD.CONFIG_DIR.substring(0,DirectionHUD.CONFIG_DIR.length()-13)+"DirectionHUD.properties");
+            return new File(configDirectory.substring(0, configDirectory.length()-13)+"DirectionHUD.properties");
         }
 
         /**

@@ -44,7 +44,7 @@ public class PDHud {
     private Settings setting = new Settings();
     @SerializedName("primary")
     private Color primary = new Color(
-            DirectionHUD.PRIMARY,false,false,false);
+            DirectionHUD.getData().getPrimary(),false,false,false);
     @SerializedName("secondary")
     private Color secondary = new Color(
             "#ffffff",false,false,false);

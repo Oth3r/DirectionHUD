@@ -55,7 +55,7 @@ public class ConfigScreen extends Screen {
         // open folder button
         addDrawableChild(
                 ButtonWidget.builder(LANG.btn("folder").b(), button -> {
-                            Util.getOperatingSystem().open(Paths.get(DirectionHUD.CONFIG_DIR).toUri());
+                            Util.getOperatingSystem().open(Paths.get(DirectionHUD.getData().getConfigDirectory()).toUri());
                         })
                         .dimensions(width / 2-100, 85, 200, 20)
                         .tooltip(Tooltip.of(LANG.get("tooltip.folder").b()))
