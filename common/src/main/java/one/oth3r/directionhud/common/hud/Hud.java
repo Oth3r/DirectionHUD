@@ -134,10 +134,10 @@ public class Hud {
 
         /**
          * builds the HUD for actionBar & BossBar use
-         * @param moduleInstructions a HashMap with the instructions for building the HUD
+         * @param instructions instructions for building the HUD
          * @return a CTxT with the fully built HUD
          */
-        public static CTxT compile(Player player, HashMap<Module, String> moduleInstructions) {
+        public static CTxT compile(Player player, ModuleInstructions instructions) {
             // returns a CTxT with the fully built HUD
             player.getPCache().getRainbow(HudColor.PRIMARY).setPosition(LoopManager.rainbowF);
             CTxT msg = CTxT.of("");
@@ -147,9 +147,9 @@ public class Hud {
                 Module module = mod.getModuleType();
                 count++;
                 // if module is empty, skip
-                if (moduleInstructions.get(module).isEmpty()) continue;
+                if (instructions.get(module).isEmpty()) continue;
                 // append the parsed module text
-                msg.append(CUtl.parse(player,moduleInstructions.get(module)));
+                msg.append(CUtl.parse(player,instructions.get(module)));
                 // if there's another module after the current one, add a space
                 if (count < modules.getEnabled(player).size()) msg.append(" ");
             }
@@ -166,18 +166,18 @@ public class Hud {
          * puts all HUD building instructions into a HashMap
          * @return HUD building instructions
          */
-        public static HashMap<Module, String> getHUDInstructions(Player player) {
-            HashMap<Module, String> filledModules = new HashMap<>();
-            filledModules.put(Module.COORDINATES, getCoordinatesModule(player));
-            filledModules.put(Module.DESTINATION, getDestinationModule(player));
-            filledModules.put(Module.DISTANCE, getDistanceModule(player));
-            filledModules.put(Module.TRACKING, getTrackingModule(player));
-            filledModules.put(Module.DIRECTION, getDirectionModule(player));
-            filledModules.put(Module.WEATHER, getWeatherModule(player));
-            filledModules.put(Module.TIME, getTimeModule(player));
-            filledModules.put(Module.ANGLE, getAngleModule(player));
-            filledModules.put(Module.SPEED, getSpeedModule(player));
-            return filledModules;
+        public static ModuleInstructions getModuleInstructions(Player player) {
+            ModuleInstructions instructions = new ModuleInstructions();
+            instructions.put(Module.COORDINATES, getCoordinatesModule(player));
+            instructions.put(Module.DESTINATION, getDestinationModule(player));
+            instructions.put(Module.DISTANCE, getDistanceModule(player));
+            instructions.put(Module.TRACKING, getTrackingModule(player));
+            instructions.put(Module.DIRECTION, getDirectionModule(player));
+            instructions.put(Module.WEATHER, getWeatherModule(player));
+            instructions.put(Module.TIME, getTimeModule(player));
+            instructions.put(Module.ANGLE, getAngleModule(player));
+            instructions.put(Module.SPEED, getSpeedModule(player));
+            return instructions;
         }
 
         public static String getCoordinatesModule(Player player) {

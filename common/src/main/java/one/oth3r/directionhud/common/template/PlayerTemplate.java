@@ -3,15 +3,12 @@ package one.oth3r.directionhud.common.template;
 import one.oth3r.directionhud.common.hud.Hud;
 import one.oth3r.directionhud.common.files.playerdata.CachedPData;
 import one.oth3r.directionhud.common.files.playerdata.PData;
-import one.oth3r.directionhud.common.hud.module.Module;
+import one.oth3r.directionhud.common.hud.module.ModuleInstructions;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.common.utils.ParticleType;
 import one.oth3r.directionhud.common.utils.Vec;
 import one.oth3r.directionhud.utils.CTxT;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 
 public abstract class PlayerTemplate {
     @Override
@@ -80,7 +77,7 @@ public abstract class PlayerTemplate {
         else this.sendActionBar(CTxT.of(""));
     }
     public abstract void sendPDataPackets();
-    public abstract void sendHUDPackets(HashMap<Module, ArrayList<String>> hudData);
+    public abstract void sendHUDPackets(ModuleInstructions instructions);
 
     public void displayHUD(CTxT message) {
         if (message.toString().isEmpty()) {

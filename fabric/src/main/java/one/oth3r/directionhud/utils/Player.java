@@ -7,7 +7,7 @@ import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import one.oth3r.directionhud.DirectionHUD;
-import one.oth3r.directionhud.common.hud.module.Module;
+import one.oth3r.directionhud.common.hud.module.ModuleInstructions;
 import one.oth3r.directionhud.common.utils.*;
 import one.oth3r.directionhud.packet.PacketSender;
 import one.oth3r.directionhud.common.Assets;
@@ -126,10 +126,10 @@ public class Player extends PlayerTemplate {
     }
 
     @Override
-    public void sendHUDPackets(HashMap<Module, ArrayList<String>> hudData) {
+    public void sendHUDPackets(ModuleInstructions instructions) {
         if (client) return;
         // send the instructions to build the hud to the client
-        new PacketSender(Assets.packets.HUD,Helper.getGson().toJson(hudData)).sendToPlayer(serverPlayer);
+        new PacketSender(Assets.packets.HUD,Helper.getGson().toJson(instructions)).sendToPlayer(serverPlayer);
     }
 
     @Override
