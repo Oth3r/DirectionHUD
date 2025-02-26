@@ -12,6 +12,8 @@ import one.oth3r.directionhud.common.files.Config;
 import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.dimension.DimensionSettings;
+import one.oth3r.directionhud.common.files.playerdata.DefaultPData;
+import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.utils.Lang;
 
 import java.nio.file.Paths;
@@ -38,20 +40,20 @@ public class ConfigScreen extends Screen {
                 .tooltip(Tooltip.of(LANG.get("tooltip.file").b()))
                 .build());
         // dimension settings file
-        addDrawableChild(ButtonWidget.builder(Text.literal(Dimension.getDimensionSettings().getFile().getName()), button -> {
+        addDrawableChild(ButtonWidget.builder(Text.literal(Dimension.getDimensionSettings().getFileName()), button -> {
                     Util.getOperatingSystem().open(Dimension.getDimensionSettings().getFile());
                 })
                 .dimensions(width / 2-100, 35, 200, 20)
                 .tooltip(Tooltip.of(LANG.get("tooltip.file").b()))
                 .build());
-        // default pData file todo
-//        addDrawableChild(
-//                ButtonWidget.builder(Text.literal(BasePData.getDefaultFile().getName()), button -> {
-//                    Util.getOperatingSystem().open(BasePData.getDefaultFile());
-//                })
-//                .dimensions(width / 2-100, 60, 200, 20)
-//                .tooltip(Tooltip.of(LANG.get("tooltip.file").b()))
-//                .build());
+        // default pData file
+        addDrawableChild(
+                ButtonWidget.builder(Text.literal(PlayerData.getDefaults().getFileName()), button -> {
+                    Util.getOperatingSystem().open(PlayerData.getDefaults().getFile());
+                })
+                .dimensions(width / 2-100, 60, 200, 20)
+                .tooltip(Tooltip.of(LANG.get("tooltip.file").b()))
+                .build());
         // open folder button
         addDrawableChild(
                 ButtonWidget.builder(LANG.btn("folder").b(), button -> {
