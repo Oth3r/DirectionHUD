@@ -8,6 +8,9 @@ import one.oth3r.directionhud.common.template.CustomFile;
 import org.jetbrains.annotations.NotNull;
 
 public class ModuleText implements CustomFile<ModuleText> {
+    @SerializedName("version")
+    private Double version = 1.0;
+
     @SerializedName("coordinates")
     private ModuleCoordinates coordinates = new ModuleCoordinates();
     @SerializedName("destination")
