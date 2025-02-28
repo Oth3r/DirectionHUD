@@ -2,7 +2,7 @@ name: Build DirectionHUD Documentation
 
 on:
   push:
-    branches: ["main"]
+    branches: ["docs"]
   workflow_dispatch:
 
 env:
