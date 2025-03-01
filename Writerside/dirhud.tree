@@ -11,8 +11,11 @@
     <toc-element toc-title="Using DirectionHUD">
         <toc-element topic="Commands.md">
             <toc-element topic="DirectionHUD.topic"/>
-            <toc-element topic="Destination.topic"/>
             <toc-element topic="HUD.topic"/>
+            <toc-element topic="Destination.topic"/>
         </toc-element>
+    </toc-element>
+    <toc-element topic="Configuring-DirectionHUD.topic">
+        <toc-element topic="config-json.topic"/>
     </toc-element>
 </instance-profile>

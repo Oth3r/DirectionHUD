@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+        SYSTEM "https://resources.jetbrains.com/writerside/1.0/xhtml-entities.dtd">
+<topic xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="https://resources.jetbrains.com/writerside/1.0/topic.v2.xsd"
+       title="config.json" id="config-json">
+
+    <p>
+        This file contains the configurations for the main features of DirectionHUD.
+        These features include language selection, loop speeds, social settings, and more.
+    </p>
+    <show-structure for="chapter,def" depth="3" />
+    <chapter title="Configuration" id="overview">
+        <p>Each part of the file and its valid entries are detailed below.</p>
+
+        <deflist collapsible="true">
+            <def title="lang" default-state="expanded">
+                Defines the language used for DirectionHUD
+                <p><b>Input</b>: String</p>
+                <p><b>Options</b>:
+                    <code>en_us</code>,
+                    <code>ru_ru</code>,
+                    <code>zh_cn</code>,
+                    <code>zh_hk</code>
+                </p>
+            </def>
+            <def title="online-mode" default-state="collapsed">
+                <p>
+                    Defines the mode for PlayerData file creation. <br/>
+                    When <b>enabled</b>, PlayerData files are named and accessed via the players <tooltip term="UUID">UUID</tooltip>. <br/>
+                    When <b>disabled</b>, the PlayerData will use the player's <tooltip term="IGN">IGN</tooltip>.
+                </p>
+                <p><b>Input</b>: Boolean</p>
+            </def>
+            <def title="location" default-state="collapsed">
+                <p>
+                    Configures the constraints on DirectionHUD locations.
+                </p>
+                <deflist>
+                    <def title="max-y">
+                        Defines the maximum accepted input for the Y level. (both positive and negative)
+                        <p><b>Input</b>: Integer</p>
+                    </def>
+                    <def title="max-xz">
+                        Defines the maximum accepted input for the X and Z coordinates. (both positive and negative)
+                        <p><b>Input</b>: Integer</p>
+                    </def>
+                </deflist>
+            </def>
+            <def title="hud" default-state="collapsed">
+                <p>
+                    Configures HUD functionality.
+                </p>
+                <deflist>
+                    <def title="editing">
+                        Toggles the <a href="HUD.topic"><code>/hud</code></a> command completely.
+                        <p><b>Input</b>: Boolean</p>
+                    </def>
+                    <def title="loop-ticks">
+                        Defines the number of ticks between each hud refresh.
+                        <p><b>Input</b>: Integer</p>
+                    </def>
+                </deflist>
+            </def>
+            <def title="destination" default-state="collapsed">
+                <include from="page.topic" element-id="wip"/>
+            </def>
+            <def title="social" default-state="collapsed">
+                <include from="page.topic" element-id="wip"/>
+            </def>
+            <def title="max-color-presets">
+                Defines the maximum number of <a href="DirectionHUD.topic#color-preset">color presets</a> that a player can have.
+                <p><b>Input</b>: Integer</p>
+            </def>
+        </deflist>
+
+
+    </chapter>
+
+    <chapter title="Default File Structure" id="default">
+        <p>This section provides the default structure of the <code>config.json</code> file.</p>
+        <code-block lang="json">
+            {
+                "version": 1.6,
+                "lang": "en_us",
+                "lang-options": [
+                    "en_us",
+                    "ru_ru",
+                    "zh_cn",
+                    "zh_hk"
+                ],
+                "online-mode": true,
+                "location": {
+                    "max-y": 512,
+                    "max-xz": 30000000
+                },
+                "hud": {
+                    "editing": true,
+                    "loop-ticks": 1
+                },
+                "destination": {
+                    "saving": true,
+                    "max-saved": 50,
+                    "global": false,
+                    "lastdeath": {
+                        "saving": true,
+                        "max-deaths": 4
+                    },
+                    "loop-ticks": 20
+                },
+                "social": {
+                    "enabled": true,
+                    "cooldown": 10
+                },
+                "max-color-presets": 14
+            }
+        </code-block>
+    </chapter>
+
+    <seealso>
+        <!--Provide links to related how-to guides, overviews, and tutorials.-->
+    </seealso>
+</topic>
