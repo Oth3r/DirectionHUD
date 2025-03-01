@@ -11,19 +11,18 @@
 
     <show-structure for="chapter,tab" depth="3" />
     <chapter title="Arguments" id="arguments">
-
-        <tabs group="os">
-            <tab id="hud" title="HUD">
+        <tabs group="arguments">
+            <tab id="hud" title="hud">
                 <code>/dhud hud</code>
                 <p>Redirects all following arguments to the <a href="Commands.md">HUD</a> command.</p>
             </tab>
 
-            <tab id="destination" title="Destination">
+            <tab id="destination" title="destination">
                 <code>/dhud destination</code>
                 <p>Redirects all following arguments to the <a href="Commands.md">Destination</a> command.</p>
             </tab>
 
-            <tab id="preset" title="Preset">
+            <tab id="preset" title="preset">
                 <code>/dhud preset</code>
                 <p>Lists all custom color presets via the chat GUI.<br/><br/>
                 Custom color presets can be used in all places where color inputs are accepted in DirectionHUD.<br />
@@ -47,7 +46,7 @@
                 </deflist>
             </tab>
 
-            <tab id="inbox" title="Inbox">
+            <tab id="inbox" title="inbox">
                 <code>/dhud inbox</code>
                 <p>Displays the Inbox GUI.<br/><br/>
                 Items like incoming &amp; outgoing tracking requests will be in the inbox,
@@ -58,8 +57,15 @@
                 </note>
             </tab>
 
-        </tabs>
+            <tab id="reload" title="reload">
+                <warning>
+                    Only for players with permission level 2 or higher!
+                </warning>
+                <code>/dhud reload</code>
+                <p>Reloads all DirectionHUD configuration files.</p>
 
+            </tab>
+        </tabs>
     </chapter>
 
     <seealso>
