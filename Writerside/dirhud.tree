@@ -17,5 +17,9 @@
     </toc-element>
     <toc-element topic="Configuring-DirectionHUD.topic">
         <toc-element topic="config-json.topic"/>
+        <toc-element topic="default-playerdata-json.topic"/>
+        <toc-element topic="dimension-settings-json.topic"/>
+        <toc-element topic="module-text-json.topic"/>
+        <toc-element topic="global-dest-json.topic"/>
     </toc-element>
 </instance-profile>
