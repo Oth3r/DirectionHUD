@@ -30,7 +30,7 @@ public class DimensionEntry {
         this.id = dimensionEntry.id;
         this.name = dimensionEntry.name;
         this.color = dimensionEntry.color;
-        this.time = new Time(this.time);
+        this.time = new Time(dimensionEntry.time);
     }
 
     public Time getTime() {
