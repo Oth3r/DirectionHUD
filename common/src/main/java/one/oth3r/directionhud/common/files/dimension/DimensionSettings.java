@@ -8,6 +8,7 @@ import one.oth3r.directionhud.utils.Utl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 public class DimensionSettings implements CustomFile<DimensionSettings> {
 
@@ -66,15 +67,8 @@ public class DimensionSettings implements CustomFile<DimensionSettings> {
     @Override
     public void copyFileData(DimensionSettings newFile) {
         this.version = newFile.version;
-
-        ArrayList<DimensionEntry> dimensions = new ArrayList<>();
-        for (DimensionEntry dimEntry : newFile.dimensions) dimensions.add(new DimensionEntry(dimEntry));
-        this.dimensions = dimensions;
-
-        ArrayList<RatioEntry> ratios = new ArrayList<>();
-        for (RatioEntry ratioEntry : newFile.ratios) ratios.add(new RatioEntry(ratioEntry));
-
-        this.ratios = ratios;
+        this.dimensions = newFile.dimensions.stream().map(DimensionEntry::new).collect(Collectors.toCollection(ArrayList::new));
+        this.ratios = newFile.ratios.stream().map(RatioEntry::new).collect(Collectors.toCollection(ArrayList::new));
     }
 
     /**
