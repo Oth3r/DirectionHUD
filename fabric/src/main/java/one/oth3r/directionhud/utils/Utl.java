@@ -98,10 +98,9 @@ public class Utl {
         /**
          * adds the dimensions that are loaded in game but aren't in the config yet
          */
-        public static void addMissing(DimensionSettings dimensionSettings) {
+        public static void addMissing(ArrayList<DimensionEntry> dimensions) {
             Random random = new Random();
             if (DirectionHUD.getData().getServer() == null) return;
-            ArrayList<DimensionEntry> dimensions = dimensionSettings.getDimensions();
             //ADD MISSING DIMS TO MAP
             for (ServerWorld world : DirectionHUD.getData().getServer().getWorlds()) {
                 String currentDIM = format(world.getRegistryKey());
