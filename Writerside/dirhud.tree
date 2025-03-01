@@ -9,9 +9,8 @@
     <toc-element topic="starter-topic.md"/>
     <toc-element topic="Section-Starting-Page.topic"/>
     <toc-element toc-title="Using DirectionHUD">
-        <toc-element toc-title="Commands">
-            <toc-element topic="DirectionHUD.md"/>
-            <toc-element topic="Commands.md"/>
+        <toc-element topic="Commands.md">
+            <toc-element topic="DirectionHUD.topic"/>
         </toc-element>
     </toc-element>
 </instance-profile>

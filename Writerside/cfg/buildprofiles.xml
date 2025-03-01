@@ -6,6 +6,7 @@
     <variables></variables>
     <build-profile instance="dirhud">
         <variables>
+            <custom-favicons>directionhud_icon_transparent.png</custom-favicons>
             <noindex-content>false</noindex-content>
         </variables>
     </build-profile>

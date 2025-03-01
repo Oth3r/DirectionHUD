@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+        SYSTEM "https://resources.jetbrains.com/writerside/1.0/xhtml-entities.dtd">
+<topic xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="https://resources.jetbrains.com/writerside/1.0/topic.v2.xsd"
+       title="DirectionHUD" id="DirectionHUD">
+
+    <p>The DirectionHUD command can be used to execute any command in the mod,
+        but is rarely used in favor of the more proprietary commands.
+    </p>
+
+    <show-structure for="chapter,tab" depth="3" />
+    <chapter title="Arguments" id="arguments">
+
+        <tabs group="os">
+            <tab id="hud" title="HUD">
+
+                Redirects all following arguments to the <a href="Commands.md">HUD</a> command.
+            </tab>
+
+            <tab id="destination" title="Destination">
+                Redirects all following arguments to the <a href="Commands.md">Destination</a> command.
+            </tab>
+
+            <tab id="presets" title="Presets">
+                Lists all custom color presets via the chat GUI.
+                <p>Custom color presets can be used in places where colors are accepted in DirectionHUD.<br />
+                    Each preset is named for ease of use when selecting the preset, either via commands or via GUI.
+                </p>
+
+                <include from="command.topic" element-id="syntax"/>
+                <deflist type="full">
+                    <def title="save <color> <name>">
+                        Saves a new color preset
+                    </def>
+                    <def title="color <preset_name> <new_color>">
+                        Changes the color of a custom color preset
+                    </def>
+                    <def title="rename <preset_name> <new_name>">
+                        Renames the custom color preset
+                    </def>
+                    <def title="delete <preset_name>">
+                        Deletes the custom color preset
+                    </def>
+                </deflist>
+            </tab>
+
+            <tab id="inbox" title="Inbox">
+                Displays the Inbox GUI.
+                <p>Items like incoming &amp; outgoing tracking requests will be in the inbox,
+                    useful for when these items get lost in chat.
+                </p>
+                <note>
+                    Currently on the roadmap to get redone, but it's not very high priority.
+                </note>
+            </tab>
+
+        </tabs>
+
+    </chapter>
+
+    <seealso>
+        <!--Provide links to related how-to guides, overviews, and tutorials.-->
+    </seealso>
+</topic>
