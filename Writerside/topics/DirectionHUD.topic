@@ -22,7 +22,7 @@
                 <p>Redirects all following arguments to the <a href="Commands.md">Destination</a> command.</p>
             </tab>
 
-            <tab id="preset" title="preset">
+            <tab id="color-preset" title="preset">
                 <code>/dhud preset</code>
                 <p>Lists all custom color presets via the chat GUI.<br/><br/>
                 Custom color presets can be used in all places where color inputs are accepted in DirectionHUD.<br />
