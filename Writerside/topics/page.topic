@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE topic SYSTEM "https://resources.jetbrains.com/writerside/1.0/html-entities.dtd">
+<topic xsi:noNamespaceSchemaLocation="https://resources.jetbrains.com/writerside/1.0/topic.v2.xsd"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" is-library="true" id="page" title="Page">
+    <!-- Put your snippets here -->
+    <snippet id="wip">
+        <warning>
+            <p><b>W.I.P</b></p>
+            <p>This page is a work in progress!<br/><br/>
+
+                DirectionHUD is a pretty hefty project! <i>(for me at least)</i> <br/>
+
+                Help the project out and contribute on <a href="https://github.com/Oth3r/DirectionHUD">GitHub</a>,
+                or <a href="https://ko-fi.com/oth3r">buy me a Coffee</a>!
+
+            </p>
+
+        </warning>
+    </snippet>
+</topic>

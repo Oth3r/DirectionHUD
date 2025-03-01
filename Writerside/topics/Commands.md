@@ -16,11 +16,11 @@ Execution commands:
 ```generic
 /hud
 ```
-<a href="DirectionHUD.topic">Click to learn more.</a>
+<a href="HUD.topic">Click to learn more.</a>
 
 ## Destination
 Execution commands:
 ```generic
 /destination | /dest
 ```
-<a href="DirectionHUD.topic">Click to learn more.</a>
+<a href="Destination.topic">Click to learn more.</a>

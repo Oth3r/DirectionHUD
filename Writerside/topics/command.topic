@@ -6,9 +6,13 @@
     <!-- Put your snippets here -->
     <snippet id="syntax">
         <note>
-            Arguments in angle brackets <code>&lt;&gt;</code> are required inputs,
-            while arguments in parenthesis <code>()</code> are optional.
-            <p>Arguments with nothing around them have to be entered as is.</p>
+            <p><b>Guidelines for Command Arguments</b></p>
+            <list type="bullet">
+                <li>Arguments in angle brackets <code>&lt;&gt;</code> are required inputs.</li>
+                <li>Arguments in parenthesis <code>()</code> are optional.</li>
+                <li>Arguments in square brackets <code>[]</code> indicate choices - one of the listed options must be used.</li>
+                <li>Arguments with nothing around them have to be entered as written.</li>
+            </list>
         </note>
     </snippet>
 </topic>

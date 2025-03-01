@@ -14,7 +14,7 @@
         <tabs group="arguments">
             <tab id="hud" title="hud">
                 <code>/dhud hud</code>
-                <p>Redirects all following arguments to the <a href="Commands.md">HUD</a> command.</p>
+                <p>Redirects all following arguments to the <a href="HUD.topic"/> command.</p>
             </tab>
 
             <tab id="destination" title="destination">
