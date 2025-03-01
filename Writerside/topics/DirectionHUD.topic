@@ -14,17 +14,19 @@
 
         <tabs group="os">
             <tab id="hud" title="HUD">
-
-                Redirects all following arguments to the <a href="Commands.md">HUD</a> command.
+                <code>/dhud hud</code>
+                <p>Redirects all following arguments to the <a href="Commands.md">HUD</a> command.</p>
             </tab>
 
             <tab id="destination" title="Destination">
-                Redirects all following arguments to the <a href="Commands.md">Destination</a> command.
+                <code>/dhud destination</code>
+                <p>Redirects all following arguments to the <a href="Commands.md">Destination</a> command.</p>
             </tab>
 
-            <tab id="presets" title="Presets">
-                Lists all custom color presets via the chat GUI.
-                <p>Custom color presets can be used in places where colors are accepted in DirectionHUD.<br />
+            <tab id="preset" title="Preset">
+                <code>/dhud preset</code>
+                <p>Lists all custom color presets via the chat GUI.<br/><br/>
+                Custom color presets can be used in all places where color inputs are accepted in DirectionHUD.<br />
                     Each preset is named for ease of use when selecting the preset, either via commands or via GUI.
                 </p>
 
@@ -46,8 +48,9 @@
             </tab>
 
             <tab id="inbox" title="Inbox">
-                Displays the Inbox GUI.
-                <p>Items like incoming &amp; outgoing tracking requests will be in the inbox,
+                <code>/dhud inbox</code>
+                <p>Displays the Inbox GUI.<br/><br/>
+                Items like incoming &amp; outgoing tracking requests will be in the inbox,
                     useful for when these items get lost in chat.
                 </p>
                 <note>
