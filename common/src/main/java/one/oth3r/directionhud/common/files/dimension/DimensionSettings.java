@@ -78,7 +78,12 @@ public class DimensionSettings implements CustomFile<DimensionSettings> {
      */
     @Override
     public void update(JsonElement json) {
-
+        if (version == null || json.isJsonNull()) {
+            copyFileData(new DimensionSettings());
+        }
+        if (version == 1) {
+            Utl.dim.addMissing(this.dimensions);
+        }
     }
 
     /**
