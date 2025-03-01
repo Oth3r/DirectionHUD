@@ -10,102 +10,6 @@
     <show-structure for="chapter,tab" depth="3" />
     <chapter title="Command Arguments" id="arguments">
         <tabs group="arguments">
-            <tab id="color" title="color">
-                <code>/hud color</code>
-                <p>
-                    Displays the GUI to edit the HUD colors.
-                    <br/><br/>
-                    The HUD has two color category;
-                    <b>primary</b> &amp; <b>secondary</b>.
-                    <br/>
-                    Each HUD <a href="#module">Module</a> uses either color when displaying.
-                    <br/><br/>
-                    Along with entering a custom color for the HUD, each color type can be
-                    a combination of <b>bold</b>, <i>italic</i>, and rainbow.
-                </p>
-
-                <include from="command.topic" element-id="syntax"/>
-                <p>Color Arguments:</p>
-                <deflist type="full">
-                    <def title="reset [all, primary, secondary]">
-                        <p><code>/hud color reset primary</code></p>
-                        Resets the style of the selected HUD color category
-                    </def>
-                    <def title="[primary, secondary] . . .">
-                        <p><code>/hud color primary</code></p>
-                        Edits the selected HUD color category
-
-                        <deflist type="full">
-                            <def title="set <color>">
-                                <p><code>/hud color primary set #ffccff</code></p>
-                                Sets the color for the color category
-                            </def>
-                            <def title="bold [on, off]">
-                                <p><code>/hud color secondary bold on</code></p>
-                                Enables or disables bold styling for the color category
-                            </def>
-                            <def title="italics [on, off]">
-                                <p><code>/hud color secondary italics off</code></p>
-                                Enables or disables italics styling for the color category
-                            </def>
-                            <def title="rainbow [on, off]">
-                                <p><code>/hud color primary rainbow on</code></p>
-                                Enables or disables rainbow for the color category
-                            </def>
-                        </deflist>
-
-                    </def>
-                </deflist>
-            </tab>
-
-            <tab id="settings" title="settings">
-                <code>/hud settings</code>
-                <p>Displays the HUD settings GUI.<br/><br/>
-                    Edit HUD settings such as BossBar and HUD display type.
-                </p>
-
-                <include from="command.topic" element-id="syntax"/>
-                <deflist type="full">
-                    <def title="reset (hud_setting)">
-                        <p><code>/hud settings reset bossbar.color</code></p>
-                        Restores all HUD settings to their default values unless a specific setting is specified.
-                    </def>
-                    <def title="set <hud_setting> <state>">
-                        <p><code>/hud settings set type bossbar</code></p>
-                        Updates a specific HUD setting to the given state.
-                    </def>
-                </deflist>
-
-                <p><b>HUD Setting Types</b></p>
-                <table>
-                    <tr>
-                        <td>setting</td>
-                        <td>value</td>
-                        <td>explanation</td>
-                    </tr>
-                    <tr>
-                        <td>state</td>
-                        <td>[on, off]</td>
-                        <td>Sets the HUD visibility.</td>
-                    </tr>
-                    <tr>
-                        <td>type</td>
-                        <td>[actionbar, bossbar]</td>
-                        <td>Sets the HUD display type.</td>
-                    </tr>
-                    <tr>
-                        <td>bossbar.color</td>
-                        <td>[pink, blue, red, green, yellow, purple, white]</td>
-                        <td>Sets the color of the BossBar.</td>
-                    </tr>
-                    <tr>
-                        <td>bossbar.distance</td>
-                        <td>0+</td>
-                        <td><p>Sets the distance at which the BossBar starts decreasing as the player approaches.<br/>
-                            Use 0 for automatic distance calculation.</p></td>
-                    </tr>
-                </table>
-            </tab>
 
             <tab id="module" title="module">
                 <code>/hud modules</code>
@@ -235,6 +139,103 @@
                         Displays the current viewing angle.
                     </def>
                 </deflist>
+            </tab>
+
+            <tab id="color" title="color">
+                <code>/hud color</code>
+                <p>
+                    Displays the GUI to edit the HUD colors.
+                    <br/><br/>
+                    The HUD has two color categories;
+                    <b>primary</b> &amp; <b>secondary</b>.
+                    <br/>
+                    Each HUD <a href="#module">Module</a> uses either color when displaying.
+                    <br/><br/>
+                    Along with entering a custom color for the HUD, each color type can be
+                    a combination of <b>bold</b>, <i>italic</i>, and rainbow.
+                </p>
+
+                <include from="command.topic" element-id="syntax"/>
+                <p>Color Arguments:</p>
+                <deflist type="full">
+                    <def title="reset [all, primary, secondary]">
+                        <p><code>/hud color reset primary</code></p>
+                        Resets the style of the selected HUD color category
+                    </def>
+                    <def title="[primary, secondary] . . .">
+                        <p><code>/hud color primary</code></p>
+                        Edits the selected HUD color category
+
+                        <deflist type="full">
+                            <def title="set <color>">
+                                <p><code>/hud color primary set #ffccff</code></p>
+                                Sets the color for the color category
+                            </def>
+                            <def title="bold [on, off]">
+                                <p><code>/hud color secondary bold on</code></p>
+                                Enables or disables bold styling for the color category
+                            </def>
+                            <def title="italics [on, off]">
+                                <p><code>/hud color secondary italics off</code></p>
+                                Enables or disables italics styling for the color category
+                            </def>
+                            <def title="rainbow [on, off]">
+                                <p><code>/hud color primary rainbow on</code></p>
+                                Enables or disables rainbow for the color category
+                            </def>
+                        </deflist>
+
+                    </def>
+                </deflist>
+            </tab>
+
+            <tab id="settings" title="settings">
+                <code>/hud settings</code>
+                <p>Displays the HUD settings GUI.<br/><br/>
+                    Edit HUD settings such as BossBar and HUD display type.
+                </p>
+
+                <include from="command.topic" element-id="syntax"/>
+                <deflist type="full">
+                    <def title="reset (hud_setting)">
+                        <p><code>/hud settings reset bossbar.color</code></p>
+                        Restores all HUD settings to their default values unless a specific setting is specified.
+                    </def>
+                    <def title="set <hud_setting> <state>">
+                        <p><code>/hud settings set type bossbar</code></p>
+                        Updates a specific HUD setting to the given state.
+                    </def>
+                </deflist>
+
+                <p><b>HUD Setting Types</b></p>
+                <table>
+                    <tr>
+                        <td>setting</td>
+                        <td>value</td>
+                        <td>explanation</td>
+                    </tr>
+                    <tr>
+                        <td>state</td>
+                        <td>[on, off]</td>
+                        <td>Sets the HUD visibility.</td>
+                    </tr>
+                    <tr>
+                        <td>type</td>
+                        <td>[actionbar, bossbar]</td>
+                        <td>Sets the HUD display type.</td>
+                    </tr>
+                    <tr>
+                        <td>bossbar.color</td>
+                        <td>[pink, blue, red, green, yellow, purple, white]</td>
+                        <td>Sets the color of the BossBar.</td>
+                    </tr>
+                    <tr>
+                        <td>bossbar.distance</td>
+                        <td>0+</td>
+                        <td><p>Sets the distance at which the BossBar starts decreasing as the player approaches.<br/>
+                            Use 0 for automatic distance calculation.</p></td>
+                    </tr>
+                </table>
             </tab>
 
             <tab id="toggle" title="toggle">
