@@ -114,6 +114,13 @@ public class Helper {
             T[] values = enumType.getEnumConstants();
             return Arrays.stream(values).filter(entry -> entry.name().equals(enumString.toString())).findFirst();
         }
+
+        /**
+         * checks if an Enum string is valid in the enum type
+         */
+        public static <T extends Enum<T>> boolean contains(Object enumString, Class<T> enumType) {
+            return search(enumString,enumType).isPresent();
+        }
     }
 
     public static class Num {
