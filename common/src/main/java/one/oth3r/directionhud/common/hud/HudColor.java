@@ -48,4 +48,8 @@ public enum HudColor {
         return Arrays.stream(HudColor.values()).filter(color -> color.getName().equals(name)).findFirst().orElse(null);
     }
 
+    @Override
+    public String toString() {
+        return this.name;
+    }
 }

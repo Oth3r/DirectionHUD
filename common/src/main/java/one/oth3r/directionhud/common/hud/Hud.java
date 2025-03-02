@@ -1539,7 +1539,8 @@ public class Hud {
             if (Enums.contains(args[0],HudColor.class)) {
                 // color (type)
                 if (args.length == 1) {
-                    changeUI(player, DHud.preset.DEFAULT_UI_SETTINGS, HudColor.PRIMARY, null);
+                    changeUI(player, DHud.preset.DEFAULT_UI_SETTINGS, HudColor.fromName(args[0]), null);
+                    return;
                 }
 
                 // color (type) edit (settings)
@@ -1731,28 +1732,30 @@ public class Hud {
             CTxT msg = CTxT.of(""), line = CUtl.makeLine(31);
             if (aboveTxT != null) msg.append(aboveTxT).append("\n");
 
-            PDHud.Color colorSettings = color.getSettings(player);
-            String colorName = color.getName();
+            PDHud.Color colorData = color.getSettings(player);
 
             // message header
-            msg.append(" ").append(addColor(player,LANG.btn(setting),color,new Rainbow(15,20))).append(line).append("\n");
+            msg.append(" ").append(addColor(player,LANG.btn(color.toString()),color,new Rainbow(15,20)))
+                    .append(line).append("\n");
+
             // make the buttons
             CTxT reset = CUtl.LANG.btn("reset").btn(true).color('c').click(1, "/hud color reset-r "+setting+" "+setting)
                     .hover(LANG.hover("reset",addColor(player,LANG.get(setting),color,new Rainbow(15,20))));
             // bold
-            CTxT boldButton = LANG.btn("bold").btn(true).color(CUtl.toggleColor(colorSettings.getBold()))
-                    .click(1,String.format("/hud color %s-r bold %s %s",setting,(colorSettings.getBold()?"off":"on"),setting))
-                    .hover(LANG.hover("toggle",CUtl.toggleTxT(!colorSettings.getBold()),LANG.get("bold").bold(true)));
+            CTxT boldButton = LANG.btn("bold").btn(true).color(CUtl.toggleColor(colorData.getBold()))
+                    .click(1,String.format("/hud color %s-r bold %s %s",color,(colorData.getBold()?"off":"on"),setting))
+                    .hover(LANG.hover("toggle",CUtl.toggleTxT(!colorData.getBold()),LANG.get("bold").bold(true)));
             // italics
-            CTxT italicsButton = LANG.btn("italics").btn(true).color(CUtl.toggleColor(colorSettings.getItalics()))
-                    .click(1,String.format("/hud color %s-r italics %s %s",setting,(colorSettings.getItalics()?"off":"on"),setting))
-                    .hover(LANG.hover("toggle",CUtl.toggleTxT(!colorSettings.getItalics()),LANG.get("italics").italic(true)));
+            CTxT italicsButton = LANG.btn("italics").btn(true).color(CUtl.toggleColor(colorData.getItalics()))
+                    .click(1,String.format("/hud color %s-r italics %s %s",color,(colorData.getItalics()?"off":"on"),setting))
+                    .hover(LANG.hover("toggle",CUtl.toggleTxT(!colorData.getItalics()),LANG.get("italics").italic(true)));
             // rainbow
-            CTxT rgbButton = LANG.btn("rgb").btn(true).color(CUtl.toggleColor(colorSettings.getRainbow()))
-                    .click(1,String.format("/hud color %s-r rainbow %s %s",setting,(colorSettings.getRainbow()?"off":"on"),setting))
-                    .hover(LANG.hover("toggle",CUtl.toggleTxT(!colorSettings.getRainbow()),LANG.get("rainbow").rainbow(new Rainbow(15f,20f))));
+            CTxT rgbButton = LANG.btn("rgb").btn(true).color(CUtl.toggleColor(colorData.getRainbow()))
+                    .click(1,String.format("/hud color %s-r rainbow %s %s",color,(colorData.getRainbow()?"off":"on"),setting))
+                    .hover(LANG.hover("toggle",CUtl.toggleTxT(!colorData.getRainbow()),LANG.get("rainbow").rainbow(new Rainbow(15f,20f))));
+
             // build the message
-            msg.append(DHud.preset.colorEditor(colorSettings.getColor(),setting, DHud.preset.Type.hud,setting,"/hud color "+setting+" edit %s"))
+            msg.append(DHud.preset.colorEditor(colorData.getColor(), setting, DHud.preset.Type.hud, color.toString(),"/hud color "+ color +" edit %s"))
                     .append("\n\n ").append(boldButton).append(" ").append(italicsButton).append(" ").append(rgbButton)
                     .append("\n\n     ").append(reset).append(" ").append(CUtl.CButton.back("/hud color")).append(line);
             player.sendMessage(msg);
