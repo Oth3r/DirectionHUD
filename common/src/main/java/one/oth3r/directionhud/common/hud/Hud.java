@@ -1536,8 +1536,12 @@ public class Hud {
                 if (args.length == 3) reset(player,args[2],args[1],Return);
             }
             // CHANGE STYLE
-            if (args.length < 2) return;
-            if (args[0].equals("primary") || args[0].equals("secondary")) {
+            if (Enums.contains(args[0],HudColor.class)) {
+                // color (type)
+                if (args.length == 1) {
+                    changeUI(player, DHud.preset.DEFAULT_UI_SETTINGS, HudColor.PRIMARY, null);
+                }
+
                 // color (type) edit (settings)
                 if (args[1].equals("edit")) {
                     changeUI(player, args.length==3?args[2]: DHud.preset.DEFAULT_UI_SETTINGS, HudColor.fromName(args[0]), null);
