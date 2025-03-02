@@ -1583,7 +1583,7 @@ public class Hud {
             if (pos == 2) {
                 // (type) set (color)
                 if (args[1].equals("set")) return Suggester.colors(player,Suggester.getCurrent(args,pos),true);
-                else {
+                else if (Enums.contains(args[0],HudColor.class)) {
                     // (type) (subType) (on/off)
                     suggester.add("on");
                     suggester.add("off");
