@@ -112,7 +112,7 @@ public class Helper {
          */
         public static <T extends Enum<T>> Optional<T> search(Object enumString, Class<T> enumType) {
             T[] values = enumType.getEnumConstants();
-            return Arrays.stream(values).filter(entry -> entry.name().equals(enumString.toString())).findFirst();
+            return Arrays.stream(values).filter(entry -> entry.toString().equals(enumString.toString())).findFirst();
         }
 
         /**
