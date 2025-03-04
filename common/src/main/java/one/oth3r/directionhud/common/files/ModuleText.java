@@ -134,6 +134,8 @@ public class ModuleText implements CustomFile<ModuleText> {
         private String xz = "&1[&2%s %s&1]";
         @SerializedName("name")
         private String name = "&2[&s%s&1]";
+        @SerializedName("name_xz")
+        private String name_xz = "&1[&s%s&1]";
 
         public String getXyz() {
             return xyz;
@@ -145,6 +147,10 @@ public class ModuleText implements CustomFile<ModuleText> {
 
         public String getName() {
             return name;
+        }
+
+        public String getNameXz() {
+            return name_xz;
         }
     }
 
