@@ -133,9 +133,9 @@ public class ModuleText implements CustomFile<ModuleText> {
         @SerializedName("xz")
         private String xz = "&1[&2%s %s&1]";
         @SerializedName("name")
-        private String name = "&2[&s%s&1]";
+        private String name = "&2[&1%s&2]";
         @SerializedName("name_xz")
-        private String name_xz = "&1[&s%s&1]";
+        private String name_xz = "&2[&1%s&2]";
 
         public String getXyz() {
             return xyz;
