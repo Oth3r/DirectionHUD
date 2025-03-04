@@ -213,11 +213,14 @@ public class Hud {
             // assets
             ModuleText.ModuleDestination moduleDestination = FileData.getModuleText().getDestination();
             // return based on the destination
-            if (dest.hasDestRequirements()) {
-                return String.format(moduleDestination.getName(), dest.getName());
+            if (dest.getName() != null && dest.hasY()) {
+                return String.format(moduleDestination.getName(), dest.getName(), dest.getX(), dest.getY(), dest.getZ());
+            }
+            else if (dest.getName() != null) {
+                return String.format(moduleDestination.getNameXz(), dest.getName(), dest.getX(), dest.getZ());
             }
             else if (dest.hasY()) {
-                return String.format(moduleDestination.getXyz(), dest.getX(), dest.getY(), dest.getZ());
+                return String.format(moduleDestination.getXyz(), dest.getX(), dest.getY(), dest.getZ(), dest.getZ());
             }
             else {
                 return String.format(moduleDestination.getXz(), dest.getX(), dest.getZ());
