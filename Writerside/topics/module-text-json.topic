@@ -5,5 +5,329 @@
        xsi:noNamespaceSchemaLocation="https://resources.jetbrains.com/writerside/1.0/topic.v2.xsd"
        title="module-text.json" id="module-text-json">
 
-    <include from="page.topic" element-id="wip"/>
+    <p>
+        This file contains the display formatting for all HUD modules in DirectionHUD.
+    </p>
+    <chapter title="Formatting Guidelines" id="formatting">
+        <p>All modules in DirectionHUD use the same formatting guidelines.</p>
+        <deflist collapsible="true">
+            <def title="Getting Module Output">
+                <p>
+                    Each module has outputs that should be displayed.<br/>
+                    <br/>
+                    Use <code>%s</code> to retrieve an output.<br/>
+                    <br/>
+                    <b>Module Output</b>: 123, 45, 678<br/>
+                    <b>Input</b>: <code>This is the x value: %s</code><br/>
+                    <b>Output</b>: This is the x value: 123<br/><br/>
+
+                    When multiple outputs need to be selected out of order,
+                    use the syntax <code>%1$s</code>,
+                    where the number corresponds to the original order.<br/><br/>
+
+                    <b>Module Output</b>: 123, 45, 678<br/>
+                    <b>Input</b>: <code>This is the z value: %3$s</code><br/>
+                    <b>Output</b>: This is the z value: 678<br/><br/>
+
+                </p>
+
+            </def>
+            <def title="Selecting a Color">
+                <p>
+                    There are currently two color code formats to choose from.<br/><br/>
+
+                    <code>&amp;1</code> - The player's selected <format color="#2993ff">primary</format> color.<br/>
+                    <code>&amp;2</code> - The player's selected <format color="White">secondary</format> color.<br/>
+                    <br/>
+                    <b>Example</b>: <code>&amp;1Hello World!</code><br/>
+                    <b>Output</b>: <format color="#2993ff">Hello World!</format>
+                </p>
+
+            </def>
+            <def title="Text Styling">
+                <p>
+                    DirectionHUD offers all the vanilla text formatting functionality for the module output.<br/><br/>
+
+                    <code>&amp;b</code> - Makes the text bold.<br/>
+                    <code>&amp;i</code> - Makes the text italic.<br/>
+                    <code>&amp;s</code> - Makes the text strikethrough.<br/>
+                    <code>&amp;u</code> - Makes the text underlined.<br/>
+                    <code>&amp;o</code> - Makes the text obfuscated.<br/>
+                    <code>&amp;r</code> - Resets all modifiers, <i>excluding</i> the color of the text.<br/>
+                    <br/>
+                    <b>Example</b>: <code>&amp;bHello &amp;iWorld!</code><br/>
+                    <b>Output</b>: <b>Hello <i>World!</i></b><br/>
+                    <br/>
+                    Resetting the modifier between the words offers more controls.<br/>
+                    <br/>
+                    <b>Example</b>: <code>&amp;bHello &amp;r&amp;i&amp;uWorld&amp;r!</code><br/>
+                    <b>Output</b>: <b>Hello</b> <u><i>World</i></u>!<br/>
+                </p>
+            </def>
+            <def title="Default Examples" default-state="expanded">
+                <p>
+                    Here are some formatting examples.<br/><br/>
+
+                    <b>Colors</b>: <format color="#2993ff">Primary</format>, <format color="White">Secondary</format><br/>
+                    <b>Module Output</b>: 123, 45, 678<br/><br/>
+
+                    <b>Example</b>: <code>&amp;1&amp;b&amp;uXYZ&amp;2&amp;r: %s %s %s</code><br/>
+                    <b>Output</b>: <format style="bold,underline" color="#2993ff">XYZ</format><format color="White">: 123 45 678</format><br/>
+                    <br/>
+                    <b>Example</b>: <code>&amp;1&amp;b&amp;iXYZ&amp;r&amp;2: %s&amp;1&amp;b-&amp;r&amp;2%s&amp;1&amp;b-&amp;r&amp;2%s</code><br/>
+                    <b>Output</b>: <format style="bold,italic" color="#2993ff">XYZ</format>
+                    <format color="White">: 123</format><format style="bold" color="#2993ff">-</format><format color="White">45</format><format style="bold" color="#2993ff">-</format><format color="White">678</format><br/>
+                </p>
+            </def>
+        </deflist>
+    </chapter>
+
+
+    <show-structure for="chapter,tab" depth="3" />
+    <chapter title="Configuration" id="overview">
+        <p>Each part of the file and its valid entries are detailed below.</p>
+
+        <tabs>
+            <tab id="coordinates" title="coordinates">
+                Display options for the <a href="HUD.topic#coordinates_info" summary="The coordinates module info.">coordinates module</a>.
+                <deflist>
+                    <def title="xyz" id="coordinates_xyz">
+                        This is the output for when the module is in XYZ mode.
+                        <p><b>Outputs</b>: <code>x</code>, <code>y</code>, <code>z</code></p>
+                    </def>
+                    <def title="xy" id="coordinates_xy">
+                        This is the output for when the module is in XZ mode.
+                        <p><b>Outputs</b>: <code>x</code>, <code>z</code></p>
+                    </def>
+                </deflist>
+            </tab>
+            <tab id="destination" title="destination">
+                Display options for the <a href="HUD.topic#destination_info" summary="The destination module info.">destination module</a>.
+                <deflist>
+                    <def title="xyz">
+                        This is the output for when the destination has all coordinates with no name.
+                        <p><b>Outputs</b>: <code>x</code>, <code>y</code>, <code>z</code></p>
+                    </def>
+                    <def title="xy">
+                        This is the output for when the destination has no Y level and no name.
+                        <p><b>Outputs</b>: <code>x</code>, <code>z</code></p>
+                    </def>
+                    <def title="name">
+                        This is the output for when the destination has a name and ALL coordinates.
+                        <p><b>Outputs</b>: <code>destination_name</code>, <code>x</code>, <code>y</code>, <code>z</code></p>
+                    </def>
+                    <def title="name_xz">
+                        This is the output for when the destination has a name but, NO Y coordinate.
+                        <p><b>Outputs</b>: <code>destination_name</code>, <code>x</code>, <code>z</code></p>
+                    </def>
+                </deflist>
+            </tab>
+            <tab id="distance" title="distance">
+                Display options for the <a href="HUD.topic#distance_info" summary="The distance module info.">distance module</a>.
+                <deflist>
+                    <def title="number" id="distance_number">
+                        This is the only output for the distance module.
+                        <p><b>Outputs</b>: <code>distance</code></p>
+                    </def>
+                </deflist>
+            </tab>
+            <tab id="tracking" title="tracking">
+                Display options for the <a href="HUD.topic#tracking_info" summary="The tracking module info.">tracking module</a>.
+                <deflist>
+                    <def title="assets" id="tracking_assets">
+                        This provides the symbols used for the tracking module.
+                        <p>
+                            <b>Simple</b>: the symbols used when the module style is set to simple <br/>
+                            <b>Compact</b>: the symbols used when the module style is set to compact <br/>
+                            <b>Elevation</b>: the symbols used when tracking elevation is enabled
+                        </p>
+                    </def>
+                    <def title="tracking" id="tracking_normal_tracking">
+                        This is the output for tracking without elevation.
+                        <p><b>Outputs</b>: <code>tracking_arrow</code></p>
+                    </def>
+                    <def title="elevation_tracking" id="tracking_elevation_tracking">
+                        This is the output for tracking with elevation.
+                        <p><b>Outputs</b>: <code>tracking_arrow</code>, <code>elevation_arrow</code></p>
+                    </def>
+                </deflist>
+            </tab>
+            <tab id="direction" title="direction">
+                Display options for the <a href="HUD.topic#direction_info" summary="The direction module info.">direction module</a>.
+                <deflist>
+                    <def title="assets" id="direction_assets">
+                        This provides the assets used for the direction module.
+                        <p>
+                            <b>Cardinal</b>: the asset to display for each cardinal direction
+                        </p>
+                    </def>
+                    <def title="facing" id="direction_facing">
+                        This is the only output for the direction module.
+                        <p><b>Outputs</b>: <code>direction</code></p>
+                    </def>
+                </deflist>
+            </tab>
+            <tab id="weather" title="weather">
+                Display options for the <a href="HUD.topic#weather_info" summary="The weather module info.">weather module</a>.
+                <deflist>
+                    <def title="weather_single" id="weather_single">
+                        This is the output for when the weather is clear.
+                        <p><b>Outputs</b>: <code>weather</code></p>
+                    </def>
+                    <def title="weather" id="weather_weather">
+                        This is the output for when the weather is not clear. (e.g., thunderstorms)
+                        <p><b>Outputs</b>: <code>weather</code>, <code>weather_conditions</code></p>
+                    </def>
+                </deflist>
+            </tab>
+            <tab id="time" title="time">
+                Display options for the <a href="HUD.topic#time_info" summary="The time module info.">time module</a>.
+                <deflist>
+                    <def title="assets" id="time_assets">
+                        This provides the assets used for the time module.
+                        <p>
+                            <b>am</b>: the text for the AM <br/>
+                            <b>pm</b>: the text for the PM <br/>
+                            <b>time_separator</b>: the symbol for the time separator
+                        </p>
+                    </def>
+                    <def title="hour_12" id="time_hour_12">
+                        This is the output for the 12-hour clock.
+                        <p><b>Outputs</b>: <code>time</code> <code>time_designation</code></p>
+                    </def>
+                    <def title="hour_24" id="time_hour_24">
+                        This is the output for the 24-hour clock.
+                        <p><b>Outputs</b>: <code>time</code></p>
+                    </def>
+                </deflist>
+            </tab>
+            <tab id="angle" title="angle">
+                Display options for the <a href="HUD.topic#angle_info" summary="The tracking angle info.">angle module</a>.
+                <deflist>
+                    <def title="yaw" id="angle_yaw">
+                        This is the output for the yaw angle.
+                        <p><b>Outputs</b>: <code>yaw</code></p>
+                    </def>
+                    <def title="pitch" id="angle_pitch">
+                        This is the output for the pitch angle.
+                        <p><b>Outputs</b>: <code>pitch</code></p>
+                    </def>
+                    <def title="both" id="angle_both">
+                        This is the output for both angles.
+                        <p><b>Outputs</b>: <code>yaw</code>, <code>pitch</code></p>
+                    </def>
+                </deflist>
+            </tab>
+            <tab id="speed" title="speed">
+                Display options for the <a href="HUD.topic#speed_info" summary="The speed module info.">speed module</a>.
+                <deflist>
+                    <def title="xz_speed" id="speed_xz">
+                        This is the output for the 2D speed.
+                        <p><b>Outputs</b>: <code>yaw</code></p>
+                    </def>
+                    <def title="xyz_speed" id="speed_xyz">
+                        This is the output for the 3D speed.
+                        <p><b>Outputs</b>: <code>pitch</code></p>
+                    </def>
+                </deflist>
+            </tab>
+        </tabs>
+
+    </chapter>
+
+    <chapter title="Default File Structure" id="default">
+        <p>This section provides the default structure of the <code>config.json</code> file.</p>
+        <code-block lang="json" ignore-vars="true">
+            <![CDATA[
+            {
+                "version": 1.0,
+                "coordinates": {
+                    "xyz": "&1XYZ: &2%s %s %s",
+                    "xy": "&1XY: &2%s %s"
+                },
+                "destination": {
+                    "xyz": "&1[&2%s %s %s&1]",
+                    "xz": "&1[&2%s %s&1]",
+                    "name": "&2[&2%s&1]",
+                    "name_xz": "&1[&2%s&1]"
+                },
+                "distance": {
+                    "number": "&1[&2%s&1]"
+                },
+                "tracking": {
+                    "assets": {
+                        "simple": {
+                            "north_east": "-▲▶",
+                            "north": "-▲-",
+                            "north_west": "◀▲-",
+                            "west": "◀--",
+                            "south_west": "◀▼-",
+                            "south": "-▼-",
+                            "south_east": "-▼▶",
+                            "east": "--▶"
+                        },
+                        "compact": {
+                            "north_east": "⬈",
+                            "north": "⬆",
+                            "north_west": "⬉",
+                            "west": "⬅",
+                            "south_west": "⬋",
+                            "south": "⬇",
+                            "south_east": "⬊",
+                            "east": "⮕"
+                        },
+                        "elevation": {
+                            "above": "⬆",
+                            "same": "-",
+                            "below": "⬇"
+                        }
+                    },
+                    "tracking": "&1&s[&r&2%s&1&s]",
+                    "elevation_tracking": "&1&s[&r&2%s&1|&2%s&1&s]"
+                },
+                "direction": {
+                    "assets": {
+                        "cardinal": {
+                            "north_east": "NE",
+                            "north": "N",
+                            "north_west": "NW",
+                            "west": "W",
+                            "south_west": "SW",
+                            "south": "S",
+                            "south_east": "SE",
+                            "east": "E"
+                        }
+                    },
+                    "facing": "&1%s"
+                },
+                "weather": {
+                    "weather_single": "&1%s",
+                    "weather": "&1%s%s"
+                },
+                "time": {
+                    "assets": {
+                        "am": "AM",
+                        "pm": "PM",
+                        "time_separator": ":"
+                    },
+                    "hour_12": "&2%s &1%s",
+                    "hour_24": "&2%s"
+                },
+                "angle": {
+                    "yaw": "&2%s",
+                    "pitch": "&2%s",
+                    "both": "&2%s&1/&2%s"
+                },
+                "speed": {
+                    "xz_speed": "&2%s &1B/S",
+                    "xyz_speed": "&2%s &1B/S"
+                }
+            }
+            ]]>
+        </code-block>
+    </chapter>
+
+    <seealso>
+        <!--Provide links to related how-to guides, overviews, and tutorials.-->
+    </seealso>
 </topic>
