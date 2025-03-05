@@ -223,11 +223,11 @@
                 <deflist>
                     <def title="xz_speed" id="speed_xz">
                         This is the output for the 2D speed.
-                        <p><b>Outputs</b>: <code>yaw</code></p>
+                        <p><b>Outputs</b>: <code>speed</code></p>
                     </def>
                     <def title="xyz_speed" id="speed_xyz">
                         This is the output for the 3D speed.
-                        <p><b>Outputs</b>: <code>pitch</code></p>
+                        <p><b>Outputs</b>: <code>speed</code></p>
                     </def>
                 </deflist>
             </tab>

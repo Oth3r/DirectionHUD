@@ -23,8 +23,8 @@
 
         <!--    Add up to 2 topics that you want to promote. Use the "type" attribute to select an icon.    -->
         <spotlight>
-            <a href="" type="navigation" summary="Explores features and settings in-game">Gameplay and Features</a>
-            <a href="" type="tools" summary="Learn about the many different configuration files">Setup and Configuring</a>
+            <a href="Commands.md" type="navigation" summary="Explores features and settings in-game">Gameplay and Features</a>
+            <a href="Configuring-DirectionHUD.topic" type="tools" summary="Learn about the many different configuration files">Setup and Configuring</a>
         </spotlight>
     </section-starting-page>
 
