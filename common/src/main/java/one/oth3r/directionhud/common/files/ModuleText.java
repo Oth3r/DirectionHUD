@@ -309,7 +309,7 @@ public class ModuleText implements CustomFile<ModuleText> {
         public static class Assets {
             @SerializedName("am")
             private String am = "AM";
-            @SerializedName("PM")
+            @SerializedName("pm")
             private String pm = "PM";
             @SerializedName("time_separator")
             private String timeSeparator = ":";
