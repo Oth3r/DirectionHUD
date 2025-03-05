@@ -7,6 +7,9 @@
     <build-profile instance="dirhud">
         <variables>
             <custom-favicons>directionhud_icon_transparent.png</custom-favicons>
+            <header-logo>directionhud_icon_transparent.png</header-logo>
+            <primary-color>#3bacfd</primary-color>
+            <color-preset>contrast</color-preset>
             <noindex-content>false</noindex-content>
         </variables>
     </build-profile>
