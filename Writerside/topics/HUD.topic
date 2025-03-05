@@ -111,31 +111,31 @@
 
                 <p id="module_info"><b>Modules</b></p>
                 <deflist type="medium">
-                    <def title="coordinates">
+                    <def title="coordinates" id="coordinates_info">
                         Displays the current location.
                     </def>
-                    <def title="distance">
+                    <def title="distance" id="distance_info">
                         Displays the distance from the set destination.
                     </def>
-                    <def title="destination">
+                    <def title="destination" id="destination_info">
                         Displays the coordinates for the set destination.
                     </def>
-                    <def title="direction">
+                    <def title="direction" id="direction_info">
                         Displays the current facing direction.
                     </def>
-                    <def title="tracking">
+                    <def title="tracking" id="tracking_info">
                         Displays an arrow that points to the tracked target.
                     </def>
-                    <def title="time">
+                    <def title="time" id="time_info">
                         Displays the time of the current world.
                     </def>
-                    <def title="weather">
+                    <def title="weather" id="weather_info">
                         Displays the weather status of the current world.
                     </def>
-                    <def title="speed">
+                    <def title="speed" id="speed_info">
                         Displays the current movement speed.
                     </def>
-                    <def title="angle">
+                    <def title="angle" id="angle_info">
                         Displays the current viewing angle.
                     </def>
                 </deflist>
