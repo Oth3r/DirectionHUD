@@ -306,40 +306,20 @@ public class ModuleText implements CustomFile<ModuleText> {
     }
 
     public static class ModuleTime {
-        public static class Assets {
-            @SerializedName("am")
-            private String am = "AM";
-            @SerializedName("pm")
-            private String pm = "PM";
-            @SerializedName("time_separator")
-            private String timeSeparator = ":";
 
-            public String getAM() {
-                return am;
-            }
-
-            public String getPM() {
-                return pm;
-            }
-
-            public String getTimeSeparator() {
-                return timeSeparator;
-            }
-        }
-
-        @SerializedName("assets")
-        private Assets assets = new Assets();
-        @SerializedName("hour_12")
-        private String hour12 = "&2%s &1%s";
+        @SerializedName("hour_AM")
+        private String hourAM = "&2%s&1:&2%s &1AM";
+        @SerializedName("hour_PM")
+        private String hourPM = "&2%s&1:&2%s &1PM";
         @SerializedName("hour_24")
-        private String hour24 = "&2%s";
+        private String hour24 = "&2%s&1:&2%s";
 
-        public Assets getAssets() {
-            return assets;
+        public String getHourAM() {
+            return hourAM;
         }
 
-        public String getHour12() {
-            return hour12;
+        public String getHourPM() {
+            return hourPM;
         }
 
         public String getHour24() {

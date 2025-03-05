@@ -432,7 +432,6 @@ public class Hud {
         }
         public static String getTimeModule(ModuleTime timeModule, int hour, int minute) {
             // assets
-            ModuleText.ModuleTime.Assets assets = FileData.getModuleText().getTime().getAssets();
             boolean time12 = !timeModule.isHour24();
 
             String hr;
@@ -443,24 +442,24 @@ public class Hud {
                 if (hourMod == 0) hr = String.valueOf(12);
                 else hr = String.valueOf(hourMod);
             } else {
+                // make sure 24 hr time HR mark is two digits
                 hr = Num.formatToTwoDigits(hour);
             }
 
             // add 0 to the start, then set the string to the last two numbers to always have a 2-digit number
             String min = Num.formatToTwoDigits(minute);
 
-            // get the time as a string
-            String timeString = hr + assets.getTimeSeparator() + min;
+            ModuleText.ModuleTime time = FileData.getModuleText().getTime();
+            // get the format string based on 12 or 24 hour
+            String formatString =
+                    time12 ? hour >=12 ? time.getHourPM() : time.getHourAM() : time.getHour24();
 
-            // return based on 12 or 24 hour
-            if (!timeModule.isHour24()) return String.format(FileData.getModuleText().getTime().getHour12(), timeString,
-                    hour >= 12 ? assets.getPM():assets.getAM());
-            return String.format(FileData.getModuleText().getTime().getHour24(),timeString);
+            return String.format(formatString, hr, min);
         }
 
         public static String getAngleModule(Player player) {
             ModuleAngle module = player.getPCache().getHud().getModule(Module.ANGLE);
-            // if the module isnt enabled, return empty
+            // if the module isn't enabled, return empty
             if (!module.isEnabled()) return "";
 
             // assets
