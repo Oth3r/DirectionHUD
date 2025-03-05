@@ -6,7 +6,9 @@
        title="module-text.json" id="module-text-json">
 
     <p>
-        This file contains the display formatting for all HUD modules in DirectionHUD.
+        This file contains the display formatting information for all the HUD modules in DirectionHUD. <br/>
+        Modules like <code><a href="#direction" summary="The direction module">direction</a></code> and
+        <code><a href="#time" summary="The time module">time</a></code> have a section for their assets, which can be customized.
     </p>
     <chapter title="Formatting Guidelines" id="formatting">
         <p>All modules in DirectionHUD use the same formatting guidelines.</p>
@@ -183,21 +185,17 @@
             <tab id="time" title="time">
                 Display options for the <a href="HUD.topic#time_info" summary="The time module info.">time module</a>.
                 <deflist>
-                    <def title="assets" id="time_assets">
-                        This provides the assets used for the time module.
-                        <p>
-                            <b>am</b>: the text for the AM <br/>
-                            <b>pm</b>: the text for the PM <br/>
-                            <b>time_separator</b>: the symbol for the time separator
-                        </p>
+                    <def title="hour_24" id="time_hour_am">
+                        This is the output for the 12-hour clock, in the AM.
+                        <p><b>Outputs</b>: <code>time_hour</code>, <code>time_minute</code></p>
                     </def>
-                    <def title="hour_12" id="time_hour_12">
-                        This is the output for the 12-hour clock.
-                        <p><b>Outputs</b>: <code>time</code> <code>time_designation</code></p>
+                    <def title="hour_24" id="time_hour_pm">
+                        This is the output for the 12-hour clock, in the PM.
+                        <p><b>Outputs</b>: <code>time_hour</code>, <code>time_minute</code></p>
                     </def>
                     <def title="hour_24" id="time_hour_24">
                         This is the output for the 24-hour clock.
-                        <p><b>Outputs</b>: <code>time</code></p>
+                        <p><b>Outputs</b>: <code>time_hour</code>, <code>time_minute</code></p>
                     </def>
                 </deflist>
             </tab>
@@ -248,8 +246,8 @@
                 "destination": {
                     "xyz": "&1[&2%s %s %s&1]",
                     "xz": "&1[&2%s %s&1]",
-                    "name": "&2[&2%s&1]",
-                    "name_xz": "&1[&2%s&1]"
+                    "name": "&2[&1%s&2]",
+                    "name_xz": "&2[&1%s&2]"
                 },
                 "distance": {
                     "number": "&1[&2%s&1]"
@@ -305,13 +303,9 @@
                     "weather": "&1%s%s"
                 },
                 "time": {
-                    "assets": {
-                        "am": "AM",
-                        "pm": "PM",
-                        "time_separator": ":"
-                    },
-                    "hour_12": "&2%s &1%s",
-                    "hour_24": "&2%s"
+                    "hour_AM": "&2%s&1:&2%s &1AM",
+                    "hour_PM": "&2%s&1:&2%s &1PM",
+                    "hour_24": "&2%s&1:&2%s"
                 },
                 "angle": {
                     "yaw": "&2%s",
