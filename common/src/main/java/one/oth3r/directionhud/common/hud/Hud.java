@@ -2063,7 +2063,6 @@ public class Hud {
     }
     /**
      * creates the button for the main HUD UI
-     * @return the button created
      */
     public static CTxT BUTTON = LANG.btn().btn(true).color(Assets.mainColors.hud).click(1,"/hud").hover(
                 CTxT.of(Assets.cmdUsage.hud).color(Assets.mainColors.hud).append("\n").append(LANG.hover()));
