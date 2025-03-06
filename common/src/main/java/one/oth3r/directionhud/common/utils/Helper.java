@@ -330,21 +330,22 @@ public class Helper {
                 // the list of filtered suggestions only
                 ArrayList<String> filtered = new ArrayList<>();
 
-                // todo have a personal fallback, as everyone doesn't speak english 🦅
-                if (FileData.getConfig().getLang().equals("en_us")) {
-                    FuzzyScore fuzzyScore = new FuzzyScore(Locale.ENGLISH);
+                // todo have a personal fallback, as everyone doesn't speak english
+                FuzzyScore fuzzyScore = new FuzzyScore(Locale.ENGLISH);
 
-                    double minimumScore = current.length() * 1.5;
-                    if (current.length() == 1) minimumScore = 1;
+                double minimumScore = current.length() * 1.5;
+                if (current.length() == 1) minimumScore = 1;
 
-                    // score each suggestion and retrieve the suitable option
-                    for (String s : suggestions) {
-                        int score = fuzzyScore.fuzzyScore(s.toLowerCase(), current.toLowerCase());
+                // score each suggestion and retrieve the suitable option
+                for (String s : suggestions) {
+                    int score = fuzzyScore.fuzzyScore(s.toLowerCase(), current.toLowerCase());
 
-                        // if the score is greater or equal than the minimum, add to the filtered list
-                        if (score >= minimumScore) filtered.add(s);
-                    }
-                } else {
+                    // if the score is greater or equal than the minimum, add to the filtered list
+                    if (score >= minimumScore) filtered.add(s);
+                }
+
+                // if there aren't any suggestions after the sort, try similarity
+                if (!suggestions.isEmpty() && filtered.isEmpty()) {
                     // if the language isn't english, use the JaroWinklerSimilarity
                     JaroWinklerSimilarity similarity = new JaroWinklerSimilarity();
                     float minSimilarity = 0.65f;
