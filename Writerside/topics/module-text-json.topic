@@ -8,7 +8,7 @@
     <p>
         This file contains the display formatting information for all the HUD modules in DirectionHUD. <br/>
         Modules like <code><a href="#direction" summary="The direction module">direction</a></code> and
-        <code><a href="#time" summary="The time module">time</a></code> have a section for their assets, which can be customized.
+        <code><a href="#tracking" summary="The tracking module">tracking</a></code> have a section for their assets, which can be customized.
     </p>
     <chapter title="Formatting Guidelines" id="formatting">
         <p>All modules in DirectionHUD use the same formatting guidelines.</p>
@@ -187,8 +187,7 @@
                 <deflist>
                     <def title="hour_24" id="time_hour_am">
                         This is the output for the 12-hour clock, in the AM.
-                        <p><b>Outputs</b>: <code>time_hour</code>, <code>time_minute</code></p>
-                    </def>
+                        <p><b>Outputs</b>: <code>time_hour</code>, <code>time_minute</code></p>tracking                 </def>
                     <def title="hour_24" id="time_hour_pm">
                         This is the output for the 12-hour clock, in the PM.
                         <p><b>Outputs</b>: <code>time_hour</code>, <code>time_minute</code></p>
