@@ -18,6 +18,7 @@ repositories {
 		name = "geyser"
 		url = uri("https://repo.opencollab.dev/main/")
 	}
+	maven { url = "https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1" }
 }
 
 sourceSets {
@@ -34,6 +35,9 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 	modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
+
+	include implementation('org.apache.commons:commons-text:1.10.0')
+	modRuntimeOnly("me.djtheredstoner:DevAuth-fabric:${project.devauth_version}")
 }
 
 processResources {

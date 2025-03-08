@@ -9,9 +9,11 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Util;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.files.Config;
-import one.oth3r.directionhud.common.files.Data;
+import one.oth3r.directionhud.common.files.FileData;
+import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.dimension.DimensionSettings;
 import one.oth3r.directionhud.common.files.playerdata.DefaultPData;
+import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.utils.Lang;
 
 import java.nio.file.Paths;
@@ -31,23 +33,23 @@ public class ConfigScreen extends Screen {
     protected void init() {
         super.init();
         // config file
-        addDrawableChild(ButtonWidget.builder(Text.literal(Config.getFile().getName()), button -> {
-                    Util.getOperatingSystem().open(Config.getFile());
+        addDrawableChild(ButtonWidget.builder(Text.literal(FileData.getConfig().getFileName()), button -> {
+                    Util.getOperatingSystem().open(FileData.getConfig().getFileName());
                 })
                 .dimensions(width / 2-100, 10, 200, 20)
                 .tooltip(Tooltip.of(LANG.get("tooltip.file").b()))
                 .build());
         // dimension settings file
-        addDrawableChild(ButtonWidget.builder(Text.literal(DimensionSettings.getFile().getName()), button -> {
-                    Util.getOperatingSystem().open(DimensionSettings.getFile());
+        addDrawableChild(ButtonWidget.builder(Text.literal(Dimension.getDimensionSettings().getFileName()), button -> {
+                    Util.getOperatingSystem().open(Dimension.getDimensionSettings().getFile());
                 })
                 .dimensions(width / 2-100, 35, 200, 20)
                 .tooltip(Tooltip.of(LANG.get("tooltip.file").b()))
                 .build());
         // default pData file
         addDrawableChild(
-                ButtonWidget.builder(Text.literal(DefaultPData.getDefaultFile().getName()), button -> {
-                    Util.getOperatingSystem().open(DefaultPData.getDefaultFile());
+                ButtonWidget.builder(Text.literal(PlayerData.getDefaults().getFileName()), button -> {
+                    Util.getOperatingSystem().open(PlayerData.getDefaults().getFile());
                 })
                 .dimensions(width / 2-100, 60, 200, 20)
                 .tooltip(Tooltip.of(LANG.get("tooltip.file").b()))
@@ -55,7 +57,7 @@ public class ConfigScreen extends Screen {
         // open folder button
         addDrawableChild(
                 ButtonWidget.builder(LANG.btn("folder").b(), button -> {
-                            Util.getOperatingSystem().open(Paths.get(DirectionHUD.CONFIG_DIR).toUri());
+                            Util.getOperatingSystem().open(Paths.get(DirectionHUD.getData().getConfigDirectory()).toUri());
                         })
                         .dimensions(width / 2-100, 85, 200, 20)
                         .tooltip(Tooltip.of(LANG.get("tooltip.folder").b()))
@@ -65,7 +67,7 @@ public class ConfigScreen extends Screen {
         addDrawableChild(
                 ButtonWidget.builder(LANG.btn("save").b(), button -> {
                             client.setScreen(PARENT);
-                            Data.loadFiles(false);
+                            FileData.loadFiles();
                         })
                         .dimensions(width / 2-100, height-30, 200, 20)
                         .tooltip(Tooltip.of(LANG.get("tooltip.save").b()))

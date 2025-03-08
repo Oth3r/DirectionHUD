@@ -3,6 +3,7 @@ package one.oth3r.directionhud.utils;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.world.World;
 import one.oth3r.directionhud.DirectionHUD;
@@ -25,13 +26,13 @@ public class Utl {
     public static CTxT getTxTFromObj(Object obj) {
         CTxT txt = CTxT.of("");
         if (obj instanceof CTxT) txt.append(((CTxT) obj).b());
-        else if (obj instanceof Text) txt.append((Text) obj);
+        else if (obj instanceof Text) txt.append((MutableText) obj);
         else txt.append(String.valueOf(obj));
         return txt;
     }
     public static List<Player> getPlayers() {
         ArrayList<Player> array = new ArrayList<>();
-        for (ServerPlayerEntity p : DirectionHUD.server.getPlayerManager().getPlayerList())
+        for (ServerPlayerEntity p : DirectionHUD.getData().getServer().getPlayerManager().getPlayerList())
             array.add(new Player(p));
         return array;
     }
@@ -43,22 +44,22 @@ public class Utl {
 
         @Override
         public boolean globalEditing() {
-            return super.globalEditing() && (player.getPlayer().hasPermissionLevel(2) || DirectionHUD.singleplayer);
+            return super.globalEditing() && (player.getPlayer().hasPermissionLevel(2) || DirectionHUD.getData().isSingleplayer());
         }
 
         @Override
         public boolean send() {
-            return super.send() && DirectionHUD.server.isRemote();
+            return super.send() && DirectionHUD.getData().getServer().isRemote();
         }
 
         @Override
         public boolean track() {
-            return super.track() && DirectionHUD.server.isRemote();
+            return super.track() && DirectionHUD.getData().getServer().isRemote();
         }
 
         @Override
         public boolean reload() {
-            return player.getPlayer().hasPermissionLevel(2) || DirectionHUD.singleplayer;
+            return player.getPlayer().hasPermissionLevel(2) || DirectionHUD.getData().isSingleplayer();
         }
     }
 
@@ -97,12 +98,11 @@ public class Utl {
         /**
          * adds the dimensions that are loaded in game but aren't in the config yet
          */
-        public static void addMissing(DimensionSettings dimensionSettings) {
+        public static void addMissing(ArrayList<DimensionEntry> dimensions) {
             Random random = new Random();
-            if (DirectionHUD.server == null) return;
-            ArrayList<DimensionEntry> dimensions = dimensionSettings.getDimensions();
+            if (DirectionHUD.getData().getServer() == null) return;
             //ADD MISSING DIMS TO MAP
-            for (ServerWorld world : DirectionHUD.server.getWorlds()) {
+            for (ServerWorld world : DirectionHUD.getData().getServer().getWorlds()) {
                 String currentDIM = format(world.getRegistryKey());
                 // if already exist, continue
                 if (dimensions.stream()

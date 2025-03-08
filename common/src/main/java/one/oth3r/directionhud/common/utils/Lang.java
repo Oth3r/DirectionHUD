@@ -8,12 +8,19 @@ public class Lang {
     public Lang(String location) {
         this.location = location;
     }
+
+    public Lang(Lang lang, String location) {
+        this.location = lang.location + location;
+    }
+
     public CTxT get(String key, Object... args) {
         return CUtl.getLangEntry(location+key, args);
     }
+
     public CTxT error(String key, Object... args) {
         return CUtl.error().append(get("error."+key, args));
     }
+
     public CTxT btn(String key, Object... args) {
         return get("button."+key, args);
     }

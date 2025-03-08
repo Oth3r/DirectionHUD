@@ -1,24 +1,24 @@
 package one.oth3r.directionhud.utils;
 
+import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.particle.DustParticleEffect;
+import net.minecraft.server.PlayerManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import one.oth3r.directionhud.DirectionHUD;
+import one.oth3r.directionhud.common.hud.module.ModuleInstructions;
 import one.oth3r.directionhud.common.utils.*;
 import one.oth3r.directionhud.packet.PacketSender;
 import one.oth3r.directionhud.common.Assets;
-import one.oth3r.directionhud.common.Hud;
 import one.oth3r.directionhud.common.files.playerdata.CachedPData;
 import one.oth3r.directionhud.common.files.playerdata.PData;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.template.PlayerTemplate;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -66,8 +66,9 @@ public class Player extends PlayerTemplate {
     }
 
     public Player(String identifier) {
-        if (identifier.contains("-")) serverPlayer = DirectionHUD.server.getPlayerManager().getPlayer(UUID.fromString(identifier));
-        else serverPlayer = DirectionHUD.server.getPlayerManager().getPlayer(identifier);
+        PlayerManager playerManager = DirectionHUD.getData().getServer().getPlayerManager();
+        if (identifier.contains("-")) serverPlayer = playerManager.getPlayer(UUID.fromString(identifier));
+        else serverPlayer = playerManager.getPlayer(identifier);
         player = serverPlayer;
         client = false;
     }
@@ -79,9 +80,9 @@ public class Player extends PlayerTemplate {
 
     public void performCommand(String cmd) {
         try {
-            ParseResults<ServerCommandSource> parse =
-                    DirectionHUD.commandManager.getDispatcher().parse(cmd, serverPlayer.getCommandSource());
-            DirectionHUD.commandManager.getDispatcher().execute(parse);
+            CommandDispatcher<ServerCommandSource> dispatcher = DirectionHUD.getData().getCommandManager().getDispatcher();
+            ParseResults<ServerCommandSource> parse = dispatcher.parse(cmd, serverPlayer.getCommandSource());
+            dispatcher.execute(parse);
         } catch (CommandSyntaxException e) {
             DirectionHUD.LOGGER.info("ERROR EXECUTING COMMAND - PLEASE REPORT WITH THE ERROR LOG");
             DirectionHUD.LOGGER.info(e.getMessage());
@@ -100,12 +101,12 @@ public class Player extends PlayerTemplate {
 
     @Override
     public void displayBossBar(CTxT message) {
-        DirectionHUD.bossBarManager.display(this,message);
+        DirectionHUD.getData().getBossBarManager().display(this,message);
     }
 
     @Override
     public void removeBossBar() {
-        DirectionHUD.bossBarManager.removePlayer(this);
+        DirectionHUD.getData().getBossBarManager().removePlayer(this);
     }
 
     @Override
@@ -120,16 +121,16 @@ public class Player extends PlayerTemplate {
 
     @Override
     public void sendPDataPackets() {
-        if (DirectionHUD.clientPlayers.contains(this) && !client) {
+        if (DirectionHUD.getData().getClientPlayers().contains(this) && !client) {
             new PacketSender(Assets.packets.PLAYER_DATA,Helper.getGson().toJson(getPData())).sendToPlayer(serverPlayer);
         }
     }
 
     @Override
-    public void sendHUDPackets(HashMap<Hud.Module, ArrayList<String>> hudData) {
+    public void sendHUDPackets(ModuleInstructions instructions) {
         if (client) return;
         // send the instructions to build the hud to the client
-        new PacketSender(Assets.packets.HUD,Helper.getGson().toJson(hudData)).sendToPlayer(serverPlayer);
+        new PacketSender(Assets.packets.HUD,Helper.getGson().toJson(instructions)).sendToPlayer(serverPlayer);
     }
 
     @Override
