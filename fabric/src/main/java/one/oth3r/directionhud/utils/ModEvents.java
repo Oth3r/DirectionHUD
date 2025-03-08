@@ -21,6 +21,7 @@ import one.oth3r.directionhud.commands.ModCommands;
 import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.Events;
 import one.oth3r.directionhud.common.LoopManager;
+import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.files.playerdata.CachedPData;
 import one.oth3r.directionhud.common.files.playerdata.PData;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
@@ -195,14 +196,14 @@ public class ModEvents {
     }
 
     public static void registerCommon() {
-//        ModData modData = DirectionHUD.getData();
-//         directory
-//        modData.setConfigDirectory(FabricLoader.getInstance().getConfigDir().toFile()+"/directionhud/");
-//        FileData.loadFiles();
+        ModData modData = DirectionHUD.getData();
+        // directory
+        modData.setConfigDirectory(FabricLoader.getInstance().getConfigDir().toFile()+"/directionhud/");
+        FileData.loadFiles();
 
-//        playerConnections();
-//        serverLifecycle();
-//        Packet.common();
+        playerConnections();
+        serverLifecycle();
+        Packet.common();
     }
 
     public static void registerClient() {
