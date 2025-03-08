@@ -193,7 +193,7 @@ public class Hud {
                         loc.getX(), loc.getY(), loc.getZ());
             }
             else {
-                return String.format(FileData.getModuleText().getCoordinates().getXy(),
+                return String.format(FileData.getModuleText().getCoordinates().getXz(),
                         loc.getX(), loc.getZ());
             }
         }
