@@ -86,15 +86,15 @@ public class ModuleText implements CustomFile<ModuleText> {
 
     @Override
     public void copyFileData(ModuleText newFile) {
-        this.coordinates = newFile.coordinates;
-        this.destination = newFile.destination;
-        this.distance = newFile.distance;
-        this.tracking = newFile.tracking;
-        this.direction = newFile.direction;
-        this.weather = newFile.weather;
-        this.time = newFile.time;
-        this.angle = newFile.angle;
-        this.speed = newFile.speed;
+        this.coordinates = new ModuleCoordinates(newFile.coordinates);
+        this.destination = new ModuleDestination(newFile.destination);
+        this.distance = new ModuleDistance(newFile.distance);
+        this.tracking = new ModuleTracking(newFile.tracking);
+        this.direction = new ModuleDirection(newFile.direction);
+        this.weather = new ModuleWeather(newFile.weather);
+        this.time = new ModuleTime(newFile.time);
+        this.angle = new ModuleAngle(newFile.angle);
+        this.speed = new ModuleSpeed(newFile.speed);
     }
 
     @Override
@@ -118,6 +118,12 @@ public class ModuleText implements CustomFile<ModuleText> {
         @SerializedName("xz")
         private String xz = "&1XZ: &2%s %s";
 
+        public ModuleCoordinates() {}
+        public ModuleCoordinates(ModuleCoordinates coordinates) {
+            this.xyz = coordinates.xyz;
+            this.xz = coordinates.xz;
+        }
+
         public String getXyz() {
             return xyz;
         }
@@ -136,6 +142,14 @@ public class ModuleText implements CustomFile<ModuleText> {
         private String name = "&2[&1%s&2]";
         @SerializedName("name_xz")
         private String name_xz = "&2[&1%s&2]";
+
+        public ModuleDestination() {}
+        public ModuleDestination(ModuleDestination destination) {
+            this.xyz = destination.xyz;
+            this.xz = destination.xz;
+            this.name = destination.name;
+            this.name_xz = destination.name_xz;
+        }
 
         public String getXyz() {
             return xyz;
@@ -158,6 +172,11 @@ public class ModuleText implements CustomFile<ModuleText> {
         @SerializedName("number")
         private String number = "&1[&2%s&1]";
 
+        public ModuleDistance() {}
+        public ModuleDistance(ModuleDistance distance) {
+            this.number = distance.number;
+        }
+
         public String getNumber() {
             return number;
         }
@@ -172,6 +191,13 @@ public class ModuleText implements CustomFile<ModuleText> {
             @SerializedName("elevation")
             private Elevation elevation = new Elevation();
 
+            public Assets() {}
+            public Assets(Assets assets) {
+                this.simple = new Simple(assets.simple);
+                this.compact = new Compact(assets.compact);
+                this.elevation = new Elevation(assets.elevation);
+            }
+
             public Simple getSimple() {
                 return simple;
             }
@@ -185,7 +211,6 @@ public class ModuleText implements CustomFile<ModuleText> {
             }
 
             public static class Simple extends Directions {
-
                 public Simple() {
                     this.northEast = "-" + arrows.up + arrows.right;
                     this.north = "-" + arrows.up + "-";
@@ -195,6 +220,10 @@ public class ModuleText implements CustomFile<ModuleText> {
                     this.south = "-" + arrows.down + "-";
                     this.southEast = "-" + arrows.down + arrows.right;
                     this.east = "--" + arrows.right;
+                }
+
+                public Simple(Simple directions) {
+                    super(directions);
                 }
             }
 
@@ -210,6 +239,9 @@ public class ModuleText implements CustomFile<ModuleText> {
                     this.east = arrows.east;
                 }
 
+                public Compact(Compact directions) {
+                    super(directions);
+                }
             }
 
             public static class Elevation {
@@ -219,6 +251,13 @@ public class ModuleText implements CustomFile<ModuleText> {
                 protected String same = "-";
                 @SerializedName("below")
                 protected String below = arrows.south;
+
+                public Elevation() {}
+                public Elevation(Elevation elevation) {
+                    this.above = elevation.above;
+                    this.same = elevation.same;
+                    this.below = elevation.below;
+                }
 
                 public String getAbove() {
                     return above;
@@ -240,6 +279,13 @@ public class ModuleText implements CustomFile<ModuleText> {
         @SerializedName("elevation_tracking")
         private String elevationTracking = "&1&s[&r&2%s&1|&2%s&1&s]";
 
+        public ModuleTracking() {}
+        public ModuleTracking(ModuleTracking moduleTracking) {
+            this.assets = new Assets(moduleTracking.assets);
+            this.tracking = moduleTracking.tracking;
+            this.elevationTracking = moduleTracking.elevationTracking;
+        }
+
         public Assets getAssets() {
             return assets;
         }
@@ -258,6 +304,11 @@ public class ModuleText implements CustomFile<ModuleText> {
             @SerializedName("cardinal")
             private Cardinal cardinal = new Cardinal();
 
+            public Assets() {}
+            public Assets(Assets assets) {
+                this.cardinal = new Cardinal(assets.cardinal);
+            }
+
             public Cardinal getCardinal() {
                 return cardinal;
             }
@@ -273,12 +324,22 @@ public class ModuleText implements CustomFile<ModuleText> {
                     this.southEast = "SE";
                     this.east = "E";
                 }
+
+                public Cardinal(Cardinal directions) {
+                    super(directions);
+                }
             }
         }
         @SerializedName("assets")
         private Assets assets = new Assets();
         @SerializedName("facing")
         private String facing = "&1%s";
+
+        public ModuleDirection() {}
+        public ModuleDirection(ModuleDirection direction) {
+            this.assets = new Assets(direction.assets);
+            this.facing = direction.facing;
+        }
 
         public Assets getAssets() {
             return assets;
@@ -295,6 +356,12 @@ public class ModuleText implements CustomFile<ModuleText> {
         private String weatherSingle = "&1%s";
         @SerializedName("weather")
         private String weather = "&1%s%s";
+
+        public ModuleWeather() {}
+        public ModuleWeather(ModuleWeather weather) {
+            this.weatherSingle = weather.weatherSingle;
+            this.weather = weather.weather;
+        }
 
         public String getWeatherSingle() {
             return weatherSingle;
@@ -313,6 +380,13 @@ public class ModuleText implements CustomFile<ModuleText> {
         private String hourPM = "&2%s&1:&2%s &1PM";
         @SerializedName("hour_24")
         private String hour24 = "&2%s&1:&2%s";
+
+        public ModuleTime() {}
+        public ModuleTime(ModuleTime time) {
+            this.hourAM = time.hourAM;
+            this.hourPM = time.hourPM;
+            this.hour24 = time.hour24;
+        }
 
         public String getHourAM() {
             return hourAM;
@@ -335,6 +409,13 @@ public class ModuleText implements CustomFile<ModuleText> {
         @SerializedName("both")
         private String both = "&2%s&1/&2%s";
 
+        public ModuleAngle() {}
+        public ModuleAngle(ModuleAngle angle) {
+            this.yaw = angle.yaw;
+            this.pitch = angle.pitch;
+            this.both = angle.both;
+        }
+
         public String getYaw() {
             return yaw;
         }
@@ -354,6 +435,13 @@ public class ModuleText implements CustomFile<ModuleText> {
         @SerializedName("xyz_speed")
         private String xyzSpeed = "&2%s &1B/S";
 
+        public ModuleSpeed() {}
+
+        public ModuleSpeed(ModuleSpeed speed) {
+            this.xzSpeed = speed.xzSpeed;
+            this.xyzSpeed = speed.xyzSpeed;
+        }
+
         public String getXzSpeed() {
             return xzSpeed;
         }
@@ -363,6 +451,9 @@ public class ModuleText implements CustomFile<ModuleText> {
         }
     }
 
+    /**
+     * helper class that contains all the cardinal directions
+     */
     private abstract static class Directions {
         @SerializedName("north_east")
         protected String northEast;
@@ -380,6 +471,18 @@ public class ModuleText implements CustomFile<ModuleText> {
         protected String southEast;
         @SerializedName("east")
         protected String east;
+
+        public Directions() {}
+        public Directions(Directions directions) {
+            this.northEast = directions.northEast;
+            this.north = directions.north;
+            this.northWest = directions.northWest;
+            this.west = directions.west;
+            this.southWest = directions.southWest;
+            this.south = directions.south;
+            this.southEast = directions.southEast;
+            this.east = directions.east;
+        }
 
         public String getNorthEast() {
             return northEast;
