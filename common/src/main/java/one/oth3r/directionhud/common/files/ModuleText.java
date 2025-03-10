@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class ModuleText implements CustomFile<ModuleText> {
     @SerializedName("version")
-    private Double version = 1.0;
+    private Double version = 1.01;
 
     @SerializedName("coordinates")
     private ModuleCoordinates coordinates = new ModuleCoordinates();
@@ -99,7 +99,20 @@ public class ModuleText implements CustomFile<ModuleText> {
 
     @Override
     public void update(JsonElement json) {
+        if (version < 1.01) {
+            /*
+                fixes the destination module name and name_xz entries
+                the entry in version 1.0 had the primary and secondary color flipped
+                version 1.01 fixes this issue
+             */
+            final String brokenDestinationName = "&2[&1%s&2]",
+                    fixedDestinationName = new ModuleDestination().name;
+            if (destination.name.equals(brokenDestinationName)) destination.name = fixedDestinationName;
+            if (destination.name_xz.equals(brokenDestinationName)) destination.name_xz = fixedDestinationName;
 
+            // update the version
+            version = 1.01;
+        }
     }
 
     @Override
@@ -139,9 +152,9 @@ public class ModuleText implements CustomFile<ModuleText> {
         @SerializedName("xz")
         private String xz = "&1[&2%s %s&1]";
         @SerializedName("name")
-        private String name = "&2[&1%s&2]";
+        private String name = "&1[&2%s&1]";
         @SerializedName("name_xz")
-        private String name_xz = "&2[&1%s&2]";
+        private String name_xz = "&1[&2%s&1]";
 
         public ModuleDestination() {}
         public ModuleDestination(ModuleDestination destination) {
