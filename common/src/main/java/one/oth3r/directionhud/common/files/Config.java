@@ -38,7 +38,7 @@ public class Config implements CustomFile<Config> {
     @SerializedName("lang")
     private String lang = "en_us";
     @SerializedName("lang-options") @SuppressWarnings("unused")
-    private final String[] lang_options = {"en_us","ru_ru","zh_cn","zh_hk"};
+    private final String[] lang_options = {"en_us (100%)","ru_ru (88%)","zh_cn (76%)","zh_tw (76%)"};
     @SerializedName("online-mode")
     private Boolean online = true;
     @SerializedName("location")
