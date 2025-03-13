@@ -1,4 +1,12 @@
-## v1.8.0 - Custom Module Text!
+## v1.8.0.1
+* fix destination module `name` and `name_xz` having the primary and secondary flipped inside of `module-text.json`
+* changed module name displays to be lowercase
+* fixed missing language files
+* edited clarifications to some hud module messages
+* config file for languages now shows the percent of translated text
+* language files with missing translations will default to english on servers
+
+## v1.8.0.0 - Custom Module Text!
 
 ### Custom Module Text
 Added a new json file, `module-text.json` to customize each module's display settings.
