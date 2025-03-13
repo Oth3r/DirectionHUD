@@ -8,6 +8,7 @@ import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.world.World;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.hud.module.ModuleInstructions;
 import one.oth3r.directionhud.common.utils.*;
@@ -175,7 +176,9 @@ public class Player extends PlayerTemplate {
     @Override
     public String getSpawnDimension() {
         if (client) return null;
-        return Utl.dim.format(serverPlayer.getSpawnPointDimension());
+        ServerPlayerEntity.Respawn respawn = serverPlayer.getRespawn();
+        if (respawn == null) return Utl.dim.format(World.OVERWORLD);
+        return Utl.dim.format(respawn.dimension());
     }
 
     @Override
