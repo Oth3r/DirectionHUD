@@ -47,4 +47,9 @@ public enum Module {
         }
         return UNKNOWN;
     }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
 }
