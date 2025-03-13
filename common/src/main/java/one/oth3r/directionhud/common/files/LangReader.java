@@ -5,7 +5,6 @@ import com.google.gson.reflect.TypeToken;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Utl;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -94,7 +93,7 @@ public class LangReader {
         }
     }
 
-    private static @NotNull InputStream getInputStream(boolean english) {
+    private static InputStream getInputStream(boolean english) {
         ClassLoader classLoader = DirectionHUD.class.getClassLoader();
         InputStream inputStream = classLoader.getResourceAsStream("assets/directionhud/lang/"+FileData.getConfig().getLang()+".json");
         // make null if english
