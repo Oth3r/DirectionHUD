@@ -668,7 +668,7 @@ public class Hud {
                 player.getPData().getHud().setModule(resetModule);
 
                 // reset message
-                msg.append(LANG.msg("reset",CUtl.LANG.btn("reset").color('c'),CTxT.of(module.toString()).color(CUtl.s())));
+                msg.append(LANG.msg("reset",CTxT.of(module.toString()).color(CUtl.s())));
 
                 // if returning
                 if (Return) {
@@ -727,6 +727,7 @@ public class Hud {
                 player.sendMessage(CUtl.error("hud.module"));
                 return;
             }
+
             // get the module
             BaseModule mod = player.getPData().getHud().getModule(module);
             // if toggle null, flip current
@@ -736,10 +737,10 @@ public class Hud {
             // save the changes
             player.getPData().queueSave();
 
-            // turned <toggle> <model>
-            CTxT msg = CUtl.tag().append(LANG.msg("toggle",
-                    CUtl.toggleTxT(toggle),
-                    CTxT.of(module.toString()).color(CUtl.s())));
+            // Toggled <module> module <toggle>
+            CTxT msg = CUtl.tag().append(LANG.msg("state",
+                    CTxT.of(module.toString()).color(CUtl.s()),
+                    CUtl.toggleTxT(toggle)));
 
             if (Return) Edit.UI(player, msg, module);
             else player.sendMessage(msg);

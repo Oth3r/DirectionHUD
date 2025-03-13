@@ -126,13 +126,12 @@
 
 
   "hud.module.ui": "HUD Modules",
-  "hud.module.ui.order": "Module Order",
+
   "hud.module.button": "MODULES",
+  "hud.module.hover": "Click to edit and rearrange the HUD modules.",
 
   "hud.module.hover.reset.all": "Click to %1$s %2$s hud modules.",
   "hud.module.hover.reset.all.fill": "all",
-
-  "hud.module.hover": "Click to edit and rearrange the HUD modules.",
 
   "hud.module.info": "Configures the default state for each HUD module.",
   "hud.module.info.order": "Configures the default HUD module order.",
@@ -145,10 +144,11 @@
   "hud.module.info.weather": "Displays the weather status of the current world.",
   "hud.module.info.speed": "Displays the current movement speed.",
   "hud.module.info.angle": "Displays the current viewing angle.",
+
   "hud.module.msg.reset_all": "Reset %s HUD modules!",
-  "hud.module.msg.reset": "%s %s module!",
-  "hud.module.msg.order": "Set %s module order to %s!",
-  "hud.module.msg.toggle": "Toggled %s %s module.",
+  "hud.module.msg.reset": "Reset the %s module!",
+  "hud.module.msg.order": "Set the %s module order to %s.",
+  "hud.module.msg.state": "Toggled %s module %S.",
 
   "hud.module.edit.ui": "Edit Module",
 
@@ -177,6 +177,7 @@
   "hud.module.edit.hover.cycle.previous": "previous",
   "hud.module.edit.hover.cycle.next": "next",
   "hud.module.edit.hover.change": "Click to choose a different module to edit.",
+
   "hud.module.edit.hover.status": "Status: %s",
   "hud.module.edit.hover.status.enabled": "Enabled",
   "hud.module.edit.hover.status.no_data": "Enabled, no data to display",
