@@ -1,6 +1,6 @@
 package one.oth3r.directionhud.common;
 
-import one.oth3r.directionhud.common.files.Data;
+import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.files.GlobalDest;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
@@ -123,6 +123,7 @@ public class Destination {
             ArrayList<String> suggester = new ArrayList<>();
             if (!Helper.checkEnabled(player).destination()) return suggester;
             if (pos == 1) {
+                pos = 0;
                 if (Helper.checkEnabled(player).lastdeath()) suggester.add("lastdeath");
                 if (Helper.checkEnabled(player).saving()) {
                     suggester.add("add");
@@ -139,22 +140,24 @@ public class Destination {
             }
             if (pos > 1) {
                 String command = args[0].toLowerCase();
-                String[] trimmedArgs = Helper.trimStart(args, 1);
-                int fixedPos = pos - 2;
+                args = Helper.trimStart(args, 1);
+                pos = pos - 2;
                 switch (command) {
-                    case "saved" -> suggester.addAll(saved.CMDSuggester(player,fixedPos,trimmedArgs));
-                    case "add" -> suggester.addAll(saved.addCMDSuggester(player,fixedPos,trimmedArgs));
-                    case "global" -> suggester.addAll(saved.globalCMDSuggester(player,fixedPos,trimmedArgs));
-                    case "settings" -> suggester.addAll(settings.CMDSuggester(player, fixedPos,trimmedArgs));
+                    case "saved" -> suggester.addAll(saved.CMDSuggester(player,pos,args));
+                    case "add" -> suggester.addAll(saved.addCMDSuggester(player,pos,args));
+                    case "global" -> suggester.addAll(saved.globalCMDSuggester(player,pos,args));
+                    case "settings" -> suggester.addAll(settings.CMDSuggester(player, pos,args));
                     case "color" -> {
-                        if (fixedPos == 3 && trimmedArgs[0].equals("set")) suggester.addAll(Suggester.colors(player,Suggester.getCurrent(trimmedArgs,fixedPos),true));
+                        if (pos == 3 && args[0].equals("set")) suggester.addAll(Suggester.colors(player,Suggester.getCurrent(args,pos),true));
                     }
-                    case "set" -> suggester.addAll(dest.setCMDSuggester(player,fixedPos,trimmedArgs));
-                    case "send" -> suggester.addAll(social.send.CMDSuggester(player,fixedPos,trimmedArgs));
-                    case "track" -> suggester.addAll(social.track.CMDSuggester(player,fixedPos,trimmedArgs));
+                    case "set" -> suggester.addAll(dest.setCMDSuggester(player,pos,args));
+                    case "send" -> suggester.addAll(social.send.CMDSuggester(player,pos,args));
+                    case "track" -> suggester.addAll(social.track.CMDSuggester(player,pos,args));
                 }
             }
-            return suggester;
+            String current = Suggester.getCurrent(args,pos);
+
+            return Suggester.filter(suggester,current);
         }
     }
 
@@ -162,12 +165,12 @@ public class Destination {
 
     public static class dest {
         public static CTxT SET_BUTTON() {
-            return LANG.btn("set").btn(true).color(Assets.mainColors.set).cEvent(2,"/dest set ").hEvent(
+            return LANG.btn("set").btn(true).color(Assets.mainColors.set).click(2,"/dest set ").hover(
                     CTxT.of(Assets.cmdUsage.destSet).color(Assets.mainColors.set).append("\n").append(LANG.hover("set_self")));
         }
         public static CTxT CLEAR_BUTTON(Player player) {
             boolean o = Destination.dest.get(player).hasXYZ();
-            return CTxT.of(Assets.symbols.x).btn(true).color(o?'c':'7').cEvent(o?1:0,"/dest clear").hEvent(
+            return CTxT.of(Assets.symbols.x).btn(true).color(o?'c':'7').click(o?1:0,"/dest clear").hover(
                     CTxT.of(Assets.cmdUsage.destClear).color(o?'c':'7').append("\n").append(LANG.hover("clear")));
         }
         public static Dest get(Player player) {
@@ -182,7 +185,15 @@ public class Destination {
                 return player.getVec().distanceTo(loc.getVec(player)) <= (int) player.getPData().getDEST().getSetting(Setting.autoclear_rad);
             else return false;
         }
+
+        /**
+         * gets the distance to the destination. <br>
+         * @return the distance, -1 if there's no destination set
+         */
         public static int getDist(Player player) {
+            Dest dest = get(player);
+
+            if (!dest.hasXYZ()) return -1;
             return (int) player.getVec().distanceTo(get(player).getVec(player));
         }
 
@@ -208,7 +219,9 @@ public class Destination {
             Dest current = get(player);
             // get the reason for clearing
             CTxT reasonTxT = LANG.msg("cleared." + switch (reason) {
-                default -> "command"; case 2 -> "reached"; case 3 -> "dimension";
+                case 2 -> "reached";
+                case 3 -> "dimension";
+                default -> "command";
             }).append(" ");
             // add the set buttons
             reasonTxT.append(setButtons(current,
@@ -257,7 +270,7 @@ public class Destination {
             CTxT convertTag = CTxT.of("");
             if (convert && Dimension.canConvert(player.getDimension(),dest.getDimension())) {
                 // fill the convert tag
-                convertTag.append(" ").append(LANG.msg("set.converted").color('7').italic(true).hEvent(dest.getBadge()));
+                convertTag.append(" ").append(LANG.msg("set.converted").color('7').italic(true).hover(dest.getBadge()));
                 // convert the loc
                 dest.convertTo(player.getDimension());
             }
@@ -287,7 +300,7 @@ public class Destination {
             CTxT convertTag = CTxT.of("");
             if (convert && Dimension.canConvert(player.getDimension(),destination.getDimension())) {
                 // fill the convert tag
-                convertTag.append(" ").append(LANG.msg("set.converted").color('7').italic(true).hEvent(destination.getBadge()));
+                convertTag.append(" ").append(LANG.msg("set.converted").color('7').italic(true).hover(destination.getBadge()));
                 // convert the loc
                 destination.convertTo(player.getDimension());
             }
@@ -314,14 +327,14 @@ public class Destination {
             String setCMD = "/dest set " + destination.toCMD();
 
             out.append(LANG.btn("set").btn(true).color(Assets.mainColors.set)
-                    .cEvent(1,setCMD)
-                    .hEvent(LANG.btn("set").color(Assets.mainColors.set).append("\n").append(LANG.hover("set"))));
+                    .click(1,setCMD)
+                    .hover(LANG.btn("set").color(Assets.mainColors.set).append("\n").append(LANG.hover("set"))));
 
             // make the convert button if needed
             if (convert) {
                 out.append(" ").append(CTxT.of(Assets.symbols.convert).btn(true).color(Assets.mainColors.convert)
-                        .cEvent(1, setCMD + " convert")
-                        .hEvent(LANG.btn("convert").color(Assets.mainColors.convert).append("\n").append(LANG.hover("convert"))));
+                        .click(1, setCMD + " convert")
+                        .hover(LANG.btn("convert").color(Assets.mainColors.convert).append("\n").append(LANG.hover("convert"))));
             }
 
             return out;
@@ -586,23 +599,23 @@ public class Destination {
 
         public static final Lang LANG = new Lang("destination.saved.");
 
-        public static CTxT BUTTON = LANG.btn().btn(true).color(Assets.mainColors.saved).cEvent(1,"/dest saved")
-                .hEvent(CTxT.of(Assets.cmdUsage.destSaved).color(Assets.mainColors.saved).append("\n").append(LANG.hover()));
+        public static CTxT BUTTON = LANG.btn().btn(true).color(Assets.mainColors.saved).click(1,"/dest saved")
+                .hover(CTxT.of(Assets.cmdUsage.destSaved).color(Assets.mainColors.saved).append("\n").append(LANG.hover()));
 
-        public static CTxT GLOBAL_BUTTON = LANG.btn("global").btn(true).color(Assets.mainColors.global).cEvent(1,"/dest global")
-                .hEvent(CTxT.of(Assets.cmdUsage.destGlobal).color(Assets.mainColors.global).append("\n").append(LANG.hover()));
+        public static CTxT GLOBAL_BUTTON = LANG.btn("global").btn(true).color(Assets.mainColors.global).click(1,"/dest global")
+                .hover(CTxT.of(Assets.cmdUsage.destGlobal).color(Assets.mainColors.global).append("\n").append(LANG.hover()));
 
-        public static CTxT ADD_BUTTON = CTxT.of("+").btn(true).color(Assets.mainColors.add).cEvent(2,"/dest add ")
-                .hEvent(CTxT.of(Assets.cmdUsage.destAdd).color(Assets.mainColors.add).append("\n")
+        public static CTxT ADD_BUTTON = CTxT.of("+").btn(true).color(Assets.mainColors.add).click(2,"/dest add ")
+                .hover(CTxT.of(Assets.cmdUsage.destAdd).color(Assets.mainColors.add).append("\n")
                         .append(LANG.hover("add",LANG.hover("add.2").color(Assets.mainColors.add))));
 
         public static CTxT SAVE_BUTTON(String cmd) {
-            return CTxT.of("+").btn(true).color(Assets.mainColors.add).cEvent(2,cmd)
-                    .hEvent(LANG.hover("save",LANG.hover("save.2").color(Assets.mainColors.add)));
+            return CTxT.of("+").btn(true).color(Assets.mainColors.add).click(2,cmd)
+                    .hover(LANG.hover("save",LANG.hover("save.2").color(Assets.mainColors.add)));
         }
         public static CTxT EDIT_BUTTON(int click, String cmd) {
-            return CTxT.of(Assets.symbols.pencil).btn(true).color(Assets.mainColors.edit).cEvent(click,cmd)
-                    .hEvent(LANG.hover("edit",CUtl.LANG.get("destination")).color(Assets.mainColors.edit)).color(Assets.mainColors.edit);
+            return CTxT.of(Assets.symbols.pencil).btn(true).color(Assets.mainColors.edit).click(click,cmd)
+                    .hover(LANG.hover("edit",CUtl.LANG.get("destination")).color(Assets.mainColors.edit)).color(Assets.mainColors.edit);
         }
 
         /*
@@ -745,7 +758,7 @@ public class Destination {
             }
 
             if (args[0].equals("set")) {
-                if (pos == 1) suggester.addAll(getCMDNames(Data.getGlobal().getDestinations()));
+                if (pos == 1) suggester.addAll(getCMDNames(FileData.getGlobal().getDestinations()));
                 // add convert
                 if (pos == 2) suggester.add("convert");
             }
@@ -754,7 +767,7 @@ public class Destination {
             if (!Helper.checkEnabled(player).globalEditing()) return suggester;
             switch (args[0]) {
                 case "delete" -> {
-                    if (pos == 1) suggester.addAll(getCMDNames(Data.getGlobal().getDestinations()));
+                    if (pos == 1) suggester.addAll(getCMDNames(FileData.getGlobal().getDestinations()));
                 }
                 case "add" -> {
                     return addCMDSuggester(player,pos-1, Helper.trimStart(args,1));
@@ -828,7 +841,7 @@ public class Destination {
                 return suggester;
             }
             // saved edit type (name)
-            if (pos == 1) suggester.addAll(getCMDNames(global ? Data.getGlobal().getDestinations() : getList(player)));
+            if (pos == 1) suggester.addAll(getCMDNames(global ? FileData.getGlobal().getDestinations() : getList(player)));
             // saved edit type name (<arg>)
             if (args[0].equalsIgnoreCase("location")) {
                 if (pos == 2) {
@@ -927,7 +940,7 @@ public class Destination {
              * get the dest list depending on the global state
              */
             private static ArrayList<Dest> getListType(Player player, boolean global) {
-                return global ? Data.getGlobal().getDestinations() : saved.getList(player);
+                return global ? FileData.getGlobal().getDestinations() : saved.getList(player);
             }
 
             /**
@@ -947,10 +960,12 @@ public class Destination {
              */
             private void save() {
                 if (global) {
+                    GlobalDest globalDest = FileData.getGlobal();
                     // set the list to the edited list
-                    Data.getGlobal().setDestinations(list);
-                    // save changes to file
-                    GlobalDest.save();
+                    globalDest.setDestinations(list);
+                    // save the global destinations to file
+                    FileData.setGlobalDestinations(globalDest,true);
+
                 } else player.getPData().getDEST().setSaved(list);
             }
 
@@ -1082,7 +1097,7 @@ public class Destination {
             // if errors were sent (invalid), return
             if (destination.sendErrors()) return;
             // if there are the max amount of saved destinations
-            if (destination.getList().size() >= Data.getConfig().getDestination().getMaxSaved()) {
+            if (destination.getList().size() >= FileData.getConfig().getDestination().getMaxSaved()) {
                 player.sendMessage(LANG.error("max"));
                 return;
             }
@@ -1263,26 +1278,26 @@ public class Destination {
             msg
                     // order
                     .append(" ").append(CTxT.of("#"+destination.getOrder()).btn(true).color(CUtl.p())
-                            .hEvent(LANG.hover("edit",LANG.get("order").color(CUtl.p())))
-                            .cEvent(2,"/dest saved edit-r order "+cmdName+" "))
+                            .hover(LANG.hover("edit",LANG.get("order").color(CUtl.p())))
+                            .click(2,"/dest saved edit-r order "+cmdName+" "))
                     // name
                     .append(" ").append(CTxT.of(destination.getName()).btn(true).color(CUtl.s())
-                            .hEvent(LANG.hover("edit",LANG.get("name").color(CUtl.s())))
-                            .cEvent(2,"/dest saved edit-r name "+cmdName+" "))
+                            .hover(LANG.hover("edit",LANG.get("name").color(CUtl.s())))
+                            .click(2,"/dest saved edit-r name "+cmdName+" "))
                     // color
                     .append(" ").append(CTxT.of(Assets.symbols.square).btn(true).color(destination.getColor())
-                            .hEvent(LANG.hover("edit",LANG.get("color").color(destination.getColor())))
-                            .cEvent(1, "/dest saved edit colorui "+cmdName))
+                            .hover(LANG.hover("edit",LANG.get("color").color(destination.getColor())))
+                            .click(1, "/dest saved edit colorui "+cmdName))
                     // location
                     .append("\n\n ").append(CTxT.of(Assets.symbols.pencil).btn(true).color(Assets.mainColors.edit)
-                            .hEvent(LANG.hover("edit",LANG.get("location").color(Assets.mainColors.edit)))
-                            .cEvent(2, "/dest saved edit-r location "+cmdName+" "))
+                            .hover(LANG.hover("edit",LANG.get("location").color(Assets.mainColors.edit)))
+                            .click(2, "/dest saved edit-r location "+cmdName+" "))
                     .append(" ").append(CTxT.of(destination.getNamelessBadge()))
                     .append("\n   ");
             // SEND BUTTON
             if (Helper.checkEnabled(player).send()) {
-                msg.append(social.send.LANG.btn().btn(true).color(Assets.mainColors.send).cEvent(2,"/dest saved send "+cmdName+" ")
-                        .hEvent(CTxT.of("/dest saved send "+cmdName+" <player>").color(Assets.mainColors.send)
+                msg.append(social.send.LANG.btn().btn(true).color(Assets.mainColors.send).click(2,"/dest saved send "+cmdName+" ")
+                        .hover(CTxT.of("/dest saved send "+cmdName+" <player>").color(Assets.mainColors.send)
                                 .append("\n").append(social.send.LANG.hover("saved")))).append(" ");
             }
             // SET & CONVERT BUTTON
@@ -1290,8 +1305,8 @@ public class Destination {
                     .append(dest.setButtons(destination,
                             Dimension.canConvert(player.getDimension(),destination.getDimension()))).append(" ")
                     .append("\n\n ")
-                    .append(LANG.btn("delete").btn(true).color('c').cEvent(2,"/dest saved delete-r "+cmdName)
-                            .hEvent(LANG.hover("delete",LANG.btn("delete").color('c')))).append(" ")
+                    .append(LANG.btn("delete").btn(true).color('c').click(2,"/dest saved delete-r "+cmdName)
+                            .hover(LANG.hover("delete",LANG.btn("delete").color('c')))).append(" ")
                     //BACK
                     .append(CUtl.CButton.back("/dest saved "+ listPage.getPageOf(destination)))
                     .append(line);
@@ -1328,8 +1343,8 @@ public class Destination {
             msg.append("\n ");
             // add global button if enabled
             if (Helper.checkEnabled(player).global()) msg.append(CTxT.of(Assets.symbols.global).btn(true).color(Assets.mainColors.global)
-                    .hEvent(LANG.hover("global").color(Assets.mainColors.global))
-                    .cEvent(1,"/dest global"));
+                    .hover(LANG.hover("global").color(Assets.mainColors.global))
+                    .click(1,"/dest global"));
             // else add button
             else msg.append(ADD_BUTTON);
             msg
@@ -1346,7 +1361,7 @@ public class Destination {
          * @param pg page to show
          */
         public static void globalUI(Player player, int pg) {
-            ListPage<Dest> listPage = new ListPage<>(new ArrayList<>(Data.getGlobal().getDestinations()), PER_PAGE);
+            ListPage<Dest> listPage = new ListPage<>(new ArrayList<>(FileData.getGlobal().getDestinations()), PER_PAGE);
             // build the message
             CTxT msg = CTxT.of(" "), line = CTxT.of("\n                                             ").strikethrough(true);
             msg.append(LANG.ui("global").color(Assets.mainColors.global)).append(line).append("\n");
@@ -1368,8 +1383,8 @@ public class Destination {
             msg.append("\n ")
                     // LOCAL BUTTON
                     .append(CTxT.of(Assets.symbols.local).btn(true).color(Assets.mainColors.saved)
-                            .hEvent(LANG.hover("local").color(Assets.mainColors.saved))
-                            .cEvent(1, "/dest saved"))
+                            .hover(LANG.hover("local").color(Assets.mainColors.saved))
+                            .click(1, "/dest saved"))
                     // nav buttons
                     .append(" ").append(listPage.getNavButtons(pg, "/dest global "))
                     // back button
@@ -1384,8 +1399,8 @@ public class Destination {
 
         public static final Lang LANG = new Lang("destination.lastdeath.");
 
-        public static CTxT BUTTON = LANG.btn().btn(true).color(Assets.mainColors.lastdeath).cEvent(1,"/dest lastdeath")
-                .hEvent(CTxT.of(Assets.cmdUsage.destLastdeath).color(Assets.mainColors.lastdeath).append("\n").append(LANG.hover()));
+        public static CTxT BUTTON = LANG.btn().btn(true).color(Assets.mainColors.lastdeath).click(1,"/dest lastdeath")
+                .hover(CTxT.of(Assets.cmdUsage.destLastdeath).color(Assets.mainColors.lastdeath).append("\n").append(LANG.hover()));
 
         public static void CMDExecutor(Player player, String[] args) {
             if (!Helper.checkEnabled(player).lastdeath()) return;
@@ -1410,7 +1425,7 @@ public class Destination {
                 //add to the top of the list
                 deaths.add(0,loc);
                 // WHILE more than max, remove the last entry (to deal with the size changing to be smaller in the future)
-                while (deaths.size() > Data.getConfig().getDestination().getLastDeath().getMaxDeaths()) deaths.remove(deaths.size()-1);
+                while (deaths.size() > FileData.getConfig().getDestination().getLastDeath().getMaxDeaths()) deaths.remove(deaths.size()-1);
             }
             player.getPData().getDEST().setLastdeath(deaths);
         }
@@ -1461,8 +1476,8 @@ public class Destination {
 
             public static final Lang LANG = new Lang("destination.send.");
 
-            public static CTxT BUTTON = LANG.btn().btn(true).color(Assets.mainColors.send).cEvent(2,"/dest send ")
-                    .hEvent(CTxT.of(Assets.cmdUsage.destSend).color(Assets.mainColors.send).append("\n").append(LANG.hover()));
+            public static CTxT BUTTON = LANG.btn().btn(true).color(Assets.mainColors.send).click(2,"/dest send ")
+                    .hover(CTxT.of(Assets.cmdUsage.destSend).color(Assets.mainColors.send).append("\n").append(LANG.hover()));
 
             public static void CMDExecutor(Player player, String[] args) {
                 // enabled check
@@ -1563,7 +1578,7 @@ public class Destination {
 
                 // LOGIC
                 // add the cooldown
-                player.getPCache().setSocialCooldown(Data.getConfig().getSocial().getCooldown());
+                player.getPCache().setSocialCooldown(FileData.getConfig().getSocial().getCooldown());
 
                 player.sendMessage(CUtl.tag().append(LANG.msg("sent",CTxT.of(target.getName()).color(CUtl.s()),
                         CTxT.of("\n ").append(dest.getBadge()))));
@@ -1602,10 +1617,10 @@ public class Destination {
 
             public static CTxT BUTTON(boolean x) {
                 return CTxT.of("")
-                        .append(LANG.btn().btn(true).color(Assets.mainColors.track).cEvent(2,"/dest track set")
-                                .hEvent(CTxT.of(Assets.cmdUsage.destTrack).color(Assets.mainColors.track).append("\n").append(LANG.hover())))
-                        .append(CTxT.of(Assets.symbols.x).btn(true).color(x? 'c':'7').cEvent(x? 1:0,"/dest track clear")
-                                .hEvent(CTxT.of(Assets.cmdUsage.destTrackClear).color(x? 'c':'7').append("\n").append(LANG.hover("clear"))));
+                        .append(LANG.btn().btn(true).color(Assets.mainColors.track).click(2,"/dest track set")
+                                .hover(CTxT.of(Assets.cmdUsage.destTrack).color(Assets.mainColors.track).append("\n").append(LANG.hover())))
+                        .append(CTxT.of(Assets.symbols.x).btn(true).color(x? 'c':'7').click(x? 1:0,"/dest track clear")
+                                .hover(CTxT.of(Assets.cmdUsage.destTrackClear).color(x? 'c':'7').append("\n").append(LANG.hover("clear"))));
             }
 
             public static void CMDExecutor(Player player, String[] args) {
@@ -1708,7 +1723,9 @@ public class Destination {
                 }
                 // get the reason for clearing
                 CTxT reasonTxT = LANG.msg("cleared." + switch (reason) {
-                    default -> "command"; case 2 -> "tracking_off"; case 3 -> "tracking_off_target";
+                    case 2 -> "tracking_off";
+                    case 3 -> "tracking_off_target";
+                    default -> "command";
                 }).color('7');
                 // clear the tracker
                 clear(player);
@@ -1734,7 +1751,7 @@ public class Destination {
              */
             public static void set(Player player, Player target) {
                 // if online, use UUID, if not use the target NAME
-                if (Data.getConfig().getOnline()) player.getPData().getDEST().setTracking(target.getUUID());
+                if (FileData.getConfig().getOnline()) player.getPData().getDEST().setTracking(target.getUUID());
                 else player.getPData().getDEST().setTracking(target.getName());
                 // get both players as CTxT
                 CTxT playerTxT = CTxT.of(player.getName()).color(CUtl.s()), targetTxT = CTxT.of(target.getName()).color(CUtl.s());
@@ -1779,7 +1796,7 @@ public class Destination {
                 // logic
 
                 // add the cooldown
-                player.getPCache().setSocialCooldown(Data.getConfig().getSocial().getCooldown());
+                player.getPCache().setSocialCooldown(FileData.getConfig().getSocial().getCooldown());
 
                 // target has instant tracking
                 if (Enums.get(player.getPData().getDEST().getSetting(Setting.features__track_request_mode),Setting.TrackingRequestMode.class)
@@ -1794,10 +1811,10 @@ public class Destination {
                         .append(LANG.msg("expire",300).color('7').italic(true)));
 
                 target.sendMessage(CUtl.tag().append(LANG.msg("request_target",player.getHighlightedName())).append("\n ")
-                        .append(CUtl.LANG.btn("accept").btn(true).color('a').cEvent(1,"/dest track accept "+player.getName())
-                                .hEvent(CUtl.LANG.hover("accept"))).append(" ")
-                        .append(CUtl.LANG.btn("deny").btn(true).color('c').cEvent(1,"/dest track deny "+player.getName())
-                                .hEvent(CUtl.LANG.hover("deny"))));
+                        .append(CUtl.LANG.btn("accept").btn(true).color('a').click(1,"/dest track accept "+player.getName())
+                                .hover(CUtl.LANG.hover("accept"))).append(" ")
+                        .append(CUtl.LANG.btn("deny").btn(true).color('c').click(1,"/dest track deny "+player.getName())
+                                .hover(CUtl.LANG.hover("deny"))));
             }
 
             /**
@@ -1961,8 +1978,8 @@ public class Destination {
          * the main button for destination SETTINGS
          */
         public static CTxT BUTTON = CUtl.LANG.btn("settings").btn(true).color(Assets.mainColors.setting)
-                .cEvent(1,"/dest settings")
-                .hEvent(CTxT.of(Assets.cmdUsage.destSettings).color(Assets.mainColors.setting).append("\n")
+                .click(1,"/dest settings")
+                .hover(CTxT.of(Assets.cmdUsage.destSettings).color(Assets.mainColors.setting).append("\n")
                         .append(CUtl.LANG.hover("settings",CUtl.LANG.get("destination"))));
         public static void CMDExecutor(Player player, String[] args) {
             // UI
@@ -2021,7 +2038,7 @@ public class Destination {
                     suggester.addAll(Suggester.colors(player,Suggester.getCurrent(args,pos),true));
                 // tracking request
                 if (setting.equals(Setting.features__track_request_mode))
-                    suggester.addAll(Enums.toStringList(Enums.toArrayList(TrackingRequestMode.values())));
+                    suggester.addAll(Enums.toStringList(TrackingRequestMode.values()));
                 // autoclear.rad
                 if (setting.equals(Setting.autoclear_rad))
                     suggester.add("0");
@@ -2141,10 +2158,10 @@ public class Destination {
         public static CTxT resetBtn(Player player, Setting setting) {
             CTxT msg = CTxT.of(Assets.symbols.x).btn(true).color('7');
             if (canBeReset(player,setting)) {
-                msg.color('c').cEvent(1, "/dest settings reset-r " + setting)
-                        .hEvent(CUtl.LANG.hover("reset",
-                                LANG.get(setting.toString()).color('c'),
-                                CUtl.LANG.hover("reset.settings")));
+                msg.color('c').click(1, "/dest settings reset-r " + setting)
+                        .hover(CUtl.LANG.hover("reset.settings",
+                                CUtl.LANG.hover("reset.fill").color('c'),
+                                LANG.get(setting.toString()).color(CUtl.s())));
             }
             return msg;
         }
@@ -2163,8 +2180,8 @@ public class Destination {
             if (setting.equals(Setting.autoclear)) {
                 // get int values of the doubles in the PlayerData files to look better
                 button.append(CTxT.of(String.valueOf((int) player.getPData().getDEST().getSetting(Setting.get(setting+"_rad")))).btn(true)
-                        .color(state?'a':'c').cEvent(2,"/dest settings set-r "+setting+"_rad ")
-                        .hEvent(LANG.get(Setting.autoclear_rad+".ui").color(state?'a':'c').append("\n")
+                        .color(state?'a':'c').click(2,"/dest settings set-r "+setting+"_rad ")
+                        .hover(LANG.get(Setting.autoclear_rad+".ui").color(state?'a':'c').append("\n")
                                 .append(LANG.hover("set.custom",LANG.get(Setting.autoclear_rad.toString()))).append("\n")
                                 .append(LANG.get(setting+"_rad.hover").color('7'))));
             }
@@ -2174,8 +2191,8 @@ public class Destination {
                 TrackingRequestMode mode = Enums.get(player.getPData().getDEST().getSetting(type),TrackingRequestMode.class);
                 TrackingRequestMode nextMode = Enums.next(mode,TrackingRequestMode.class);
                 button.append(CTxT.of(mode.getSymbol()).btn(true).color(CUtl.s())
-                        .cEvent(1,"/dest settings set-r "+type+" "+nextMode)
-                        .hEvent(LANG.get(type+".ui").color(CUtl.s()).append(" - ").append(LANG.get(type+"."+mode)).append("\n")
+                        .click(1,"/dest settings set-r "+type+" "+nextMode)
+                        .hover(LANG.get(type+".ui").color(CUtl.s()).append(" - ").append(LANG.get(type+"."+mode)).append("\n")
                                 .append(LANG.get(type+"."+mode+".info").color('7')).append("\n\n")
                                 .append(LANG.hover("set",LANG.get(type.toString()),LANG.get(type+"."+nextMode).color(CUtl.s())))));
             }
@@ -2183,8 +2200,8 @@ public class Destination {
             if (Setting.particles().contains(setting)) {
                 String color = (String) player.getPData().getDEST().getSetting(Setting.get(setting+"_color"));
                 button.append(CTxT.of(Assets.symbols.pencil).btn(true).color(color)
-                        .cEvent(1,"/dest settings colorui "+setting+"_color "+ DHud.preset.DEFAULT_UI_SETTINGS)
-                        .hEvent(LANG.hover("set.color",LANG.get(setting.toString()).color(color))));
+                        .click(1,"/dest settings colorui "+setting+"_color "+ DHud.preset.DEFAULT_UI_SETTINGS)
+                        .hover(LANG.hover("set.color",LANG.get(setting.toString()).color(color))));
             }
             return button;
         }
@@ -2233,7 +2250,7 @@ public class Destination {
             msg.append(" ").append(LANG.ui("category.destination").color(CUtl.p())).append(":\n  ");
             msg     //AUTOCLEAR
                     .append(resetBtn(player, Setting.autoclear)).append(" ")
-                    .append(LANG.get(Setting.autoclear.toString()).hEvent(LANG.get(Setting.autoclear.toString()).append("\n")
+                    .append(LANG.get(Setting.autoclear.toString()).hover(LANG.get(Setting.autoclear.toString()).append("\n")
                                     .append(LANG.get(Setting.autoclear+".info").color('7')).append("\n")
                                     .append(LANG.get(Setting.autoclear+".info.2").color('7').italic(true)).append("\n")
                                     .append(LANG.get(Setting.autoclear_rad+".ui")).append("\n")
@@ -2241,13 +2258,13 @@ public class Destination {
                     .append(": ").append(getButtons(player, Setting.autoclear)).append("\n  ");
             msg     //AUTOCONVERT
                     .append(resetBtn(player, Setting.autoconvert)).append(" ")
-                    .append(LANG.get(Setting.autoconvert.toString()).hEvent(LANG.get(Setting.autoconvert.toString()).append("\n")
+                    .append(LANG.get(Setting.autoconvert.toString()).hover(LANG.get(Setting.autoconvert.toString()).append("\n")
                             .append(LANG.get(Setting.autoconvert+".info").color('7')).append("\n ")
                             .append(LANG.get(Setting.autoconvert+".info.2").color('7'))))
                     .append(": ").append(getButtons(player, Setting.autoconvert)).append("\n  ");
             msg     //YLEVEL
                     .append(resetBtn(player, Setting.ylevel)).append(" ")
-                    .append(LANG.get(Setting.ylevel+".ui").hEvent(LANG.get(Setting.ylevel+".ui").append("\n")
+                    .append(LANG.get(Setting.ylevel+".ui").hover(LANG.get(Setting.ylevel+".ui").append("\n")
                             .append(LANG.get(Setting.autoconvert+".info",
                                     LANG.get(Setting.autoconvert+".info_2").color(CUtl.s()),
                                     LANG.get(Setting.autoconvert+".info_2").color(CUtl.s())).color('7'))))
@@ -2256,41 +2273,41 @@ public class Destination {
             msg.append(LANG.ui("category.particles").color(CUtl.p())).append(":\n  ");
             msg     //DESTINATION
                     .append(resetBtn(player, Setting.particles__dest)).append(" ")
-                    .append(LANG.get(Setting.particles__dest+".ui").hEvent(LANG.get(Setting.particles__dest+".ui").append("\n")
+                    .append(LANG.get(Setting.particles__dest+".ui").hover(LANG.get(Setting.particles__dest+".ui").append("\n")
                             .append(LANG.get(Setting.particles__dest+".info").color('7'))))
                     .append(": ").append(getButtons(player, Setting.particles__dest)).append("\n  ");
             msg     //LINE
                     .append(resetBtn(player, Setting.particles__line)).append(" ")
-                    .append(LANG.get(Setting.particles__line+".ui").hEvent(LANG.get(Setting.particles__line+".ui").append("\n")
+                    .append(LANG.get(Setting.particles__line+".ui").hover(LANG.get(Setting.particles__line+".ui").append("\n")
                             .append(LANG.get(Setting.particles__line+".info").color('7'))))
                     .append(": ").append(getButtons(player, Setting.particles__line)).append("\n  ");
             msg     //TRACK
                     .append(resetBtn(player, Setting.particles__tracking)).append(" ")
-                    .append(LANG.get(Setting.particles__tracking+".ui").hEvent(LANG.get(Setting.particles__tracking+".ui").append("\n")
+                    .append(LANG.get(Setting.particles__tracking+".ui").hover(LANG.get(Setting.particles__tracking+".ui").append("\n")
                             .append(LANG.get(Setting.particles__tracking+".info").color('7'))))
                     .append(": ").append(getButtons(player, Setting.particles__tracking)).append("\n ");
             // only show if needed
-            if (Data.getConfig().getSocial().getEnabled() || Data.getConfig().getDestination().getLastDeath().getSaving()) {
+            if (FileData.getConfig().getSocial().getEnabled() || FileData.getConfig().getDestination().getLastDeath().getSaving()) {
                 //FEATURES
                 msg.append(LANG.ui("category.features").color(CUtl.p())).append(":\n  ");
-                if (Data.getConfig().getSocial().getEnabled()) {
+                if (FileData.getConfig().getSocial().getEnabled()) {
                     msg     //SEND
                             .append(resetBtn(player, Setting.features__send)).append(" ")
-                            .append(LANG.get(Setting.features__send+".ui").hEvent(LANG.get(Setting.features__send+".ui").append("\n")
+                            .append(LANG.get(Setting.features__send+".ui").hover(LANG.get(Setting.features__send+".ui").append("\n")
                                     .append(LANG.get(Setting.features__send+".info").color('7'))))
                             .append(": ").append(getButtons(player, Setting.features__send)).append("\n  ");
                     msg     //TRACK
                             .append(resetBtn(player, Setting.features__track)).append(" ")
-                            .append(LANG.get(Setting.features__track+".ui").hEvent(LANG.get(Setting.features__track+".ui").append("\n")
+                            .append(LANG.get(Setting.features__track+".ui").hover(LANG.get(Setting.features__track+".ui").append("\n")
                                     .append(LANG.get(Setting.features__track+".info").color('7')).append("\n")
                                     .append(LANG.get(Setting.features__track_request_mode+".ui")).append("\n")
                                     .append(LANG.get(Setting.features__track_request_mode+".info").color('7'))))
                             .append(": ").append(getButtons(player, Setting.features__track)).append("\n  ");
                 }
-                if (Data.getConfig().getDestination().getLastDeath().getSaving()) {
+                if (FileData.getConfig().getDestination().getLastDeath().getSaving()) {
                     msg     //LASTDEATH
                             .append(resetBtn(player, Setting.features__lastdeath)).append(" ")
-                            .append(LANG.get(Setting.features__lastdeath.toString()).hEvent(LANG.get(Setting.features__lastdeath.toString()).append("\n")
+                            .append(LANG.get(Setting.features__lastdeath.toString()).hover(LANG.get(Setting.features__lastdeath.toString()).append("\n")
                                     .append(LANG.get(Setting.features__lastdeath+".info").color('7'))))
                             .append(": ").append(getButtons(player, Setting.features__lastdeath)).append("\n ");
                 }
@@ -2302,20 +2319,20 @@ public class Destination {
                 // if reset is on quit the loop
                 if (resetOn) break;
                 // if lastdeath is off in the config, skip
-                if (!Data.getConfig().getDestination().getLastDeath().getSaving() && t.equals(Setting.features__lastdeath)) continue;
+                if (!FileData.getConfig().getDestination().getLastDeath().getSaving() && t.equals(Setting.features__lastdeath)) continue;
                 // if social is off in the config, skip
-                if (!Data.getConfig().getSocial().getEnabled() && (t.equals(Setting.features__send) || t.equals(Setting.features__track))) continue;
+                if (!FileData.getConfig().getSocial().getEnabled() && (t.equals(Setting.features__send) || t.equals(Setting.features__track))) continue;
                 resetOn = canBeReset(player,t);
             }
-            if (resetOn) reset.color('c').cEvent(1,"/dest settings reset-r all")
-                    .hEvent(CUtl.LANG.hover("reset",CUtl.LANG.btn("all").color('c'),CUtl.LANG.hover("reset.settings")));
+            if (resetOn) reset.color('c').click(1,"/dest settings reset-r all")
+                    .hover(CUtl.LANG.hover("reset.settings",CUtl.LANG.hover("reset.fill").color('c'),CUtl.LANG.btn("all").color(CUtl.s())));
             // bottom row
             msg.append("\n     ").append(reset).append("  ").append(CUtl.CButton.back("/dest")).append(line);
             player.sendMessage(msg);
         }
     }
 
-    public static CTxT BUTTON = LANG.btn().btn(true).color(Assets.mainColors.dest).cEvent(1,"/dest").hEvent(
+    public static CTxT BUTTON = LANG.btn().btn(true).color(Assets.mainColors.dest).click(1,"/dest").hover(
                 CTxT.of(Assets.cmdUsage.dest).color(Assets.mainColors.dest).append("\n").append(LANG.hover()));
 
     /**

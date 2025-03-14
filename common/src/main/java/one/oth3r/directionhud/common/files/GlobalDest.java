@@ -1,16 +1,17 @@
 package one.oth3r.directionhud.common.files;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import one.oth3r.directionhud.DirectionHUD;
+import one.oth3r.directionhud.common.template.CustomFile;
 import one.oth3r.directionhud.common.utils.Dest;
+import one.oth3r.directionhud.common.utils.Loc;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.List;
 
-public class GlobalDest {
+public class GlobalDest implements CustomFile<GlobalDest> {
     private Double version = 1.0;
 
     private ArrayList<Dest> destinations = new ArrayList<>();
@@ -18,8 +19,7 @@ public class GlobalDest {
     public GlobalDest() {}
 
     public GlobalDest(GlobalDest globalDest) {
-        this.version = globalDest.version;
-        this.destinations = globalDest.destinations;
+        copyFileData(globalDest);
     }
 
     public Double getVersion() {
@@ -38,37 +38,77 @@ public class GlobalDest {
         this.destinations = destinations;
     }
 
-    // SAVING AND LOADING
-
-    public static final String FILE_NAME = "global-dest.json";
-
-    public static File getFile() {
-        return new File(DirectionHUD.DATA_DIR+FILE_NAME);
+    /**
+     * @return the class of the File
+     */
+    @Override
+    public @NotNull Class<GlobalDest> getFileClass() {
+        return GlobalDest.class;
     }
 
-    public static void load() {
-        File file = getFile();
-        // create a new file if non-existent
-        if (!file.exists()) save();
-        // try reading
-        try (BufferedReader reader = Files.newBufferedReader(getFile().toPath(), StandardCharsets.UTF_8)) {
-            Updater.Global.run(reader);
-        } catch (Exception e) {
-            DirectionHUD.LOGGER.info("Error loading global destinations, clearing!.");
-        }
-        // save the file
-        save();
+    /**
+     * loads the data from the file object into the current object - DEEP COPY
+     *
+     * @param newFile the file to take the properties from
+     */
+    @Override
+    public void copyFileData(GlobalDest newFile) {
+        this.version = newFile.version;
+
+        ArrayList<Dest> dests = new ArrayList<>();
+        for (Dest dest : newFile.destinations) dests.add(new Dest(dest));
+        this.destinations = dests;
     }
 
-    public static void save() {
-        if (!getFile().exists()) {
-            DirectionHUD.LOGGER.info(String.format("Creating new '%s'",FILE_NAME));
+    /**
+     * updates the file based on the version number of the current instance
+     *
+     * @param json
+     */
+    @Override
+    public void update(JsonElement json) {
+        // if the json is just an array (legacy file)
+        if (json.isJsonArray() && version == 1.0) {
+            JsonArray DestArray = json.getAsJsonArray();
+
+            ArrayList<Dest> updated = new ArrayList<>();
+            // convert each entry to the new dest system
+
+            for (JsonElement element : DestArray) {
+                // a dest is a list of strings
+                if (element.isJsonArray()) {
+                    List<JsonElement> destJson = element.getAsJsonArray().asList();
+                    // make the dest using the data
+                    Dest dest = new Dest(new Loc(true, destJson.get(1).getAsString()), // LOC
+                            destJson.get(0).getAsString(), // NAME
+                            destJson.get(2).getAsString()); // COLOR
+
+                    // add the dest to the new list
+                    updated.add(dest);
+                }
+            }
+
+            this.destinations = updated;
         }
-        try (BufferedWriter writer = Files.newBufferedWriter(getFile().toPath(), StandardCharsets.UTF_8)) {
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            writer.write(gson.toJson(Data.getGlobal()));
-        } catch (Exception e) {
-            DirectionHUD.LOGGER.info(String.format("ERROR WRITING `%s`: %s",FILE_NAME,e.getMessage()));
-        }
+    }
+
+    /**
+     * gets the file name - including the extension
+     *
+     * @return ex. custom-file.json
+     */
+    @Override
+    public String getFileName() {
+        return "global-dest.json";
+    }
+
+    @Override
+    public String getDirectory() {
+        return DirectionHUD.getData().getDataDirectory();
+    }
+
+    @Override
+    public void reset() {
+        copyFileData(new GlobalDest());
     }
 }
