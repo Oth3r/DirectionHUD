@@ -118,7 +118,7 @@ public class ModEvents {
                 // if there is no actionbar override, build and send the HUD
                 if (DirectionHUD.getData().getActionBarOverride().canDisplay()) {
                     Player player = DirectionHUDClient.getPlayerFromClient(client);
-                    player.displayHUD(Hud.build.compile(player, Helper.getGson().fromJson(packet, ModuleInstructions.class)));
+                    player.sendActionBar(Hud.build.compile(player, Helper.getGson().fromJson(packet, ModuleInstructions.class)));
                 }
             });
         }
