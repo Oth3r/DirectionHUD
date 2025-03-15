@@ -19,14 +19,23 @@ public class Dimension {
                     new DimensionEntry.Time.Weather.NightTicks(new DimensionEntry.Time.TimePair(12542,0),new DimensionEntry.Time.TimePair(12010,0),new DimensionEntry.Time.TimePair(0,24000)),
                     new DimensionEntry.Time.Weather.Icons(Assets.symbols.sun,Assets.symbols.moon,Assets.symbols.rain,Assets.symbols.thunder)));
 
-    private static DimensionSettings dimensionSettings = new DimensionSettings();
+    private static final DimensionSettings dimensionSettings = new DimensionSettings();
 
-    public static void setDimensionSettings(DimensionSettings dimensionSettings) {
-        Dimension.dimensionSettings = new DimensionSettings(dimensionSettings);
+    public static void setDimensionSettings(DimensionSettings dimensionSettings, boolean save) {
+        Dimension.dimensionSettings.copyFileData(dimensionSettings);
+        if (save) dimensionSettings.save();
     }
 
     public static DimensionSettings getDimensionSettings() {
-        return dimensionSettings;
+        return new DimensionSettings(dimensionSettings);
+    }
+
+    /**
+     * loads the `dimension-settings` file into the system <br>
+     * this is only a separate method because we cant get the original settings object using {@link #getDimensionSettings()} as it provides a copy
+     */
+    public static void loadDimensionSettings() {
+        dimensionSettings.load();
     }
 
     /**
@@ -86,10 +95,10 @@ public class Dimension {
                 .filter(dimension -> dimension.getId().equals(id))
                 .findFirst().orElse(null);
         // if not found
-        if (dim == null) return CTxT.of("X").btn(true).hEvent(CTxT.of("???"));
+        if (dim == null) return CTxT.of("X").btn(true).hover(CTxT.of("???"));
         // make the badge
         return CTxT.of(String.valueOf(dim.getName().charAt(0)).toUpperCase()).btn(true)
-                .color(dim.getColor()).hEvent(CTxT.of(dim.getName()).color(dim.getColor()));
+                .color(dim.getColor()).hover(CTxT.of(dim.getName()).color(dim.getColor()));
     }
     public static ArrayList<Pair<String, String>> getRatioPairs() {
         return dimensionSettings.getRatios().stream()
@@ -164,7 +173,7 @@ public class Dimension {
             DimensionEntry data = new DimensionEntry(
                     Utl.dim.updateLegacy(entries[0]), entries[1], entries[2],
                     // only enable time by default if DirectionHUD is a mod, because plugins have different times for different worlds.
-                    new DimensionEntry.Time(DirectionHUD.isMod)
+                    new DimensionEntry.Time(DirectionHUD.getData().isMod())
             );
 
             // if overworld add overworld time settings

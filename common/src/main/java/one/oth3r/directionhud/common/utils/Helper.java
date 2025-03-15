@@ -4,51 +4,94 @@ import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import com.google.gson.stream.MalformedJsonException;
 import one.oth3r.directionhud.common.DHud;
+import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
+import one.oth3r.directionhud.common.hud.module.BaseModule;
+import one.oth3r.directionhud.common.hud.module.BaseModuleAdapter;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
+import org.apache.commons.text.similarity.FuzzyScore;
+import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.util.*;
+import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 public class Helper {
     public static final int MAX_NAME = 16;
 
     public static class Enums {
-        public static <T extends Enum<T>> ArrayList<T> toArrayList(T[] array) {
-            return new ArrayList<>(Arrays.asList(array));
-        }
+
+        /**
+         * converts an arraylist of enums to an arraylist of strings of the enum names using {@link Enum#name()}
+         * @param enumList the arraylist of Enums
+         * @return the converted arraylist of strings
+         */
         public static <T extends Enum<T>> ArrayList<String> toStringList(ArrayList<T> enumList) {
-            ArrayList<String> stringList = new ArrayList<>();
-            for (T entry:enumList) stringList.add(entry.toString());
-            return stringList;
+            return (ArrayList<String>) enumList.stream().map(Enum::name).collect(Collectors.toList());
         }
-        public static <T extends Enum<T>> ArrayList<T> toEnumList(ArrayList<String> stringList, Class<T> enumType, boolean... setting) {
-            boolean settingMode = setting != null;
+
+        /**
+         * method overload of {@link #toStringList(ArrayList)}
+         * @param enumArray an array of custom enum
+         */
+        public static <T extends Enum<T>> ArrayList<String> toStringList(T[] enumArray) {
+            return toStringList(new ArrayList<>(List.of(enumArray)));
+        }
+
+        /**
+         * turns an {@link ArrayList} of enum strings into an ArrayList of {@link  Enum} <br>
+         * if the enum cannot be found for one of the strings in the list, it will be skipped
+         * @param stringList the list of enum strings
+         * @param enumType the class of the enum
+         * @return the converted {@link ArrayList} of enums
+         */
+        public static <T extends Enum<T>> ArrayList<T> toEnumList(ArrayList<String> stringList, Class<T> enumType) {
+            return toEnumList(Enum::valueOf, stringList, enumType);
+        }
+        public static <T extends Enum<T>> ArrayList<T> toEnumList(BiFunction<Class<T>,String, T> function, ArrayList<String> stringList, Class<T> enumType) {
             ArrayList<T> moduleList = new ArrayList<>();
-            for (String module:stringList) {
+
+            // for each string in the enum string list
+            for (String module : stringList) {
+                // try to get the Enum from the string, if it throws an Exception, ignore it (invalid strings get ignored)
                 try {
-                    T enumValue = Enum.valueOf(enumType, module);
-                    if (settingMode) enumValue = Enum.valueOf(enumType, module.replace(".","__"));
+                    T enumValue = function.apply(enumType, module);
                     moduleList.add(enumValue);
                 } catch (IllegalArgumentException ignored) {}
             }
+
+            // return the new list
             return moduleList;
         }
+
+        /**
+         * finds the next enum in the enum array, wrapping around if the enum is at the end of the array
+         * @param current the current enum
+         * @param enumType the class type of the enum
+         * @param exclude the list of enums to 'skip' over when finding the next enum
+         * @return the next enum in the array
+         */
         @SafeVarargs
         public static <T extends Enum<T>> T next(T current, Class<T> enumType, T... exclude) {
             T[] values = enumType.getEnumConstants();
+            // get the next enum in the values list, wrapping around if necessary
             T next = values[(current.ordinal()+1)%values.length];
+
+            // if the exclude list isn't empty
             if (exclude != null) {
-                for (T item:exclude)
-                    if (item.equals(next))
-                        return next(next,enumType,exclude);
+                // if the next enum is in the exclude list, find the next one after the current next one
+                if (Arrays.asList(exclude).contains(next)) return next(next, enumType, exclude);
             }
+
+            // return the next Enum
             return next;
         }
+
         /**
          * gets an enum from a string without returning null
          * @param enumString the string of the enum
@@ -57,12 +100,26 @@ public class Helper {
          */
         public static <T extends Enum<T>> T get(Object enumString, Class<T> enumType) {
             T[] values = enumType.getEnumConstants();
-            for (T all : values) {
-                // check if there is a match for any of the enum names
-                if (enumString.toString().equals(all.name())) return all;
-            }
             // if there's no match return the first entry
-            return values[0];
+            return search(enumString,enumType).orElse(values[0]);
+        }
+
+        /**
+         * searches for an enum constant by its name in the specified enum type class
+         *
+         * @param <T> the type of the enum
+         * @return an {@code Optional} containing the matching enum constant if found, otherwise an empty {@code Optional}
+         */
+        public static <T extends Enum<T>> Optional<T> search(Object enumString, Class<T> enumType) {
+            T[] values = enumType.getEnumConstants();
+            return Arrays.stream(values).filter(entry -> entry.toString().equalsIgnoreCase(enumString.toString())).findFirst();
+        }
+
+        /**
+         * checks if an Enum string is valid in the enum type
+         */
+        public static <T extends Enum<T>> boolean contains(Object enumString, Class<T> enumType) {
+            return search(enumString,enumType).isPresent();
         }
     }
 
@@ -123,6 +180,24 @@ public class Helper {
             return (num+add)%max;
         }
 
+        /**
+         * formats a given number to have a specific number of digits (good for clocks etc.) <br>
+         * the method adds leading 0's as necessary, and if the original number is too big, it will be cut off
+         *
+         * @param number the number to be formatted
+         * @param digits the total number of digits the output string should have
+         * @return a formatted string of the number with the specified number of digits
+         */
+        public static String formatToXDigits(int number, int digits) {
+            // put digit -1 amount of zeros in front of the original number
+            String result = "0".repeat(Math.max(0,digits-1)) + number;
+            // return the string shortened to the right size
+            return result.substring(result.length() - digits);
+        }
+
+        public static String formatToTwoDigits(int number) {
+            return formatToXDigits(number,2);
+        }
     }
 
     public static class Command {
@@ -243,6 +318,77 @@ public class Helper {
                 }
                 return list;
             }
+
+            /**
+             * filters the suggestions based on similarity to the current typed out command
+             */
+            public static ArrayList<String> filter(ArrayList<String> suggestions, String current) {
+                // if the current typed command is empty, don't filter
+                if (current.equalsIgnoreCase("")) return suggestions;
+                if (current.isEmpty()) return suggestions;
+
+                // the list of filtered suggestions only
+                ArrayList<String> filtered = new ArrayList<>();
+
+                // todo have a personal fallback, as everyone doesn't speak english
+                FuzzyScore fuzzyScore = new FuzzyScore(Locale.ENGLISH);
+
+                double minimumScore = current.length() * 1.5;
+                if (current.length() == 1) minimumScore = 1;
+
+                // score each suggestion and retrieve the suitable option
+                for (String s : suggestions) {
+                    int score = fuzzyScore.fuzzyScore(s.toLowerCase(), current.toLowerCase());
+
+                    // if the score is greater or equal than the minimum, add to the filtered list
+                    if (score >= minimumScore) filtered.add(s);
+                }
+
+                // if there aren't any suggestions after the sort, try similarity
+                if (!suggestions.isEmpty() && filtered.isEmpty()) {
+                    // if the language isn't english, use the JaroWinklerSimilarity
+                    JaroWinklerSimilarity similarity = new JaroWinklerSimilarity();
+                    float minSimilarity = 0.65f;
+
+                    for (String s : suggestions) {
+                        // add the suggestion to the return list if above the min similarity threshold
+                        if (similarity.apply(current, s) > minSimilarity) filtered.add(s);
+                    }
+                }
+
+                return filtered;
+            }
+        }
+
+        /**
+         * removes all entries until the target entry is found
+         * @return the edited string array, removing the keyword as well
+         */
+        public static String[] removeTo(String[] target, String... keywords) {
+            // the args variable to return
+            String[] args = target;
+
+            String targetString = String.join(" ", target);
+            // set the index to -1 as not finding a match as default
+            int index = -1;
+
+            // finds the index for the keywords
+            for (String keyword : keywords) {
+                index = targetString.indexOf(keyword);
+
+                // if a match is found, break out of the loop
+                if (index != -1) break;
+            }
+
+            //trims the words before the text
+            if (index != -1) {
+                targetString = targetString.substring(index).trim();
+                args = targetString.split(" ");
+                // remove the keyword as well
+                args = trimStart(args, 1);
+            }
+
+            return args;
         }
 
         public static String[] quoteHandler(String[] args) {
@@ -325,10 +471,14 @@ public class Helper {
         }
     }
 
+    /**
+     * helps separate lists into page sized chunks
+     * @param <T> the type of list
+     */
     public static class ListPage<T> {
-        // helps separate lists into page sized chunks
         private final ArrayList<T> list;
         private final int perPage;
+
         public ListPage(ArrayList<T> list, int perPage) {
             this.list = list;
             this.perPage = perPage;
@@ -340,14 +490,21 @@ public class Helper {
         public ArrayList<T> getList() {
             return list;
         }
+
         public int getPageOf(T item) {
             // get the quotient of the index and the amount of items per page rounded to the next integer to get page of the current item
-            if (list.contains(item)) return (int) Math.ceil((double) (list.indexOf(item) + 1) / perPage);
-            else return 1;
+            return getPageOf(getIndexOf(item));
         }
+
+        public int getPageOf(int index) {
+            // get the quotient of the index and the amount of items per page rounded to the next integer to get page of the current item
+            return (int) Math.ceil((double) (index + 1) / perPage);
+        }
+
         public int getIndexOf(T item) {
             return list.indexOf(item);
         }
+
         public ArrayList<T> getPage(int page) {
             //return a list with the entries in the page given
             int max = getTotalPages();
@@ -362,6 +519,7 @@ public class Helper {
             }
             return pageList;
         }
+
         public CTxT getNavButtons(int page, String command) {
             // return the buttons to change page
             int max = getTotalPages();
@@ -371,15 +529,49 @@ public class Helper {
             CTxT right = CTxT.of("");
             // if at the start left is gray else not
             if (page==1) left.append(CTxT.of("<<").btn(true).color('7'));
-            else left.append(CTxT.of("<<").btn(true).color(CUtl.s()).cEvent(1,command+(page-1)));
+            else left.append(CTxT.of("<<").btn(true).color(CUtl.s()).click(1,command+(page-1)));
             // if at the end right is gray else not
             if (page==max) right.append(CTxT.of(">>").btn(true).color('7'));
-            else right.append(CTxT.of(">>").btn(true).color(CUtl.s()).cEvent(1,command+(page+1)));
+            else right.append(CTxT.of(">>").btn(true).color(CUtl.s()).click(1,command+(page+1)));
             // build and return
             return CTxT.of("")
                     .append(left).append(" ")
-                    .append(CTxT.of(String.valueOf(page)).btn(true).color(CUtl.p()).cEvent(2,command).hEvent(CUtl.LANG.hover("page_set").color(CUtl.p())))
+                    .append(CTxT.of(String.valueOf(page)).btn(true).color(CUtl.p()).click(2,command).hover(CUtl.LANG.hover("page_set").color(CUtl.p())))
                     .append(" ").append(right);
+        }
+    }
+
+    /**
+     * removes duplicate classes seen in an array <br>
+     * perfect for an array for an abstract class, and making sure each item in the array is a unique subclass
+     * @param list the list to check
+     * @param <T> the list object
+     */
+    public static <T> void removeDuplicateSubclasses(ArrayList<T> list) {
+        Set<Class<?>> seenClasses = new HashSet<>();
+        list.removeIf(item -> !seenClasses.add(item.getClass()));
+    }
+
+    /**
+     * move an item in an arraylist to a new index
+     * @param list the list to modify
+     * @param currentIndex the index of the item to move
+     * @param targetIndex the new index of the item
+     * @param <T> the list object
+     */
+    public static <T> void moveTo(ArrayList<T> list, int currentIndex, int targetIndex) {
+        if (currentIndex < 0 || currentIndex >= list.size()) {
+            throw new IndexOutOfBoundsException("Current index is out of bounds.");
+        }
+
+        // Remove the element and save it
+        T element = list.remove(currentIndex);
+
+        // Adjust target index if it's out of bounds
+        if (targetIndex >= list.size()) {
+            list.add(element); // Add to the end if too high
+        } else {
+            list.add(targetIndex, element); // Insert at the specified position
         }
     }
 
@@ -387,14 +579,19 @@ public class Helper {
      * gets a Gson with the LenientTypeAdapter
      */
     public static Gson getGson() {
+
         return new GsonBuilder()
+                .registerTypeAdapter(BaseModule.class, new BaseModuleAdapter())
                 .registerTypeAdapterFactory(new LenientTypeAdapterFactory())
+                .disableHtmlEscaping()
+                .setPrettyPrinting()
                 .create();
     }
 
     /**
      * the LenientTypeAdapter, doesn't throw anything when reading a weird JSON entry, good for human entered JSONs
      */
+    @SuppressWarnings("unchecked")
     public static class LenientTypeAdapterFactory implements TypeAdapterFactory {
         public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
             final TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
@@ -409,10 +606,28 @@ public class Helper {
                     try {
                         //Try to read value using default TypeAdapter
                         return delegate.read(in);
-                    } catch (JsonSyntaxException | MalformedJsonException e) {
-                        // don't throw anything if there's a weird JSON, just return null
+                    } catch (Exception e) {
+                        // skip the invalid json value
                         in.skipValue();
-                        return null;
+
+                        // try to provide a default instance for common types
+                        Class<? super T> rawType = type.getRawType();
+
+                        if (List.class.isAssignableFrom(rawType)) {
+                            return (T) new ArrayList<>();
+                        } else if (Map.class.isAssignableFrom(rawType)) {
+                            return (T) new HashMap<>();
+                        }
+
+                        // attempt to create a new instance using a no-arg constructor
+                        try {
+                            Constructor<? super T> ctor = rawType.getDeclaredConstructor();
+                            ctor.setAccessible(true);
+                            return (T) ctor.newInstance();
+                        } catch (Exception ex) {
+                            // no default instance is available, fallback to null
+                            return null;
+                        }
                     }
                 }
             };

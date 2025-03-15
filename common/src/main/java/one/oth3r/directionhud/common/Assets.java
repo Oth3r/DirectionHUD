@@ -1,7 +1,6 @@
 package one.oth3r.directionhud.common;
 
-import one.oth3r.directionhud.common.files.Data;
-import one.oth3r.directionhud.utils.CTxT;
+import one.oth3r.directionhud.common.hud.Hud;
 
 public class Assets {
 
@@ -79,6 +78,10 @@ public class Assets {
             public static final String right = "\u25b6";
             public static final String leftRight = "\u2b0c";
             public static final String upDown = "\u2b0d";
+            public static final String leftEnd = "\u23ee";
+            public static final String rightEnd = "\u23ed";
+            public static final String shuffle = "\uD83D\uDD00";
+            public static final String repeat = "\uD83D\uDD01";
         }
         public static final String square = "\u2588";
         public static final String x = "\u2715";
@@ -94,19 +97,22 @@ public class Assets {
         public static final String toggle = "\u21C4";
         public static final String local = "\uD83D\uDCDA";
         public static final String global = "\uD83E\uDDED";
+        public static final String mountain = "\u26F0";
     }
 
     public enum packets {
-        INITIALIZATION("initialize_v1.1"),
-        PLAYER_DATA("player_data_v1.1"),
-        HUD("hud_v1.1"),
-        SPIGOT_PLAYER_DATA("spigot_player_data_v1.1"),
-        SPIGOT_HUD("spigot_hud_v1.1");
+        INITIALIZATION("initialize_v1.2"),
+        PLAYER_DATA("player_data_v1.2"),
+        HUD("hud_v1.2"),
+        SPIGOT_PLAYER_DATA("spigot_player_data_v1.2"),
+        SPIGOT_HUD("spigot_hud_v1.2");
 
         private final String identifier;
-        packets(String key) {
-            this.identifier = key;
+
+        packets(String identifier) {
+            this.identifier = identifier;
         }
+
         public String getIdentifier() {
             return identifier;
         }

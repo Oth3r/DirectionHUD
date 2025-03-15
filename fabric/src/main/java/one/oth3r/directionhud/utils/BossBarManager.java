@@ -1,10 +1,11 @@
 package one.oth3r.directionhud.utils;
 
 import net.minecraft.entity.boss.BossBar;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.Destination;
-import one.oth3r.directionhud.common.Hud;
+import one.oth3r.directionhud.common.hud.Hud;
 import one.oth3r.directionhud.common.utils.Helper;
 
 import java.util.HashMap;
@@ -15,18 +16,19 @@ public class BossBarManager {
     private final Map<Player, Identifier> bossBars = new HashMap<>();
     public void addPlayer(Player player) {
         bossBars.put(player, Identifier.of(DirectionHUD.MOD_ID,player.getUUID()+"-bossbar"));
-        DirectionHUD.server.getBossBarManager().add(bossBars.get(player),CTxT.of("").b()).addPlayer(player.getPlayer());
+        DirectionHUD.getData().getServer().getBossBarManager().add(bossBars.get(player),CTxT.of("").b()).addPlayer(player.getPlayer());
     }
     public void removePlayer(Player player) {
         Identifier identifier = bossBars.remove(player);
         if (identifier != null) {
-            Objects.requireNonNull(DirectionHUD.server.getBossBarManager().get(identifier)).removePlayer(player.getPlayer());
-            DirectionHUD.server.getBossBarManager().remove(DirectionHUD.server.getBossBarManager().get(identifier));
+            MinecraftServer server = DirectionHUD.getData().getServer();
+            Objects.requireNonNull(server.getBossBarManager().get(identifier)).removePlayer(player.getPlayer());
+            server.getBossBarManager().remove(server.getBossBarManager().get(identifier));
         }
     }
     public void display(Player player, CTxT hud) {
         if (!bossBars.containsKey(player)) addPlayer(player);
-        BossBar bossBar = DirectionHUD.server.getBossBarManager().get(bossBars.get(player));
+        BossBar bossBar = DirectionHUD.getData().getServer().getBossBarManager().get(bossBars.get(player));
         assert bossBar != null;
         bossBar.setName(hud.b());
         bossBar.setColor(BossBar.Color.byName(Helper.Enums.get(player.getPCache().getHud().getSetting(Hud.Setting.bossbar__color), Hud.Setting.BarColor.class).toString()));
@@ -61,5 +63,8 @@ public class BossBarManager {
         progress = Math.max(Math.min(progress,1.0),0.0);
         progress = (progress-1)*-1;
         return progress;
+    }
+    public void clear() {
+        bossBars.clear();
     }
 }
