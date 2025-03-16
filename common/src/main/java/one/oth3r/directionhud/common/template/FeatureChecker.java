@@ -1,7 +1,7 @@
 package one.oth3r.directionhud.common.template;
 
 import one.oth3r.directionhud.common.Destination;
-import one.oth3r.directionhud.common.files.Data;
+import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.utils.Player;
 
 public abstract class FeatureChecker {
@@ -12,7 +12,7 @@ public abstract class FeatureChecker {
     }
 
     public boolean customPresets() {
-        return Data.getConfig().getMaxColorPresets() > 0;
+        return FileData.getConfig().getMaxColorPresets() > 0;
     }
 
     public boolean destination() {
@@ -20,13 +20,13 @@ public abstract class FeatureChecker {
     }
 
     public boolean hud() {
-        return Data.getConfig().getHud().getEditing();
+        return FileData.getConfig().getHud().getEditing();
     }
 
     public abstract boolean reload();
 
     public boolean global() {
-        return Data.getConfig().getDestination().getGlobal();
+        return FileData.getConfig().getDestination().getGlobal();
     }
 
     public boolean globalEditing() {
@@ -34,21 +34,21 @@ public abstract class FeatureChecker {
     };
 
     public boolean saving() {
-        return Data.getConfig().getDestination().getSaving();
+        return FileData.getConfig().getDestination().getSaving();
     }
 
     public boolean lastdeath() {
         return (boolean) player.getPData().getDEST().getSetting(Destination.Setting.features__lastdeath) &&
-                Data.getConfig().getDestination().getLastDeath().getSaving() && Data.getConfig().getDestination().getLastDeath().getMaxDeaths() > 0;
+                FileData.getConfig().getDestination().getLastDeath().getSaving() && FileData.getConfig().getDestination().getLastDeath().getMaxDeaths() > 0;
     }
 
     public boolean send() {
         return (boolean) player.getPData().getDEST().getSetting(Destination.Setting.features__send) &&
-                Data.getConfig().getSocial().getEnabled();
+                FileData.getConfig().getSocial().getEnabled();
     }
 
     public boolean track() {
         return player.getPCache().getDEST().getDestSettings().getFeatures().getTrack() &&
-                Data.getConfig().getSocial().getEnabled();
+                FileData.getConfig().getSocial().getEnabled();
     }
 }

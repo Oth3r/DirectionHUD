@@ -61,7 +61,7 @@ public class Dest extends Loc {
         if (this.getDimension() != null) msg.append(Dimension.getBadge(getDimension())).append(" ");
         // if there's a name, make the badge the name, e.g. [O] name
         if (this.name != null) msg.append(CTxT.of(this.name).color(this.color==null?"#ffffff":this.color)
-                .hEvent(CTxT.of(getXYZ())));
+                .hover(CTxT.of(getXYZ())));
             // no name, just have the coordinates
         else msg.append(CTxT.of(getXYZ()));
         return msg;
@@ -74,7 +74,7 @@ public class Dest extends Loc {
     public CTxT getNamelessBadge() {
         CTxT msg = CTxT.of("");
         msg.append(Dimension.getBadge(getDimension())).append(" ");
-        msg.append(CTxT.of(getXYZ()).hEvent(CTxT.of(this.name).color(this.color==null?"#ffffff":this.color)));
+        msg.append(CTxT.of(getXYZ()).hover(CTxT.of(this.name).color(this.color==null?"#ffffff":this.color)));
         return msg;
     }
 

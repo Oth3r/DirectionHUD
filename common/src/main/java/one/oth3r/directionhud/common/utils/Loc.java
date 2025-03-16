@@ -1,7 +1,7 @@
 package one.oth3r.directionhud.common.utils;
 
 import com.google.gson.Gson;
-import one.oth3r.directionhud.common.files.Data;
+import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
@@ -25,6 +25,10 @@ public class Loc {
      * @param loc Loc to copy
      */
     public Loc(Loc loc) {
+        copyFrom(loc);
+    }
+
+    public void copyFrom(Loc loc) {
         x = loc.getX();
         y = loc.getY();
         z = loc.getZ();
@@ -73,6 +77,11 @@ public class Loc {
      */
     public Loc(boolean legacy, String xyz) {
         if (xyz == null || xyz.equals("null")) return;
+        // if not legacy
+        if (xyz.charAt(0)=='{' && xyz.charAt(xyz.length()-1)=='}') {
+            copyFrom(new Loc(xyz));
+            return;
+        }
         if (xyz.charAt(0)=='[' && xyz.charAt(xyz.length()-1)==']') {
             String[] list = xyz.substring(1, xyz.length() - 1).split(", ");
             if (list.length >= 3)  {
@@ -128,14 +137,14 @@ public class Loc {
 
     private Integer yBounds(Integer s) {
         if (s == null) return null;
-        if (s > Data.getConfig().getLocation().getMaxY()) return Data.getConfig().getLocation().getMaxY();
-        return Math.max(s, Data.getConfig().getLocation().getMaxY()*-1);
+        if (s > FileData.getConfig().getLocation().getMaxY()) return FileData.getConfig().getLocation().getMaxY();
+        return Math.max(s, FileData.getConfig().getLocation().getMaxY()*-1);
     }
 
     private Integer xzBounds(Integer s) {
         if (s == null) return null;
-        if (s > Data.getConfig().getLocation().getMaxXZ()) return Data.getConfig().getLocation().getMaxXZ();
-        return Math.max(s, Data.getConfig().getLocation().getMaxXZ()*-1);
+        if (s > FileData.getConfig().getLocation().getMaxXZ()) return FileData.getConfig().getLocation().getMaxXZ();
+        return Math.max(s, FileData.getConfig().getLocation().getMaxXZ()*-1);
     }
 
     public void convertTo(String toDimension) {
@@ -156,6 +165,10 @@ public class Loc {
         if (x == null || z == null) return null;
         if (y == null) return x+" "+z;
         return x+" "+y+" "+z;
+    }
+
+    public boolean hasY() {
+        return y != null;
     }
 
     /**
