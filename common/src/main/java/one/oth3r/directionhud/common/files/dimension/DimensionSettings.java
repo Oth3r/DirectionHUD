@@ -1,18 +1,16 @@
 package one.oth3r.directionhud.common.files.dimension;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 import com.google.gson.annotations.SerializedName;
 import one.oth3r.directionhud.DirectionHUD;
-import one.oth3r.directionhud.common.files.Updater;
+import one.oth3r.directionhud.common.template.CustomFile;
 import one.oth3r.directionhud.utils.Utl;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
-public class DimensionSettings {
+public class DimensionSettings implements CustomFile<DimensionSettings> {
 
     @SerializedName("version")
     private Double version = 1.0;
@@ -26,9 +24,7 @@ public class DimensionSettings {
     public DimensionSettings() {}
 
     public DimensionSettings(DimensionSettings dimensionSettings) {
-        this.version = dimensionSettings.version;
-        this.dimensions = new ArrayList<>(dimensionSettings.dimensions);
-        this.ratios = new ArrayList<>(dimensionSettings.ratios);
+        copyFileData(dimensionSettings);
     }
 
     public Double getVersion() {
@@ -55,33 +51,58 @@ public class DimensionSettings {
         this.ratios = ratios;
     }
 
-    public static File getFile() {
-        return new File(DirectionHUD.CONFIG_DIR+"dimension-settings.json");
+    /**
+     * @return the class of the File
+     */
+    @Override
+    public @NotNull Class<DimensionSettings> getFileClass() {
+        return DimensionSettings.class;
     }
 
-    public static void load() {
-        File file = getFile();
-        // create a new file if non-existent
-        if (!file.exists()) save();
-        // try reading
-        try (BufferedReader reader = Files.newBufferedReader(getFile().toPath(), StandardCharsets.UTF_8)) {
-            Updater.DimSettings.run(reader);
-        } catch (Exception e) {
-            DirectionHUD.LOGGER.info("Error loading dimension settings, reverting to default settings.");
-        }
-        // save the file
-        save();
+    /**
+     * loads the data from the file object into the current object - DEEP COPY
+     *
+     * @param newFile the file to take the properties from
+     */
+    @Override
+    public void copyFileData(DimensionSettings newFile) {
+        this.version = newFile.version;
+        this.dimensions = newFile.dimensions.stream().map(DimensionEntry::new).collect(Collectors.toCollection(ArrayList::new));
+        this.ratios = newFile.ratios.stream().map(RatioEntry::new).collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public static void save() {
-        if (!getFile().exists()) {
-            DirectionHUD.LOGGER.info(String.format("Creating new '%s'",getFile().getName()));
+    /**
+     * updates the file based on the version number of the current instance
+     *
+     * @param json
+     */
+    @Override
+    public void update(JsonElement json) {
+        if (version == null || json.isJsonNull()) {
+            copyFileData(new DimensionSettings());
         }
-        try (BufferedWriter writer = Files.newBufferedWriter(getFile().toPath(), StandardCharsets.UTF_8)) {
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            writer.write(gson.toJson(Dimension.getDimensionSettings()));
-        } catch (Exception e) {
-            DirectionHUD.LOGGER.info("ERROR WRITING DIMENSION SETTINGS. "+e.getMessage());
+        if (version == 1) {
+            Utl.dim.addMissing(this.dimensions);
         }
+    }
+
+    /**
+     * gets the file name - including the extension
+     *
+     * @return ex. custom-file.json
+     */
+    @Override
+    public String getFileName() {
+        return "dimension-settings.json";
+    }
+
+    @Override
+    public String getDirectory() {
+        return DirectionHUD.getData().getConfigDirectory();
+    }
+
+    @Override
+    public void reset() {
+        copyFileData(new DimensionSettings());
     }
 }

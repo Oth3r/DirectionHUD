@@ -1,6 +1,7 @@
 package one.oth3r.directionhud.common.files.dimension;
 
 import com.google.gson.annotations.SerializedName;
+import one.oth3r.directionhud.common.Assets;
 
 public class DimensionEntry {
 
@@ -23,6 +24,13 @@ public class DimensionEntry {
         this.name = name;
         this.color = color;
         this.time = time;
+    }
+
+    public DimensionEntry(DimensionEntry dimensionEntry) {
+        this.id = dimensionEntry.id;
+        this.name = dimensionEntry.name;
+        this.color = dimensionEntry.color;
+        this.time = new Time(dimensionEntry.time);
     }
 
     public Time getTime() {
@@ -76,6 +84,11 @@ public class DimensionEntry {
             this.weather = weather;
         }
 
+        public Time(Time time) {
+            this.enabled = time.enabled;
+            this.weather = new Weather(time.weather);
+        }
+
         public Boolean getEnabled() {
             return enabled;
         }
@@ -100,6 +113,12 @@ public class DimensionEntry {
                 this.icons = icons;
                 this.nightTicks = nightTicks;
                 this.enabled = true;
+            }
+
+            public Weather(Weather weather) {
+                this.enabled = weather.enabled;
+                this.nightTicks = weather.nightTicks;
+                this.icons = weather.icons;
             }
 
             public Boolean getEnabled() {
@@ -135,6 +154,9 @@ public class DimensionEntry {
 
             public record Icons(
                     String day, String night, String storm, String thunderstorm) {
+                public static Icons defaultIcons() {
+                    return new Icons(Assets.symbols.sun,Assets.symbols.moon,Assets.symbols.rain,Assets.symbols.lighting_bolt);
+                }
 
                 @Override
                 public String day() {

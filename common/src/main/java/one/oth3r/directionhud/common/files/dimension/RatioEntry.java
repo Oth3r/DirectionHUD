@@ -18,6 +18,11 @@ public class RatioEntry {
         this.dimension2 = dimension2;
     }
 
+    public RatioEntry(RatioEntry ratioEntry) {
+        this.dimension1 = ratioEntry.dimension1;
+        this.dimension2 = ratioEntry.dimension2;
+    }
+
     public Pair<String, Double> getDimension1() {
         return dimension1;
     }

@@ -21,7 +21,7 @@ public class PDDestination {
     
     private void save() {
         if (player == null) return;
-        player.getPData().save();
+        player.getPData().queueSave();
     }
     
     private transient Player player;
@@ -39,12 +39,22 @@ public class PDDestination {
 
     public PDDestination() {}
 
-    public PDDestination(ArrayList<Dest> saved, Dest dest, String tracking, List<Loc> lastdeath, Settings setting) {
+    /**
+     * deep copy constructor
+     */
+    public PDDestination(PDDestination destination) {
+        ArrayList<Dest> saved = new ArrayList<>();
+        for (Dest dest : destination.saved) saved.add(new Dest(dest));
         this.saved = saved;
-        this.dest = dest;
-        this.tracking = tracking;
+
+        this.dest = new Dest(destination.dest);
+        this.tracking = destination.tracking;
+
+        ArrayList<Loc> lastdeath = new ArrayList<>();
+        for (Loc loc : destination.lastdeath) lastdeath.add(new Loc(loc));
         this.lastdeath = lastdeath;
-        this.setting = setting;
+
+        this.setting = new Settings(destination.setting);
     }
 
     public ArrayList<Dest> getSaved() {
@@ -265,11 +275,11 @@ public class PDDestination {
             @SerializedName("dest")
             private Boolean dest = true;
             @SerializedName("dest_color")
-            private String destColor = DirectionHUD.PRIMARY;
+            private String destColor = DirectionHUD.getData().getPrimary();
             @SerializedName("line")
             private Boolean line = true;
             @SerializedName("line_color")
-            private String lineColor = DirectionHUD.SECONDARY;
+            private String lineColor = DirectionHUD.getData().getSecondary();
             @SerializedName("tracking")
             private Boolean tracking = true;
             @SerializedName("tracking_color")
@@ -278,6 +288,8 @@ public class PDDestination {
             public Particles() {}
 
             public Particles(Particles particles) {
+//              note to Pookie
+//              You will never see this but mocha update soon
                 this.dest = particles.dest;
                 this.destColor = particles.destColor;
                 this.line = particles.line;

@@ -16,7 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class LangReader {
-
+    private static final Map<String, String> defaultLangMap = new HashMap<>();
     private static final Map<String, String> languageMap = new HashMap<>();
 
     private final String translationKey;
@@ -36,6 +36,7 @@ public class LangReader {
             String regex = "%\\d*\\$?[dfs]";
             Matcher anyMatch = Pattern.compile(regex).matcher(translated);
             Matcher endMatch = Pattern.compile(regex+"$").matcher(translated);
+
             // Arraylist with all the %(#$)[dfs]
             ArrayList<String> matches = new ArrayList<>();
             while (anyMatch.find()) {
@@ -78,24 +79,35 @@ public class LangReader {
     }
 
     public static void loadLanguageFile() {
+        Type tToken = new TypeToken<Map<String, String>>(){}.getType();
         try {
-            ClassLoader classLoader = DirectionHUD.class.getClassLoader();
-            InputStream inputStream = classLoader.getResourceAsStream("assets/directionhud/lang/"+Data.getConfig().getLang()+".json");
-            // if it cant read, try with the english file
-            if (inputStream == null) {
-                inputStream = classLoader.getResourceAsStream("assets/directionhud/lang/en_us.json");
-            }
-            if (inputStream == null) throw new IllegalArgumentException("CANT LOAD THE LANGUAGE FILE. DIRECTIONHUD WILL BREAK.");
-            Type type = new TypeToken<Map<String, String>>(){}.getType();
-            Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
-            languageMap.putAll(new Gson().fromJson(reader, type));
+            // load the config language
+            Reader selectionReader = new InputStreamReader(getInputStream(false), StandardCharsets.UTF_8);
+            languageMap.putAll(new Gson().fromJson(selectionReader, tToken));
+            // load the default language as well (fallback)
+            Reader defaultReader = new InputStreamReader(getInputStream(true), StandardCharsets.UTF_8);
+            defaultLangMap.putAll(new Gson().fromJson(defaultReader, tToken));
         } catch (Exception e) {
             DirectionHUD.LOGGER.info("ERROR WITH LANGUAGE FILE - PLEASE REPORT WITH THE ERROR LOG");
             DirectionHUD.LOGGER.info(e.getMessage());
         }
     }
 
+    private static InputStream getInputStream(boolean english) {
+        ClassLoader classLoader = DirectionHUD.class.getClassLoader();
+        InputStream inputStream = classLoader.getResourceAsStream("assets/directionhud/lang/"+FileData.getConfig().getLang()+".json");
+        // make null if english
+        if (english) inputStream = null;
+
+        // if it cant read (null), try again, but with the english file
+        if (inputStream == null) inputStream = classLoader.getResourceAsStream("assets/directionhud/lang/en_us.json");
+
+        // if null after that, throw an exception
+        if (inputStream == null) throw new IllegalArgumentException("CANT LOAD THE LANGUAGE FILE. DIRECTIONHUD WILL BREAK.");
+        return inputStream;
+    }
+
     public static String getLanguageValue(String key) {
-        return languageMap.getOrDefault(key, key);
+        return languageMap.getOrDefault(key, defaultLangMap.getOrDefault(key, key));
     }
 }
