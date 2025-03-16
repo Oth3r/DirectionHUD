@@ -7,7 +7,6 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
@@ -29,7 +28,6 @@ import one.oth3r.directionhud.common.hud.Hud;
 import one.oth3r.directionhud.common.hud.module.ModuleInstructions;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.packet.PacketSender;
-import one.oth3r.directionhud.packet.Payloads;
 import org.lwjgl.glfw.GLFW;
 
 public class ModEvents {
@@ -59,42 +57,30 @@ public class ModEvents {
     private static class Packet {
         private static void common() {
             // register the data
-            // PACKET REGISTRATION
-            PayloadTypeRegistry.playS2C().register(Payloads.HUD.ID, Payloads.HUD.CODEC);
-            PayloadTypeRegistry.playS2C().register(Payloads.SpigotHUD.ID, Payloads.SpigotHUD.CODEC);
-
-            PayloadTypeRegistry.playS2C().register(Payloads.PlayerData.ID, Payloads.PlayerData.CODEC);
-            PayloadTypeRegistry.playS2C().register(Payloads.SpigotPlayerData.ID, Payloads.SpigotPlayerData.CODEC);
-
-            PayloadTypeRegistry.playC2S().register(Payloads.Initialization.ID, Payloads.Initialization.CODEC);
-
             // PACKET HANDLING
-            ServerPlayNetworking.registerGlobalReceiver(Payloads.Initialization.ID, ((payload, context) ->
-                    DirectionHUD.getData().getServer().execute(() -> {
-                Player player = new Player(context.player());
+            ServerPlayNetworking.registerGlobalReceiver(PacketSender.getIdentifier(Assets.packets.INITIALIZATION),
+                    (server, pl, handler, buf, responseSender) -> server.execute(() -> {
+                Player player = new Player(pl);
                 DirectionHUD.LOGGER.info("Received initialization packet from "+player.getName());
                 DirectionHUD.getData().getClientPlayers().add(player);
                 player.sendPDataPackets();
-            })));
+            }));
         }
 
         private static void client() {
             // receiving setting packets from the server
-            ClientPlayNetworking.registerGlobalReceiver(Payloads.PlayerData.ID, (payload, context) -> {
-                playerDataPacketLogic(context.client(),payload.value());
-            });
-            // spigot
-            ClientPlayNetworking.registerGlobalReceiver(Payloads.SpigotPlayerData.ID, (payload, context) -> {
-                playerDataPacketLogic(context.client(),payload.value());
+            ClientPlayNetworking.registerGlobalReceiver(PacketSender.getIdentifier(Assets.packets.PLAYER_DATA),
+                    (client, handler, buf, responseSender) -> {
+                String data = PacketSender.getPacketData(buf);
+                client.execute(() -> playerDataPacketLogic(client, data));
             });
 
             // receiving HUD packets from the server
-            ClientPlayNetworking.registerGlobalReceiver(Payloads.HUD.ID, (payload, context) -> {
-                hudPacketLogic(context.client(),payload.value());
-            });
-            // spigot
-            ClientPlayNetworking.registerGlobalReceiver(Payloads.SpigotHUD.ID, (payload, context) -> {
-                hudPacketLogic(context.client(),payload.value());
+            ClientPlayNetworking.registerGlobalReceiver(PacketSender.getIdentifier(Assets.packets.HUD),
+                    (client, handler, buf, responseSender) -> {
+                // get the data
+                String data = PacketSender.getPacketData(buf);
+                client.execute(() -> hudPacketLogic(client, data));
             });
         }
 

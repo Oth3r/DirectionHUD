@@ -36,4 +36,8 @@ public class PacketSender {
     public static Identifier getIdentifier(Assets.packets packetType) {
         return new Identifier(DirectionHUD.MOD_ID, packetType.getIdentifier());
     }
+
+    public static String getPacketData(PacketByteBuf buf) {
+        return buf.toString(StandardCharsets.UTF_8);
+    }
 }
