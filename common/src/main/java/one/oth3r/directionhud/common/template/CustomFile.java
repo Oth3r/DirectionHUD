@@ -2,10 +2,8 @@ package one.oth3r.directionhud.common.template;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import net.fabricmc.loader.api.FabricLoader;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.utils.Helper;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -86,7 +84,6 @@ public interface CustomFile <T extends CustomFile<T>> {
     /**
      * @return the class of the File
      */
-    @NotNull
     Class<T> getFileClass();
 
     /**
@@ -120,9 +117,7 @@ public interface CustomFile <T extends CustomFile<T>> {
      */
     String getFileName();
 
-    default String getDirectory() {
-        return FabricLoader.getInstance().getConfigDir().toFile()+"/";
-    }
+    String getDirectory();
 
     default File getFile() {
         return new File(getDirectory()+getFileName());
