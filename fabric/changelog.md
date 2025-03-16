@@ -1,5 +1,8 @@
+## v1.8.0.2
+* fixed toggling BossBar while on client side causing a crash
+
 ## v1.8.0.1
-* fix destination module `name` and `name_xz` having the primary and secondary flipped inside of `module-text.json`
+* fixed destination module `name` and `name_xz` having the primary and secondary flipped inside of `module-text.json`
 * changed module name displays to be lowercase
 * fixed missing language files
 * edited clarifications to some hud module messages
