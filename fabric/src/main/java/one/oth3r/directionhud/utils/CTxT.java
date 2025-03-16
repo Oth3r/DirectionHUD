@@ -89,7 +89,7 @@ public class CTxT extends ChatText<MutableText, CTxT> {
         if (this.button) output.append("[").setStyle(Style.EMPTY.withColor(Formatting.byCode('f')));
 
         output.append(this.text.styled(style -> style
-                .withColor(TextColor.parse(color).result().orElse(TextColor.fromFormatting(Formatting.BLACK)))
+                .withColor(TextColor.parse(color))
                 .withClickEvent(getClickEvent())
                 .withHoverEvent(getHoverEvent())
                 .withItalic(this.italic)
