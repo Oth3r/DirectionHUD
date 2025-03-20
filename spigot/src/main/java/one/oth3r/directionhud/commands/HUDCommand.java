@@ -1,6 +1,6 @@
 package one.oth3r.directionhud.commands;
 
-import one.oth3r.directionhud.common.Hud;
+import one.oth3r.directionhud.common.hud.Hud;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.utils.Player;
 import org.bukkit.command.Command;

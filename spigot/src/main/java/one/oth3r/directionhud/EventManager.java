@@ -19,7 +19,7 @@ public class EventManager implements Listener {
     @EventHandler
     public static void playerQuit(PlayerQuitEvent event) {
         Events.playerLeave(new Player(event.getPlayer()));
-        DirectionHUD.clientPlayers.remove(new Player(event.getPlayer()));
+        DirectionHUD.getData().getClientPlayers().remove(new Player(event.getPlayer()));
     }
 
     @EventHandler

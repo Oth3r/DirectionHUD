@@ -107,9 +107,8 @@ public class Utl {
         /**
          * adds the dimensions that are loaded in game but aren't in the config yet
          */
-        public static void addMissing(DimensionSettings dimensionSettings) {
+        public static void addMissing(ArrayList<DimensionEntry> dimensions) {
             Random random = new Random();
-            ArrayList<DimensionEntry> dimensions = dimensionSettings.getDimensions();
             for (World world : Bukkit.getWorlds()) {
                 String currentDIM = format(world);
                 // if already exist or the default, continue

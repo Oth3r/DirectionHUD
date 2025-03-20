@@ -8,6 +8,7 @@ import one.oth3r.directionhud.common.Events;
 import one.oth3r.directionhud.common.LoopManager;
 import one.oth3r.directionhud.utils.BossBarManager;
 import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.PluginData;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -20,26 +21,24 @@ import java.util.Objects;
 import java.util.logging.Logger;
 
 public class DirectionHUD extends JavaPlugin implements PluginMessageListener {
-    public static ArrayList<Player> clientPlayers = new ArrayList<>();
-    public static Plugin plugin;
-    public static final String PRIMARY = "#ff8e16";
-    public static final String SECONDARY = "#42a0ff";
-    public static BossBarManager bossBarManager = new BossBarManager();
-    public static String DATA_DIR;
-    public static String CONFIG_DIR;
     public static Logger LOGGER;
-    public static String VERSION;
-    public static final boolean isMod = false;
-    public static boolean isClient = false;
+
+
+    private static final PluginData pluginData = new PluginData(false, "#ff8e16", "#42a0ff");
+
+    public static PluginData getData() {
+        return pluginData;
+    }
 
     @Override
     public void onEnable() {
-        plugin = this;
-        DATA_DIR = this.getDataFolder().getPath()+"/";
-        CONFIG_DIR = this.getDataFolder().getPath()+"/";
-        PluginDescriptionFile pdf = Objects.requireNonNull(Bukkit.getServer().getPluginManager().getPlugin("DirectionHUD")).getDescription();
-        VERSION = pdf.getVersion();
+        getData().setPlugin(this);
+        getData().setDataDirectory(this.getDataFolder().getPath()+"/");
+        getData().setConfigDirectory(this.getDataFolder().getPath()+"/");
+        getData().setVERSION(Objects.requireNonNull(Bukkit.getServer().getPluginManager().getPlugin("DirectionHUD")).getDescription().getVersion());
         LOGGER = this.getLogger();
+
+
         Events.serverStart();
 
         //COMMANDS
@@ -82,7 +81,7 @@ public class DirectionHUD extends JavaPlugin implements PluginMessageListener {
             // if the client has directionhud, add them to the list & send the data packets
             DirectionHUD.LOGGER.info("Received initialization packet from "+player.getName()+", connecting to client.");
             Player dPlayer = new Player(player);
-            clientPlayers.add(dPlayer);
+            getData().getClientPlayers().add(dPlayer);
             dPlayer.sendPDataPackets();
         }
     }
@@ -97,12 +96,5 @@ public class DirectionHUD extends JavaPlugin implements PluginMessageListener {
         String last2 = version.substring(version.indexOf(".")+1);
         // get as float, 20.6
         return Float.parseFloat(last2);
-    }
-
-    /**
-     * clears all client players, not really needed - only here for common support
-     */
-    public static void clear() {
-        clientPlayers.clear();
     }
 }

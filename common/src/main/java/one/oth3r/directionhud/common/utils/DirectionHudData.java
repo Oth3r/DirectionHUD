@@ -1,7 +1,7 @@
 package one.oth3r.directionhud.common.utils;
 
 public class DirectionHudData {
-    private final String VERSION;
+    private String VERSION;
     private final String PRIMARY;
     private final String SECONDARY;
     private final boolean isMod;
@@ -11,9 +11,9 @@ public class DirectionHudData {
     private boolean isClient;
     private boolean isServerStarted;
 
-    public DirectionHudData(boolean isMod, String version, String primary, String secondary) {
+    public DirectionHudData(boolean isMod, String primary, String secondary) {
         this.isMod = isMod;
-        this.VERSION = version;
+        this.VERSION = "v1.x.x.x";
         this.PRIMARY = primary;
         this.SECONDARY = secondary;
         this.isClient = false;
@@ -37,6 +37,10 @@ public class DirectionHudData {
 
     public String getVersion() {
         return VERSION;
+    }
+
+    public void setVERSION(String VERSION) {
+        this.VERSION = VERSION;
     }
 
     public String getPrimary() {

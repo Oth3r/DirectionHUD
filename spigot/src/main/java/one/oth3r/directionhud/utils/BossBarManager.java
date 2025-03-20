@@ -1,7 +1,7 @@
 package one.oth3r.directionhud.utils;
 
 import one.oth3r.directionhud.common.Destination;
-import one.oth3r.directionhud.common.Hud;
+import one.oth3r.directionhud.common.hud.Hud;
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;

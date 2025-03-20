@@ -15,7 +15,7 @@ public class PacketHelper {
         PacketByteBuffer buffer = new PacketByteBuffer();
         buffer.writeString(data);
 
-        player.getPlayer().sendPluginMessage(DirectionHUD.plugin,getChannel(packetType),buffer.asByteArray());
+        player.getPlayer().sendPluginMessage(DirectionHUD.getData().getPlugin(),getChannel(packetType),buffer.asByteArray());
     }
 
     /**

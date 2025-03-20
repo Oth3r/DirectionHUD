@@ -7,15 +7,13 @@ import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.PacketHelper;
 import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.Destination;
-import one.oth3r.directionhud.common.Hud;
+import one.oth3r.directionhud.common.hud.Hud;
 import one.oth3r.directionhud.common.files.playerdata.CachedPData;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.files.playerdata.PData;
-import one.oth3r.directionhud.common.utils.CUtl;
-import one.oth3r.directionhud.common.utils.Loc;
+import one.oth3r.directionhud.common.hud.module.ModuleInstructions;
+import one.oth3r.directionhud.common.utils.*;
 import one.oth3r.directionhud.common.template.PlayerTemplate;
-import one.oth3r.directionhud.common.utils.ParticleType;
-import one.oth3r.directionhud.common.utils.Vec;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Particle;
@@ -77,28 +75,26 @@ public class Player extends PlayerTemplate {
 
     @Override
     public void displayBossBar(CTxT message) {
-        DirectionHUD.bossBarManager.display(this,message);
+        DirectionHUD.getData().getBossBarManager().display(this,message);
     }
 
     @Override
     public void removeBossBar() {
-        DirectionHUD.bossBarManager.removePlayer(this);
+        DirectionHUD.getData().getBossBarManager().removePlayer(this);
     }
 
     @Override
     public void sendPDataPackets() {
         // if player has DirectionHUD on client, send pData to client
-        if (DirectionHUD.clientPlayers.contains(this)) {
+        if (DirectionHUD.getData().getClientPlayers().contains(this)) {
             Gson gson = new GsonBuilder().disableHtmlEscaping().create();
             PacketHelper.sendPacket(this,Assets.packets.PLAYER_DATA,gson.toJson(this.getPData()));
         }
     }
 
     @Override
-    public void sendHUDPackets(HashMap<Hud.Module, ArrayList<String>> hudData) {
-        // send the instructions to build the hud to the client
-        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-        PacketHelper.sendPacket(this, Assets.packets.HUD, gson.toJson(hudData));
+    public void sendHUDPackets(ModuleInstructions instructions) {
+        PacketHelper.sendPacket(this, Assets.packets.HUD, Helper.getGson().toJson(instructions));
     }
 
     @Override
