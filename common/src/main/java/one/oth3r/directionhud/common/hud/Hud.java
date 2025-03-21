@@ -1520,7 +1520,7 @@ public class Hud {
          */
         public static CTxT button() {
             return LANG.btn().btn(true).rainbow(new Rainbow(15f,45f)).click(1,"/hud color")
-                    .hover(CTxT.of(Assets.cmdUsage.hudColor).rainbow(new Rainbow(15f,45f)).append("\n").append(LANG.hover()));
+                    .hover(new CTxT().append(CTxT.of(Assets.cmdUsage.hudColor).rainbow(new Rainbow(15f,45f)).b()).append("\n").append(LANG.hover()));
         }
 
         public static void cmdExecutor(Player player, String[] args) {
