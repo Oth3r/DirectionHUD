@@ -108,7 +108,7 @@ public class CTxT extends ChatText<TextComponent, CTxT> {
 
     @Override
     public String toString() {
-        return b().getText();
+        return b().toPlainText();
     }
 
 }
