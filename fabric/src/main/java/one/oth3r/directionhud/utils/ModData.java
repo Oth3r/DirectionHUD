@@ -22,7 +22,8 @@ public class ModData extends DirectionHudData {
     private final ArrayList<Player> clientPlayers = new ArrayList<>();
 
     public ModData(boolean isMod, String version, String primary, String secondary) {
-        super(isMod, version, primary, secondary);
+        super(isMod, primary, secondary);
+        this.version = version;
         this.isSingleplayer = false;
         this.onSupportedServer = false;
     }
