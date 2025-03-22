@@ -1,0 +1,34 @@
+name: DirectionHUD
+description: On screen HUD plugin that has many customizable features. Save coordinates, see death locations, track players, all at a glance!
+website: https://github.com/Oth3r/DirectionHUD
+version: '${version}'
+author: "Oth3r"
+main: one.oth3r.directionhud.DirectionHUD
+api-version: 1.18
+folia-supported: true
+libraries:
+  - org.apache.commons:commons-configuration2:2.11.0
+commands:
+  destination:
+    description: "Handles everything to do with destinations, tracking, and sharing."
+    aliases: "dest"
+  hud:
+    description: "Handles all one.oth3r.directionhud.common.HUD actions"
+  directionhud:
+    description: "Base command"
+    aliases: "dhud"
+permissions:
+  directionhud.hud:
+    description: "Permissions for the '/hud' command"
+    default: true
+  directionhud.destination:
+    description: "Permissions for the '/destination' command"
+    default: true
+  directionhud.destination.global-saving:
+    description: "Permissions for saving global destinations"
+    default: op
+  directionhud.destination.saving:
+    description: "Permissions for saving destinations"
+    default: true
+  directionhud.reload:
+    description: "Permissions for the reload command. (Requires directionhud permissions)"
