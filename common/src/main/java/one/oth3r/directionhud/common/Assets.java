@@ -103,7 +103,7 @@ public class Assets {
     public enum packets {
         INITIALIZATION("initialize_v1.2"),
         PLAYER_DATA("player_data_v1.2"),
-        HUD("hud_v1.2"),
+        HUD("hud_v1.3"),
         SPIGOT_PLAYER_DATA("spigot_player_data_v1.2"),
         SPIGOT_HUD("spigot_hud_v1.2");
 
