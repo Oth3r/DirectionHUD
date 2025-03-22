@@ -167,7 +167,7 @@ public class CUtl {
                                 boolean underline, boolean obfuscated) {
         // append the currently built string using the hud rainbow object
         Rainbow hudRainbow = player.getPCache().getRainbow(color);
-        CTxT build = Hud.color.addColor(player,new CTxT(text),color,hudRainbow);
+        CTxT build = Hud.color.addColor(player,new CTxT(text),color,new Rainbow(hudRainbow));
 
         // only apply bold and italic if enabled
         if (bold) build.bold(true);
