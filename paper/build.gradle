@@ -60,11 +60,11 @@ processResources {
 }
 
 //build in testing server dir
-jar {
-    base.archivesName = "directionhud-dev"
-    version = 0
-    destinationDirectory = file("R:/Coding/1 Servers/2Latest Paper/plugins")
-}
+//jar {
+//    base.archivesName = "directionhud-dev"
+//    version = 0
+//    destinationDirectory = file("R:/Coding/1 Servers/2Latest Paper/plugins")
+//}
 
 modrinth {
     token = env.fetchOrNull('MODRINTH')
