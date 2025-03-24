@@ -22,7 +22,7 @@ public class DirectionHUD extends JavaPlugin implements PluginMessageListener {
     public static Logger LOGGER;
 
 
-    private static final PluginData pluginData = new PluginData(false, "#3b82f6", "#fde94d");
+    private static final PluginData pluginData = new PluginData(false, "#3b82f6", "#ffee35");
 
     public static PluginData getData() {
         return pluginData;
