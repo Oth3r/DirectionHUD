@@ -84,7 +84,7 @@ public class CTxT extends ChatText<TextComponent, CTxT> {
     public TextComponent b() {
         TextComponent output = new TextComponent();
         if (this.rainbow.isEnabled()) {
-            text = this.rainbow.colorize(text.getText(), this).b();
+            text = this.rainbow.colorize(text.toPlainText(), this).b();
         } else text.setColor(ChatColor.of(this.color));
         text.setClickEvent(getClickEvent());
         text.setHoverEvent(getHoverEvent());
