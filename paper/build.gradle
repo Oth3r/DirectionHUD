@@ -1,12 +1,13 @@
 plugins {
     id 'base'
     id 'java'
+    id "com.modrinth.minotaur" version "2.+"
 }
 
 base {
     archivesName = project.file_name_paper
 }
-version = project.plugin_version
+version = project.paper_version
 group = project.maven_group
 
 repositories {
@@ -63,4 +64,15 @@ jar {
     base.archivesName = "directionhud-dev"
     version = 0
     destinationDirectory = file("R:/Coding/1 Servers/2Latest Paper/plugins")
+}
+
+modrinth {
+    token = env.fetchOrNull('MODRINTH')
+    projectId = 'H8WCXRtb'
+    versionNumber = project.spigot_version
+    versionName = "v${project.spigot_version} [Paper]"
+    uploadFile = jar
+    gameVersions = [project.minecraft_version]
+    loaders = ['paper', 'folia', 'purpur']
+    changelog = file('../changelog.md').text
 }

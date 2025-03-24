@@ -1,12 +1,13 @@
 plugins {
     id 'base'
     id 'java'
+    id "com.modrinth.minotaur" version "2.+"
 }
 
 base {
     archivesName = project.file_name_spigot
 }
-version = project.plugin_version
+version = project.spigot_version
 group = project.maven_group
 
 repositories {
@@ -55,14 +56,26 @@ tasks.withType(JavaCompile).configureEach {
 processResources {
     def props = [version: version]
     inputs.properties props
-    filteringCharset 'UTF-8'
+    filteringCharset = 'UTF-8'
     filesMatching('plugin.yml') {
         expand props
     }
 }
+
 //build in testing server dir
-jar {
-    base.archivesName = "directionhud-spigot-dev"
-    version = 0
-    destinationDirectory = file("R:/Coding/1 Servers/2Latest Paper/plugins")
+//jar {
+//    base.archivesName = "directionhud-spigot-dev"
+//    version = 0
+//    destinationDirectory = file("R:/Coding/1 Servers/2Latest Paper/plugins")
+//}
+
+modrinth {
+    token = env.fetchOrNull('MODRINTH')
+    projectId = 'H8WCXRtb'
+    versionNumber = project.spigot_version
+    versionName = "v${project.spigot_version} [Spigot]"
+    uploadFile = jar
+    gameVersions = project.spigot_versions.split(",").toList()
+    loaders = ['spigot']
+    changelog = file('../changelog.md').text
 }
