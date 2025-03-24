@@ -1,3 +1,16 @@
+## v1.8.0.3
+port to spigot and paper, also now with support for folia!
+
+* spigot and paper now have separate jar files
+* both versions are now bumped up to v1.8
+* the paper version now supports folia
+* all versions are now available on the main [DirectionHUD Modrinth page](https://modrinth.com/mod/directionhud).
+
+### Changelog:
+* new icon
+* bumped hud packet version to `v1.3` to support new plugin versions of DirectionHUD
+* fixed `/hud` color button hover color changing when hovering on different parts of the button
+
 ## v1.8.0.2
 * fixed toggling BossBar while on client side causing a crash
 
