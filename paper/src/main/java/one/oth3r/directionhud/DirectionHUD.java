@@ -33,7 +33,7 @@ public class DirectionHUD extends JavaPlugin implements PluginMessageListener {
         getData().setPlugin(this);
         getData().setDataDirectory(this.getDataFolder().getPath()+"/");
         getData().setConfigDirectory(this.getDataFolder().getPath()+"/");
-        getData().setVERSION(Objects.requireNonNull(Bukkit.getServer().getPluginManager().getPlugin("DirectionHUD")).getPluginMeta().getVersion());
+        getData().setVersion(Objects.requireNonNull(Bukkit.getServer().getPluginManager().getPlugin("DirectionHUD")).getPluginMeta().getVersion());
         LOGGER = this.getLogger();
 
 
