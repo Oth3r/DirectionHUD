@@ -47,6 +47,7 @@ processResources {
 			version                : project.version,
 			minecraft_version      : minecraft_version,
 			min_minecraft_version  : min_minecraft_version,
+			max_minecraft_version  : max_minecraft_version,
 			loader_version         : loader_version
 	]
 
@@ -94,9 +95,9 @@ modrinth {
 	token = env.fetchOrNull('MODRINTH')
 	projectId = 'H8WCXRtb'
 	versionNumber = project.mod_version
-	versionName = "v${project.mod_version}"
+	versionName = "v${project.mod_version} [Fabric]"
 	uploadFile = remapJar
-	gameVersions = [project.minecraft_version]
+	gameVersions = project.minecraft_versions.split(",").toList()
 	loaders = ['fabric', 'quilt']
 	dependencies = [
 			new ModDependency('P7dR8mSH', 'required') // Creates a new required dependency on Fabric API
