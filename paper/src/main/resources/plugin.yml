@@ -4,7 +4,8 @@ website: https://github.com/Oth3r/DirectionHUD
 version: '${version}'
 author: "Oth3r"
 main: one.oth3r.directionhud.DirectionHUD
-api-version: 1.20
+api-version: 1.21
+folia-supported: true
 libraries:
   - org.apache.commons:commons-configuration2:2.11.0
 commands:

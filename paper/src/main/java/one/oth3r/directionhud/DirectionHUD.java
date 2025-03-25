@@ -1,22 +1,20 @@
 package one.oth3r.directionhud;
 
+import io.papermc.paper.threadedregions.scheduler.GlobalRegionScheduler;
 import one.oth3r.directionhud.commands.DestinationCommand;
 import one.oth3r.directionhud.commands.DHUDCommand;
 import one.oth3r.directionhud.commands.HUDCommand;
 import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.Events;
 import one.oth3r.directionhud.common.LoopManager;
-import one.oth3r.directionhud.utils.BossBarManager;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.PluginData;
 import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.Objects;
 import java.util.logging.Logger;
 
@@ -24,7 +22,7 @@ public class DirectionHUD extends JavaPlugin implements PluginMessageListener {
     public static Logger LOGGER;
 
 
-    private static final PluginData pluginData = new PluginData(false, "#ef9125", "#ffee35");
+    private static final PluginData pluginData = new PluginData(false, "#3b82f6", "#ffee35");
 
     public static PluginData getData() {
         return pluginData;
@@ -35,7 +33,7 @@ public class DirectionHUD extends JavaPlugin implements PluginMessageListener {
         getData().setPlugin(this);
         getData().setDataDirectory(this.getDataFolder().getPath()+"/");
         getData().setConfigDirectory(this.getDataFolder().getPath()+"/");
-        getData().setVersion(Objects.requireNonNull(Bukkit.getServer().getPluginManager().getPlugin("DirectionHUD")).getDescription().getVersion());
+        getData().setVersion(Objects.requireNonNull(Bukkit.getServer().getPluginManager().getPlugin("DirectionHUD")).getPluginMeta().getVersion());
         LOGGER = this.getLogger();
 
 
@@ -51,12 +49,17 @@ public class DirectionHUD extends JavaPlugin implements PluginMessageListener {
 
         //LOOP & EVENTS
         getServer().getPluginManager().registerEvents(new EventManager(), this);
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                LoopManager.tick();
-            }
-        }.runTaskTimerAsynchronously(this, 0L, 1L);
+        if (isFolia()) {
+            GlobalRegionScheduler globalScheduler = this.getServer().getGlobalRegionScheduler();
+            globalScheduler.runAtFixedRate(this, (scheduledTask) -> LoopManager.tick(), 1L, 1L);
+        } else {
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    LoopManager.tick();
+                }
+            }.runTaskTimerAsynchronously(this, 0L, 1L);
+        }
 
         // register incoming and outgoing packets
         this.getServer().getMessenger().registerIncomingPluginChannel(this, PacketHelper.getChannel(Assets.packets.INITIALIZATION), this);
@@ -73,7 +76,7 @@ public class DirectionHUD extends JavaPlugin implements PluginMessageListener {
     }
 
     @Override
-    public void onPluginMessageReceived(String channel, org.bukkit.entity.Player player, byte[] message) {
+    public void onPluginMessageReceived(@NotNull String channel, org.bukkit.entity.@NotNull Player player, byte @NotNull [] message) {
         // make sure packets only work on the supported minecraft version(s)
         if (getMCVersion() < 20.6) return;
 
@@ -96,5 +99,14 @@ public class DirectionHUD extends JavaPlugin implements PluginMessageListener {
         String last2 = version.substring(version.indexOf(".")+1);
         // get as float, 20.6
         return Float.parseFloat(last2);
+    }
+
+    private static boolean isFolia() {
+        try {
+            Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 }

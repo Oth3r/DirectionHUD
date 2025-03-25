@@ -2,12 +2,10 @@ package one.oth3r.directionhud.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.md_5.bungee.api.ChatMessageType;
+import net.kyori.adventure.chat.ChatType;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.PacketHelper;
 import one.oth3r.directionhud.common.Assets;
-import one.oth3r.directionhud.common.Destination;
-import one.oth3r.directionhud.common.hud.Hud;
 import one.oth3r.directionhud.common.files.playerdata.CachedPData;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.files.playerdata.PData;
@@ -17,10 +15,7 @@ import one.oth3r.directionhud.common.template.PlayerTemplate;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Particle;
-import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -65,12 +60,12 @@ public class Player extends PlayerTemplate {
 
     @Override
     public void sendMessage(CTxT message) {
-        player.spigot().sendMessage(message.b());
+        player.sendMessage(message.b());
     }
 
     @Override
     public void sendActionBar(CTxT message) {
-        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, message.b());
+        player.sendActionBar(message.b());
     }
 
     @Override

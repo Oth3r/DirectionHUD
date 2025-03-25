@@ -1,6 +1,7 @@
 package one.oth3r.directionhud.utils;
 
-import net.md_5.bungee.api.chat.TextComponent;
+
+import net.kyori.adventure.text.TextComponent;
 import one.oth3r.directionhud.common.files.LangReader;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.dimension.DimensionEntry;

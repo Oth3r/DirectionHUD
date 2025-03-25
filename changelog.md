@@ -1,67 +1,60 @@
-# v1.5
-Another round of fixes, and prep for bigger things.
-[![thumbnail](https://i.imgur.com/APdFJkP.png)](https://youtu.be/13kI53UI20k)
-[Watch the update video!]((https://youtu.be/13kI53UI20k))
-### Rewrites & Refreshes
-* rewrote client-server networking
-  * DirectionHUD clients are now compatible with Spigot servers
-  * when on the client, ActionBars are now built on the client
-  * non DirectionHUD ActionBars now show up for a short period of time when on client
-* destination logic rewrite
-  * new edit destination UI
-  * all `/dest saved` commands are in command suggestions
-  * `/dest remove` moved to `/dest saved delete`
-* LastDeath rework
-  * removed the ability of clearing deaths
-  * now saves last `x` deaths (edit in config) instead of last death per dimension
-  * new page system for when there are more saved deaths than what can be shown
-* HUD Modules rewrite
-  * new modules UI
-  * uses the new page system, for more module support
-  * turning off a module doesn't move it to the back of the list anymore
-  * all module commands are now in command suggester
-* Track command rewrite
-  * track commands are now split up and easier to understand `/dest track (set|clear*|cancel*|accept*|deny*)`
-  * all track commands now show up in the suggester
-### New Additions
-* Global Destinations
-  * `/dest saved global [add|edit|delete]`
-  * new `global-destinations` config option, default `false`
-  * new `global-dest.json` (with pretty json enabled!!)
-  * enables a new tab in the saved destinations UI that all players can see
-  * only people with the right permissions can edit the global destinations
-* new Inbox System
-  * `/dhud inbox`
-  * Pending track requests, track requests, and received destinations will now show up in the inbox
-  * central place for all social command interactions
-* sending destinations and track requests now have a cooldown to combat command spamming
-### Config Changes
-* updated to v1.4
-* reordered the config for easier reading
-* new `social-cooldown` config option, default `10` seconds, `0` to disable
-* new `global-destinations` config option, default `false`
-* new `particle-loop` config option to change particle loop speed
-* new `lastdeath-max` for setting the max amount of deaths saved, default `4`
-* renamed `hud.enabled` to `hud.settings.state`
-* renamed `hud-refresh` to `hud-loop`
-* renamed `death-saving` to `lastdeath-saving`
-* renamed `destination-max-saved` to `destination-max`
-### Fixes and Changes
-* Renamed `/dirhud` command to `/dhud`
-  * the `/dhud` command now works to execute every command in DirectionHUD (eg. `/dhud dest saved`)
-  * `/dhud reload` now fully reloads all players
-  * removed `/directionhud defaults` command *(might come back later if requested, but was a pain to keep it working, needs to be heavily redone)*
-* moved hud toggle to the settings page
-  * removed toggle button from HUD menu, the command still is functional
-* PlayerData v1.6
-  * The PlayerData JSON is now formatted in a readable way
-* fixed players & files not unloading fully on server shutdown
-* fixed tracking module pointing to player target when the target is in another dimension and AutoConvert is off
-* fixed `tracking resumed` message not showing up when turning on AutoConvert
-* removed suggestions formatter
-### Spigot Changes
-* removed `directionhud.directionhud` permission
-* removed `directionhud.defaults` permission
-* fixed `hud-editing` config option not working
-### Fabric Changes
-* fixed tracking target option not being set correctly in ModMenu
+## v1.8.0.3
+port to spigot and paper, also now with support for folia!
+
+* spigot and paper now have separate jar files
+* both versions are now bumped up to v1.8
+* the paper version now supports folia
+* all versions are now available on the main [DirectionHUD Modrinth page](https://modrinth.com/mod/directionhud).
+
+### Changelog:
+* new icon
+* bumped hud packet version to `v1.3` to support new plugin versions of DirectionHUD
+* fixed `/hud` color button hover color changing when hovering on different parts of the button
+
+## v1.8.0.2
+* fixed toggling BossBar while on client side causing a crash
+
+## v1.8.0.1
+* fixed destination module `name` and `name_xz` having the primary and secondary flipped inside of `module-text.json`
+* changed module name displays to be lowercase
+* fixed missing language files
+* edited clarifications to some hud module messages
+* config file for languages now shows the percent of translated text
+* language files with missing translations will default to english on servers
+
+## v1.8.0.0 - Custom Module Text!
+
+### Custom Module Text
+Added a new json file, `module-text.json` to customize each module's display settings.
+\
+Customize each entry using color and formatting codes, and use `%s` to substitute for the data being used for the module.
+\
+Read more about this on the new [DirectionHUD Docs](https://oth3r.github.io/DirectionHUD/module-text-json.html)!
+
+### New Module Edit UI
+A new GUI for editing a module!
+
+![module edit gui](https://oth3r.github.io/images/mods/directionhud/1.8/module_edit.png)
+
+### More Module Settings!
+* coordinates module `xz` mode
+* tracking module `elevation` toggle
+* flipped speed module speed calculation setting
+
+## Changelog:
+
+* added hud module edit chat UI
+* added hud module chat UI
+* added coordinates module `xz` - `xyz` toggle
+* added tracking module `elevation` toggle
+* added fuzzy sort filtering to command suggestions - thanks to greener.ca for the help!
+* fixed command suggester breaking when using the `execute run` command
+* fixed destination autoconvert not working
+* flipped speed module setting from 3d-calculation to 2d-calculation
+* The third argument in the `/hud color` command always displays even when it shouldn't
+* fixed `/hud color [primary, secondary]` command to display the color edit GUI
+* fixed the `/hud color` command's third command argument always displaying
+* migrated all files to new system
+* major backend changes & optimization
+* fixes to legacy file updaters
+* updated the module system in the playerdata file to be modular
