@@ -102,7 +102,7 @@ modrinth {
 	dependencies = [
 			new ModDependency('P7dR8mSH', 'required') // Creates a new required dependency on Fabric API
 	]
-	changelog = file('changelog.md').text
+	changelog = file('../changelog.md').text
 }
 
 import net.darkhax.curseforgegradle.TaskPublishCurseForge
@@ -111,7 +111,7 @@ tasks.register('publishCurseForge', TaskPublishCurseForge) {
 	apiToken = env.fetchOrNull('CURSEFORGE')
 
 	def mainFile = upload(843483, remapJar)
-	mainFile.changelog = file('changelog.md')
+	mainFile.changelog = file('../changelog.md')
 	mainFile.displayName = "v${project.mod_version}"
 	mainFile.addModLoader("fabric", "quilt")
 	mainFile.releaseType = "release"
