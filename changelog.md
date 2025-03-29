@@ -1,3 +1,6 @@
+## v1.8.0.4
+* fixed actionbar not displaying as fast on client (Fabric) (1.21.5)
+
 ## v1.8.0.3
 port to spigot and paper, also now with support for folia!
 
