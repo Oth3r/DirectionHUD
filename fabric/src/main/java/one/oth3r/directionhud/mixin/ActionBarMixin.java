@@ -6,7 +6,6 @@ import net.minecraft.text.ClickEvent;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import one.oth3r.directionhud.DirectionHUD;
-import one.oth3r.directionhud.DirectionHUDClient;
 import one.oth3r.directionhud.common.files.playerdata.PDHud;
 import one.oth3r.directionhud.common.hud.Hud;
 import one.oth3r.directionhud.utils.CTxT;
@@ -16,6 +15,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.net.URI;
 
 @Mixin(InGameHud.class)
 public class ActionBarMixin {
@@ -27,7 +28,9 @@ public class ActionBarMixin {
         // get the actionbar's click event
         ClickEvent click = message.getStyle().getClickEvent();
         // if the click event has the Modrinth link, it's a directionhud actionbar
-        if (click == null || !click.getAction().asString().equals("https://modrinth.com/mod/directionhud")) {
+        if (click == null ||
+                !(click.getAction().asString().equals("open_url") && ((ClickEvent.OpenUrl) click).uri().equals(URI.create("https://modrinth.com/mod/directionhud")))) {
+            System.out.println("not directionHUD");
             if (client.player == null) return;
             Player player = new Player(client.player,true);
             ModData modData = DirectionHUD.getData();
