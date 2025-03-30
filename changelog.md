@@ -1,3 +1,7 @@
+## v1.8.0.5
+* removed debug console printing on client (Fabric) (1.21.5)
+* fixed crash when tracking a target with no y level with elevation enabled on the tracking module
+
 ## v1.8.0.4
 * fixed actionbar not displaying as fast on client (Fabric) (1.21.5)
 
