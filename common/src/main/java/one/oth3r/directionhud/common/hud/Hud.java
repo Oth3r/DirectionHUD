@@ -331,8 +331,8 @@ public class Hud {
                 // SOUTH
             else data = simple?simpleArrows.getSouth():compactArrows.getSouth();
 
-            // if the elevation is enabled
-            if (trackingModule.hasElevation()) {
+            // if the elevation is enabled and the target has a Y level
+            if (trackingModule.hasElevation() && targetLoc.hasY()) {
                 int originY = originLoc.getY(), targetY = targetLoc.getY();
                 String elevation;
                 // a dash if in Y range or the target has no Y
