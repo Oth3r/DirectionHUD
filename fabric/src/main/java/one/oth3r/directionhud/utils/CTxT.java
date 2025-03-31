@@ -4,8 +4,6 @@ import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import one.oth3r.directionhud.common.template.ChatText;
 
-import java.net.URI;
-
 public class CTxT extends ChatText<MutableText, CTxT> {
     public CTxT() {
         this.text = Text.literal("");
@@ -68,16 +66,16 @@ public class CTxT extends ChatText<MutableText, CTxT> {
     private ClickEvent getClickEvent() {
         if (this.clickEvent == null || this.clickEvent.value() == null) return null;
         return switch (this.clickEvent.key()) {
-            case 1 -> new ClickEvent.RunCommand(clickEvent.value());
-            case 2 -> new ClickEvent.SuggestCommand(clickEvent.value());
-            case 3 -> new ClickEvent.OpenUrl(URI.create(clickEvent.value()));
+            case 1 -> new ClickEvent(ClickEvent.Action.RUN_COMMAND, clickEvent.value());
+            case 2 -> new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, clickEvent.value());
+            case 3 -> new ClickEvent(ClickEvent.Action.OPEN_URL, clickEvent.value());
             default -> null;
         };
     }
 
     private HoverEvent getHoverEvent() {
         if (this.hoverEvent == null) return null;
-        return new HoverEvent.ShowText(this.hoverEvent.b());
+        return new HoverEvent(HoverEvent.Action.SHOW_TEXT, this.hoverEvent.b());
     }
 
     @Override

@@ -26,7 +26,7 @@ public class ActionBarMixin {
         // get the actionbar's click event
         ClickEvent click = message.getStyle().getClickEvent();
         // if the click event has the Modrinth link, it's a directionhud actionbar
-        if (click == null || !click.getAction().asString().equals("https://modrinth.com/mod/directionhud")) {
+        if (click == null || !click.getValue().equals("https://modrinth.com/mod/directionhud")) {
             if (client.player == null) return;
 
             Player player = new Player(client.player,true);
