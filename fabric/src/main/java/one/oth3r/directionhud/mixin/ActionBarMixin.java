@@ -16,8 +16,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.net.URI;
-
 @Mixin(InGameHud.class)
 public class ActionBarMixin {
     @Inject(at = @At("HEAD"), method = "setOverlayMessage(Lnet/minecraft/text/Text;Z)V")
@@ -28,8 +26,7 @@ public class ActionBarMixin {
         // get the actionbar's click event
         ClickEvent click = message.getStyle().getClickEvent();
         // if the click event has the Modrinth link, it's a directionhud actionbar
-        if (click == null ||
-                !(click.getAction().asString().equals("open_url") && ((ClickEvent.OpenUrl) click).uri().equals(URI.create("https://modrinth.com/mod/directionhud")))) {
+        if (click == null || !click.getAction().asString().equals("https://modrinth.com/mod/directionhud")) {
             if (client.player == null) return;
 
             Player player = new Player(client.player,true);
