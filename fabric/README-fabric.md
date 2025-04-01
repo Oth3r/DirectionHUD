@@ -1,7 +1,7 @@
 # DirectionHUD
 [![github](https://img.shields.io/github/issues/Oth3r/DirectionHUD?label=Issues)](https://github.com/Oth3r/DirectionHUD/issues) [![Crowdin](https://badges.crowdin.net/directionhud/localized.svg)](https://crowdin.com/project/directionhud) [![discord](https://dcbadge.vercel.app/api/server/Mec6yNQ9B7?style=flat)](https://discord.gg/Mec6yNQ9B7) 
 
-[![modrinth](https://img.shields.io/modrinth/dt/directionhud?label=Modrinth&logo=modrinth)](https://modrinth.com/mod/directionhud) [![curseforge](https://cf.way2muchnoise.eu/843483.svg)](https://www.curseforge.com/minecraft/mc-mods/directionhud-fabric)
+[![modrinth](https://img.shields.io/modrinth/dt/directionhud?label=Modrinth&logo=modrinth)](https://modrinth.com/mod/directionhud) [![curseforge](https://cf.way2muchnoise.eu/843483.svg)](https://www.curseforge.com/minecraft/mc-mods/directionhud-fabric) [![Hangar Downloads](https://img.shields.io/hangar/dt/DirectionHUD?label=Hangar&color=%233b82f6)](https://hangar.papermc.io/other/DirectionHUD) [![spigot](https://pluginbadges.glitch.me/api/v1/dl/Spigot-orange.svg?spigot=directionhud.111247&style=flat)](https://www.spigotmc.org/resources/directionhud.111247/)
 
 DirectionHUD is a fully customizable Minecraft Fabric mod that enhances the vanilla navigation experience.
 With the mod, you can save coordinates, track other players, see death locations, all with full customization with the **/hud** and **/destination** commands.
