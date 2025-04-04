@@ -32,7 +32,7 @@ public interface CustomFile <T extends CustomFile<T>> {
             fileNotExist();
         }
         catch (Exception e) {
-            DirectionHUD.LOGGER.error(String.format("ERROR SAVING '%s`: %s", getFile().getName(), e.getMessage()));
+            DirectionHUD.LOGGER.info(String.format("ERROR SAVING '%s`: %s", getFile().getName(), e.getMessage()));
         }
     }
 
@@ -53,7 +53,7 @@ public interface CustomFile <T extends CustomFile<T>> {
         }
         // cant load for some reason
         catch (Exception e) {
-            DirectionHUD.LOGGER.error(String.format("ERROR LOADING '%s': %s", file.getName(),e.getMessage()));
+            DirectionHUD.LOGGER.info(String.format("ERROR LOADING '%s': %s", file.getName(),e.getMessage()));
         }
         // save after loading
         save();
@@ -105,7 +105,7 @@ public interface CustomFile <T extends CustomFile<T>> {
         try {
             Files.createDirectories(Paths.get(getDirectory()));
         } catch (Exception e) {
-            DirectionHUD.LOGGER.error("Failed to create config directory. Canceling all config loading...");
+            DirectionHUD.LOGGER.info("Failed to create config directory. Canceling all config loading...");
             return;
         }
         save();

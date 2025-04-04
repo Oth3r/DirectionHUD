@@ -5,7 +5,6 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import one.oth3r.directionhud.common.DHud;
-import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.hud.module.BaseModule;
 import one.oth3r.directionhud.common.hud.module.BaseModuleAdapter;

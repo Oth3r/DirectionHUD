@@ -6,7 +6,6 @@ import net.minecraft.text.ClickEvent;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import one.oth3r.directionhud.DirectionHUD;
-import one.oth3r.directionhud.DirectionHUDClient;
 import one.oth3r.directionhud.common.files.playerdata.PDHud;
 import one.oth3r.directionhud.common.hud.Hud;
 import one.oth3r.directionhud.utils.CTxT;
@@ -29,6 +28,7 @@ public class ActionBarMixin {
         // if the click event has the Modrinth link, it's a directionhud actionbar
         if (click == null || !click.getValue().equals("https://modrinth.com/mod/directionhud")) {
             if (client.player == null) return;
+
             Player player = new Player(client.player,true);
             ModData modData = DirectionHUD.getData();
             // if on supported server and hud is on AND hud type is actionbar
