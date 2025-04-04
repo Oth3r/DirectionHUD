@@ -15,12 +15,15 @@ public class ModData extends DirectionHudData {
     private MinecraftServer server;
     private CommandManager commandManager;
 
+    // todo make bossbar manager a common object
     private final BossBarManager bossBarManager = new BossBarManager();
     private final HudClientActionBarOverride actionBarOverride = new HudClientActionBarOverride(40);
+    // todo make clientPlayers common
     private final ArrayList<Player> clientPlayers = new ArrayList<>();
 
     public ModData(boolean isMod, String version, String primary, String secondary) {
-        super(isMod, version, primary, secondary);
+        super(isMod, primary, secondary);
+        this.version = version;
         this.isSingleplayer = false;
         this.onSupportedServer = false;
     }

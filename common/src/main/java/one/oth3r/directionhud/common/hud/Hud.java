@@ -331,8 +331,8 @@ public class Hud {
                 // SOUTH
             else data = simple?simpleArrows.getSouth():compactArrows.getSouth();
 
-            // if the elevation is enabled
-            if (trackingModule.hasElevation()) {
+            // if the elevation is enabled and the target has a Y level
+            if (trackingModule.hasElevation() && targetLoc.hasY()) {
                 int originY = originLoc.getY(), targetY = targetLoc.getY();
                 String elevation;
                 // a dash if in Y range or the target has no Y
@@ -1520,7 +1520,7 @@ public class Hud {
          */
         public static CTxT button() {
             return LANG.btn().btn(true).rainbow(new Rainbow(15f,45f)).click(1,"/hud color")
-                    .hover(CTxT.of(Assets.cmdUsage.hudColor).rainbow(new Rainbow(15f,45f)).append("\n").append(LANG.hover()));
+                    .hover(new CTxT().append(CTxT.of(Assets.cmdUsage.hudColor).rainbow(new Rainbow(15f,45f)).b()).append("\n").append(LANG.hover()));
         }
 
         public static void cmdExecutor(Player player, String[] args) {
