@@ -27,6 +27,14 @@ public class Rainbow {
 
     public Rainbow() {}
 
+    public Rainbow(Rainbow rainbow) {
+        this.enabled = rainbow.enabled;
+        this.position = rainbow.position;
+        this.stepSize = rainbow.stepSize;
+        this.brightness = rainbow.brightness;
+        this.saturation = rainbow.saturation;
+    }
+
     public Rainbow(boolean enabled) {
         this.enabled = enabled;
     }
