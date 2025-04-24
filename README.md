@@ -1,5 +1,5 @@
 # DirectionHUD
-[![github](https://img.shields.io/github/issues/Oth3r/DirectionHUD?label=Issues)](https://github.com/Oth3r/DirectionHUD/issues) [![Crowdin](https://badges.crowdin.net/directionhud/localized.svg)](https://crowdin.com/project/directionhud) [![discord](https://dcbadge.vercel.app/api/server/Mec6yNQ9B7?style=flat)](https://discord.gg/Mec6yNQ9B7) 
+[![github](https://img.shields.io/github/issues/Oth3r/DirectionHUD?label=Issues)](https://github.com/Oth3r/DirectionHUD/issues) [![Crowdin](https://badges.crowdin.net/directionhud/localized.svg)](https://crowdin.com/project/directionhud) [![discord](https://dcbadge.vercel.app/api/server/https://discord.gg/AVSTHCAUvn?style=flat)](https://www.oth3r.one/discord)
 
 [![modrinth](https://img.shields.io/modrinth/dt/directionhud?label=Fabric&logo=modrinth)](https://modrinth.com/mod/directionhud) [![curseforge](https://cf.way2muchnoise.eu/843483.svg)](https://www.curseforge.com/minecraft/mc-mods/directionhud-fabric)
 
@@ -11,7 +11,7 @@ With the mod, you can save coordinates, track other players, see death locations
 ## Help localize DirectionHUD on [Crowdin](https://crowdin.com/project/directionhud/)!
 ![overview](https://github.com/Oth3r/DirectionHUD/blob/master/media/directionhud%20overview.gif?raw=true)
 
-Hop in the discord for any questions or support! [Discord](https://discord.gg/Mec6yNQ9B7)
+Hop in the discord for any questions or support! [Discord](https://oth3r.one/discord)
 
 [![DirectionHUD badge](https://github.com/Oth3r/DirectionHUD/blob/master/media/mod-badge-port.png?raw=true)](https://modrinth.com/mod/directionhud) [![DirectionHUD Spigot badge](https://github.com/Oth3r/DirectionHUD/blob/master/media/plugin-badge.png?raw=true)](https://modrinth.com/plugin/directionhud-plugin)
 
