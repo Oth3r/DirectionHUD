@@ -1,10 +1,12 @@
 name: Crowdin Download Action
 
+permissions:
+  contents: write
+  actions: read
+
 on:
   workflow_dispatch:
 
-permissions:
-  pull-requests: write
 
 jobs:
   crowdin:
