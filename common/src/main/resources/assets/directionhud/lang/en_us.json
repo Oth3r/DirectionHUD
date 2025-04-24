@@ -170,7 +170,7 @@
   "hud.module.edit.hover.preview.info": "A preview of the module using randomised data.",
 
   "hud.module.edit.hover.toggle": "State",
-  "hud.module.edit.hover.toggle.click": "Click to toggle the %s module %s.",
+  "hud.module.edit.hover.toggle.click": "Click to toggle the %1$s module %2$s.",
 
   "hud.module.edit.hover": "Edit",
   "hud.module.edit.hover.cycle": "Click to edit the %s module.",
