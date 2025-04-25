@@ -2,7 +2,7 @@ name: Crowdin Upload Action
 
 on:
   push:
-    paths: [ 'common/src/main/resources/assets/directionhud/lang/en_us.json']
+    paths: [ 'common/src/main/resources/assets/directionhud/lang/en_US.json']
     branches: [ main ]
   workflow_dispatch:
 
