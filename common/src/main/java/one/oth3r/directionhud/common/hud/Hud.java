@@ -501,7 +501,7 @@ public class Hud {
         public static final String SETTING_OFF = "off";
         public static final List<String> SUGGESTER_ON_OFF = List.of(SETTING_ON, SETTING_OFF);
 
-        public static final Lang LANG = new Lang("hud.module.");
+        public static final Lang LANG = new Lang("directionhud.hud.module.");
 
         /**
          * creates the button for the modules UI
@@ -906,7 +906,7 @@ public class Hud {
         }
 
         public static class Setting {
-            public static final Lang LANG = new Lang("hud.module.setting.");
+            public static final Lang LANG = new Lang("directionhud.hud.module.setting.");
 
             public static void setSetting(Player player, Module module, String settingID, String value, boolean Return) {
                 BaseModule mod = player.getPData().getHud().getModule(module);
@@ -1219,7 +1219,7 @@ public class Hud {
         }
 
         public static class Edit {
-            public static final Lang LANG = new Lang("hud.module.edit.");
+            public static final Lang LANG = new Lang("directionhud.hud.module.edit.");
 
             /**
              * UI for editing a specific module
