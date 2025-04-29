@@ -34,7 +34,7 @@ public class Config implements CustomFile<Config> {
     private transient boolean legacyCheck = false;
 
     @SerializedName("version")
-    private Double version = 1.6;
+    private Double version = 1.61;
     @SerializedName("lang")
     private String lang = "en_us";
     @SerializedName("lang-options") @SuppressWarnings("unused")
@@ -369,7 +369,10 @@ public class Config implements CustomFile<Config> {
      */
     @Override
     public void update(JsonElement json) {
-
+        if (version.equals(1.6)) {
+            version = 1.61;
+            this.lang = this.lang.substring(0,3)+this.lang.substring(3).toUpperCase();
+        }
     }
 
     /**
