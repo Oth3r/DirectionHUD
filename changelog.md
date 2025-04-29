@@ -1,3 +1,8 @@
+## v1.8.0.7
+* fixed the fallback language not working (spigot)
+* bumped config version to 1.61
+  * fixed the config language not being updated to the new case system (only a major issue for spigot)
+
 ## v1.8.0.6
 * fixed HUD color `reset` button not working in the color edit screen 
 * synced localization files with Crowdin - thanks to all the contributors!
