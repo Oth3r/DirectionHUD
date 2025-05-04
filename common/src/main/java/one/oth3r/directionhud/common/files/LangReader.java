@@ -100,7 +100,7 @@ public class LangReader {
         if (english) inputStream = null;
 
         // if it cant read (null), try again, but with the english file
-        if (inputStream == null) inputStream = classLoader.getResourceAsStream("assets/directionhud/lang/en_us.json");
+        if (inputStream == null) inputStream = classLoader.getResourceAsStream("assets/directionhud/lang/en_US.json");
 
         // if null after that, throw an exception
         if (inputStream == null) throw new IllegalArgumentException("CANT LOAD THE LANGUAGE FILE. DIRECTIONHUD WILL BREAK.");

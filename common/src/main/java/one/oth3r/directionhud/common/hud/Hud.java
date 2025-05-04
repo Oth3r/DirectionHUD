@@ -1742,7 +1742,7 @@ public class Hud {
                     .append(line).append("\n");
 
             // make the buttons
-            CTxT reset = CUtl.LANG.btn("reset").btn(true).color('c').click(1, "/hud color reset-r "+setting+" "+setting)
+            CTxT reset = CUtl.LANG.btn("reset").btn(true).color('c').click(1, String.format("/hud color reset-r %s %s",color,setting))
                     .hover(LANG.hover("reset",addColor(player,LANG.get(setting),color,new Rainbow(15,20))));
             // bold
             CTxT boldButton = LANG.btn("bold").btn(true).color(CUtl.toggleColor(colorData.getBold()))
