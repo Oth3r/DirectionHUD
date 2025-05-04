@@ -34,11 +34,12 @@ public class Config implements CustomFile<Config> {
     private transient boolean legacyCheck = false;
 
     @SerializedName("version")
-    private Double version = 1.6;
+    private Double version = 1.61;
     @SerializedName("lang")
     private String lang = "en_us";
     @SerializedName("lang-options") @SuppressWarnings("unused")
-    private final String[] lang_options = {"en_us (100%)","ru_ru (88%)","zh_cn (76%)","zh_tw (76%)"};
+    private final String[] lang_options = {"English - en_US (100%)","German - de_DE (100%)","Slovak - sk_SK (100%)","Russian - ru_RU (98%)",
+            "Chinese Simplified - zh_CN (77%)","Chinese Traditional - zh_TW (77%)","Ukrainian - uk_UA (40%)","Hungarian - hu_HU (40%)"};
     @SerializedName("online-mode")
     private Boolean online = true;
     @SerializedName("location")
@@ -368,7 +369,10 @@ public class Config implements CustomFile<Config> {
      */
     @Override
     public void update(JsonElement json) {
-
+        if (version.equals(1.6)) {
+            version = 1.61;
+            this.lang = this.lang.substring(0,3)+this.lang.substring(3).toUpperCase();
+        }
     }
 
     /**
