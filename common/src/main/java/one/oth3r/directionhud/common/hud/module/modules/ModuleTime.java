@@ -23,7 +23,7 @@ public class ModuleTime extends BaseModule {
         this.hour24 = false;
     }
 
-    public ModuleTime(int order, boolean state, boolean hour24) {
+    public ModuleTime(Integer order, boolean state, boolean hour24) {
         super(Module.TIME, order, state);
         this.hour24 = hour24;
     }

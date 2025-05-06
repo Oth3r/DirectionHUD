@@ -38,7 +38,7 @@ public class ModuleTracking extends BaseModule {
         this.elevation = false;
     }
 
-    public ModuleTracking(int order, boolean state, boolean hybrid, Target target, Type type, boolean elevation) {
+    public ModuleTracking(Integer order, boolean state, boolean hybrid, Target target, Type type, boolean elevation) {
         super(Module.TRACKING, order, state);
         this.hybrid = hybrid;
         this.target = target;

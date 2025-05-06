@@ -10,7 +10,7 @@ public class ModuleDistance extends BaseModule {
         this.state = true;
     }
 
-    public ModuleDistance(int order, boolean state) {
+    public ModuleDistance(Integer order, boolean state) {
         super(Module.DISTANCE, order, state);
     }
 

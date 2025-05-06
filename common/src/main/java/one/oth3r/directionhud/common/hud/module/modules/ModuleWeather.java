@@ -10,7 +10,7 @@ public class ModuleWeather extends BaseModule {
         this.state = true;
     }
 
-    public ModuleWeather(int order, boolean state) {
+    public ModuleWeather(Integer order, boolean state) {
         super(Module.WEATHER, order, state);
     }
 

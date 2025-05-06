@@ -10,7 +10,7 @@ public abstract class BaseModule implements Cloneable {
     @SerializedName("module")
     protected final Module moduleType;
     @SerializedName("order")
-    protected int order;
+    protected Integer order;
     @SerializedName("state")
     protected boolean state;
 
@@ -18,13 +18,13 @@ public abstract class BaseModule implements Cloneable {
         this.moduleType = moduleType;
     }
 
-    public BaseModule(Module moduleType, int order, boolean state) {
+    public BaseModule(Module moduleType, Integer order, boolean state) {
         this.moduleType = moduleType;
         this.order = order;
         this.state = state;
     }
 
-    public int getOrder() {
+    public Integer getOrder() {
         return order;
     }
 
@@ -44,7 +44,7 @@ public abstract class BaseModule implements Cloneable {
         return getSettingIDs().length > 0;
     }
 
-    public void setOrder(int order) {
+    public void setOrder(Integer order) {
         this.order = order;
     }
 

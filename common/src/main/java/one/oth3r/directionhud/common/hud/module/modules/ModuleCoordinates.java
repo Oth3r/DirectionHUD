@@ -23,7 +23,7 @@ public class ModuleCoordinates extends BaseModule {
         this.xyz = true;
     }
 
-    public ModuleCoordinates(int order, boolean state, boolean xyz) {
+    public ModuleCoordinates(Integer order, boolean state, boolean xyz) {
         super(Module.COORDINATES, order, state);
         this.xyz = xyz;
     }

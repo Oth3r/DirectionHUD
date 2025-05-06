@@ -10,7 +10,7 @@ public class ModuleDirection extends BaseModule {
         this.state = true;
     }
 
-    public ModuleDirection(int order, boolean state) {
+    public ModuleDirection(Integer order, boolean state) {
         super(Module.DIRECTION, order, state);
     }
 

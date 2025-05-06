@@ -23,7 +23,7 @@ public class ModuleAngle extends BaseModule {
         this.display = Display.both;
     }
 
-    public ModuleAngle(int order, boolean state, Display display) {
+    public ModuleAngle(Integer order, boolean state, Display display) {
         super(Module.ANGLE, order, state);
         this.display = display;
     }

@@ -24,7 +24,7 @@ public class ModuleSpeed extends BaseModule {
         super(one.oth3r.directionhud.common.hud.module.Module.SPEED);
     }
 
-    public ModuleSpeed(int order, boolean state, boolean calculation2D, String displayPattern) {
+    public ModuleSpeed(Integer order, boolean state, boolean calculation2D, String displayPattern) {
         super(Module.SPEED, order, state);
         this.calculation2D = calculation2D;
         this.displayPattern = displayPattern;
