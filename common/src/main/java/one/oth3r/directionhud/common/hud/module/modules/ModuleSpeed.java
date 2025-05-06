@@ -55,8 +55,15 @@ public class ModuleSpeed extends BaseModule {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        ModuleSpeed that = (ModuleSpeed) o;
-        return calculation2D == that.calculation2D && Objects.equals(displayPattern, that.displayPattern);
+        return settingEquals((BaseModule) o);
+    }
+
+    @Override
+    public boolean settingEquals(BaseModule module) {
+        if (module instanceof ModuleSpeed mod) {
+            return calculation2D == mod.calculation2D && Objects.equals(displayPattern, mod.displayPattern);
+        }
+        return false;
     }
 
     @Override

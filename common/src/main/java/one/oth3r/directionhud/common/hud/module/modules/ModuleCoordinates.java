@@ -45,8 +45,13 @@ public class ModuleCoordinates extends BaseModule {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        ModuleCoordinates that = (ModuleCoordinates) o;
-        return xyz == that.xyz;
+        return settingEquals((BaseModule) o);
+    }
+
+    @Override
+    public boolean settingEquals(BaseModule module) {
+        if (module instanceof ModuleCoordinates mod) return xyz == mod.xyz;
+        return false;
     }
 
     @Override

@@ -18,4 +18,9 @@ public class ModuleWeather extends BaseModule {
     public ModuleWeather clone() {
         return new ModuleWeather(this.order, this.state);
     }
+
+    @Override
+    public boolean settingEquals(BaseModule module) {
+        return true;
+    }
 }

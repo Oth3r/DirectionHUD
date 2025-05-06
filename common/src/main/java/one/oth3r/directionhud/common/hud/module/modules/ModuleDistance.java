@@ -18,4 +18,9 @@ public class ModuleDistance extends BaseModule {
     public ModuleDistance clone() {
         return new ModuleDistance(this.order, this.state);
     }
+
+    @Override
+    public boolean settingEquals(BaseModule module) {
+        return true;
+    }
 }

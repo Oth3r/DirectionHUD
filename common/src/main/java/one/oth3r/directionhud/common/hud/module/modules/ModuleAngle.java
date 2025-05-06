@@ -51,8 +51,13 @@ public class ModuleAngle extends BaseModule {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        ModuleAngle that = (ModuleAngle) o;
-        return display == that.display;
+        return settingEquals((BaseModule) o);
+    }
+
+    @Override
+    public boolean settingEquals(BaseModule module) {
+        if (module instanceof ModuleAngle mod) return display == mod.display;
+        return false;
     }
 
     @Override

@@ -18,4 +18,9 @@ public class ModuleDestination extends BaseModule {
     public ModuleDestination clone() {
         return new ModuleDestination(this.order, this.state);
     }
+
+    @Override
+    public boolean settingEquals(BaseModule module) {
+        return true;
+    }
 }

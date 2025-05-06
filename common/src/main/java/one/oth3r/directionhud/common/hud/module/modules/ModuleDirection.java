@@ -18,4 +18,9 @@ public class ModuleDirection extends BaseModule {
     public ModuleDirection clone() {
         return new ModuleDirection(this.order, this.state);
     }
+
+    @Override
+    public boolean settingEquals(BaseModule module) {
+        return true;
+    }
 }

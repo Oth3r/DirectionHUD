@@ -96,8 +96,15 @@ public class ModuleTracking extends BaseModule {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        ModuleTracking that = (ModuleTracking) o;
-        return hybrid == that.hybrid && elevation == that.elevation && target == that.target && type == that.type;
+        return settingEquals((BaseModule) o);
+    }
+
+    @Override
+    public boolean settingEquals(BaseModule module) {
+        if (module instanceof ModuleTracking mod) {
+            return hybrid == mod.hybrid && elevation == mod.elevation && target == mod.target && type == mod.type;
+        }
+        return false;
     }
 
     @Override

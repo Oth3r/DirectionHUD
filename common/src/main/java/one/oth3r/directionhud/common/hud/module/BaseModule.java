@@ -86,6 +86,8 @@ public abstract class BaseModule implements Cloneable {
         return order == that.order && state == that.state && moduleType == that.moduleType;
     }
 
+    public abstract boolean settingEquals(BaseModule module);
+
     @Override
     public int hashCode() {
         return Objects.hash(moduleType, order, state);

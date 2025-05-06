@@ -45,8 +45,13 @@ public class ModuleTime extends BaseModule {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        ModuleTime that = (ModuleTime) o;
-        return hour24 == that.hour24;
+        return settingEquals((BaseModule) o);
+    }
+
+    @Override
+    public boolean settingEquals(BaseModule module) {
+        if (module instanceof ModuleTime mod) return hour24 == mod.hour24;
+        return false;
     }
 
     @Override
