@@ -10,7 +10,6 @@ import com.google.gson.reflect.TypeToken;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.DHud;
 import one.oth3r.directionhud.common.files.FileData;
-import one.oth3r.directionhud.common.hud.Hud;
 import one.oth3r.directionhud.common.hud.module.Module;
 import one.oth3r.directionhud.common.template.CustomFile;
 import one.oth3r.directionhud.common.utils.CUtl;
@@ -191,9 +190,7 @@ public class PData extends BasePData implements CustomFile<PData> {
             return;
         }
         // update
-        baseUpdater(json);
-        // make sure the order and modules are valid (NOT FACTORY DEFAULT)
-        Hud.modules.fixOrder(hud.getModules());
+        baseUpdater(json, false);
     }
 
     /**

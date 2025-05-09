@@ -2,7 +2,6 @@ package one.oth3r.directionhud.common.files.playerdata;
 
 import com.google.gson.JsonElement;
 import one.oth3r.directionhud.DirectionHUD;
-import one.oth3r.directionhud.common.hud.Hud;
 import one.oth3r.directionhud.common.template.CustomFile;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,9 +31,7 @@ public class DefaultPData extends BasePData implements CustomFile<DefaultPData> 
     @Override
     public void update(JsonElement json) {
         // update
-        baseUpdater(json);
-        // make sure the order and modules are valid
-        Hud.modules.fixOrder(hud.getModules(),true);
+        baseUpdater(json, true);
     }
 
     @Override

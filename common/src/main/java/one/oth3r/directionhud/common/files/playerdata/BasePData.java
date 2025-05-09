@@ -68,7 +68,7 @@ public abstract class BasePData {
      * updates all base pData elements
      * @param json the json with the file data
      */
-    public void baseUpdater(JsonElement json) {
+    public void baseUpdater(JsonElement json, boolean factoryDefault) {
         if (version.equals(2.0)) {
 
             ///  module updater
@@ -134,5 +134,17 @@ public abstract class BasePData {
             this.version = 2.1;
         }
 
+        if (this.version == 2.1) {
+            /// updated module system updater
+            /*
+            This new system completely removes the order of modules when disabled, only giving module order to enabled modules - thus easier to manage enabled modules
+            - calling ModuleManager.Order.fixOrder() will do this automatically!
+             */
+            ModuleManager.Order.fixOrder(this.hud.getModules(), factoryDefault);
+            this.version = 2.2;
+        }
+
+        // even if the version doesn't need to be updated, run the module order fixer just in case
+        ModuleManager.Order.fixOrder(this.hud.getModules(), factoryDefault);
     }
 }
