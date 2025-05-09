@@ -1,6 +1,8 @@
 package one.oth3r.directionhud.common.hud.module;
 
 import one.oth3r.directionhud.common.hud.module.modules.*;
+import one.oth3r.directionhud.common.utils.CUtl;
+import one.oth3r.directionhud.utils.CTxT;
 
 public enum Module {
     COORDINATES("coordinates", ModuleCoordinates.class),
@@ -24,6 +26,13 @@ public enum Module {
 
     public String getName() {
         return name;
+    }
+
+    /**
+     * gets a CTxT of the name of the module colored to DirectionHUD's secondary color
+     */
+    public CTxT getCTxT() {
+        return new CTxT(name).color(CUtl.s());
     }
 
     public Class<? extends BaseModule> getModuleClass() {
