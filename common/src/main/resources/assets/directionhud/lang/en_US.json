@@ -127,6 +127,12 @@
 
   "directionhud.hud.module.ui": "HUD Modules",
 
+  "directionhud.hud.module.button.disabled": "DISABLED",
+  "directionhud.hud.module.hover.disabled": "Disabled",
+  "directionhud.hud.module.hover.disabled.click": "Click to view and enable disabled modules.",
+  "directionhud.hud.module.button.edit": "EDIT",
+  "directionhud.hud.module.hover.edit.click": "Click to edit the enabled modules.",
+
   "directionhud.hud.module.button": "MODULES",
   "directionhud.hud.module.hover": "Click to edit and rearrange the HUD modules.",
 
@@ -146,11 +152,30 @@
   "directionhud.hud.module.info.angle": "Displays the current viewing angle.",
 
   "directionhud.hud.module.msg.reset_all": "Reset %s HUD modules!",
-  "directionhud.hud.module.msg.reset": "Reset the %s module!",
+  "directionhud.hud.module.msg.reset": "Reset the %s module settings!",
   "directionhud.hud.module.msg.order": "Set the %s module order to %s.",
-  "directionhud.hud.module.msg.state": "Toggled %s module %S.",
+  "directionhud.hud.module.msg.state": "%1$s the %2$s module.",
+  "directionhud.hud.module.msg.state.disabled": "Disabled",
+  "directionhud.hud.module.msg.state.enabled": "Enabled",
+
+  "directionhud.hud.module.error.invalid": "Invalid module entered!",
+  "directionhud.hud.module.error.state": "The %1$s module is already %2$s!",
+  "directionhud.hud.module.error.state.disabled": "disabled",
+  "directionhud.hud.module.error.state.enabled": "enabled",
+  "directionhud.hud.module.error.order": "You cannot move a disabled module!",
+  "directionhud.hud.module.error.reset.already_reset": "The %1$s module's settings are already set to it's default state!",
+
 
   "directionhud.hud.module.edit.ui": "Edit Module",
+
+  "directionhud.hud.module.edit.ui.none": "You have no modules to edit!",
+  "directionhud.hud.module.edit.ui.none_2": "Click %s to find some to enable.",
+
+  "directionhud.hud.module.edit.hover.edit": "Edit",
+  "directionhud.hud.module.edit.hover.edit.click": "Click to open the %s module's edit menu.",
+
+  "directionhud.hud.module.edit.hover.undo": "Undo",
+  "directionhud.hud.module.edit.hover.undo.click": "Click to undo disabling the %s module.",
 
   "directionhud.hud.module.edit.hover.order": "Order",
   "directionhud.hud.module.edit.hover.order.info": "The current position of the module in the HUD display.",
@@ -172,6 +197,9 @@
   "directionhud.hud.module.edit.hover.toggle": "State",
   "directionhud.hud.module.edit.hover.toggle.click": "Click to toggle the %1$s module %2$s.",
 
+  "directionhud.hud.module.edit.hover.disable": "Disable",
+  "directionhud.hud.module.edit.hover.disable.click": "Click to disable the %1$s module.",
+
   "directionhud.hud.module.edit.hover": "Edit",
   "directionhud.hud.module.edit.hover.cycle": "Click to edit the %s module.",
   "directionhud.hud.module.edit.hover.cycle.previous": "previous",
@@ -183,7 +211,17 @@
   "directionhud.hud.module.edit.hover.status.no_data": "Enabled, no data to display",
   "directionhud.hud.module.edit.hover.status.disabled": "Disabled",
 
-  "directionhud.hud.module.edit.hover.reset.click": "Click to %1$s the %2$s module.",
+  "directionhud.hud.module.edit.hover.reset.click": "Click to %1$s the %2$s module's settings.",
+
+  "directionhud.hud.module.disabled.ui": "Disabled Modules",
+  "directionhud.hud.module.disabled.ui.none": "You have no disabled modules!",
+  "directionhud.hud.module.disabled.ui.none_2": "Click %s to edit enabled modules.",
+
+  "directionhud.hud.module.disabled.hover.enable": "Enable",
+  "directionhud.hud.module.disabled.hover.enable.click": "Click to enable the %1$s module.",
+
+  "directionhud.hud.module.disabled.hover.undo": "Undo",
+  "directionhud.hud.module.disabled.hover.undo.click": "Click to re-enable the %1$s module.",
 
 
   "directionhud.hud.module.setting.msg.set": "Set the %s to %s!",

@@ -20,12 +20,12 @@ import one.oth3r.directionhud.common.utils.*;
 import one.oth3r.directionhud.common.utils.Helper.Command.Suggester;
 import one.oth3r.directionhud.common.utils.Helper.Enums;
 import one.oth3r.directionhud.common.utils.Helper.Num;
+import one.oth3r.directionhud.common.utils.Helper.ListPage;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 
 import java.text.DecimalFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Hud {
 
@@ -143,7 +143,7 @@ public class Hud {
             CTxT msg = CTxT.of("");
             // loop for all enabled modules
             int count = 0;
-            for (BaseModule mod: modules.getEnabled(player)) {
+            for (BaseModule mod: ModuleManager.State.getEnabled(player)) {
                 Module module = mod.getModuleType();
                 count++;
                 // if module is empty, skip
@@ -151,7 +151,7 @@ public class Hud {
                 // append the parsed module text
                 msg.append(CUtl.parse(player,instructions.get(module)));
                 // if there's another module after the current one, add a space
-                if (count < modules.getEnabled(player).size()) msg.append(" ");
+                if (count < ModuleManager.State.getEnabled(player).size()) msg.append(" ");
             }
             // if the built string is empty, just return
             if (msg.isEmpty()) return msg;
@@ -520,6 +520,7 @@ public class Hud {
          * @param args the command arguments provided by the player
          */
         public static void CMDExecutor(Player player, String[] args) {
+            System.out.println(Arrays.toString(args));
             // UI
             if (args.length == 0) {
                 UI(player, null);
@@ -531,35 +532,87 @@ public class Hud {
             args[0] = args[0].replace("-r","");
             // RESET
             if (args[0].equals("reset")) {
-                // reset - all
-                if (args.length == 1) reset(player,Module.UNKNOWN,Return);
-                // reset (module) - per module
-                else reset(player,Module.fromString(args[1]),Return);
+                Module module = (args.length > 1) ? Module.fromString(args[1]) : null;
+                ActionResult result = (module == null)
+                        ? ModuleManager.Reset.resetEverything(player) // Reset all modules
+                        : ModuleManager.Reset.resetModule(player, module); // Reset specific module
+
+                if (Return) {
+                    if (module == null) UI(player, result.getChatMessage());
+                    else Edit.UI(player, result.getChatMessage(), module);
+                } else {
+                    player.sendMessage(result.getChatMessage());
+                }
             }
-            // TOGGLE
-            if (args[0].equals("toggle")) {
+            // ENABLE
+            if (args[0].equals("enable")) {
                 // send error if cmd length isn't long enough
                 if (args.length < 2) player.sendMessage(CUtl.error("args"));
-                else toggle(player, Module.fromString(args[1]),null,Return);
+                else {
+                    // get the enable order if provided
+                    Integer order = args.length == 2 ? null : Num.toInt(args[2]);
+                    ActionResult result = ModuleManager.State.enable(player, Module.fromString(args[1]), order);
+                    if (Return) {
+                        if (order == null) Disabled.UI(player,result.getChatMessage(),Num.toInt(result.extraSettings().get("page")));
+                        else Edit.UI(player, result.getChatMessage(), Module.fromString(args[1]));
+                    } else {
+                        player.sendMessage(result.getChatMessage());
+                    }
+                }
             }
-            // TOGGLE
+            // DISABLE
+            if (args[0].equals("disable")) {
+                // send error if cmd length isn't long enough
+                if (args.length < 2) player.sendMessage(CUtl.error("args"));
+                ActionResult result = ModuleManager.State.disable(player, Module.fromString(args[1]));
+
+                if (Return) Edit.UI(player, result.getChatMessage(), Module.fromString(result.extraSettings().get("module")));
+                else player.sendMessage(result.getChatMessage());
+            }
+            // EDIT
             if (args[0].equals("edit")) {
                 // send error if cmd length isn't long enough
                 if (args.length < 2) player.sendMessage(CUtl.error("args"));
-                else Edit.UI(player, null, Module.fromString(args[1]));
+                else {
+                    // if the module is selected via number, get the module at the order
+                    if (Num.isInt(args[1])) {
+                        Edit.UI(player, null,
+                                ModuleManager.State.getEnabled(player).get(Math.max(0,Math.min(ModuleManager.State.getEnabled(player).size()-1, Num.toInt(args[1])))).getModuleType());
+                    } else {
+                        // else the module is selected from string
+                        Edit.UI(player, null, Module.fromString(args[1]));
+                    }
+                }
             }
-            // TOGGLE
+            if (args[0].equals("disabled")) {
+                // send error if cmd length isn't long enough
+                if (args.length < 2) Disabled.UI(player, null, 1);
+                else Disabled.UI(player, null, Num.toInt(args[1]));
+            }
+            // SETTING
             if (args[0].equals("setting")) {
                 // send error if cmd length isn't long enough
                 if (args.length < 4) player.sendMessage(CUtl.error("args"));
-                else Setting.setSetting(player, Module.fromString(args[1]), args[2], args[3], Return);
+                else {
+                    Module module = Module.fromString(args[1]);
+                    ActionResult result = ModuleManager.Setting.setSetting(player,module, args[2], args[3]);
+
+                    if (Return) Edit.UI(player, result.getChatMessage(), module);
+                    else player.sendMessage(result.getChatMessage());
+                }
             }
             // ORDER
             if (args[0].equals("order")) {
                 // send error if cmd length isn't long enough or an order number isn't entered
                 if (args.length < 2) player.sendMessage(CUtl.error("args"));
-                else if (args.length == 3 && Num.isInt(args[2])) move(player, Module.fromString(args[1]), Integer.parseInt(args[2]), Return);
-                else player.sendMessage(CUtl.error("number"));
+                else if (args.length == 3 && Num.isInt(args[2])) {
+                    Module module = Module.fromString(args[1]);
+                    ActionResult result = ModuleManager.Order.move(player, module, Integer.parseInt(args[2]));
+
+                    if (Return) Edit.UI(player, result.getChatMessage(), module);
+                    else player.sendMessage(result.getChatMessage());
+
+                } else player.sendMessage(CUtl.error("number"));
             }
         }
         public static ArrayList<String> CMDSuggester(Player player, int pos, String[] args) {
@@ -641,170 +694,26 @@ public class Hud {
         }
 
         /**
-         * reset module(s) to their default config state
-         * @param module module to reset, unknown to reset all
-         * @param Return to return to the modules UI
+         * Validates a module and sends a message to the player if invalid override of {@link #validate(Module)}
+         * @param module the module to validate
+         * @param player the player to notify if the module is invalid
+         * @return true if the module is valid, otherwise false
          */
-        public static void reset(Player player, Module module, boolean Return) {
-            CTxT msg = CUtl.tag();
-            if (module.equals(Module.UNKNOWN)) {
-                // reset everything
-                player.getPData().getHud().setModules(PlayerData.getDefaults().getHud().getModules());
-
-                msg.append(LANG.msg("reset_all", CUtl.LANG.btn("all").color('c')));
-            } else {
-                // the module to reset to
-                BaseModule resetModule = PlayerData.getDefaults().getHud().getModule(module);
-                // the original module
-                BaseModule mod = player.getPData().getHud().getModule(module);
-
-                // get the order
-                ArrayList<BaseModule> list = player.getPData().getHud().getModules();
-                // move the module in the list (-1 because module order starts from 1)
-                Helper.moveTo(list, mod.getOrder()-1, resetModule.getOrder()-1);
-                // update the other orders
-                setOrder(list);
-                // set the module to the reset one (saves)
-                player.getPData().getHud().setModule(resetModule);
-
-                // reset message
-                msg.append(LANG.msg("reset",CTxT.of(module.toString()).color(CUtl.s())));
-
-                // if returning
-                if (Return) {
-                    Edit.UI(player, msg, module);
-                    return;
-                }
+        public static boolean validate(Module module, Player player) {
+            if (!validate(module)) {
+                player.sendMessage(LANG.err("entered"));
+                return false;
             }
-            if (Return) UI(player, msg);
-            else player.sendMessage(msg);
+            return true;
         }
 
         /**
-         * move a module's position in the HUD
-         * @param module module to move
-         * @param pos position in the list, starts at 1
-         * @param Return to return to the modules UI
+         * Validates the given module to check if it is a known module.
+         * @param module the module to validate
+         * @return true if the module is valid and not {@link Module#UNKNOWN}
          */
-        public static void move(Player player, Module module, int pos, boolean Return) {
-            if (module.equals(Module.UNKNOWN)) {
-                player.sendMessage(CUtl.error("hud.module"));
-                return;
-            }
-            // -1 to pos because it starts at 1
-            pos--;
-
-            ArrayList<BaseModule> list = player.getPData().getHud().getModules();
-            // move the module to the new index
-            Helper.moveTo(list, player.getPData().getHud().getModule(module).getOrder()-1, pos);
-            // set the new order numbers
-            setOrder(list);
-            // make sure everything is saved
-            player.getPData().queueSave();
-            // get the new order number (formatted for user)
-            int order = BaseModule.findInArrayList(list,module).orElse(
-                    player.getPData().getHud().getModule(module)).getOrder();
-
-
-            // set the order of module to <>
-            CTxT msg = CUtl.tag().append(LANG.msg("order",
-                    CTxT.of(module.toString()).color(CUtl.s()),
-                    CTxT.of(String.valueOf(order)).color(CUtl.s())));
-
-            if (Return) Edit.UI(player, msg, module);
-            else player.sendMessage(msg);
-        }
-
-        /**
-         * sets the enabled state of a module
-         * @param module module to edit
-         * @param toggle state to change to - null to flip
-         * @param Return to return to the modules UI
-         */
-        public static void toggle(Player player, Module module, Boolean toggle, boolean Return) {
-            // bad data
-            if (module.equals(Module.UNKNOWN)) {
-                player.sendMessage(CUtl.error("hud.module"));
-                return;
-            }
-
-            // get the module
-            BaseModule mod = player.getPData().getHud().getModule(module);
-            // if toggle null, flip current
-            if (toggle == null) toggle = !mod.isEnabled();
-            // set the new state
-            mod.setState(toggle);
-            // save the changes
-            player.getPData().queueSave();
-
-            // Toggled <module> module <toggle>
-            CTxT msg = CUtl.tag().append(LANG.msg("state",
-                    CTxT.of(module.toString()).color(CUtl.s()),
-                    CUtl.toggleTxT(toggle)));
-
-            if (Return) Edit.UI(player, msg, module);
-            else player.sendMessage(msg);
-        }
-
-        public static void fixOrder(ArrayList<BaseModule> list) {
-            fixOrder(list, false);
-        }
-
-        /**
-         * module order fixer, removes unknown modules, and fills in the gaps if modules are missing
-         *
-         * @param list              the list that needs to be fixed
-         * @param getFactoryDefault if the list to check against should be the factory default or not
-         */
-        public static void fixOrder(ArrayList<BaseModule> list, boolean getFactoryDefault) {
-            /*
-            1. removes duplicates and invalid entries
-            2. sorts based on module.getOrder()
-            3. adds any missing modules
-             */
-
-            // the default list of modules
-            ArrayList<BaseModule> defaultList;
-            if (getFactoryDefault) defaultList = new PDHud().getModules();
-            else defaultList = PlayerData.getDefaults().getHud().getModules();
-
-            // if the module isn't valid or there's a duplicate module, remove
-            Helper.removeDuplicateSubclasses(list);
-
-            // if the size of the list is still bigger than the default list, return the default
-            if (list.size() > defaultList.size()) {
-                list.clear();
-                list.addAll(defaultList);
-                return;
-            }
-
-            // sort the list
-            list.sort(Comparator.comparingInt(BaseModule::getOrder));
-
-            // set each order in the list from 1 - max
-            setOrder(list);
-
-            // add missing modules to the list
-            defaultList.stream()
-                    .filter(mod -> list.stream().noneMatch(module -> module.getClass().equals(mod.getClass())))
-                    .forEach(list::add);
-        }
-
-        /**
-         * sets the order to how the modules are in the array list
-         */
-        public static void setOrder(ArrayList<BaseModule> list) {
-            // set the order of the module to the order in the arraylist
-            for (int i = 0; i < list.size(); i++) {
-                list.get(i).setOrder(i+1);
-            }
-        }
-
-        /**
-         * @return a list of enabled modules in the HUD order
-         */
-        public static ArrayList<BaseModule> getEnabled(Player player) {
-            return player.getPCache().getHud().getModules().stream().filter(BaseModule::isEnabled).collect(Collectors.toCollection(ArrayList::new));
+        public static boolean validate(Module module) {
+            return !module.equals(Module.UNKNOWN);
         }
 
         /**
@@ -896,325 +805,54 @@ public class Hud {
             return color;
         }
 
-        /**
-         * checks if a module has been edited
-         * @return true if the module has been edited, as it can reset
-         */
-        public static boolean canReset(BaseModule module) {
-            BaseModule defaultModule = PlayerData.getDefaults().getHud().getModule(module.getModuleType());
-            return !defaultModule.equals(module);
-        }
+        public static class Disabled {
+            private static final int PER_PAGE = 6;
+            public static final Lang LANG = new Lang("directionhud.hud.module.disabled.");
 
-        public static class Setting {
-            public static final Lang LANG = new Lang("directionhud.hud.module.setting.");
-
-            public static void setSetting(Player player, Module module, String settingID, String value, boolean Return) {
-                BaseModule mod = player.getPData().getHud().getModule(module);
-                // if the module doesn't have any extra settings to edit
-                if (!mod.hasExtraSettings()) {
-                    player.sendMessage(LANG.error("no_settings", CTxT.of(module.getName()).color(CUtl.s())));
-                    return;
-                }
-                // if the module setting doesn't exist
-                if (Arrays.stream(mod.getSettingIDs()).noneMatch(settingID::equals)) {
-                    player.sendMessage(LANG.error("invalid", CTxT.of(module.getName()).color(CUtl.s())));
-                    return;
-                }
-
-                // start building the message
-                CTxT msg = CUtl.tag(), invalidSettingValue = LANG.error("invalid.setting_value", LANG.get(module.getName()+"."+settingID).color(CUtl.s()));
-
-                boolean state = value.equals(SETTING_ON);
-                switch (module) {
-                    case COORDINATES -> {
-                        ModuleCoordinates coordinatesModule = (ModuleCoordinates) mod;
-                        // update the module
-                        coordinatesModule.setXyz(state);
-                        player.getPData().getHud().setModule(coordinatesModule);
-
-                        // build the set message
-                        msg.append(SetMSG.customToggle(module, settingID, state));
-                    }
-                    case TIME -> {
-                        ModuleTime timeModule = (ModuleTime) mod;
-                        // update the module
-                        timeModule.setHour24(state);
-                        player.getPData().getHud().setModule(timeModule);
-
-                        // build the set message
-                        msg.append(SetMSG.customToggle(module, settingID, state));
-                    }
-                    case TRACKING -> {
-                        ModuleTracking trackingModule = (ModuleTracking) mod;
-                        switch (settingID) {
-                            case ModuleTracking.hybridID -> {
-                                // update the module
-                                trackingModule.setHybrid(state);
-                                // get the correct set message
-                                msg.append(SetMSG.toggle(module, settingID, state));
-                            }
-                            case ModuleTracking.targetID -> {
-                                ModuleTracking.Target newTarget = Enums.search(value, ModuleTracking.Target.class).orElse(null);
-
-                                // if an enum can't be found
-                                if (newTarget == null) {
-                                    player.sendMessage(invalidSettingValue);
-                                    return;
-                                }
-
-                                // update the module
-                                trackingModule.setTarget(newTarget);
-                                // get the correct set message
-                                msg.append(SetMSG.enumString(module, settingID, newTarget.name()));
-                            }
-                            case ModuleTracking.typeID -> {
-                                ModuleTracking.Type newType = Enums.search(value, ModuleTracking.Type.class).orElse(null);
-
-                                // if an enum can't be found
-                                if (newType == null) {
-                                    player.sendMessage(invalidSettingValue);
-                                    return;
-                                }
-
-                                // update the module
-                                trackingModule.setType(newType);
-                                // get the correct set message
-                                msg.append(SetMSG.enumString(module, settingID, newType.name()));
-                            }
-                            case ModuleTracking.elevationID -> {
-                                // update the module
-                                trackingModule.setElevation(state);
-                                // get the correct set message
-                                msg.append(SetMSG.toggle(module, settingID, state));
-                            }
-                            default -> {
-                                player.sendMessage(LANG.error("invalid", CTxT.of(module.getName()).color(CUtl.s())));
-                                return;
-                            }
-                        }
-
-                        // save & set the updated module after logic is done
-                        player.getPData().getHud().setModule(trackingModule);
-                    }
-                    case SPEED -> {
-                        ModuleSpeed speedModule = (ModuleSpeed) mod;
-
-                        switch (settingID) {
-                            case ModuleSpeed.calculation2DID -> {
-                                // update the module
-                                speedModule.setCalculation2D(state);
-
-                                // build the set message
-                                msg.append(SetMSG.customToggle(module, settingID, state));
-                            }
-                            case ModuleSpeed.displayPatternID -> {
-                                try {
-                                    new DecimalFormat(value);
-                                    speedModule.setDisplayPattern(value);
-                                }
-                                // invalid pattern, error message
-                                catch (IllegalArgumentException ignored) {
-                                    player.sendMessage(invalidSettingValue);
-                                    return;
-                                }
-
-                                // build the set message
-                                msg.append(SetMSG.custom(module,settingID,CTxT.of(value)));
-                            }
-                            default -> {
-                                player.sendMessage(LANG.error("invalid", CTxT.of(module.getName()).color(CUtl.s())));
-                                return;
-                            }
-                        }
-
-                        // set the updated module after logic is done
-                        player.getPData().getHud().setModule(speedModule);
-                    }
-                    case ANGLE -> {
-                        ModuleAngle angleModule = (ModuleAngle) mod;
-                        ModuleAngle.Display newDisplay = Enums.search(value,ModuleAngle.Display.class).orElse(null);
-
-                        // if an enum can't be found
-                        if (newDisplay == null) {
-                            player.sendMessage(invalidSettingValue);
-                            return;
-                        }
-
-                        // update the module
-                        angleModule.setDisplay(newDisplay);
-
-                        // get the correct set message
-                        msg.append(SetMSG.enumString(module,settingID,newDisplay.name()));
-
-                        // set the updated module after logic is done
-                        player.getPData().getHud().setModule(angleModule);
-                    }
-                }
-
-                if (Return) Edit.UI(player,msg,module);
-                else player.sendMessage(msg);
+            public static ListPage<BaseModule> getList(Player player) {
+                return new ListPage<>(ModuleManager.State.getDisabled(player), PER_PAGE);
             }
 
-            /**
-             * get setting buttons for the provided module
-             * @return CTxT with the buttons
-             */
-            public static CTxT getSettingButtons(Player player, Module module) {
-                // assets
-                Lang lang = new Lang("hud.module.setting.");
-                Lang moduleLang = new Lang("hud.module.setting."+module.getName()+".");
-                BaseModule mod = player.getPCache().getHud().getModule(module);
-                String setCMD = "/hud modules setting-r "+module.getName()+" ";
+            public static void UI(Player player, CTxT aboveTxT, int pg) {
+                ListPage<BaseModule> listPage = getList(player);
+                CTxT msg = new CTxT(), line = CUtl.makeLine(30);
 
-                CTxT button = CTxT.of("");
+                // add the text above if available
+                if (aboveTxT != null) msg.append(aboveTxT).append("\n");
 
-                if (module.equals(Module.COORDINATES)) {
-                    ModuleCoordinates coordinatesModule = (ModuleCoordinates) mod;
-                    String settingID = ModuleCoordinates.xyzID;
+                // make the top bar
+                msg.append(" ").append(LANG.ui().color(Assets.mainColors.edit)).append(line).append("\n");
 
-                    boolean state = coordinatesModule.isXyz();
-                    button.append(moduleLang.get(settingID+"."+(state?SETTING_ON:SETTING_OFF)).btn(true).color(CUtl.s())
-                            .hover(CTxT.of("")
-                                    .append(moduleLang.get(settingID+".ui").color('e')).append("\n")
-                                    .append(moduleLang.get(settingID+".info").color('7')).append("\n\n")
-                                    .append(lang.hover("set",moduleLang.get(settingID),moduleLang.get(settingID+"."+(state?SETTING_OFF:SETTING_ON)).color(CUtl.s()))))
-                            .click(1,setCMD+settingID+" "+(state?SETTING_OFF:SETTING_ON)));
-                }
-                if (module.equals(Module.TIME)) {
-                    ModuleTime timeModule = (ModuleTime) mod;
-                    String settingID = ModuleTime.hour24ID;
+                // for each module in the page
+                for (BaseModule mod : listPage.getPage(pg)) {
+                    Module module = mod.getModuleType();
+                    CTxT enable = CTxT.of(Assets.symbols.toggle).btn(true).color(CUtl.toggleColor(false))
+                            .click(1, "/hud modules enable-r "+module)
+                            .hover(LANG.hover("enable").color(CUtl.toggleColor(false)).append("\n")
+                                    .append(LANG.hover("enable.click", CTxT.of(module.getName()).color(CUtl.s()))));
 
-                    boolean state = timeModule.isHour24();
-                    button.append(moduleLang.get(settingID+"."+(state?"on":"off")).btn(true).color(CUtl.s())
-                            .hover(CTxT.of("")
-                                    .append(moduleLang.get(settingID+".ui").color('e')).append("\n")
-                                    .append(moduleLang.get(settingID+".info").color('7')).append("\n\n")
-                                    .append(lang.hover("set",moduleLang.get(settingID),moduleLang.get(settingID+"."+(state?"off":"on")).color(CUtl.s()))))
-                            .click(1,setCMD+settingID+" "+(state?"off":"on")));
+                    CTxT moduleText = new CTxT(module.getName())
+                            .hover(new CTxT()
+                                    .append(new CTxT(moduleExample(player, module)).append("\n")
+                                            .append(new CTxT(module.getName()).color(Assets.mainColors.edit)).append("\n")
+                                            .append(moduleInfo(module).color('7'))));
+
+                    msg.append(" ").append(enable).append(" ").append(moduleText).append("\n");
                 }
 
-                if (module.equals(Module.TRACKING)) {
-                    ModuleTracking trackingModule = (ModuleTracking) mod;
-                    String hybridID = ModuleTracking.hybridID;
-
-                    boolean hybrid = trackingModule.isHybrid();
-                    button.append(CTxT.of(arrows.shuffle).btn(true).color(hybrid?'a':'c')
-                            .hover(CTxT.of("")
-                                    .append(moduleLang.get(hybridID+".ui").color('e')).append("\n")
-                                    .append(moduleLang.get(hybridID+".info").color('7')).append("\n\n")
-                                    .append(lang.hover("set.toggle",moduleLang.get(hybridID),CUtl.toggleTxT(!hybrid))))
-                            .click(1,setCMD+hybridID+" "+(hybrid?"off":"on")));
-
-                    button.append(" ");
-
-                    String targetID = ModuleTracking.targetID;
-                    ModuleTracking.Target currentTarget = trackingModule.getTarget();
-                    ModuleTracking.Target nextTarget = Enums.next(currentTarget, ModuleTracking.Target.class);
-                    button.append(moduleLang.get(targetID+"."+currentTarget).btn(true).color(CUtl.s()).hover(CTxT.of("")
-                                    .append(moduleLang.get(targetID+".ui").color('e')).append("\n")
-                                    .append(moduleLang.get(targetID+".info").color('7')).append("\n\n")
-                                    .append(lang.hover("set",moduleLang.get(targetID),moduleLang.get(targetID+"."+nextTarget).color(CUtl.s()))))
-                            .click(1,setCMD+targetID+" "+nextTarget));
-
-                    button.append(" ");
-
-                    String typeID = ModuleTracking.typeID;
-                    ModuleTracking.Type currentType = trackingModule.getType();
-                    ModuleTracking.Type nextType = Enums.next(currentType, ModuleTracking.Type.class);
-                    button.append(CTxT.of(currentType.equals(ModuleTracking.Type.simple)?arrows.up:arrows.north).btn(true).color(CUtl.s()).hover(CTxT.of("")
-                                    .append(moduleLang.get(typeID+".ui").color('e')).append(" - ")
-                                    .append(moduleExample(player,Module.TRACKING).color(CUtl.s())).append("\n")
-                                    .append(moduleLang.get(typeID+"."+currentType+".info").color('7')).append("\n\n")
-                                    .append(lang.hover("set",moduleLang.get(typeID),moduleLang.get(typeID+"."+nextType).color(CUtl.s()))))
-                            .click(1,setCMD+typeID+" "+nextType));
-
-                    button.append(" ");
-
-                    String elevationID = ModuleTracking.elevationID;
-
-                    boolean elevation = trackingModule.hasElevation();
-                    button.append(CTxT.of(Assets.symbols.mountain).btn(true).color(elevation?'a':'c')
-                            .hover(CTxT.of("")
-                                    .append(moduleLang.get(elevationID+".ui").color('e')).append("\n")
-                                    .append(moduleLang.get(elevationID+".info").color('7')).append("\n\n")
-                                    .append(lang.hover("set.toggle",moduleLang.get(elevationID),CUtl.toggleTxT(!elevation))))
-                            .click(1,setCMD+elevationID+" "+(elevation?"off":"on")));
+                // if empty
+                if (listPage.getPage(0).isEmpty()) {
+                    msg.append("\n ")
+                            .append(LANG.ui("none")).append("\n ")
+                            .append(LANG.ui("none_2",getEditButton()))
+                            .append("\n");
                 }
 
-                if (module.equals(Module.SPEED)) {
-                    ModuleSpeed speedModule = (ModuleSpeed) mod;
-                    String calculation2DID = ModuleSpeed.calculation2DID;
-                    boolean is2D = speedModule.isCalculation2D();
-                    button.append(moduleLang.get(calculation2DID+"."+(is2D?"on":"off")).btn(true).color(CUtl.s()).hover(CTxT.of("")
-                                    .append(moduleLang.get(calculation2DID+".ui").color(CUtl.s())).append("\n")
-                                    .append(moduleLang.get(calculation2DID+"."+(is2D?"on":"off")+".info").color('7')).append("\n\n")
-                                    .append(lang.hover("set",moduleLang.get(calculation2DID),moduleLang.get(calculation2DID+"."+(is2D?"off":"on")).color(CUtl.s()))))
-                            .click(1,setCMD+calculation2DID+" "+(is2D?"off":"on")));
+                // back button and bar
+                msg.append("\n ").append(listPage.getNavButtons(pg,"/hud modules disabled "))
+                        .append(" ").append(CUtl.CButton.back("/hud modules")).append(line);
 
-                    button.append(" ");
-
-                    String patternID = ModuleSpeed.displayPatternID;
-                    button.append(CTxT.of(speedModule.getDisplayPattern()).btn(true).color(CUtl.s()).hover(CTxT.of("")
-                                    .append(moduleLang.get(patternID+".ui").color(CUtl.s())).append(" - ")
-                                    .append(moduleExample(player,Module.SPEED).color(CUtl.s())).append("\n")
-                                    .append(moduleLang.get(patternID+".info").color('7')).append("\n")
-                                    .append(moduleLang.get(patternID+".example").color('7').italic(true)).append("\n\n")
-                                    .append(lang.hover("set.custom",moduleLang.get(patternID))))
-                            .click(2,setCMD+patternID+" "));
-                }
-
-                if (module.equals(Module.ANGLE)) {
-                    ModuleAngle angleModule = (ModuleAngle) mod;
-
-                    String displayID = ModuleAngle.displayID;
-                    ModuleAngle.Display currentType = angleModule.getDisplay();
-                    ModuleAngle.Display nextType = Enums.next(currentType, ModuleAngle.Display.class);
-
-                    String buttonIcon = switch (currentType) {
-                        case yaw -> arrows.leftRight;
-                        case pitch -> arrows.upDown;
-                        default -> arrows.leftRight+arrows.upDown;
-                    };
-
-                    button.append(CTxT.of(buttonIcon).btn(true).color(CUtl.s()).hover(CTxT.of("")
-                                    .append(moduleLang.get(displayID+".ui").color('e')).append(" - ")
-                                    .append(moduleLang.get(displayID+"."+currentType)).append("\n")
-                                    .append(moduleLang.get(displayID+"."+currentType+".info").color('7')).append("\n\n")
-                                    .append(lang.hover("set",moduleLang.get(displayID),moduleLang.get(displayID+"."+nextType).color(CUtl.s()))))
-                            .click(1,setCMD+displayID+" "+nextType));
-                }
-
-                return button;
-            }
-
-            /**
-             * contains helper methods to generate a set message for module setting editing
-             */
-            public static class SetMSG {
-
-                public static CTxT customToggle(Module module, String settingID, boolean state) {
-                    Lang settingsLang = new Lang(LANG,module.getName()+"."+settingID+".");
-                    return setMSGBuilder("set", module, settingID, settingsLang.get(state?"on":"off").color(CUtl.s()));
-                }
-
-                public static CTxT toggle(Module module, String settingID, boolean state) {
-                    return setMSGBuilder("set.toggle", module, settingID, CUtl.toggleTxT(state));
-                }
-
-                public static CTxT enumString(Module module, String settingID, String enumString) {
-                    Lang settingsLang = new Lang(LANG,module.getName()+"."+settingID+".");
-                    return setMSGBuilder("set", module, settingID, settingsLang.get(enumString).color(CUtl.s()));
-                }
-
-                public static CTxT custom(Module module, String settingID, CTxT customSetMSG) {
-                    return setMSGBuilder("set", module, settingID, customSetMSG.color(CUtl.s()));
-                }
-
-                private static CTxT setMSGBuilder(String setLang, Module module, String settingID, CTxT setMSG) {
-                    return LANG.msg(setLang,
-                            LANG.get(module.getName()+"."+settingID).color(CUtl.s()),
-                            setMSG);
-                }
+                player.sendMessage(msg);
             }
         }
 
@@ -1228,23 +866,36 @@ public class Hud {
              */
             public static void UI(Player player, CTxT aboveTxT, Module module) {
                 // data
-                CTxT msg = CTxT.of(""), line = CUtl.makeLine(37);
+                CTxT msg = new CTxT(), line = CUtl.makeLine(40), back = CUtl.CButton.back("/hud modules");
 
                 // add the text above if available
                 if (aboveTxT != null) msg.append(aboveTxT).append("\n");
+
+                // make the top bar
+                msg.append(" ").append(LANG.ui().color(Assets.mainColors.edit)).append(line);
+
+                // if empty
+                if (ModuleManager.State.getEnabled(player).isEmpty()) {
+                    msg.append("\n\n ")
+                            .append(LANG.ui("none")).append("\n ").append(LANG.ui("none_2", getDisabledButton()))
+                            .append("\n\n ").append(back).append(line);
+                    player.sendMessage(msg);
+                    return;
+                }
+
+                // validate the module
+                if (!validate(module, player)) return;
 
                 BaseModule mod = player.getPCache().getHud().getModule(module);
                 //state
                 boolean state = mod.isEnabled();
                 CTxT toggle = CTxT.of(Assets.symbols.toggle).btn(true).color(CUtl.toggleColor(state))
-                        .click(1,"/hud modules toggle-r "+module)
+                        .click(1,"/hud modules disable-r "+module)
                         .hover(LANG.hover("toggle").color(Assets.mainColors.edit).append("\n").append(LANG.hover("toggle.click",
                                 CTxT.of(module.getName()).color(CUtl.s()),
                                 CUtl.LANG.btn(!state?"on":"off").color(!state?'a':'c'))));
 
-                // make the top bar
-                msg.append(" ").append(LANG.ui().color(Assets.mainColors.edit));
-                msg.append(line);
+
                 msg.append("\n ").append(createPreviewBar(player, module));
                 msg.append(line);
 
@@ -1252,16 +903,16 @@ public class Hud {
                 msg.append("\n ").append(toggle).append(" ").append(createModuleOrderUI(player, module)).append(" ");
 
                 // extra settings section
-                CTxT extraSettings = Setting.getSettingButtons(player, module);
+                CTxT extraSettings = ModuleManager.Setting.getSettingButtons(player, module);
                 if (!extraSettings.isEmpty()) msg.append("\n\n ").append(extraSettings);
 
                 // toggle and module switcher row
                 msg.append("\n\n ").append(createModuleSwitcher(player, module));
 
                 // reset button
-                CTxT reset = CUtl.LANG.btn("reset").btn(true).color('7');
+                CTxT reset = CUtl.LANG.btn("reset").btn(true).color('7'); // todo reset confirmation
                 // enable if the module can be reset
-                if (canReset(mod)) {
+                if (ModuleManager.Reset.canResetSettings(mod)) {
                     reset.color('c')
                             .click(1,"/hud modules reset-r "+module.getName())
                             .hover(new CTxT(CUtl.LANG.hover("reset").color('c'))
@@ -1272,7 +923,7 @@ public class Hud {
 
                 // bottom buttons
                 msg.append("\n\n ").append(reset);
-                msg.append("  ").append(CUtl.CButton.back("/hud modules"));
+                msg.append("  ").append(back);
 
                 // bottom line
                 msg.append(line);
@@ -1299,7 +950,7 @@ public class Hud {
              * creates the buttons to switch which module to edit
              */
             private static CTxT createModuleSwitcher(Player player, Module module) {
-                ArrayList<BaseModule> modules = player.getPCache().getHud().getModules();
+                ArrayList<BaseModule> modules = ModuleManager.State.getEnabled(player);
                 BaseModule mod = player.getPCache().getHud().getModule(module);
                 // the module index starts at 1, so adjust accordingly
                 int moduleIndex = mod.getOrder() - 1;
@@ -1382,8 +1033,7 @@ public class Hud {
             private static CTxT createModuleOrderUI(Player player, Module module) {
                 // order starts at 1, index starts at 0
                 int currentOrder = player.getPCache().getHud().getModule(module).getOrder(), moduleIndex = currentOrder - 1;
-                boolean leftEnabled = moduleIndex > 0, rightEnabled = moduleIndex < player.getPCache().getHud().getModules().size()-1;
-
+                boolean leftEnabled = moduleIndex > 0, rightEnabled = moduleIndex < ModuleManager.State.getEnabled(player).size()-1;
 
                 // the start of the order command
                 final String cmd = "/hud modules order-r "+module.getName()+" ";
@@ -1429,59 +1079,38 @@ public class Hud {
             }
         }
 
+        public static CTxT getDisabledButton() {
+            return LANG.btn("disabled").color('c').btn(true)
+                    .click(1,"/hud modules disabled")
+                    .hover(LANG.hover("disabled").color('c').append("\n").append(LANG.hover("disabled.click")));
+        }
+
+        public static CTxT getEditButton() {
+            return LANG.btn("edit").color(Assets.mainColors.edit).btn(true)
+                    .click(1,"/hud modules edit 0")
+                    .hover(Edit.LANG.hover("edit").color(Assets.mainColors.edit).append("\n").append(LANG.hover("edit.click")));
+        }
+
         /**
          * the HUD Modules chat UI
          * @param aboveTxT a messages that displays above the UI
          */
         public static void UI(Player player, CTxT aboveTxT) {
 
-            CTxT msg = CTxT.of(""), line = CUtl.makeLine(45);
+            CTxT msg = CTxT.of(""), line = CUtl.makeLine(25);
 
             // add the text above if available
             if (aboveTxT != null) msg.append(aboveTxT).append("\n");
             // make the top bar
             msg.append(" ").append(LANG.ui().color(Assets.mainColors.edit)).append(line);
 
-
-            HashMap<Module,CTxT> modules = new HashMap<>();
-            // get the modules
-            for (Module module : Module.values()) {
-                // skip if it's the unknown module
-                if (module.equals(Module.UNKNOWN)) continue;
-
-                String name = module.getName();
-
-                CTxT moduleButton = new CTxT(name).btn(true)
-                        .color(stateColor(player,module))
-                        .click(1, "/hud modules edit "+name)
-                        .hover(new CTxT()
-                                .append(CTxT.of(name).color(Assets.mainColors.edit)).append(": ").append(moduleExample(player,module))
-                                .append("\n").append(moduleInfo(module).color('7'))
-                                .append("\n\n").append(Edit.LANG.hover("cycle",new CTxT(name).color(CUtl.s())))
-                        );
-
-                modules.put(module,moduleButton);
-            }
-
-            // build the ui
-            msg.append("\n ");
-            msg.append(modules.get(Module.COORDINATES)).append(" ");
-            msg.append(modules.get(Module.WEATHER)).append(" ");
-            msg.append(modules.get(Module.TIME)).append(" ");
-            msg.append("\n\n ");
-            msg.append(modules.get(Module.DESTINATION)).append(" ");
-            msg.append(modules.get(Module.DISTANCE)).append(" ");
-            msg.append(modules.get(Module.TRACKING)).append(" ");
-            msg.append("\n\n ");
-            msg.append(modules.get(Module.DIRECTION)).append(" ");
-            msg.append(modules.get(Module.ANGLE)).append(" ");
-            msg.append(modules.get(Module.SPEED)).append(" ");
-
+            // the two buttons
+            msg.append("\n ").append(getEditButton()).append(" ").append(getDisabledButton()).append("\n");
 
             // the reset button
             CTxT reset = CUtl.LANG.btn("reset").btn(true).color('7');
             // only make it clickable if any of the modules can reset
-            if (player.getPData().getHud().getModules().stream().anyMatch(Hud.modules::canReset)) {
+            if (player.getPData().getHud().getModules().stream().anyMatch(ModuleManager.Reset::canReset)) {
                 reset.color('c')
                         .click(1,"/hud modules reset-r")
                         .hover(CUtl.LANG.hover("reset").color('c').append("\n")
@@ -1492,7 +1121,7 @@ public class Hud {
             }
 
             //BOTTOM ROW
-            msg.append("\n\n ")
+            msg.append("\n ")
                     .append(reset).append("  ").append(CUtl.CButton.back("/hud"))
                     .append(line);
 
