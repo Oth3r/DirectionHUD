@@ -10,7 +10,6 @@ import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.dimension.DimensionEntry;
 import one.oth3r.directionhud.common.files.dimension.DimensionEntry.*;
-import one.oth3r.directionhud.common.files.dimension.DimensionSettings;
 import one.oth3r.directionhud.common.files.dimension.RatioEntry;
 import one.oth3r.directionhud.common.template.FeatureChecker;
 import one.oth3r.directionhud.common.utils.Helper.*;
