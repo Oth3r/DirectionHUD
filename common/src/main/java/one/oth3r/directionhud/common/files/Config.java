@@ -527,7 +527,7 @@ public class Config implements CustomFile<Config> {
                                 Boolean.parseBoolean(properties.getProperty("hud.module.speed", String.valueOf(false))),
                                 !Boolean.parseBoolean(properties.getProperty("hud.settings.module.speed_3d", String.valueOf(false))),
                                 properties.getProperty("hud.settings.module.speed_pattern", "0.00"));
-                        default -> new ModuleCoordinates();
+                        default -> new ModuleCoordinates(null,false, true);
                     });
 
                     i++;
@@ -630,7 +630,7 @@ public class Config implements CustomFile<Config> {
                                     Boolean.parseBoolean(properties.getProperty("time24hr", String.valueOf(false))));
                             case ANGLE -> new ModuleAngle(i,false,ModuleAngle.Display.both);
                             case SPEED -> new ModuleSpeed(i,false,false,"0.00");
-                            default -> new ModuleCoordinates();
+                            default -> new ModuleCoordinates(null, false, true);
                         });
 
                         i++;

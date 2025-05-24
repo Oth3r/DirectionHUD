@@ -6,8 +6,8 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import one.oth3r.directionhud.common.DHud;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
-import one.oth3r.directionhud.common.hud.module.BaseModule;
-import one.oth3r.directionhud.common.hud.module.BaseModuleAdapter;
+import one.oth3r.directionhud.common.hud.module.*;
+import one.oth3r.directionhud.common.hud.module.setting.ModuleSettingAdapterFactory;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
@@ -548,7 +548,7 @@ public class Helper {
      */
     public static <T> void removeDuplicateSubclasses(ArrayList<T> list) {
         Set<Class<?>> seenClasses = new HashSet<>();
-        list.removeIf(item -> !seenClasses.add(item.getClass()));
+        list.removeIf(item -> item == null || !seenClasses.add(item.getClass()));
     }
 
     /**
@@ -581,6 +581,7 @@ public class Helper {
 
         return new GsonBuilder()
                 .registerTypeAdapter(BaseModule.class, new BaseModuleAdapter())
+                .registerTypeAdapterFactory(new ModuleSettingAdapterFactory())
                 .registerTypeAdapterFactory(new LenientTypeAdapterFactory())
                 .disableHtmlEscaping()
                 .setPrettyPrinting()

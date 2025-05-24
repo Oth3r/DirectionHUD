@@ -1,61 +1,34 @@
 package one.oth3r.directionhud.common.hud.module.modules;
 
-import com.google.gson.annotations.SerializedName;
+import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.hud.module.BaseModule;
+import one.oth3r.directionhud.common.hud.module.setting.BooleanModuleSettingValidator;
 import one.oth3r.directionhud.common.hud.module.Module;
-
-import java.util.Objects;
+import one.oth3r.directionhud.common.utils.Loc;
 
 public class ModuleCoordinates extends BaseModule {
     public static final String xyzID = "xyz-display";
-    @SerializedName(xyzID)
-    protected boolean xyz;
-
-    @Override
-    public String[] getSettingIDs() {
-        return new String[]{xyzID};
-    }
-
-    public ModuleCoordinates() {
-        super(one.oth3r.directionhud.common.hud.module.Module.COORDINATES);
-        this.order = 1;
-        this.state = true;
-        this.xyz = true;
-    }
 
     public ModuleCoordinates(Integer order, boolean state, boolean xyz) {
         super(Module.COORDINATES, order, state);
-        this.xyz = xyz;
+        registerSetting(xyzID, xyz,new BooleanModuleSettingValidator(
+                Module.COORDINATES,xyzID,true,false
+        ));
     }
 
-    public boolean isXyz() {
-        return xyz;
-    }
-
-    public void setXyz(boolean xyz) {
-        this.xyz = xyz;
-    }
-
+    /**
+     * the logic for getting the string for the module display
+     *
+     * @param args the correct arguments for displaying the module
+     * @return the module display
+     */
     @Override
-    public BaseModule clone() {
-        return new ModuleCoordinates(this.order, this.state, this.xyz);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        return settingEquals((BaseModule) o);
-    }
-
-    @Override
-    public boolean settingEquals(BaseModule module) {
-        if (module instanceof ModuleCoordinates mod) return xyz == mod.xyz;
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), xyz);
+    protected String display(Object... args) {
+        Loc loc = (Loc) args[0];
+        return ((Boolean) getSetting(xyzID)) ?
+                String.format(FileData.getModuleText().getCoordinates().getXyz(),
+                        loc.getX(), loc.getY(), loc.getZ()) :
+                String.format(FileData.getModuleText().getCoordinates().getXz(),
+                        loc.getX(), loc.getZ());
     }
 }

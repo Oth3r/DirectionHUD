@@ -1,81 +1,140 @@
 package one.oth3r.directionhud.common.hud.module.modules;
 
-import com.google.gson.annotations.SerializedName;
+import one.oth3r.directionhud.common.files.FileData;
+import one.oth3r.directionhud.common.files.ModuleText;
 import one.oth3r.directionhud.common.hud.module.BaseModule;
+import one.oth3r.directionhud.common.hud.module.setting.BooleanModuleSettingValidator;
 import one.oth3r.directionhud.common.hud.module.Module;
+import one.oth3r.directionhud.common.hud.module.setting.ModuleSettingDisplay;
+import one.oth3r.directionhud.common.hud.module.setting.ModuleSettingType;
+import one.oth3r.directionhud.common.hud.module.setting.ModuleSettingValidator;
+import one.oth3r.directionhud.common.utils.Helper;
+import one.oth3r.directionhud.common.utils.Loc;
 
 import java.util.Objects;
 
 public class ModuleTracking extends BaseModule {
     public static final String hybridID = "hybrid";
-    @SerializedName(hybridID)
-    protected boolean hybrid;
-
     public static final String targetID = "target";
-    @SerializedName(targetID)
-    protected Target target;
-
     public static final String typeID = "display-type";
-    @SerializedName(typeID)
-    protected Type type;
-
     public static final String elevationID = "show-elevation";
-    @SerializedName(elevationID)
-    protected boolean elevation;
-
-    @Override
-    public String[] getSettingIDs() {
-        return new String[] { targetID, hybridID, typeID, elevationID };
-    }
-
-    public ModuleTracking() {
-        super(one.oth3r.directionhud.common.hud.module.Module.TRACKING);
-        this.order = 2;
-        this.state = true;
-        this.hybrid = true;
-        this.target = Target.player;
-        this.type = Type.simple;
-        this.elevation = false;
-    }
 
     public ModuleTracking(Integer order, boolean state, boolean hybrid, Target target, Type type, boolean elevation) {
         super(Module.TRACKING, order, state);
-        this.hybrid = hybrid;
-        this.target = target;
-        this.type = type;
-        this.elevation = elevation;
+        registerSetting(hybridID, hybrid, new BooleanModuleSettingValidator(
+                Module.TRACKING,hybridID,false,false
+        ));
+        registerSetting(targetID, target, new ModuleSettingValidator<>() {
+            @Override
+            public boolean isValid(Target value) {
+                return Objects.nonNull(value);
+            }
+
+            @Override
+            public Target convert(String value) throws IllegalArgumentException {
+                return Target.valueOf(value);
+            }
+
+            @Override
+            public ModuleSettingDisplay getSettingDisplay() {
+                return new ModuleSettingDisplay(
+                        Module.TRACKING,targetID,ModuleSettingType.ENUM_SWITCH,false
+                );
+            }
+        });
+        registerSetting(typeID, type, new ModuleSettingValidator<>() {
+            @Override
+            public boolean isValid(Type value) {
+                return Objects.nonNull(value);
+            }
+
+            @Override
+            public Type convert(String value) throws IllegalArgumentException {
+                return Type.valueOf(value);
+            }
+
+            @Override
+            public ModuleSettingDisplay getSettingDisplay() {
+                return new ModuleSettingDisplay(
+                        Module.TRACKING,typeID,ModuleSettingType.ENUM_SWITCH,false
+                );
+            }
+        });
+        registerSetting(elevationID, elevation, new BooleanModuleSettingValidator(
+                Module.TRACKING,elevationID,false,false
+        ));
     }
 
-    public boolean isHybrid() {
-        return hybrid;
-    }
+    /**
+     * the logic for getting the string for the module display
+     *
+     * @param args the correct arguments for displaying the module
+     * @return the module display
+     */
+    @Override
+    protected String display(Object... args) {
+        double originRotation = (double) args[0];
+        Loc originLoc = (Loc) args[1];
+        Loc targetLoc = (Loc) args[2];
 
-    public void setHybrid(boolean hybrid) {
-        this.hybrid = hybrid;
-    }
+        boolean simple = getSetting(typeID).equals(Type.simple), hasElevation = getSetting(elevationID);
+        double target;
+        String data;
+        ModuleText.ModuleTracking.Assets assets = FileData.getModuleText().getTracking().getAssets();
+        ModuleText.ModuleTracking.Assets.Simple simpleArrows = assets.getSimple();
+        ModuleText.ModuleTracking.Assets.Compact compactArrows = assets.getCompact();
+        ModuleText.ModuleTracking.Assets.Elevation elevationArrows = assets.getElevation();
 
-    public Target getTarget() {
-        return target;
-    }
 
-    public void setTarget(Target target) {
-        this.target = target;
-    }
+        // find the rotation needed for the originloc to 'face' the targetloc
+        int x = targetLoc.getX()-originLoc.getX();
+        int z = (targetLoc.getZ()-originLoc.getZ())*-1;
+        target = Math.toDegrees(Math.atan2(x, z));
+        if (target < 0) target += 360;
 
-    public Type getType() {
-        return type;
-    }
+        // NORTH
+        if (Helper.Num.inBetween(originRotation, Helper.Num.wSubtract(target,15,360), Helper.Num.wAdd(target,15,360)))
+            data = simple?simpleArrows.getNorth():compactArrows.getNorth();
+            // NORTH WEST
+        else if (Helper.Num.inBetween(originRotation, target, Helper.Num.wAdd(target,65,360)))
+            data = simple?simpleArrows.getNorthWest():compactArrows.getNorthWest();
+            // WEST
+        else if (Helper.Num.inBetween(originRotation, target, Helper.Num.wAdd(target,115,360)))
+            data = simple?simpleArrows.getWest():compactArrows.getWest();
+            // SOUTH WEST
+        else if (Helper.Num.inBetween(originRotation, target, Helper.Num.wAdd(target,165,360)))
+            data = simple?simpleArrows.getSouthWest():compactArrows.getSouthWest();
+            // NORTH EAST
+        else if (Helper.Num.inBetween(originRotation, Helper.Num.wSubtract(target, 65, 360), target))
+            data = simple?simpleArrows.getNorthEast():compactArrows.getNorthEast();
+            // EAST
+        else if (Helper.Num.inBetween(originRotation, Helper.Num.wSubtract(target, 115, 360), target))
+            data = simple?simpleArrows.getEast():compactArrows.getEast();
+            // SOUTH EAST
+        else if (Helper.Num.inBetween(originRotation, Helper.Num.wSubtract(target, 165, 360), target))
+            data = simple?simpleArrows.getSouthEast():compactArrows.getSouthEast();
+            // SOUTH
+        else data = simple?simpleArrows.getSouth():compactArrows.getSouth();
 
-    public void setType(Type type) {
-        this.type = type;
-    }
-
-    public boolean hasElevation() {
-        return elevation;
-    }
-
-    public void setElevation(boolean elevation) {
-        this.elevation = elevation;
+        // if the elevation is enabled and the target has a Y level
+        if (hasElevation && targetLoc.hasY()) {
+            int originY = originLoc.getY(), targetY = targetLoc.getY();
+            String elevation;
+            // a dash if in Y range or the target has no Y
+            if (!targetLoc.hasY() || (originY-2 < targetY && targetY < originY+2)) {
+                elevation = elevationArrows.getSame();
+            }
+            else if (originY > targetY) {
+                elevation = elevationArrows.getBelow();
+            }
+            else {
+                elevation = elevationArrows.getAbove();
+            }
+            // return the formatted elevation version of the module
+            return String.format(FileData.getModuleText().getTracking().getElevationTracking(), data, elevation);
+        }
+        // return the non elevation version of the module
+        return String.format(FileData.getModuleText().getTracking().getTracking(), data);
     }
 
     public enum Target {
@@ -85,30 +144,5 @@ public class ModuleTracking extends BaseModule {
     public enum Type {
         simple,
         compact
-    }
-
-    @Override
-    public BaseModule clone() {
-        return new ModuleTracking(this.order, this.state, this.hybrid, this.target, this.type, this.elevation);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        return settingEquals((BaseModule) o);
-    }
-
-    @Override
-    public boolean settingEquals(BaseModule module) {
-        if (module instanceof ModuleTracking mod) {
-            return hybrid == mod.hybrid && elevation == mod.elevation && target == mod.target && type == mod.type;
-        }
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), hybrid, target, type, elevation);
     }
 }

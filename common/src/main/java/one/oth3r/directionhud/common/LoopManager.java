@@ -90,7 +90,7 @@ public class LoopManager {
             speedData.setWorldTime(player.getWorldTime());
 
             // only do x and y if 3d is off
-            if (((ModuleSpeed)player.getPCache().getHud().getModule(Module.SPEED)).isCalculation2D()) {
+            if (player.getPCache().getHud().getModule(Module.SPEED).getSetting(ModuleSpeed.calculation2DID)) {
                 pos = new Vec(pos.getX(),0,pos.getZ());
                 oldPos = new Vec(oldPos.getX(),0,oldPos.getZ());
             }

@@ -44,7 +44,7 @@ public class ModuleManager {
             // the original module
             BaseModule mod = player.getPData().getHud().getModule(module);
 
-            if (!mod.hasExtraSettings()) {
+            if (!mod.hasSettings()) {
                 return new ActionResult(false, Setting.LANG.error("no_settings", new CTxT(module.getName()).color(CUtl.s())));
             }
             if (!canResetSettings(mod)) {
@@ -71,7 +71,7 @@ public class ModuleManager {
          */
         public static boolean canResetSettings(BaseModule module) {
             BaseModule defaultModule = PlayerData.getDefaults().getHud().getModule(module.getModuleType());
-            return !defaultModule.settingEquals(module);
+            return !defaultModule.getSettings().equals(module.getSettings());
         }
 
         /**
@@ -316,142 +316,12 @@ public class ModuleManager {
             if (module.equals(Module.UNKNOWN)) return INVALID_MODULE;
 
             BaseModule mod = player.getPData().getHud().getModule(module);
-            // if the module doesn't have any extra settings to edit
-            if (!mod.hasExtraSettings()) {
-                return new ActionResult(false, LANG.error("no_settings", module.getCTxT()));
-            }
-            // if the module setting doesn't exist
-            if (Arrays.stream(mod.getSettingIDs()).noneMatch(settingID::equals)) {
-                return new ActionResult(false, LANG.error("invalid", module.getCTxT()));
-            }
+            ActionResult result = mod.setSetting(settingID, value);
 
-            // start building the message
-            CTxT msg = new CTxT();
-            final ActionResult INVALID_SETTING_VAL = new ActionResult(false, LANG.error("invalid.setting_value", LANG.get(module.getName()+"."+settingID).color(CUtl.s())));
+            // set the module to save if a success
+            if (result.success()) player.getPData().getHud().setModule(mod);
 
-            boolean state = value.equals(Hud.modules.SETTING_ON);
-            // todo make a method in BaseModule to set the setting value
-            switch (module) {
-                case COORDINATES -> {
-                    ModuleCoordinates coordinatesModule = (ModuleCoordinates) mod;
-                    // update the module
-                    coordinatesModule.setXyz(state);
-                    player.getPData().getHud().setModule(coordinatesModule);
-
-                    // build the set message
-                    msg.append(SetMSG.customToggle(module, settingID, state));
-                }
-                case TIME -> {
-                    ModuleTime timeModule = (ModuleTime) mod;
-                    // update the module
-                    timeModule.setHour24(state);
-                    player.getPData().getHud().setModule(timeModule);
-
-                    // build the set message
-                    msg.append(SetMSG.customToggle(module, settingID, state));
-                }
-                case TRACKING -> {
-                    ModuleTracking trackingModule = (ModuleTracking) mod;
-                    switch (settingID) {
-                        case ModuleTracking.hybridID -> {
-                            // update the module
-                            trackingModule.setHybrid(state);
-                            // get the correct set message
-                            msg.append(SetMSG.toggle(module, settingID, state));
-                        }
-                        case ModuleTracking.targetID -> {
-                            ModuleTracking.Target newTarget = Helper.Enums.search(value, ModuleTracking.Target.class).orElse(null);
-
-                            // if an enum can't be found
-                            if (newTarget == null) {
-                                return INVALID_SETTING_VAL;
-                            }
-
-                            // update the module
-                            trackingModule.setTarget(newTarget);
-                            // get the correct set message
-                            msg.append(SetMSG.enumString(module, settingID, newTarget.name()));
-                        }
-                        case ModuleTracking.typeID -> {
-                            ModuleTracking.Type newType = Helper.Enums.search(value, ModuleTracking.Type.class).orElse(null);
-
-                            // if an enum can't be found
-                            if (newType == null) {
-                                return INVALID_SETTING_VAL;
-                            }
-
-                            // update the module
-                            trackingModule.setType(newType);
-                            // get the correct set message
-                            msg.append(SetMSG.enumString(module, settingID, newType.name()));
-                        }
-                        case ModuleTracking.elevationID -> {
-                            // update the module
-                            trackingModule.setElevation(state);
-                            // get the correct set message
-                            msg.append(SetMSG.toggle(module, settingID, state));
-                        }
-                        default -> {
-                            return INVALID_SETTING_VAL;
-                        }
-                    }
-
-                    // save & set the updated module after logic is done
-                    player.getPData().getHud().setModule(trackingModule);
-                }
-                case SPEED -> {
-                    ModuleSpeed speedModule = (ModuleSpeed) mod;
-
-                    switch (settingID) {
-                        case ModuleSpeed.calculation2DID -> {
-                            // update the module
-                            speedModule.setCalculation2D(state);
-
-                            // build the set message
-                            msg.append(SetMSG.customToggle(module, settingID, state));
-                        }
-                        case ModuleSpeed.displayPatternID -> {
-                            try {
-                                new DecimalFormat(value);
-                                speedModule.setDisplayPattern(value);
-                            }
-                            // invalid pattern, error message
-                            catch (IllegalArgumentException ignored) {
-                                return INVALID_SETTING_VAL;
-                            }
-
-                            // build the set message
-                            msg.append(SetMSG.custom(module,settingID,CTxT.of(value)));
-                        }
-                        default -> {
-                            return INVALID_SETTING_VAL;
-                        }
-                    }
-
-                    // set the updated module after logic is done
-                    player.getPData().getHud().setModule(speedModule);
-                }
-                case ANGLE -> {
-                    ModuleAngle angleModule = (ModuleAngle) mod;
-                    ModuleAngle.Display newDisplay = Helper.Enums.search(value,ModuleAngle.Display.class).orElse(null);
-
-                    // if an enum can't be found
-                    if (newDisplay == null) {
-                        return INVALID_SETTING_VAL;
-                    }
-
-                    // update the module
-                    angleModule.setDisplay(newDisplay);
-
-                    // get the correct set message
-                    msg.append(SetMSG.enumString(module,settingID,newDisplay.name()));
-
-                    // set the updated module after logic is done
-                    player.getPData().getHud().setModule(angleModule);
-                }
-            }
-
-            return new ActionResult(true, msg);
+            return result;
         }
 
         /**
@@ -470,7 +340,7 @@ public class ModuleManager {
                 ModuleCoordinates coordinatesModule = (ModuleCoordinates) mod;
                 String settingID = ModuleCoordinates.xyzID;
 
-                boolean state = coordinatesModule.isXyz();
+                boolean state = coordinatesModule.getSetting(settingID);
                 button.append(moduleLang.get(settingID+"."+(state? Hud.modules.SETTING_ON: Hud.modules.SETTING_OFF)).btn(true).color(CUtl.s())
                         .hover(CTxT.of("")
                                 .append(moduleLang.get(settingID+".ui").color('e')).append("\n")
@@ -482,7 +352,7 @@ public class ModuleManager {
                 ModuleTime timeModule = (ModuleTime) mod;
                 String settingID = ModuleTime.hour24ID;
 
-                boolean state = timeModule.isHour24();
+                boolean state = timeModule.getSetting(settingID);
                 button.append(moduleLang.get(settingID+"."+(state?"on":"off")).btn(true).color(CUtl.s())
                         .hover(CTxT.of("")
                                 .append(moduleLang.get(settingID+".ui").color('e')).append("\n")
@@ -495,7 +365,7 @@ public class ModuleManager {
                 ModuleTracking trackingModule = (ModuleTracking) mod;
                 String hybridID = ModuleTracking.hybridID;
 
-                boolean hybrid = trackingModule.isHybrid();
+                boolean hybrid = trackingModule.getSetting(hybridID);
                 button.append(CTxT.of(Assets.symbols.arrows.shuffle).btn(true).color(hybrid?'a':'c')
                         .hover(CTxT.of("")
                                 .append(moduleLang.get(hybridID+".ui").color('e')).append("\n")
@@ -506,7 +376,7 @@ public class ModuleManager {
                 button.append(" ");
 
                 String targetID = ModuleTracking.targetID;
-                ModuleTracking.Target currentTarget = trackingModule.getTarget();
+                ModuleTracking.Target currentTarget = trackingModule.getSetting(targetID);
                 ModuleTracking.Target nextTarget = Helper.Enums.next(currentTarget, ModuleTracking.Target.class);
                 button.append(moduleLang.get(targetID+"."+currentTarget).btn(true).color(CUtl.s()).hover(CTxT.of("")
                                 .append(moduleLang.get(targetID+".ui").color('e')).append("\n")
@@ -517,7 +387,7 @@ public class ModuleManager {
                 button.append(" ");
 
                 String typeID = ModuleTracking.typeID;
-                ModuleTracking.Type currentType = trackingModule.getType();
+                ModuleTracking.Type currentType = trackingModule.getSetting(typeID);
                 ModuleTracking.Type nextType = Helper.Enums.next(currentType, ModuleTracking.Type.class);
                 button.append(CTxT.of(currentType.equals(ModuleTracking.Type.simple)? Assets.symbols.arrows.up: Assets.symbols.arrows.north).btn(true).color(CUtl.s()).hover(CTxT.of("")
                                 .append(moduleLang.get(typeID+".ui").color('e')).append(" - ")
@@ -530,7 +400,7 @@ public class ModuleManager {
 
                 String elevationID = ModuleTracking.elevationID;
 
-                boolean elevation = trackingModule.hasElevation();
+                boolean elevation = trackingModule.getSetting(elevationID);
                 button.append(CTxT.of(Assets.symbols.mountain).btn(true).color(elevation?'a':'c')
                         .hover(CTxT.of("")
                                 .append(moduleLang.get(elevationID+".ui").color('e')).append("\n")
@@ -542,7 +412,7 @@ public class ModuleManager {
             if (module.equals(Module.SPEED)) {
                 ModuleSpeed speedModule = (ModuleSpeed) mod;
                 String calculation2DID = ModuleSpeed.calculation2DID;
-                boolean is2D = speedModule.isCalculation2D();
+                boolean is2D = speedModule.getSetting(calculation2DID);
                 button.append(moduleLang.get(calculation2DID+"."+(is2D?"on":"off")).btn(true).color(CUtl.s()).hover(CTxT.of("")
                                 .append(moduleLang.get(calculation2DID+".ui").color(CUtl.s())).append("\n")
                                 .append(moduleLang.get(calculation2DID+"."+(is2D?"on":"off")+".info").color('7')).append("\n\n")
@@ -552,7 +422,7 @@ public class ModuleManager {
                 button.append(" ");
 
                 String patternID = ModuleSpeed.displayPatternID;
-                button.append(CTxT.of(speedModule.getDisplayPattern()).btn(true).color(CUtl.s()).hover(CTxT.of("")
+                button.append(CTxT.of((String) speedModule.getSetting(patternID)).btn(true).color(CUtl.s()).hover(CTxT.of("")
                                 .append(moduleLang.get(patternID+".ui").color(CUtl.s())).append(" - ")
                                 .append(Hud.modules.moduleExample(player,Module.SPEED).color(CUtl.s())).append("\n")
                                 .append(moduleLang.get(patternID+".info").color('7')).append("\n")
@@ -565,7 +435,7 @@ public class ModuleManager {
                 ModuleAngle angleModule = (ModuleAngle) mod;
 
                 String displayID = ModuleAngle.displayID;
-                ModuleAngle.Display currentType = angleModule.getDisplay();
+                ModuleAngle.Display currentType = angleModule.getSetting(displayID);
                 ModuleAngle.Display nextType = Helper.Enums.next(currentType, ModuleAngle.Display.class);
 
                 String buttonIcon = switch (currentType) {
@@ -583,36 +453,6 @@ public class ModuleManager {
             }
 
             return button;
-        }
-
-        /**
-         * contains helper methods to generate a set message for module setting editing
-         */
-        public static class SetMSG {
-
-            public static CTxT customToggle(Module module, String settingID, boolean state) {
-                Lang settingsLang = new Lang(LANG,module.getName()+"."+settingID+".");
-                return setMSGBuilder("set", module, settingID, settingsLang.get(state?"on":"off").color(CUtl.s()));
-            }
-
-            public static CTxT toggle(Module module, String settingID, boolean state) {
-                return setMSGBuilder("set.toggle", module, settingID, CUtl.toggleTxT(state));
-            }
-
-            public static CTxT enumString(Module module, String settingID, String enumString) {
-                Lang settingsLang = new Lang(LANG,module.getName()+"."+settingID+".");
-                return setMSGBuilder("set", module, settingID, settingsLang.get(enumString).color(CUtl.s()));
-            }
-
-            public static CTxT custom(Module module, String settingID, CTxT customSetMSG) {
-                return setMSGBuilder("set", module, settingID, customSetMSG.color(CUtl.s()));
-            }
-
-            private static CTxT setMSGBuilder(String setLang, Module module, String settingID, CTxT setMSG) {
-                return LANG.msg(setLang,
-                        LANG.get(module.getName()+"."+settingID).color(CUtl.s()),
-                        setMSG);
-            }
         }
     }
 }

@@ -1,61 +1,54 @@
 package one.oth3r.directionhud.common.hud.module.modules;
 
-import com.google.gson.annotations.SerializedName;
+import one.oth3r.directionhud.common.files.FileData;
+import one.oth3r.directionhud.common.files.ModuleText;
 import one.oth3r.directionhud.common.hud.module.BaseModule;
+import one.oth3r.directionhud.common.hud.module.setting.BooleanModuleSettingValidator;
 import one.oth3r.directionhud.common.hud.module.Module;
-
-import java.util.Objects;
+import one.oth3r.directionhud.common.utils.Helper;
 
 public class ModuleTime extends BaseModule {
     public static final String hour24ID = "24hr-clock";
-    @SerializedName(hour24ID)
-    protected boolean hour24;
-
-    @Override
-    public String[] getSettingIDs() {
-        return new String[] { hour24ID };
-    }
-
-    public ModuleTime() {
-        super(one.oth3r.directionhud.common.hud.module.Module.TIME);
-        this.order = 1;
-        this.state = true;
-        this.hour24 = false;
-    }
 
     public ModuleTime(Integer order, boolean state, boolean hour24) {
         super(Module.TIME, order, state);
-        this.hour24 = hour24;
+        registerSetting(hour24ID, hour24, new BooleanModuleSettingValidator(
+                Module.TIME,hour24ID,true,false
+        ));
     }
 
-    public boolean isHour24() {
-        return hour24;
-    }
-
-    public void setHour24(boolean hour24) {
-        this.hour24 = hour24;
-    }
-
+    /**
+     * the logic for getting the string for the module display
+     *
+     * @param args the correct arguments for displaying the module
+     * @return the module display
+     */
     @Override
-    public ModuleTime clone() {
-        return new ModuleTime(this.order, this.state, this.hour24);
-    }
+    protected String display(Object... args) {
+        int hour = (int) args[0], minute = (int) args[1];
+        // assets
+        boolean time12 = !((boolean) getSetting(hour24ID));
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        return settingEquals((BaseModule) o);
-    }
+        String hr;
+        // if 12 hr, fix the hour mark
+        if (time12) {
+            int hourMod = hour % 12;
+            // if hr % 12 = 0, its 12 am/pm
+            if (hourMod == 0) hr = String.valueOf(12);
+            else hr = String.valueOf(hourMod);
+        } else {
+            // make sure 24 hr time HR mark is two digits
+            hr = Helper.Num.formatToTwoDigits(hour);
+        }
 
-    @Override
-    public boolean settingEquals(BaseModule module) {
-        if (module instanceof ModuleTime mod) return hour24 == mod.hour24;
-        return false;
-    }
+        // add 0 to the start, then set the string to the last two numbers to always have a 2-digit number
+        String min = Helper.Num.formatToTwoDigits(minute);
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), hour24);
+        ModuleText.ModuleTime time = FileData.getModuleText().getTime();
+        // get the format string based on 12 or 24 hour
+        String formatString =
+                time12 ? hour >=12 ? time.getHourPM() : time.getHourAM() : time.getHour24();
+
+        return String.format(formatString, hr, min);
     }
 }
