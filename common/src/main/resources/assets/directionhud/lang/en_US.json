@@ -231,8 +231,8 @@
   "directionhud.hud.module.setting.hover.set.custom": "Click to set the %s.",
 
   "directionhud.hud.module.setting.error.no_settings": "The %s module doesn't have any settings to edit!",
-  "directionhud.hud.module.setting.error.invalid": "Invalid setting entered for the %s module!",
-  "directionhud.hud.module.setting.error.invalid.setting_value": "Invalid %s entered!",
+  "directionhud.hud.module.setting.error.invalid": "Invalid setting id entered for the %s module!",
+  "directionhud.hud.module.setting.error.invalid.setting_value": "Invalid setting entered for %s!",
 
   "directionhud.hud.module.setting.coordinates.xyz-display": "coordinates display type",
   "directionhud.hud.module.setting.coordinates.xyz-display.ui": "Coordinates Display Type",
