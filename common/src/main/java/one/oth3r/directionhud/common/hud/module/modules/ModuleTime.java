@@ -3,7 +3,7 @@ package one.oth3r.directionhud.common.hud.module.modules;
 import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.files.ModuleText;
 import one.oth3r.directionhud.common.hud.module.BaseModule;
-import one.oth3r.directionhud.common.hud.module.setting.BooleanModuleSettingValidator;
+import one.oth3r.directionhud.common.hud.module.setting.BooleanModuleSettingHandler;
 import one.oth3r.directionhud.common.hud.module.Module;
 import one.oth3r.directionhud.common.utils.Helper;
 
@@ -12,7 +12,7 @@ public class ModuleTime extends BaseModule {
 
     public ModuleTime(Integer order, boolean state, boolean hour24) {
         super(Module.TIME, order, state);
-        registerSetting(hour24ID, hour24, new BooleanModuleSettingValidator(
+        registerSetting(hour24ID, hour24, new BooleanModuleSettingHandler(
                 Module.TIME,hour24ID,true,false
         ));
     }

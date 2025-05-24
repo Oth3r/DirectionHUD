@@ -11,7 +11,7 @@ public class ModuleSetting<V> implements Cloneable {
     @SerializedName("value")
     protected V value;
 
-    protected transient ModuleSettingValidator<V> validator;
+    protected transient ModuleSettingHandler<V> validator;
 
     /**
      * standard constructor for static usage
@@ -19,7 +19,7 @@ public class ModuleSetting<V> implements Cloneable {
      * @param defaultValue the default value
      * @param validator the validator
      */
-    public ModuleSetting(String id, V defaultValue, ModuleSettingValidator<V> validator) {
+    public ModuleSetting(String id, V defaultValue, ModuleSettingHandler<V> validator) {
         this.id = id;
         this.value = defaultValue;
         this.validator = validator;
@@ -31,13 +31,13 @@ public class ModuleSetting<V> implements Cloneable {
      * @param value the value as Object (will be cast to V).
      * @param validator the validator as ModuleSettingValidator<?> (will be cast to ModuleSettingValidator<V>).
      */
-    public ModuleSetting(String id, Object value, ModuleSettingValidator<?> validator, boolean isDynamic) {
+    public ModuleSetting(String id, Object value, ModuleSettingHandler<?> validator, boolean isDynamic) {
         this.id = id;
         @SuppressWarnings("unchecked")
         V v = (V) value;
         this.value = v;
         @SuppressWarnings("unchecked")
-        ModuleSettingValidator<V> val = (ModuleSettingValidator<V>) validator;
+        ModuleSettingHandler<V> val = (ModuleSettingHandler<V>) validator;
         this.validator = val;
     }
 
@@ -57,7 +57,7 @@ public class ModuleSetting<V> implements Cloneable {
         return false;
     }
 
-    public ModuleSettingValidator<V> getValidator() {
+    public ModuleSettingHandler<V> getValidator() {
         return validator;
     }
 
@@ -66,8 +66,8 @@ public class ModuleSetting<V> implements Cloneable {
     }
 
     @SuppressWarnings("unchecked")
-    public void setValidator(ModuleSettingValidator<?> validator) {
-        this.validator = (ModuleSettingValidator<V>) validator;
+    public void setValidator(ModuleSettingHandler<?> validator) {
+        this.validator = (ModuleSettingHandler<V>) validator;
     }
 
     @SuppressWarnings("unchecked")

@@ -4,10 +4,10 @@ import one.oth3r.directionhud.common.hud.module.Module;
 
 import java.util.Objects;
 
-public class BooleanModuleSettingValidator implements ModuleSettingValidator<Boolean> {
+public class BooleanModuleSettingHandler implements ModuleSettingHandler<Boolean> {
     private final ModuleSettingDisplay moduleSettingDisplay;
 
-    public BooleanModuleSettingValidator(Module module, String settingID, boolean isSwitchType, boolean showExample) {
+    public BooleanModuleSettingHandler(Module module, String settingID, boolean isSwitchType, boolean showExample) {
         this.moduleSettingDisplay = new ModuleSettingDisplay(module,settingID,
                 isSwitchType? ModuleSettingType.BOOLEAN_SWITCH : ModuleSettingType.BOOLEAN_TOGGLE,showExample);
     }

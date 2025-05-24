@@ -2,8 +2,8 @@ package one.oth3r.directionhud.common.hud.module;
 
 import com.google.gson.annotations.SerializedName;
 import one.oth3r.directionhud.common.hud.module.setting.ModuleSetting;
-import one.oth3r.directionhud.common.hud.module.setting.ModuleSettingValidator;
-import one.oth3r.directionhud.common.hud.module.setting.ModuleSettingValidatorRegistry;
+import one.oth3r.directionhud.common.hud.module.setting.ModuleSettingHandler;
+import one.oth3r.directionhud.common.hud.module.setting.ModuleSettingHandlerRegistry;
 import one.oth3r.directionhud.common.utils.ActionResult;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Lang;
@@ -37,9 +37,9 @@ public abstract class BaseModule implements Cloneable {
         return order;
     }
 
-    public <V> void registerSetting(String settingID, V defaultValue, ModuleSettingValidator<V> validator) {
+    public <V> void registerSetting(String settingID, V defaultValue, ModuleSettingHandler<V> validator) {
         settings.put(settingID, new ModuleSetting<>(settingID, defaultValue, validator));
-        ModuleSettingValidatorRegistry.registerValidator(settingID, validator);
+        ModuleSettingHandlerRegistry.registerValidator(settingID, validator);
     }
 
     @SuppressWarnings("unchecked")
@@ -84,7 +84,7 @@ public abstract class BaseModule implements Cloneable {
 
     public void reassignValidators() {
         for (ModuleSetting<?> setting : settings.values()) {
-            ModuleSettingValidator<?> validator = ModuleSettingValidatorRegistry.getValidator(setting.getId());
+            ModuleSettingHandler<?> validator = ModuleSettingHandlerRegistry.getValidator(setting.getId());
             if (validator != null) {
                 setting.setValidator(validator);
             }

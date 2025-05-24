@@ -3,11 +3,11 @@ package one.oth3r.directionhud.common.hud.module.modules;
 import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.files.ModuleText;
 import one.oth3r.directionhud.common.hud.module.BaseModule;
-import one.oth3r.directionhud.common.hud.module.setting.BooleanModuleSettingValidator;
+import one.oth3r.directionhud.common.hud.module.setting.BooleanModuleSettingHandler;
 import one.oth3r.directionhud.common.hud.module.Module;
 import one.oth3r.directionhud.common.hud.module.setting.ModuleSettingDisplay;
 import one.oth3r.directionhud.common.hud.module.setting.ModuleSettingType;
-import one.oth3r.directionhud.common.hud.module.setting.ModuleSettingValidator;
+import one.oth3r.directionhud.common.hud.module.setting.ModuleSettingHandler;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Loc;
 
@@ -21,10 +21,10 @@ public class ModuleTracking extends BaseModule {
 
     public ModuleTracking(Integer order, boolean state, boolean hybrid, Target target, Type type, boolean elevation) {
         super(Module.TRACKING, order, state);
-        registerSetting(hybridID, hybrid, new BooleanModuleSettingValidator(
+        registerSetting(hybridID, hybrid, new BooleanModuleSettingHandler(
                 Module.TRACKING,hybridID,false,false
         ));
-        registerSetting(targetID, target, new ModuleSettingValidator<>() {
+        registerSetting(targetID, target, new ModuleSettingHandler<>() {
             @Override
             public boolean isValid(Target value) {
                 return Objects.nonNull(value);
@@ -42,7 +42,7 @@ public class ModuleTracking extends BaseModule {
                 );
             }
         });
-        registerSetting(typeID, type, new ModuleSettingValidator<>() {
+        registerSetting(typeID, type, new ModuleSettingHandler<>() {
             @Override
             public boolean isValid(Type value) {
                 return Objects.nonNull(value);
@@ -60,7 +60,7 @@ public class ModuleTracking extends BaseModule {
                 );
             }
         });
-        registerSetting(elevationID, elevation, new BooleanModuleSettingValidator(
+        registerSetting(elevationID, elevation, new BooleanModuleSettingHandler(
                 Module.TRACKING,elevationID,false,false
         ));
     }

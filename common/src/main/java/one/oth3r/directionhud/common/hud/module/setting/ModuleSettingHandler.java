@@ -1,6 +1,6 @@
 package one.oth3r.directionhud.common.hud.module.setting;
 
-public interface ModuleSettingValidator<T> {
+public interface ModuleSettingHandler<T> {
     boolean isValid(T value);
 
     /**

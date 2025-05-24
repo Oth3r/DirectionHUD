@@ -55,7 +55,7 @@ final class DynamicModuleSettingTypeAdapter extends TypeAdapter<ModuleSetting<?>
             throw new JsonParseException("ModuleSetting missing 'id'");
         }
 
-        ModuleSettingValidator<?> validator = ModuleSettingValidatorRegistry.getValidator(id);
+        ModuleSettingHandler<?> validator = ModuleSettingHandlerRegistry.getValidator(id);
         if (validator == null) {
             throw new JsonParseException("No validator found for setting '" + id + "'. Make sure to load the modules first to register the correct validators.");
         }
@@ -70,12 +70,12 @@ final class DynamicModuleSettingTypeAdapter extends TypeAdapter<ModuleSetting<?>
         return new ModuleSetting<>(id, value, validator, true);
     }
 
-    private static Class<?> getValidatorValueClass(ModuleSettingValidator<?> validator) {
+    private static Class<?> getValidatorValueClass(ModuleSettingHandler<?> validator) {
         // try to extract the generic type from the validator's class
         Type[] genericInterfaces = validator.getClass().getGenericInterfaces();
         for (Type t : genericInterfaces) {
             if (t instanceof ParameterizedType pt) {
-                if (pt.getRawType() instanceof Class<?> raw && ModuleSettingValidator.class.isAssignableFrom(raw)) {
+                if (pt.getRawType() instanceof Class<?> raw && ModuleSettingHandler.class.isAssignableFrom(raw)) {
                     Type arg = pt.getActualTypeArguments()[0];
                     if (arg instanceof Class<?> c) return c;
                 }

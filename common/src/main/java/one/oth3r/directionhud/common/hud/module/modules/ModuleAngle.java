@@ -5,7 +5,7 @@ import one.oth3r.directionhud.common.hud.module.BaseModule;
 import one.oth3r.directionhud.common.hud.module.Module;
 import one.oth3r.directionhud.common.hud.module.setting.ModuleSettingType;
 import one.oth3r.directionhud.common.hud.module.setting.ModuleSettingDisplay;
-import one.oth3r.directionhud.common.hud.module.setting.ModuleSettingValidator;
+import one.oth3r.directionhud.common.hud.module.setting.ModuleSettingHandler;
 import one.oth3r.directionhud.common.utils.Helper;
 
 import java.text.DecimalFormat;
@@ -16,7 +16,7 @@ public class ModuleAngle extends BaseModule {
 
     public ModuleAngle(Integer order, boolean state, Display display) {
         super(Module.ANGLE, order, state);
-        registerSetting(displayID, display, new ModuleSettingValidator<>() {
+        registerSetting(displayID, display, new ModuleSettingHandler<>() {
             @Override
             public boolean isValid(Display value) {
                 return Objects.nonNull(value);

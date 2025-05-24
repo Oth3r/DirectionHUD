@@ -2,7 +2,7 @@ package one.oth3r.directionhud.common.hud.module.modules;
 
 import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.hud.module.BaseModule;
-import one.oth3r.directionhud.common.hud.module.setting.BooleanModuleSettingValidator;
+import one.oth3r.directionhud.common.hud.module.setting.BooleanModuleSettingHandler;
 import one.oth3r.directionhud.common.hud.module.Module;
 import one.oth3r.directionhud.common.utils.Loc;
 
@@ -11,7 +11,7 @@ public class ModuleCoordinates extends BaseModule {
 
     public ModuleCoordinates(Integer order, boolean state, boolean xyz) {
         super(Module.COORDINATES, order, state);
-        registerSetting(xyzID, xyz,new BooleanModuleSettingValidator(
+        registerSetting(xyzID, xyz,new BooleanModuleSettingHandler(
                 Module.COORDINATES,xyzID,true,false
         ));
     }
