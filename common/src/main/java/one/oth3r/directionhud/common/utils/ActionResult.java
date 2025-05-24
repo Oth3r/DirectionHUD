@@ -83,7 +83,7 @@ public record ActionResult(
     public CTxT getChatMessage() {
         CTxT msg = CUtl.tag();
         // add ERROR: in front of the message if not success
-        if (!success) msg.append(CUtl.error());
+        if (!success) msg = CUtl.error();
         // append the built message
         msg.append(message);
 
