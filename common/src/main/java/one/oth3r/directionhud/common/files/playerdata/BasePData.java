@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public abstract class BasePData {
 
     @SerializedName("version")
-    protected Double version = 2.1;
+    protected Double version = 2.2;
     @SerializedName("hud")
     protected PDHud hud = new PDHud();
     @SerializedName("destination")
@@ -141,6 +141,9 @@ public abstract class BasePData {
             - calling ModuleManager.Order.fixOrder() will do this automatically!
              */
             ModuleManager.Order.fixOrder(this.hud.getModules(), factoryDefault);
+
+            //todo: implement changes for new version system
+
             this.version = 2.2;
         }
 
