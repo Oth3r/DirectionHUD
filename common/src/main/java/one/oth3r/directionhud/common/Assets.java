@@ -25,6 +25,9 @@ public class Assets {
         public static final String custom = "#c4ff14";
         public static final String presets = "#2dedff";
         public static final String global = "#60a4fc";
+
+        public static final String on = "#55ff55";
+        public static final String off = "#ff5555";
     }
 
     public static String barColor(Hud.Setting.BarColor color) {

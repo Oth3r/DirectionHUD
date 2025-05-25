@@ -243,9 +243,9 @@ public class CUtl {
          */
         public static String format(char character) {
             return switch (character) {
-                case 'c' -> "#FF5555";
+                case 'c' -> Assets.mainColors.off;
                 case 'e' -> "#FFFF55";
-                case 'a' -> "#55FF55";
+                case 'a' -> Assets.mainColors.on;
                 case '7' -> "#AAAAAA";
                 default -> "#FFFFFF";
             };
