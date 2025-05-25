@@ -29,8 +29,6 @@
   "error.length": "Name is too long! Max length is %d characters.",
   "error.social.cooldown": "Please wait before sending another social command!",
 
-
-
   "button.off": "OFF",
   "button.on": "ON",
   "hover.state": "Click to turn %s.",
@@ -244,14 +242,14 @@
   "directionhud.hud.module.setting.coordinates.xyz-display": "coordinates display type",
   "directionhud.hud.module.setting.coordinates.xyz-display.ui": "Coordinates Display Type",
   "directionhud.hud.module.setting.coordinates.xyz-display.info": "Changes how many axes are displayed in the module.",
-  "directionhud.hud.module.setting.coordinates.xyz-display.on": "XYZ",
-  "directionhud.hud.module.setting.coordinates.xyz-display.off": "XY",
+  "directionhud.hud.module.setting.coordinates.xyz-display.true": "XYZ",
+  "directionhud.hud.module.setting.coordinates.xyz-display.false": "XY",
 
   "directionhud.hud.module.setting.time.24hr-clock": "clock display type",
   "directionhud.hud.module.setting.time.24hr-clock.ui": "Clock Display Type",
   "directionhud.hud.module.setting.time.24hr-clock.info": "Changes the format of the clock.",
-  "directionhud.hud.module.setting.time.24hr-clock.on": "24HR",
-  "directionhud.hud.module.setting.time.24hr-clock.off": "12HR",
+  "directionhud.hud.module.setting.time.24hr-clock.true": "24HR",
+  "directionhud.hud.module.setting.time.24hr-clock.false": "12HR",
 
   "directionhud.hud.module.setting.tracking.hybrid": "hybrid tracking",
   "directionhud.hud.module.setting.tracking.hybrid.ui": "Hybrid Tracking",
@@ -274,10 +272,10 @@
 
   "directionhud.hud.module.setting.speed.2d-calculation": "speed calculation type",
   "directionhud.hud.module.setting.speed.2d-calculation.ui": "Speed Calculation",
-  "directionhud.hud.module.setting.speed.2d-calculation.off": "3D",
-  "directionhud.hud.module.setting.speed.2d-calculation.off.info": "Calculates speed using all three coordinates.",
-  "directionhud.hud.module.setting.speed.2d-calculation.on": "2D",
-  "directionhud.hud.module.setting.speed.2d-calculation.on.info": "Calculates speed using only X and Z coordinates.",
+  "directionhud.hud.module.setting.speed.2d-calculation.false": "3D",
+  "directionhud.hud.module.setting.speed.2d-calculation.false.info": "Calculates speed using all three coordinates.",
+  "directionhud.hud.module.setting.speed.2d-calculation.true": "2D",
+  "directionhud.hud.module.setting.speed.2d-calculation.true.info": "Calculates speed using only X and Z coordinates.",
   "directionhud.hud.module.setting.speed.display-pattern": "speed pattern",
   "directionhud.hud.module.setting.speed.display-pattern.ui": "Speed Pattern",
   "directionhud.hud.module.setting.speed.display-pattern.info": "Set the pattern of how the speed is displayed.",

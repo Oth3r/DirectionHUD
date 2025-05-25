@@ -49,7 +49,7 @@ public class ModuleSettingDisplay {
         CTxT buttonTxT, exampleTxT = new CTxT(" - ").append(moduleLang.get(settingID+"."+value).color('7'));
 
         if (buttonString == null) {
-            buttonTxT = moduleLang.get(settingID+"."+value); //todo make the boolean values equal true and false not on and off
+            buttonTxT = moduleLang.get(settingID+"."+value);
         } else {
             buttonTxT = new CTxT(buttonString);
         }
