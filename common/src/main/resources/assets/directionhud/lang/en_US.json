@@ -6,6 +6,13 @@
   "msg.error": "ERROR:",
   "msg.reset": "Reset %s!",
 
+  "directionhud.button.off": "OFF",
+  "directionhud.button.on": "ON",
+  "directionhud.hover.off": "Off",
+  "directionhud.hover.on": "On",
+  "directionhud.fill.off": "off",
+  "directionhud.fill.on": "on",
+
   "on": "on",
   "off": "off",
 
