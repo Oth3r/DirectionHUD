@@ -1,13 +1,12 @@
 package one.oth3r.directionhud.common.hud.module.modules;
 
+import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.files.ModuleText;
 import one.oth3r.directionhud.common.hud.module.BaseModule;
-import one.oth3r.directionhud.common.hud.module.setting.BooleanModuleSettingHandler;
+import one.oth3r.directionhud.common.hud.module.setting.*;
 import one.oth3r.directionhud.common.hud.module.Module;
-import one.oth3r.directionhud.common.hud.module.setting.ModuleSettingDisplay;
-import one.oth3r.directionhud.common.hud.module.setting.ModuleSettingType;
-import one.oth3r.directionhud.common.hud.module.setting.ModuleSettingHandler;
+import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Loc;
 
@@ -21,9 +20,13 @@ public class ModuleTracking extends BaseModule {
 
     public ModuleTracking(Integer order, boolean state, boolean hybrid, Target target, Type type, boolean elevation) {
         super(Module.TRACKING, order, state);
+
         registerSetting(hybridID, hybrid, new BooleanModuleSettingHandler(
-                Module.TRACKING,hybridID,false,false
+                Module.TRACKING,hybridID,false,false,
+                new ModuleSettingButtonDisplay()
+                        .addTrueFalseMapping(Assets.symbols.arrows.shuffle)
         ));
+
         registerSetting(targetID, target, new ModuleSettingHandler<>() {
             @Override
             public boolean isValid(Target value) {
@@ -42,6 +45,7 @@ public class ModuleTracking extends BaseModule {
                 );
             }
         });
+
         registerSetting(typeID, type, new ModuleSettingHandler<>() {
             @Override
             public boolean isValid(Type value) {
@@ -56,13 +60,24 @@ public class ModuleTracking extends BaseModule {
             @Override
             public ModuleSettingDisplay getSettingDisplay() {
                 return new ModuleSettingDisplay(
-                        Module.TRACKING,typeID,ModuleSettingType.ENUM_SWITCH,false
+                        Module.TRACKING,typeID,ModuleSettingType.ENUM_SWITCH,true,
+                        new ModuleSettingButtonDisplay(true)
+                                .addMapping("simple",Assets.symbols.arrows.up)
+                                .addMapping("compact",Assets.symbols.arrows.north)
                 );
             }
         });
+
         registerSetting(elevationID, elevation, new BooleanModuleSettingHandler(
-                Module.TRACKING,elevationID,false,false
+                Module.TRACKING,elevationID,false,false,
+                new ModuleSettingButtonDisplay()
+                        .addTrueFalseMapping(Assets.symbols.mountain)
         ));
+    }
+
+    @Override
+    protected String[] getSettingOrder() {
+        return new String[]{hybridID, targetID, typeID, elevationID};
     }
 
     /**

@@ -745,7 +745,7 @@ public class Hud {
                 msg.append("\n ").append(toggle).append(" ").append(createModuleOrderUI(player, module)).append(" ");
 
                 // extra settings section
-                CTxT extraSettings = ModuleManager.Setting.getSettingButtons(player, module);
+                CTxT extraSettings = mod.getSettingButtons();
                 if (!extraSettings.isEmpty()) msg.append("\n\n ").append(extraSettings);
 
                 // toggle and module switcher row

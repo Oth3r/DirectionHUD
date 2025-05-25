@@ -2,11 +2,8 @@ package one.oth3r.directionhud.common.hud.module.modules;
 
 import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.hud.module.BaseModule;
-import one.oth3r.directionhud.common.hud.module.setting.BooleanModuleSettingHandler;
+import one.oth3r.directionhud.common.hud.module.setting.*;
 import one.oth3r.directionhud.common.hud.module.Module;
-import one.oth3r.directionhud.common.hud.module.setting.ModuleSettingDisplay;
-import one.oth3r.directionhud.common.hud.module.setting.ModuleSettingType;
-import one.oth3r.directionhud.common.hud.module.setting.ModuleSettingHandler;
 
 import java.text.DecimalFormat;
 
@@ -16,9 +13,12 @@ public class ModuleSpeed extends BaseModule {
 
     public ModuleSpeed(Integer order, boolean state, boolean calculation2D, String displayPattern) {
         super(Module.SPEED, order, state);
+
         registerSetting(calculation2DID, calculation2D, new BooleanModuleSettingHandler(
-                Module.SPEED,calculation2DID,true,false
+                Module.SPEED,calculation2DID,true,false,
+                new ModuleSettingButtonDisplay(true)
         ));
+
         registerSetting(displayPatternID, displayPattern, new ModuleSettingHandler<>() {
             @Override
             public boolean isValid(String value) {
@@ -44,6 +44,11 @@ public class ModuleSpeed extends BaseModule {
                         ModuleSettingType.CUSTOM,true);
             }
         });
+    }
+
+    @Override
+    protected String[] getSettingOrder() {
+        return new String[] {calculation2DID,displayPatternID};
     }
 
     /**

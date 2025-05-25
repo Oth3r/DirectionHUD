@@ -1,8 +1,10 @@
 package one.oth3r.directionhud.common.hud.module.modules;
 
+import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.hud.module.BaseModule;
 import one.oth3r.directionhud.common.hud.module.Module;
+import one.oth3r.directionhud.common.hud.module.setting.ModuleSettingButtonDisplay;
 import one.oth3r.directionhud.common.hud.module.setting.ModuleSettingType;
 import one.oth3r.directionhud.common.hud.module.setting.ModuleSettingDisplay;
 import one.oth3r.directionhud.common.hud.module.setting.ModuleSettingHandler;
@@ -16,6 +18,7 @@ public class ModuleAngle extends BaseModule {
 
     public ModuleAngle(Integer order, boolean state, Display display) {
         super(Module.ANGLE, order, state);
+
         registerSetting(displayID, display, new ModuleSettingHandler<>() {
             @Override
             public boolean isValid(Display value) {
@@ -29,7 +32,11 @@ public class ModuleAngle extends BaseModule {
 
             @Override
             public ModuleSettingDisplay getSettingDisplay() {
-                return new ModuleSettingDisplay(Module.ANGLE, displayID, ModuleSettingType.ENUM_SWITCH, true);
+                return new ModuleSettingDisplay(Module.ANGLE, displayID, ModuleSettingType.ENUM_SWITCH, true,
+                        new ModuleSettingButtonDisplay(true)
+                                .addMapping("yaw",Assets.symbols.arrows.leftRight)
+                                .addMapping("pitch",Assets.symbols.arrows.upDown)
+                                .addMapping("both",Assets.symbols.arrows.leftRight+Assets.symbols.arrows.upDown));
             }
         });
     }
