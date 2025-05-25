@@ -12,6 +12,11 @@ public class BooleanModuleSettingHandler implements ModuleSettingHandler<Boolean
                 isSwitchType? ModuleSettingType.BOOLEAN_SWITCH : ModuleSettingType.BOOLEAN_TOGGLE,showExample);
     }
 
+    public BooleanModuleSettingHandler(Module module, String settingID, boolean isSwitchType, boolean showExample, ModuleSettingButtonDisplay buttonDisplay) {
+        this.moduleSettingDisplay = new ModuleSettingDisplay(module,settingID,
+                isSwitchType? ModuleSettingType.BOOLEAN_SWITCH : ModuleSettingType.BOOLEAN_TOGGLE,showExample,buttonDisplay);
+    }
+
     @Override
     public boolean isValid(Boolean value) {
         return Objects.nonNull(value);
