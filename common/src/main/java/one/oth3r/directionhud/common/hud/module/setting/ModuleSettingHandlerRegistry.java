@@ -10,7 +10,7 @@ public class ModuleSettingHandlerRegistry {
         registry.put(settingID,validator);
     }
 
-    public static <V> ModuleSettingHandler<V> getValidator(String settingID) {
+    public static <V> ModuleSettingHandler<V> getHandler(String settingID) {
         @SuppressWarnings("unchecked")
         ModuleSettingHandler<V> validator = (ModuleSettingHandler<V>) registry.get(settingID);
         return validator;

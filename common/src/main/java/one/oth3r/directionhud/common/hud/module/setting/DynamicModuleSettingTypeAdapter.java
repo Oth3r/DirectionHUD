@@ -55,7 +55,7 @@ final class DynamicModuleSettingTypeAdapter extends TypeAdapter<ModuleSetting<?>
             throw new JsonParseException("ModuleSetting missing 'id'");
         }
 
-        ModuleSettingHandler<?> validator = ModuleSettingHandlerRegistry.getValidator(id);
+        ModuleSettingHandler<?> validator = ModuleSettingHandlerRegistry.getHandler(id);
         if (validator == null) {
             throw new JsonParseException("No validator found for setting '" + id + "'. Make sure to load the modules first to register the correct validators.");
         }

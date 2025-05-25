@@ -84,7 +84,7 @@ public abstract class BaseModule implements Cloneable {
 
     public void reassignValidators() {
         for (ModuleSetting<?> setting : settings.values()) {
-            ModuleSettingHandler<?> validator = ModuleSettingHandlerRegistry.getValidator(setting.getId());
+            ModuleSettingHandler<?> validator = ModuleSettingHandlerRegistry.getHandler(setting.getId());
             if (validator != null) {
                 setting.setValidator(validator);
             }
