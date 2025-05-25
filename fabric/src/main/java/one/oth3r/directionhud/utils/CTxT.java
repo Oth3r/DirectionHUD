@@ -53,6 +53,16 @@ public class CTxT extends ChatText<MutableText, CTxT> {
         return this;
     }
 
+    public CTxT text(MutableText text) {
+        this.text = text.copy();
+        return this;
+    }
+
+    public CTxT text(CTxT text) {
+        copyFromObject(text);
+        return this;
+    }
+
     @Override
     public CTxT append(String append) {
         this.append.add(new CTxT(append));
