@@ -82,6 +82,51 @@ public abstract class BaseModule implements Cloneable {
         return new HashMap<>(settings);
     }
 
+    /**
+     * returns an array of setting IDs in the desired order
+     * override this to customize the order
+     */
+    protected String[] getSettingOrder() {
+        return new String[0];
+    }
+
+    /**
+     * returns a list of settings in the order specified by {@link #getSettingOrder()}.
+     * if {@link #getSettingOrder()} is empty, uses default order
+     */
+    public List<ModuleSetting<?>> getOrderedSettings() {
+        String[] order = getSettingOrder();
+        if (order.length == 0) {
+            // Default: insertion order
+            return new ArrayList<>(settings.values());
+        } else {
+            List<ModuleSetting<?>> ordered = new ArrayList<>();
+            for (String id : order) {
+                ModuleSetting<?> setting = settings.get(id);
+                if (setting != null) ordered.add(setting);
+            }
+            // add any settings not in the order array at the end
+            for (Map.Entry<String, ModuleSetting<?>> entry : settings.entrySet()) {
+                if (Arrays.stream(order).noneMatch(id -> id.equals(entry.getKey()))) {
+                    ordered.add(entry.getValue());
+                }
+            }
+            return ordered;
+        }
+    }
+
+    public CTxT getSettingButtons() {
+        CTxT out = new CTxT();
+        List<ModuleSetting<?>> settingList = getOrderedSettings();
+        for (int i = 0; i < settingList.size(); i++) {
+            ModuleSetting<?> setting = settingList.get(i);
+            out.append(setting.getDisplay().getButton(setting.getValue().toString()));
+            // only add a space if not the last element
+            if (i < settingList.size() - 1) out.append(" ");
+        }
+        return out;
+    }
+
     public void reassignValidators() {
         for (ModuleSetting<?> setting : settings.values()) {
             ModuleSettingHandler<?> validator = ModuleSettingHandlerRegistry.getHandler(setting.getId());

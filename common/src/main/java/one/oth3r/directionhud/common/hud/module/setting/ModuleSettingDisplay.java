@@ -12,12 +12,22 @@ public class ModuleSettingDisplay {
     protected final String settingID;
     protected final ModuleSettingType settingType;
     protected final boolean showExample;
+    protected final ModuleSettingButtonDisplay buttonDisplay;
 
     public ModuleSettingDisplay(Module module, String settingID, ModuleSettingType settingType, boolean showExample) {
         this.module = module;
         this.settingID = settingID;
         this.settingType = settingType;
         this.showExample = showExample;
+        this.buttonDisplay = new ModuleSettingButtonDisplay();
+    }
+
+    public ModuleSettingDisplay(Module module, String settingID, ModuleSettingType settingType, boolean showExample, ModuleSettingButtonDisplay buttonDisplay) {
+        this.module = module;
+        this.settingID = settingID;
+        this.settingType = settingType;
+        this.showExample = showExample;
+        this.buttonDisplay = buttonDisplay;
     }
 
     public CTxT getSetMsg(String value) {
