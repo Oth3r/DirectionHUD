@@ -17,7 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CUtl {
-    public static final Lang LANG = new Lang("");
+    public static final Lang LANG = new Lang(""), DLANG = new Lang("directionhud."); // need to migrate everything back to dlang
     public static CTxT tag() {
         return CTxT.of("").append(CTxT.of("DirectionHUD").btn(true).color(p())).append(" ");
     }
