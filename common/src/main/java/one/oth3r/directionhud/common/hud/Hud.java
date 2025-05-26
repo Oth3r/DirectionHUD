@@ -535,29 +535,6 @@ public class Hud {
         }
 
         /**
-         * Validates a module and sends a message to the player if invalid override of {@link #validate(Module)}
-         * @param module the module to validate
-         * @param player the player to notify if the module is invalid
-         * @return true if the module is valid, otherwise false
-         */
-        public static boolean validate(Module module, Player player) {
-            if (!validate(module)) {
-                player.sendMessage(LANG.err("entered"));
-                return false;
-            }
-            return true;
-        }
-
-        /**
-         * Validates the given module to check if it is a known module.
-         * @param module the module to validate
-         * @return true if the module is valid and not {@link Module#UNKNOWN}
-         */
-        public static boolean validate(Module module) {
-            return !module.equals(Module.UNKNOWN);
-        }
-
-        /**
          * generates an example with random data for the given module as a CTxT
          */
         public static CTxT moduleExample(Player player, Module module) {
@@ -726,7 +703,10 @@ public class Hud {
                 }
 
                 // validate the module
-                if (!validate(module, player)) return;
+                if (module.equals(Module.UNKNOWN)) {
+                    player.sendMessage(LANG.err("entered"));
+                    return;
+                }
 
                 BaseModule mod = player.getPCache().getHud().getModule(module);
                 //state
