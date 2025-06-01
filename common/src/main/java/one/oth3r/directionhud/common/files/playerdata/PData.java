@@ -11,6 +11,7 @@ import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.DHud;
 import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.hud.module.Module;
+import one.oth3r.directionhud.common.hud.module.ModuleManager;
 import one.oth3r.directionhud.common.template.CustomFile;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Dest;
@@ -165,11 +166,11 @@ public class PData extends BasePData implements CustomFile<PData> {
         // if the file couldn't be parsed, (null) try using the custom update method using the JsonElement on the current file
         // if not use the new file object that is loaded with the file data, and call update using that
         if (file == null) {
-            this.update(json);
+            this.updateJSON(json);
         } else {
             file.player = this.player;
             // update the instance
-            file.update(json);
+            file.updateJSON(json);
             // load the file to the current object
             copyFileData(file);
         }
@@ -179,18 +180,24 @@ public class PData extends BasePData implements CustomFile<PData> {
      * updates the file based on the version number of the current instance
      */
     @Override
-    public void update(JsonElement json) {
+    public JsonElement updateJSON(JsonElement json) {
         if (this.version == null || this.version < 2) {
             // unsupported playerdata version
             DirectionHUD.LOGGER.info("Pre 2.0 PlayerData version detected! Trying to load from legacy...");
-            new legacy(getFile()).update();
-            // restart the file loading as the file was written to
-            load();
-            // end updater as the method will be called again
-            return;
+            // use the legacy updater
+            json = new legacy(getFile()).update();
         }
         // update
-        baseUpdater(json, false);
+        return baseJSONUpdater(json, false);
+    }
+
+    /**
+     * POST LOAD: after the JSON is loaded to this current instance, this method is called.
+     */
+    @Override
+    public void updateFileInstance() {
+        // run the module order fixer just in case
+        ModuleManager.Order.fixOrder(this.hud.getModules(), false);
     }
 
     /**
@@ -206,8 +213,17 @@ public class PData extends BasePData implements CustomFile<PData> {
         /**
          * runs the playerdata legacy updater
          */
-        public void update() {
+        public JsonElement update() {
             mapUpdate(fileToMap());
+            return getAsJson();
+        }
+
+        private JsonElement getAsJson() {
+            try (BufferedReader reader = Files.newBufferedReader(this.file.toPath())) {
+                return JsonParser.parseReader(reader);
+            } catch (Exception e) {
+                return null;
+            }
         }
 
         /**

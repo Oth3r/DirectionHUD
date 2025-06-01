@@ -77,13 +77,20 @@ public class DimensionSettings implements CustomFile<DimensionSettings> {
      * @param json
      */
     @Override
-    public void update(JsonElement json) {
-        if (version == null || json.isJsonNull()) {
-            copyFileData(new DimensionSettings());
+    public JsonElement updateJSON(JsonElement json) {
+        Gson gson = Helper.getGson();
+        if (json.isJsonNull()) {
+             return gson.toJsonTree(new DimensionSettings());
         }
-        if (version == 1) {
-            Utl.dim.addMissing(this.dimensions);
-        }
+        return json;
+    }
+
+    /**
+     * POST LOAD: after the JSON is loaded to this current instance, this method is called.
+     */
+    @Override
+    public void updateFileInstance() {
+        Utl.dim.addMissing(this.dimensions);
     }
 
     /**

@@ -1,6 +1,7 @@
 
 package one.oth3r.directionhud.common.files.playerdata;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -66,10 +67,17 @@ public abstract class BasePData {
 
     /**
      * updates all base pData elements
+     *
      * @param json the json with the file data
+     * @return
      */
-    public void baseUpdater(JsonElement json, boolean factoryDefault) {
-        if (version.equals(2.0)) {
+    public JsonElement baseJSONUpdater(JsonElement json, boolean factoryDefault) {
+        if (json == null || json.isJsonNull()) return new JsonObject().getAsJsonNull();
+        Gson gson = Helper.getGson();
+        JsonObject jsonObj = json.getAsJsonObject();
+        double version = jsonObj.getAsJsonPrimitive("version").getAsDouble();
+
+        if (version == 2.0) {
 
             ///  module updater
             /*
@@ -127,27 +135,94 @@ public abstract class BasePData {
                 i++;
             }
 
-            // copy the fixed modules
-            this.hud.setModules(newModules);
-
-            // bump the version
-            this.version = 2.1;
+            // fix the order
+            ModuleManager.Order.fixOrder(newModules, factoryDefault);
+            hud.add("modules", gson.toJsonTree(newModules));
+            // bump the version; skip 2.1 as this would technically fix for updating 2.2 as well
+            json.getAsJsonObject().addProperty("version", 2.2);
         }
 
-        if (this.version == 2.1) {
+        if (version == 2.1) {
             /// updated module system updater
             /*
-            This new system completely removes the order of modules when disabled, only giving module order to enabled modules - thus easier to manage enabled modules
-            - calling ModuleManager.Order.fixOrder() will do this automatically!
+            The new system completely overhauls the hud module setting system.
+            1. get the list of modules
+            2. loop through each module, hard coding the extraction of the module settings based on the module type
+            hud -> modules
              */
-            ModuleManager.Order.fixOrder(this.hud.getModules(), factoryDefault);
 
-            //todo: implement changes for new version system
+            // get the hud
+            JsonObject hud = json.getAsJsonObject().getAsJsonObject("hud");
+            // get the module states
+            JsonArray modules = hud.getAsJsonArray("modules");
 
-            this.version = 2.2;
+
+            ArrayList<BaseModule> newModules = new ArrayList<>();
+            for (JsonElement element : modules) {
+                JsonObject module = element.getAsJsonObject();
+
+                // get the module type
+                String mod = module.getAsJsonPrimitive("module").getAsString();
+                int order = module.getAsJsonPrimitive("order").getAsInt();
+                boolean state = module.getAsJsonPrimitive("state").getAsBoolean();
+
+                Module moduleType = Module.fromString(mod);
+                if (moduleType.equals(Module.UNKNOWN)) continue;
+
+                newModules.add(switch (moduleType) {
+                    case COORDINATES -> {
+                        boolean xyzDisplay = module.getAsJsonPrimitive("xyz-display").getAsBoolean();
+                        yield new ModuleCoordinates(order, state, xyzDisplay);
+                    }
+                    case DESTINATION -> new ModuleDestination(order,state);
+                    case DISTANCE -> new ModuleDistance(order,state);
+                    case TRACKING -> {
+                        boolean hybrid = module.getAsJsonPrimitive("hybrid").getAsBoolean();
+                        ModuleTracking.Target target = Enums.get(
+                                module.getAsJsonPrimitive("target").getAsString(),ModuleTracking.Target.class);
+                        ModuleTracking.Type type = Enums.get(
+                                module.getAsJsonPrimitive("display-type").getAsString(),ModuleTracking.Type.class);
+                        boolean elevation = module.getAsJsonPrimitive("show-elevation").getAsBoolean();
+
+                        yield new ModuleTracking(order,state,
+                                hybrid,target,type,elevation);
+                    }
+                    case DIRECTION -> new ModuleDirection(order,state);
+                    case WEATHER -> new ModuleWeather(order,state);
+                    case TIME -> {
+                        boolean time24hr = module.getAsJsonPrimitive("24hr-clock").getAsBoolean();
+                        yield new ModuleTime(order,state,time24hr);
+                    }
+                    case ANGLE -> {
+                        ModuleAngle.Display display = Enums.get(
+                                module.getAsJsonPrimitive("display").getAsString(),ModuleAngle.Display.class);
+                        yield new ModuleAngle(order,state,display);
+                    }
+                    case SPEED -> {
+                        boolean speed2D = module.getAsJsonPrimitive("2d-calculation").getAsBoolean();
+                        String speedPattern = module.getAsJsonPrimitive("display-pattern").getAsString();
+                        yield new ModuleSpeed(order, state, speed2D, speedPattern);
+                    }
+                    default -> throw new IllegalStateException("Unexpected value: " + moduleType);
+                });
+
+            }
+
+            // copy over the fixed modules
+            this.hud.setModules(newModules);
+
+            /*
+            This new system completely removes the order of modules when disabled, only giving module order to enabled modules - thus easier to manage enabled modules
+                - calling ModuleManager.Order.fixOrder() will do this automatically!
+             */
+            ModuleManager.Order.fixOrder(newModules, factoryDefault);
+
+            hud.add("modules", gson.toJsonTree(newModules));
+            json.getAsJsonObject().addProperty("version", 2.2);
         }
 
         // even if the version doesn't need to be updated, run the module order fixer just in case
         ModuleManager.Order.fixOrder(this.hud.getModules(), factoryDefault);
+        return json;
     }
 }

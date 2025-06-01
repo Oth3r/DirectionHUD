@@ -363,12 +363,10 @@ public class Config implements CustomFile<Config> {
     }
 
     /**
-     * updates the file based on the version number of the current instance
-     *
-     * @param json
+     * POST LOAD: after the JSON is loaded to this current instance, this method is called.
      */
     @Override
-    public void update(JsonElement json) {
+    public void updateFileInstance() {
 
     }
 

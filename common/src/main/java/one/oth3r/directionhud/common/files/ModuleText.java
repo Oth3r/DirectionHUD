@@ -1,10 +1,13 @@
 package one.oth3r.directionhud.common.files;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.Assets.symbols.arrows;
 import one.oth3r.directionhud.common.template.CustomFile;
+import one.oth3r.directionhud.common.utils.Helper;
 import org.jetbrains.annotations.NotNull;
 
 public class ModuleText implements CustomFile<ModuleText> {
@@ -98,8 +101,12 @@ public class ModuleText implements CustomFile<ModuleText> {
     }
 
     @Override
-    public void update(JsonElement json) {
-        if (version < 1.01) {
+    public JsonElement updateJSON(JsonElement json) {
+        Gson gson = Helper.getGson();
+        JsonObject jsonObject = json.getAsJsonObject();
+        double version = jsonObject.get("version").getAsDouble();
+
+        if (version == 1) {
             /*
                 fixes the destination module name and name_xz entries
                 the entry in version 1.0 had the primary and secondary color flipped
@@ -107,12 +114,25 @@ public class ModuleText implements CustomFile<ModuleText> {
              */
             final String brokenDestinationName = "&2[&1%s&2]",
                     fixedDestinationName = new ModuleDestination().name;
-            if (destination.name.equals(brokenDestinationName)) destination.name = fixedDestinationName;
-            if (destination.name_xz.equals(brokenDestinationName)) destination.name_xz = fixedDestinationName;
+            JsonObject destination = jsonObject.getAsJsonObject("destination");
+            if (destination.getAsJsonPrimitive("name").getAsString().equals(brokenDestinationName))
+                destination.addProperty("name", fixedDestinationName);
+            if (destination.getAsJsonPrimitive("name_xz").getAsString().equals(brokenDestinationName))
+                destination.addProperty("name_xz", fixedDestinationName);
 
             // update the version
-            version = 1.01;
+            jsonObject.addProperty("version", 1.01);
         }
+
+        return json;
+    }
+
+    /**
+     * POST LOAD: after the JSON is loaded to this current instance, this method is called.
+     */
+    @Override
+    public void updateFileInstance() {
+
     }
 
     @Override
