@@ -62,7 +62,11 @@ final class DynamicModuleSettingTypeAdapter extends TypeAdapter<ModuleSetting<?>
 
         // Try to infer the value type from the validator
         Class<?> valueClass = getValidatorValueClass(validator);
-        Object value = valueElement != null && valueClass != null
+        if (valueClass == null) {
+            throw new JsonParseException("Could not determine value type for setting id: " + id);
+        }
+
+        Object value = valueElement != null
                 ? gson.fromJson(valueElement, valueClass)
                 : null;
 
