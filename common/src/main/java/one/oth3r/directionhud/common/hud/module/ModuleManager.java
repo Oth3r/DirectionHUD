@@ -4,7 +4,6 @@ import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.files.playerdata.PDHud;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.hud.Hud;
-import one.oth3r.directionhud.common.hud.module.modules.*;
 import one.oth3r.directionhud.common.utils.ActionResult;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Helper;
@@ -12,9 +11,7 @@ import one.oth3r.directionhud.common.utils.Lang;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 
