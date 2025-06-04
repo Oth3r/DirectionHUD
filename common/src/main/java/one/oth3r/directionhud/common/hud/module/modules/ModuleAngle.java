@@ -52,7 +52,7 @@ public class ModuleAngle extends BaseModule {
         // yaw, pitch
         DecimalFormat df = new DecimalFormat("0.0");
         String y = df.format(args[0]), p = df.format(args[1]);
-        return switch (Helper.Enums.get(getSetting(displayID), Display.class)) {
+        return switch (Helper.Enums.get(getSettingValue(displayID), Display.class)) {
             case yaw -> String.format(FileData.getModuleText().getAngle().getYaw(), y);
             case pitch -> String.format(FileData.getModuleText().getAngle().getPitch(), p);
             case both -> String.format(FileData.getModuleText().getAngle().getBoth(), y, p);

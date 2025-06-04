@@ -25,7 +25,7 @@ public class ModuleCoordinates extends BaseModule {
     @Override
     protected String display(Object... args) {
         Loc loc = (Loc) args[0];
-        return ((Boolean) getSetting(xyzID)) ?
+        return ((Boolean) getSettingValue(xyzID)) ?
                 String.format(FileData.getModuleText().getCoordinates().getXyz(),
                         loc.getX(), loc.getY(), loc.getZ()) :
                 String.format(FileData.getModuleText().getCoordinates().getXz(),

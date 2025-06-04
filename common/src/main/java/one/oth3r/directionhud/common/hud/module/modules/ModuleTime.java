@@ -27,7 +27,7 @@ public class ModuleTime extends BaseModule {
     protected String display(Object... args) {
         int hour = (int) args[0], minute = (int) args[1];
         // assets
-        boolean time12 = !((boolean) getSetting(hour24ID));
+        boolean time12 = !((boolean) getSettingValue(hour24ID));
 
         String hr;
         // if 12 hr, fix the hour mark

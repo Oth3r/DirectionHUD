@@ -6,8 +6,6 @@ import one.oth3r.directionhud.common.DHud;
 import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.LoopManager;
 import one.oth3r.directionhud.common.hud.Hud.Setting.*;
-import one.oth3r.directionhud.common.files.FileData;
-import one.oth3r.directionhud.common.files.ModuleText;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.dimension.DimensionEntry.*;
 import one.oth3r.directionhud.common.files.dimension.DimensionEntry.Time.*;
@@ -24,7 +22,6 @@ import one.oth3r.directionhud.common.utils.Helper.ListPage;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 
-import java.text.DecimalFormat;
 import java.util.*;
 
 public class Hud {
@@ -220,8 +217,8 @@ public class Hud {
             // pointer target
             Loc pointLoc = null;
             // player tracking mode
-            ModuleTracking.Target trackingTarget = module.getSetting(ModuleTracking.targetID);
-            boolean hybrid = module.getSetting(ModuleTracking.hybridID);
+            ModuleTracking.Target trackingTarget = module.getSettingValue(ModuleTracking.targetID);
+            boolean hybrid = module.getSettingValue(ModuleTracking.hybridID);
 
             // if PLAYER or HYBRID (TRACKING CHECK)
             if (trackingTarget.equals(ModuleTracking.Target.player) || hybrid) {
@@ -603,9 +600,9 @@ public class Hud {
             if (module.equals(Module.TRACKING)) {
                 boolean hasPlayer = Destination.social.track.getTarget(player).isValid();
                 boolean hasDest = Destination.dest.get(player).hasXYZ();
-                ModuleTracking.Target target = mod.getSetting(ModuleTracking.targetID);
+                ModuleTracking.Target target = mod.getSettingValue(ModuleTracking.targetID);
 
-                if (mod.getSetting(ModuleTracking.hybridID)) {
+                if (mod.getSettingValue(ModuleTracking.hybridID)) {
                     if (!(hasPlayer || hasDest)) {
                         color = STATE_YELLOW;
                     }

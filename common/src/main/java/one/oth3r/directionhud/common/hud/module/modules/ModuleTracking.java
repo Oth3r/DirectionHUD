@@ -6,7 +6,6 @@ import one.oth3r.directionhud.common.files.ModuleText;
 import one.oth3r.directionhud.common.hud.module.BaseModule;
 import one.oth3r.directionhud.common.hud.module.setting.*;
 import one.oth3r.directionhud.common.hud.module.Module;
-import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Loc;
 
@@ -92,7 +91,7 @@ public class ModuleTracking extends BaseModule {
         Loc originLoc = (Loc) args[1];
         Loc targetLoc = (Loc) args[2];
 
-        boolean simple = getSetting(typeID).equals(Type.simple), hasElevation = getSetting(elevationID);
+        boolean simple = getSettingValue(typeID).equals(Type.simple), hasElevation = getSettingValue(elevationID);
         double target;
         String data;
         ModuleText.ModuleTracking.Assets assets = FileData.getModuleText().getTracking().getAssets();

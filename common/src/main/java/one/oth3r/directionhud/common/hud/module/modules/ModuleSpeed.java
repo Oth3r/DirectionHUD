@@ -61,8 +61,8 @@ public class ModuleSpeed extends BaseModule {
     protected String display(Object... args) {
         double speed = (double) args[0];
         // assets
-        boolean speed2D = getSetting(calculation2DID);
-        DecimalFormat df = new DecimalFormat(getSetting(displayPatternID));
+        boolean speed2D = getSettingValue(calculation2DID);
+        DecimalFormat df = new DecimalFormat(getSettingValue(displayPatternID));
         String data = df.format(speed);
 
         if (speed2D) return String.format(FileData.getModuleText().getSpeed().getXzSpeed(), data);

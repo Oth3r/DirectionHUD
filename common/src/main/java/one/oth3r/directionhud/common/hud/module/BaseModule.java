@@ -21,7 +21,7 @@ public abstract class BaseModule implements Cloneable {
     protected boolean state;
     // dynamic settings for each module
     @SerializedName("settings")
-    protected Map<String, ModuleSetting<?>> settings = new HashMap<>();
+    protected List<ModuleSetting<?>> settings = new ArrayList<>();
 
     public BaseModule(Module moduleType) {
         this.moduleType = moduleType;
@@ -38,15 +38,19 @@ public abstract class BaseModule implements Cloneable {
     }
 
     public <V> void registerSetting(String settingID, V defaultValue, ModuleSettingHandler<V> validator) {
-        settings.put(settingID, new ModuleSetting<>(settingID, defaultValue, validator));
+        settings.add(new ModuleSetting<>(settingID, defaultValue, validator));
         ModuleSettingHandlerRegistry.registerValidator(settingID, validator);
+    }
+
+    public boolean hasSetting(String settingID) {
+        return settings.stream().anyMatch(m -> m.getId().equals(settingID));
     }
 
     @SuppressWarnings("unchecked")
     public <V> ActionResult setSetting(String settingID, String strValue) {
         Lang LANG = ModuleManager.Setting.LANG;
-        if (settings.containsKey(settingID)) {
-            ModuleSetting<V> setting = (ModuleSetting<V>) settings.get(settingID);
+        if (hasSetting(settingID)) {
+            ModuleSetting<V> setting = getSetting(settingID);
             try {
                 V newValue = setting.getValidator().convert(strValue);
                 boolean status = setting.setValue(newValue);
@@ -65,21 +69,25 @@ public abstract class BaseModule implements Cloneable {
         }
     }
 
+    public <V> V getSettingValue(String settingID) {
+        ModuleSetting<V> setting = getSetting(settingID);
+        if (setting == null) return null;
+        return setting.getValue();
+    }
+
     @SuppressWarnings("unchecked")
-    public <V> V getSetting(String settingID) {
-        if (settings.containsKey(settingID)) {
-            ModuleSetting<?> setting = settings.get(settingID);
-            return (V) setting.getValue();
-        }
-        return null;
+    public <V> ModuleSetting<V> getSetting(String settingID) {
+        ModuleSetting<?> setting = settings.stream().filter(moduleSetting -> moduleSetting.getId().equals(settingID)).findFirst().orElse(null);
+        if (setting == null) return null;
+        return (ModuleSetting<V>) setting;
     }
 
     public boolean hasSettings() {
         return !settings.isEmpty();
     }
 
-    public Map<String, ModuleSetting<?>> getSettings() {
-        return new HashMap<>(settings);
+    public List<ModuleSetting<?>> getSettings() {
+        return new ArrayList<>(settings);
     }
 
     /**
@@ -98,17 +106,17 @@ public abstract class BaseModule implements Cloneable {
         String[] order = getSettingOrder();
         if (order.length == 0) {
             // Default: insertion order
-            return new ArrayList<>(settings.values());
+            return new ArrayList<>(settings);
         } else {
             List<ModuleSetting<?>> ordered = new ArrayList<>();
             for (String id : order) {
-                ModuleSetting<?> setting = settings.get(id);
+                ModuleSetting<?> setting = getSetting(id);
                 if (setting != null) ordered.add(setting);
             }
             // add any settings not in the order array at the end
-            for (Map.Entry<String, ModuleSetting<?>> entry : settings.entrySet()) {
-                if (Arrays.stream(order).noneMatch(id -> id.equals(entry.getKey()))) {
-                    ordered.add(entry.getValue());
+            for (ModuleSetting<?> entry : settings) {
+                if (Arrays.stream(order).noneMatch(id -> id.equals(entry.getId()))) {
+                    ordered.add(entry);
                 }
             }
             return ordered;
@@ -128,7 +136,7 @@ public abstract class BaseModule implements Cloneable {
     }
 
     public void reassignValidators() {
-        for (ModuleSetting<?> setting : settings.values()) {
+        for (ModuleSetting<?> setting : settings) {
             ModuleSettingHandler<?> validator = ModuleSettingHandlerRegistry.getHandler(setting.getId());
             if (validator != null) {
                 setting.setValidator(validator);
@@ -142,7 +150,7 @@ public abstract class BaseModule implements Cloneable {
      * @return an array of IDs
      */
     public String[] getSettingIDs() {
-        return settings.keySet().toArray(new String[0]);
+        return settings.stream().map(ModuleSetting::getId).toArray(String[]::new);
     }
 
     public void setOrder(Integer order) {
@@ -197,8 +205,6 @@ public abstract class BaseModule implements Cloneable {
      */
     protected abstract String display(Object... args);
 
-    // todo get setting button method
-
     /**
      * searches for a specific BaseModule in the provided ArrayList based on the given Module type <br>
      * if there are multiple matches, the first match is returned
@@ -227,14 +233,9 @@ public abstract class BaseModule implements Cloneable {
         try {
             BaseModule clone = (BaseModule) super.clone();
             // Deep cloning the settings map
-            clone.settings = new HashMap<>();
-            for (Map.Entry<String, ModuleSetting<?>> entry : this.settings.entrySet()) {
-                String key = entry.getKey();
-                ModuleSetting<?> value = entry.getValue();
-
-                // Assuming ModuleSetting class supports cloning
-                ModuleSetting<?> valueClone = value.clone();
-                clone.settings.put(key, valueClone);
+            clone.settings = new ArrayList<>();
+            for (ModuleSetting<?> entry : this.settings) {
+                clone.settings.add(entry.clone());
             }
 
             // Return the fully cloned object
