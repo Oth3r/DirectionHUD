@@ -5,81 +5,28 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
 import one.oth3r.directionhud.DirectionHUD;
-import one.oth3r.directionhud.common.Assets.symbols.arrows;
+import one.oth3r.directionhud.common.hud.module.Module;
+import one.oth3r.directionhud.common.hud.module.display.DisplaySettings;
+import one.oth3r.directionhud.common.hud.module.display.DisplayRegistry;
+import one.oth3r.directionhud.common.hud.module.modules.ModuleDestination;
 import one.oth3r.directionhud.common.template.CustomFile;
 import one.oth3r.directionhud.common.utils.Helper;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ModuleText implements CustomFile<ModuleText> {
     @SerializedName("version")
-    private Double version = 1.01;
-
-    @SerializedName("coordinates")
-    private ModuleCoordinates coordinates = new ModuleCoordinates();
-    @SerializedName("destination")
-    private ModuleDestination destination = new ModuleDestination();
-    @SerializedName("distance")
-    private ModuleDistance distance = new ModuleDistance();
-    @SerializedName("tracking")
-    private ModuleTracking tracking = new ModuleTracking();
-    @SerializedName("direction")
-    private ModuleDirection direction = new ModuleDirection();
-    @SerializedName("weather")
-    private ModuleWeather weather = new ModuleWeather();
-    @SerializedName("time")
-    private ModuleTime time = new ModuleTime();
-    @SerializedName("angle")
-    private ModuleAngle angle = new ModuleAngle();
-    @SerializedName("speed")
-    private ModuleSpeed speed = new ModuleSpeed();
-
-    public ModuleCoordinates getCoordinates() {
-        return coordinates;
-    }
-
-    public ModuleDestination getDestination() {
-        return destination;
-    }
-
-    public ModuleDistance getDistance() {
-        return distance;
-    }
-
-    public ModuleTracking getTracking() {
-        return tracking;
-    }
-
-    public ModuleDirection getDirection() {
-        return direction;
-    }
-
-    public ModuleWeather getWeather() {
-        return weather;
-    }
-
-    public ModuleTime getTime() {
-        return time;
-    }
-
-    public ModuleAngle getAngle() {
-        return angle;
-    }
-
-    public ModuleSpeed getSpeed() {
-        return speed;
-    }
+    private Double version = 1.1;
+    @SerializedName("load-missing")
+    private Boolean loadMissing = false;
+    @SerializedName("modules")
+    private Map<Module, DisplaySettings> modules = new HashMap<>();
 
     @Override
     public void reset() {
-        coordinates = new ModuleCoordinates();
-        destination = new ModuleDestination();
-        distance = new ModuleDistance();
-        tracking = new ModuleTracking();
-        direction = new ModuleDirection();
-        weather = new ModuleWeather();
-        time = new ModuleTime();
-        angle = new ModuleAngle();
-        speed = new ModuleSpeed();
+        copyFileData(new ModuleText());
     }
 
     @Override
@@ -89,21 +36,16 @@ public class ModuleText implements CustomFile<ModuleText> {
 
     @Override
     public void copyFileData(ModuleText newFile) {
-        this.coordinates = new ModuleCoordinates(newFile.coordinates);
-        this.destination = new ModuleDestination(newFile.destination);
-        this.distance = new ModuleDistance(newFile.distance);
-        this.tracking = new ModuleTracking(newFile.tracking);
-        this.direction = new ModuleDirection(newFile.direction);
-        this.weather = new ModuleWeather(newFile.weather);
-        this.time = new ModuleTime(newFile.time);
-        this.angle = new ModuleAngle(newFile.angle);
-        this.speed = new ModuleSpeed(newFile.speed);
+        this.version = newFile.version;
+        this.loadMissing = newFile.loadMissing;
+        this.modules = newFile.modules;
     }
 
     @Override
     public JsonElement updateJSON(JsonElement json) {
         Gson gson = Helper.getGson();
         JsonObject jsonObject = json.getAsJsonObject();
+        if (jsonObject == null) return json;
         double version = jsonObject.get("version").getAsDouble();
 
         if (version == 1) {
@@ -113,7 +55,7 @@ public class ModuleText implements CustomFile<ModuleText> {
                 version 1.01 fixes this issue
              */
             final String brokenDestinationName = "&2[&1%s&2]",
-                    fixedDestinationName = new ModuleDestination().name;
+                    fixedDestinationName = new ModuleDestination().getDisplaySettings().getDisplay(ModuleDestination.DISPLAY_NAME);
             JsonObject destination = jsonObject.getAsJsonObject("destination");
             if (destination.getAsJsonPrimitive("name").getAsString().equals(brokenDestinationName))
                 destination.addProperty("name", fixedDestinationName);
@@ -123,8 +65,63 @@ public class ModuleText implements CustomFile<ModuleText> {
             // update the version
             jsonObject.addProperty("version", 1.01);
         }
+        // update to the dynamic system
+        if (jsonObject.getAsJsonPrimitive("version").getAsDouble() < 1.1) {
+            /*
+                this update restructures the module-text.json file from having all the modules on the root to having them in a hashmap under modules
+                this update also adds a new boolean, load-missing on the root
+
+                each module now has their own "displays" and "assets" subcategories to further help with reading and loading the file.
+             */
+            JsonElement newJson = gson.toJsonTree(new ModuleText());
+            JsonObject modules = newJson.getAsJsonObject().getAsJsonObject("modules");
+
+            String[] moduleStrings = {"coordinates","destination","distance","tracking","direction","weather","time","angle","speed"};
+
+            for (String moduleString : moduleStrings) {
+                JsonObject moduleObject = new JsonObject(), oldModule = jsonObject.getAsJsonObject(moduleString);
+                JsonObject displays = new JsonObject();
+                JsonObject assets = new JsonObject();
+
+                switch (moduleString) {
+                    case "coordinates" -> DynamicUpdater.handleSimpleUpdate(oldModule, displays, new String[]{"xyz", "xz"});
+                    case "destination" -> DynamicUpdater.handleSimpleUpdate(oldModule, displays, new String[]{"xyz", "xz", "name", "name_xz"});
+                    case "distance" -> DynamicUpdater.handleSimpleUpdate(oldModule, displays, new String[]{"number"});
+                    case "tracking" -> DynamicUpdater.handleModuleWithAssets(oldModule,displays,assets,new String[]{"tracking","elevation_tracking"},new String[]{"simple","compact","elevation"});
+                    case "direction" -> DynamicUpdater.handleModuleWithAssets(oldModule,displays,assets,new String[]{"facing"}, new String[]{"cardinal"});
+                    case "weather" -> DynamicUpdater.handleSimpleUpdate(oldModule, displays, new String[]{"weather","weather_single"});
+                    case "time" -> DynamicUpdater.handleSimpleUpdate(oldModule, displays, new String[]{"hour_AM","hour_PM","hour_24"});
+                    case "angle" -> DynamicUpdater.handleSimpleUpdate(oldModule, displays, new String[]{"yaw","pitch","both"});
+                    case "speed" -> DynamicUpdater.handleSimpleUpdate(oldModule, displays, new String[]{"xz_speed","xyz_speed"});
+                }
+
+                moduleObject.add("displays", displays);
+                if (!assets.isEmpty()) moduleObject.add("assets", assets);
+                modules.add(moduleString,moduleObject);
+            }
+            // update the json
+            json = newJson;
+        }
 
         return json;
+    }
+
+    /**
+     * the updater class from the old, static way of moduletext to the new, dynamic registering way.
+     */
+    private static class DynamicUpdater {
+        private static void handleSimpleUpdate(JsonObject oldModule, JsonObject displays, String[] displayStrings) {
+            for (String key : displayStrings) {
+                displays.addProperty(key, oldModule.get(key).getAsString());
+            }
+        }
+        private static void handleModuleWithAssets(JsonObject oldModule, JsonObject displays, JsonObject assets, String[] displayStrings, String[] assetStrings) {
+            handleSimpleUpdate(oldModule,displays,displayStrings);
+            JsonObject oldAssets = oldModule.get("assets").getAsJsonObject();
+            for (String key : assetStrings) {
+                assets.add(key, oldAssets.get(key).getAsJsonObject());
+            }
+        }
     }
 
     /**
@@ -132,7 +129,12 @@ public class ModuleText implements CustomFile<ModuleText> {
      */
     @Override
     public void updateFileInstance() {
-
+        DisplayRegistry.updateModules(modules);
+        // if the missing modules need to be loaded, do it here
+        if (loadMissing) {
+            modules = DisplayRegistry.getModules();
+            save();
+        }
     }
 
     @Override
@@ -143,410 +145,5 @@ public class ModuleText implements CustomFile<ModuleText> {
     @Override
     public String getDirectory() {
         return DirectionHUD.getData().getConfigDirectory();
-    }
-
-    public static class ModuleCoordinates {
-        @SerializedName("xyz")
-        private String xyz = "&1XYZ: &2%s %s %s";
-        @SerializedName("xz")
-        private String xz = "&1XZ: &2%s %s";
-
-        public ModuleCoordinates() {}
-        public ModuleCoordinates(ModuleCoordinates coordinates) {
-            this.xyz = coordinates.xyz;
-            this.xz = coordinates.xz;
-        }
-
-        public String getXyz() {
-            return xyz;
-        }
-
-        public String getXz() {
-            return xz;
-        }
-    }
-
-    public static class ModuleDestination {
-        @SerializedName("xyz")
-        private String xyz = "&1[&2%s %s %s&1]";
-        @SerializedName("xz")
-        private String xz = "&1[&2%s %s&1]";
-        @SerializedName("name")
-        private String name = "&1[&2%s&1]";
-        @SerializedName("name_xz")
-        private String name_xz = "&1[&2%s&1]";
-
-        public ModuleDestination() {}
-        public ModuleDestination(ModuleDestination destination) {
-            this.xyz = destination.xyz;
-            this.xz = destination.xz;
-            this.name = destination.name;
-            this.name_xz = destination.name_xz;
-        }
-
-        public String getXyz() {
-            return xyz;
-        }
-
-        public String getXz() {
-            return xz;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getNameXz() {
-            return name_xz;
-        }
-    }
-
-    public static class ModuleDistance {
-        @SerializedName("number")
-        private String number = "&1[&2%s&1]";
-
-        public ModuleDistance() {}
-        public ModuleDistance(ModuleDistance distance) {
-            this.number = distance.number;
-        }
-
-        public String getNumber() {
-            return number;
-        }
-    }
-
-    public static class ModuleTracking {
-        public static class Assets {
-            @SerializedName("simple")
-            private Simple simple = new Simple();
-            @SerializedName("compact")
-            private Compact compact = new Compact();
-            @SerializedName("elevation")
-            private Elevation elevation = new Elevation();
-
-            public Assets() {}
-            public Assets(Assets assets) {
-                this.simple = new Simple(assets.simple);
-                this.compact = new Compact(assets.compact);
-                this.elevation = new Elevation(assets.elevation);
-            }
-
-            public Simple getSimple() {
-                return simple;
-            }
-
-            public Compact getCompact() {
-                return compact;
-            }
-
-            public Elevation getElevation() {
-                return elevation;
-            }
-
-            public static class Simple extends Directions {
-                public Simple() {
-                    this.northEast = "-" + arrows.up + arrows.right;
-                    this.north = "-" + arrows.up + "-";
-                    this.northWest = arrows.left + arrows.up + "-";
-                    this.west = arrows.left + "--";
-                    this.southWest = arrows.left + arrows.down + "-";
-                    this.south = "-" + arrows.down + "-";
-                    this.southEast = "-" + arrows.down + arrows.right;
-                    this.east = "--" + arrows.right;
-                }
-
-                public Simple(Simple directions) {
-                    super(directions);
-                }
-            }
-
-            public static class Compact extends Directions {
-                public Compact() {
-                    this.northEast = arrows.north_east;
-                    this.north = arrows.north;
-                    this.northWest = arrows.north_west;
-                    this.west = arrows.west;
-                    this.southWest = arrows.south_west;
-                    this.south = arrows.south;
-                    this.southEast = arrows.south_east;
-                    this.east = arrows.east;
-                }
-
-                public Compact(Compact directions) {
-                    super(directions);
-                }
-            }
-
-            public static class Elevation {
-                @SerializedName("above")
-                protected String above = arrows.north;
-                @SerializedName("same")
-                protected String same = "-";
-                @SerializedName("below")
-                protected String below = arrows.south;
-
-                public Elevation() {}
-                public Elevation(Elevation elevation) {
-                    this.above = elevation.above;
-                    this.same = elevation.same;
-                    this.below = elevation.below;
-                }
-
-                public String getAbove() {
-                    return above;
-                }
-
-                public String getSame() {
-                    return same;
-                }
-
-                public String getBelow() {
-                    return below;
-                }
-            }
-        }
-        @SerializedName("assets")
-        private Assets assets = new Assets();
-        @SerializedName("tracking")
-        private String tracking = "&1&s[&r&2%s&1&s]";
-        @SerializedName("elevation_tracking")
-        private String elevationTracking = "&1&s[&r&2%s&1|&2%s&1&s]";
-
-        public ModuleTracking() {}
-        public ModuleTracking(ModuleTracking moduleTracking) {
-            this.assets = new Assets(moduleTracking.assets);
-            this.tracking = moduleTracking.tracking;
-            this.elevationTracking = moduleTracking.elevationTracking;
-        }
-
-        public Assets getAssets() {
-            return assets;
-        }
-
-        public String getTracking() {
-            return tracking;
-        }
-
-        public String getElevationTracking() {
-            return elevationTracking;
-        }
-    }
-
-    public static class ModuleDirection {
-        public static class Assets {
-            @SerializedName("cardinal")
-            private Cardinal cardinal = new Cardinal();
-
-            public Assets() {}
-            public Assets(Assets assets) {
-                this.cardinal = new Cardinal(assets.cardinal);
-            }
-
-            public Cardinal getCardinal() {
-                return cardinal;
-            }
-
-            public static class Cardinal extends Directions {
-                public Cardinal() {
-                    this.northEast = "NE";
-                    this.north = "N";
-                    this.northWest = "NW";
-                    this.west = "W";
-                    this.southWest = "SW";
-                    this.south = "S";
-                    this.southEast = "SE";
-                    this.east = "E";
-                }
-
-                public Cardinal(Cardinal directions) {
-                    super(directions);
-                }
-            }
-        }
-        @SerializedName("assets")
-        private Assets assets = new Assets();
-        @SerializedName("facing")
-        private String facing = "&1%s";
-
-        public ModuleDirection() {}
-        public ModuleDirection(ModuleDirection direction) {
-            this.assets = new Assets(direction.assets);
-            this.facing = direction.facing;
-        }
-
-        public Assets getAssets() {
-            return assets;
-        }
-
-        public String getFacing() {
-            return facing;
-        }
-
-    }
-
-    public static class ModuleWeather {
-        @SerializedName("weather_single")
-        private String weatherSingle = "&1%s";
-        @SerializedName("weather")
-        private String weather = "&1%s%s";
-
-        public ModuleWeather() {}
-        public ModuleWeather(ModuleWeather weather) {
-            this.weatherSingle = weather.weatherSingle;
-            this.weather = weather.weather;
-        }
-
-        public String getWeatherSingle() {
-            return weatherSingle;
-        }
-
-        public String getWeather() {
-            return weather;
-        }
-    }
-
-    public static class ModuleTime {
-
-        @SerializedName("hour_AM")
-        private String hourAM = "&2%s&1:&2%s &1AM";
-        @SerializedName("hour_PM")
-        private String hourPM = "&2%s&1:&2%s &1PM";
-        @SerializedName("hour_24")
-        private String hour24 = "&2%s&1:&2%s";
-
-        public ModuleTime() {}
-        public ModuleTime(ModuleTime time) {
-            this.hourAM = time.hourAM;
-            this.hourPM = time.hourPM;
-            this.hour24 = time.hour24;
-        }
-
-        public String getHourAM() {
-            return hourAM;
-        }
-
-        public String getHourPM() {
-            return hourPM;
-        }
-
-        public String getHour24() {
-            return hour24;
-        }
-    }
-
-    public static class ModuleAngle {
-        @SerializedName("yaw")
-        private String yaw = "&2%s";
-        @SerializedName("pitch")
-        private String pitch = "&2%s";
-        @SerializedName("both")
-        private String both = "&2%s&1/&2%s";
-
-        public ModuleAngle() {}
-        public ModuleAngle(ModuleAngle angle) {
-            this.yaw = angle.yaw;
-            this.pitch = angle.pitch;
-            this.both = angle.both;
-        }
-
-        public String getYaw() {
-            return yaw;
-        }
-
-        public String getPitch() {
-            return pitch;
-        }
-
-        public String getBoth() {
-            return both;
-        }
-    }
-
-    public static class ModuleSpeed {
-        @SerializedName("xz_speed")
-        private String xzSpeed = "&2%s &1B/S";
-        @SerializedName("xyz_speed")
-        private String xyzSpeed = "&2%s &1B/S";
-
-        public ModuleSpeed() {}
-
-        public ModuleSpeed(ModuleSpeed speed) {
-            this.xzSpeed = speed.xzSpeed;
-            this.xyzSpeed = speed.xyzSpeed;
-        }
-
-        public String getXzSpeed() {
-            return xzSpeed;
-        }
-
-        public String getXyzSpeed() {
-            return xyzSpeed;
-        }
-    }
-
-    /**
-     * helper class that contains all the cardinal directions
-     */
-    private abstract static class Directions {
-        @SerializedName("north_east")
-        protected String northEast;
-        @SerializedName("north")
-        protected String north;
-        @SerializedName("north_west")
-        protected String northWest;
-        @SerializedName("west")
-        protected String west;
-        @SerializedName("south_west")
-        protected String southWest;
-        @SerializedName("south")
-        protected String south;
-        @SerializedName("south_east")
-        protected String southEast;
-        @SerializedName("east")
-        protected String east;
-
-        public Directions() {}
-        public Directions(Directions directions) {
-            this.northEast = directions.northEast;
-            this.north = directions.north;
-            this.northWest = directions.northWest;
-            this.west = directions.west;
-            this.southWest = directions.southWest;
-            this.south = directions.south;
-            this.southEast = directions.southEast;
-            this.east = directions.east;
-        }
-
-        public String getNorthEast() {
-            return northEast;
-        }
-
-        public String getNorth() {
-            return north;
-        }
-
-        public String getNorthWest() {
-            return northWest;
-        }
-
-        public String getWest() {
-            return west;
-        }
-
-        public String getSouthWest() {
-            return southWest;
-        }
-
-        public String getSouth() {
-            return south;
-        }
-
-        public String getSouthEast() {
-            return southEast;
-        }
-
-        public String getEast() {
-            return east;
-        }
     }
 }

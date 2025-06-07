@@ -1,6 +1,7 @@
 package one.oth3r.directionhud.common.hud.module;
 
 import com.google.gson.annotations.SerializedName;
+import one.oth3r.directionhud.common.hud.module.display.DisplaySettings;
 import one.oth3r.directionhud.common.hud.module.setting.ModuleSetting;
 import one.oth3r.directionhud.common.hud.module.setting.ModuleSettingHandler;
 import one.oth3r.directionhud.common.hud.module.setting.ModuleSettingHandlerRegistry;
@@ -46,7 +47,6 @@ public abstract class BaseModule implements Cloneable {
         return settings.stream().anyMatch(m -> m.getId().equals(settingID));
     }
 
-    @SuppressWarnings("unchecked")
     public <V> ActionResult setSetting(String settingID, String strValue) {
         Lang LANG = ModuleManager.Setting.LANG;
         if (hasSetting(settingID)) {
@@ -144,7 +144,6 @@ public abstract class BaseModule implements Cloneable {
         }
     }
 
-
     /**
      * returns the settings IDs for the module, empty if no extra settings are in the module
      * @return an array of IDs
@@ -152,6 +151,8 @@ public abstract class BaseModule implements Cloneable {
     public String[] getSettingIDs() {
         return settings.stream().map(ModuleSetting::getId).toArray(String[]::new);
     }
+
+    public abstract DisplaySettings getDisplaySettings();
 
     public void setOrder(Integer order) {
         this.order = order;

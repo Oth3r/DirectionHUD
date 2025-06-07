@@ -1,14 +1,18 @@
 package one.oth3r.directionhud.common.hud.module.modules;
 
-import one.oth3r.directionhud.common.files.FileData;
-import one.oth3r.directionhud.common.files.ModuleText;
 import one.oth3r.directionhud.common.hud.module.BaseModule;
+import one.oth3r.directionhud.common.hud.module.display.DisplaySettings;
+import one.oth3r.directionhud.common.hud.module.display.DisplayRegistry;
 import one.oth3r.directionhud.common.hud.module.setting.BooleanModuleSettingHandler;
 import one.oth3r.directionhud.common.hud.module.Module;
 import one.oth3r.directionhud.common.utils.Helper;
 
 public class ModuleTime extends BaseModule {
     public static final String hour24ID = "24hr-clock";
+
+    public ModuleTime() {
+        super(Module.TIME);
+    }
 
     public ModuleTime(Integer order, boolean state, boolean hour24) {
         super(Module.TIME, order, state);
@@ -44,11 +48,24 @@ public class ModuleTime extends BaseModule {
         // add 0 to the start, then set the string to the last two numbers to always have a 2-digit number
         String min = Helper.Num.formatToTwoDigits(minute);
 
-        ModuleText.ModuleTime time = FileData.getModuleText().getTime();
         // get the format string based on 12 or 24 hour
         String formatString =
-                time12 ? hour >=12 ? time.getHourPM() : time.getHourAM() : time.getHour24();
+                time12 ? hour >=12 ? DISPLAY_PM : DISPLAY_AM : DISPLAY_24;
 
-        return String.format(formatString, hr, min);
+        return DisplayRegistry.getFormatted(this.moduleType,formatString, hr, min);
+    }
+
+    public static final String DISPLAY_AM = "hour_AM";
+    public static final String DISPLAY_PM = "hour_PM";
+    public static final String DISPLAY_24 = "hour_24";
+
+    @Override
+    public DisplaySettings getDisplaySettings() {
+        DisplaySettings display = new DisplaySettings();
+        display.addDisplay(DISPLAY_AM,"&2%s&1:&2%s &1AM");
+        display.addDisplay(DISPLAY_PM,"&2%s&1:&2%s &1PM");
+        display.addDisplay(DISPLAY_24,"&2%s&1:&2%s");
+
+        return display;
     }
 }

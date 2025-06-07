@@ -1,7 +1,8 @@
 package one.oth3r.directionhud.common.hud.module.modules;
 
-import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.hud.module.BaseModule;
+import one.oth3r.directionhud.common.hud.module.display.DisplaySettings;
+import one.oth3r.directionhud.common.hud.module.display.DisplayRegistry;
 import one.oth3r.directionhud.common.hud.module.setting.*;
 import one.oth3r.directionhud.common.hud.module.Module;
 
@@ -10,6 +11,10 @@ import java.text.DecimalFormat;
 public class ModuleSpeed extends BaseModule {
     public static final String calculation2DID = "2d-calculation";
     public static final String displayPatternID = "display-pattern";
+
+    public ModuleSpeed() {
+        super(Module.SPEED);
+    }
 
     public ModuleSpeed(Integer order, boolean state, boolean calculation2D, String displayPattern) {
         super(Module.SPEED, order, state);
@@ -65,7 +70,19 @@ public class ModuleSpeed extends BaseModule {
         DecimalFormat df = new DecimalFormat(getSettingValue(displayPatternID));
         String data = df.format(speed);
 
-        if (speed2D) return String.format(FileData.getModuleText().getSpeed().getXzSpeed(), data);
-        return String.format(FileData.getModuleText().getSpeed().getXyzSpeed(), data);
+        if (speed2D) return DisplayRegistry.getFormatted(this.moduleType,DISPLAY_XYZ,data);
+        return DisplayRegistry.getFormatted(this.moduleType,DISPLAY_XZ,data);
+    }
+
+    public static final String DISPLAY_XYZ = "xyz_speed";
+    public static final String DISPLAY_XZ = "xz_speed";
+
+    @Override
+    public DisplaySettings getDisplaySettings() {
+        DisplaySettings display = new DisplaySettings();
+        display.addDisplay(DISPLAY_XZ,"&2%s &1B/S");
+        display.addDisplay(DISPLAY_XYZ,"&2%s &1B/S");
+
+        return display;
     }
 }

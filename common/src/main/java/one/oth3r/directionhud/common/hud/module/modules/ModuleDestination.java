@@ -1,12 +1,16 @@
 package one.oth3r.directionhud.common.hud.module.modules;
 
-import one.oth3r.directionhud.common.files.FileData;
-import one.oth3r.directionhud.common.files.ModuleText;
 import one.oth3r.directionhud.common.hud.module.BaseModule;
 import one.oth3r.directionhud.common.hud.module.Module;
+import one.oth3r.directionhud.common.hud.module.display.DisplaySettings;
+import one.oth3r.directionhud.common.hud.module.display.DisplayRegistry;
 import one.oth3r.directionhud.common.utils.Dest;
 
 public class ModuleDestination extends BaseModule {
+    public ModuleDestination() {
+        super(Module.DESTINATION);
+    }
+
     public ModuleDestination(Integer order, boolean state) {
         super(Module.DESTINATION, order, state);
     }
@@ -20,19 +24,34 @@ public class ModuleDestination extends BaseModule {
     @Override
     protected String display(Object... args) {
         Dest dest = (Dest) args[0];
-        ModuleText.ModuleDestination moduleDestination = FileData.getModuleText().getDestination();
         // return based on the destination
         if (dest.getName() != null && dest.hasY()) {
-            return String.format(moduleDestination.getName(), dest.getName(), dest.getX(), dest.getY(), dest.getZ());
+            return DisplayRegistry.getFormatted(this.moduleType,DISPLAY_NAME, dest.getName(), dest.getX(), dest.getY(), dest.getZ());
         }
         else if (dest.getName() != null) {
-            return String.format(moduleDestination.getNameXz(), dest.getName(), dest.getX(), dest.getZ());
+            return DisplayRegistry.getFormatted(this.moduleType,DISPLAY_NAME_XZ, dest.getName(), dest.getX(), dest.getZ());
         }
         else if (dest.hasY()) {
-            return String.format(moduleDestination.getXyz(), dest.getX(), dest.getY(), dest.getZ(), dest.getZ());
+            return DisplayRegistry.getFormatted(this.moduleType,DISPLAY_XYZ, dest.getX(), dest.getY(), dest.getZ(), dest.getZ());
         }
         else {
-            return String.format(moduleDestination.getXz(), dest.getX(), dest.getZ());
+            return DisplayRegistry.getFormatted(this.moduleType,DISPLAY_XZ, dest.getX(), dest.getZ());
         }
+    }
+
+    public static final String DISPLAY_XYZ = "xyz";
+    public static final String DISPLAY_XZ = "xz";
+    public static final String DISPLAY_NAME = "name";
+    public static final String DISPLAY_NAME_XZ = "name_xz";
+
+    @Override
+    public DisplaySettings getDisplaySettings() {
+        DisplaySettings display = new DisplaySettings();
+        display.addDisplay(DISPLAY_XYZ,"&1[&2%s %s %s&1]");
+        display.addDisplay(DISPLAY_XZ,"&1[&2%s %s&1]");
+        display.addDisplay(DISPLAY_NAME,"&1[&2%s&1]");
+        display.addDisplay(DISPLAY_NAME_XZ,"&1[&2%s&1]");
+
+        return display;
     }
 }

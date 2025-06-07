@@ -1,9 +1,11 @@
 package one.oth3r.directionhud.common.hud.module.modules;
 
+import static one.oth3r.directionhud.common.Assets.symbols.arrows;
 import one.oth3r.directionhud.common.Assets;
-import one.oth3r.directionhud.common.files.FileData;
-import one.oth3r.directionhud.common.files.ModuleText;
 import one.oth3r.directionhud.common.hud.module.BaseModule;
+import one.oth3r.directionhud.common.hud.module.display.DisplaySettings;
+import one.oth3r.directionhud.common.hud.module.display.DirectionAssetGroup;
+import one.oth3r.directionhud.common.hud.module.display.DisplayRegistry;
 import one.oth3r.directionhud.common.hud.module.setting.*;
 import one.oth3r.directionhud.common.hud.module.Module;
 import one.oth3r.directionhud.common.utils.Helper;
@@ -16,6 +18,10 @@ public class ModuleTracking extends BaseModule {
     public static final String targetID = "target";
     public static final String typeID = "display-type";
     public static final String elevationID = "show-elevation";
+
+    public ModuleTracking() {
+        super(Module.TRACKING);
+    }
 
     public ModuleTracking(Integer order, boolean state, boolean hybrid, Target target, Type type, boolean elevation) {
         super(Module.TRACKING, order, state);
@@ -94,11 +100,10 @@ public class ModuleTracking extends BaseModule {
         boolean simple = getSettingValue(typeID).equals(Type.simple), hasElevation = getSettingValue(elevationID);
         double target;
         String data;
-        ModuleText.ModuleTracking.Assets assets = FileData.getModuleText().getTracking().getAssets();
-        ModuleText.ModuleTracking.Assets.Simple simpleArrows = assets.getSimple();
-        ModuleText.ModuleTracking.Assets.Compact compactArrows = assets.getCompact();
-        ModuleText.ModuleTracking.Assets.Elevation elevationArrows = assets.getElevation();
 
+        DisplaySettings display = DisplayRegistry.getModuleDisplay(this.moduleType);
+        DisplaySettings.AssetGroup arrows = display.getAssetGroup(simple?ASSET_SIMPLE:ASSET_COMPACT);
+        DisplaySettings.AssetGroup elevation = display.getAssetGroup(ASSET_ELEVATION);
 
         // find the rotation needed for the originloc to 'face' the targetloc
         int x = targetLoc.getX()-originLoc.getX();
@@ -108,47 +113,88 @@ public class ModuleTracking extends BaseModule {
 
         // NORTH
         if (Helper.Num.inBetween(originRotation, Helper.Num.wSubtract(target,15,360), Helper.Num.wAdd(target,15,360)))
-            data = simple?simpleArrows.getNorth():compactArrows.getNorth();
+            data = arrows.get(DirectionAssetGroup.NORTH);
             // NORTH WEST
         else if (Helper.Num.inBetween(originRotation, target, Helper.Num.wAdd(target,65,360)))
-            data = simple?simpleArrows.getNorthWest():compactArrows.getNorthWest();
+            data = arrows.get(DirectionAssetGroup.NORTH_WEST);
             // WEST
         else if (Helper.Num.inBetween(originRotation, target, Helper.Num.wAdd(target,115,360)))
-            data = simple?simpleArrows.getWest():compactArrows.getWest();
+            data = arrows.get(DirectionAssetGroup.WEST);
             // SOUTH WEST
         else if (Helper.Num.inBetween(originRotation, target, Helper.Num.wAdd(target,165,360)))
-            data = simple?simpleArrows.getSouthWest():compactArrows.getSouthWest();
+            data = arrows.get(DirectionAssetGroup.SOUTH_WEST);
             // NORTH EAST
         else if (Helper.Num.inBetween(originRotation, Helper.Num.wSubtract(target, 65, 360), target))
-            data = simple?simpleArrows.getNorthEast():compactArrows.getNorthEast();
+            data = arrows.get(DirectionAssetGroup.NORTH_EAST);
             // EAST
         else if (Helper.Num.inBetween(originRotation, Helper.Num.wSubtract(target, 115, 360), target))
-            data = simple?simpleArrows.getEast():compactArrows.getEast();
+            data = arrows.get(DirectionAssetGroup.EAST);
             // SOUTH EAST
         else if (Helper.Num.inBetween(originRotation, Helper.Num.wSubtract(target, 165, 360), target))
-            data = simple?simpleArrows.getSouthEast():compactArrows.getSouthEast();
+            data = arrows.get(DirectionAssetGroup.SOUTH_EAST);
             // SOUTH
-        else data = simple?simpleArrows.getSouth():compactArrows.getSouth();
+        else data = arrows.get(DirectionAssetGroup.SOUTH);
 
         // if the elevation is enabled and the target has a Y level
         if (hasElevation && targetLoc.hasY()) {
             int originY = originLoc.getY(), targetY = targetLoc.getY();
-            String elevation;
+            // find which elevation asset ID to use
+            String elevationID;
             // a dash if in Y range or the target has no Y
             if (!targetLoc.hasY() || (originY-2 < targetY && targetY < originY+2)) {
-                elevation = elevationArrows.getSame();
+                elevationID = ELEVATION_SAME;
             }
             else if (originY > targetY) {
-                elevation = elevationArrows.getBelow();
+                elevationID = ELEVATION_BELOW;
             }
             else {
-                elevation = elevationArrows.getAbove();
+                elevationID = ELEVATION_ABOVE;
             }
+
             // return the formatted elevation version of the module
-            return String.format(FileData.getModuleText().getTracking().getElevationTracking(), data, elevation);
+            return DisplayRegistry.getFormatted(this.moduleType,DISPLAY_ELEVATION_TRACKING, data,elevation.get(elevationID));
         }
         // return the non elevation version of the module
-        return String.format(FileData.getModuleText().getTracking().getTracking(), data);
+        return DisplayRegistry.getFormatted(this.moduleType,DISPLAY_TRACKING, data);
+    }
+
+    public static final String ASSET_SIMPLE = "simple";
+    public static final String ASSET_COMPACT = "compact";
+    public static final String ASSET_ELEVATION = "elevation";
+    public static final String ELEVATION_ABOVE = "above";
+    public static final String ELEVATION_SAME = "same";
+    public static final String ELEVATION_BELOW = "below";
+
+
+    public static final String DISPLAY_TRACKING = "tracking";
+    public static final String DISPLAY_ELEVATION_TRACKING = "elevation_tracking";
+
+    @Override
+    public DisplaySettings getDisplaySettings() {
+        DisplaySettings display = new DisplaySettings();
+        display.addAssetGroup(ASSET_SIMPLE, DirectionAssetGroup.create(
+                "-" + arrows.up + arrows.right,
+                "-" + arrows.up + "-",
+                arrows.left + arrows.up + "-",
+                arrows.left + "--",
+                arrows.left + arrows.down + "-",
+                "-" + arrows.down + "-",
+                "-" + arrows.down + arrows.right,
+                "--" + arrows.right));
+        display.addAssetGroup(ASSET_COMPACT, DirectionAssetGroup.create(
+                arrows.north_east,arrows.north,arrows.north_west,
+                arrows.west,
+                arrows.south_west,arrows.south,arrows.south_east,
+                arrows.east
+                ));
+        display.addAsset(ASSET_ELEVATION,"above",arrows.north);
+        display.addAsset(ASSET_ELEVATION,"same","-");
+        display.addAsset(ASSET_ELEVATION,"below",arrows.south);
+
+        display.addDisplay(DISPLAY_TRACKING,"&1&s[&r&2%s&1&s]");
+        display.addDisplay(DISPLAY_ELEVATION_TRACKING,"&1&s[&r&2%s&1|&2%s&1&s]");
+
+        return display;
     }
 
     public enum Target {
