@@ -36,8 +36,8 @@ public class ModuleWeather extends BaseModule {
     @Override
     public DisplaySettings getDisplaySettings() {
         DisplaySettings display = new DisplaySettings();
-        display.addDisplay(DISPLAY_WEATHER,"&1%s");
-        display.addDisplay(DISPLAY_WEATHER_SINGLE,"&1%s%s");
+        display.addDisplay(DISPLAY_WEATHER_SINGLE,"&1%s");
+        display.addDisplay(DISPLAY_WEATHER,"&1%s%s");
 
         return display;
     }
