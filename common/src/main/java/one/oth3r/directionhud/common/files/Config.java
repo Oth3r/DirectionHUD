@@ -34,7 +34,7 @@ public class Config implements CustomFile<Config> {
     private transient boolean legacyCheck = false;
 
     @SerializedName("version")
-    private Double version = 1.6;
+    private Double version = 1.61;
     @SerializedName("lang")
     private String lang = "en_us";
     @SerializedName("lang-options") @SuppressWarnings("unused")
@@ -367,7 +367,10 @@ public class Config implements CustomFile<Config> {
      */
     @Override
     public void updateFileInstance() {
-
+        if (version.equals(1.6)) {
+            version = 1.61;
+            this.lang = this.lang.substring(0,3)+this.lang.substring(3).toUpperCase();
+        }
     }
 
     /**
@@ -525,7 +528,7 @@ public class Config implements CustomFile<Config> {
                                 Boolean.parseBoolean(properties.getProperty("hud.module.speed", String.valueOf(false))),
                                 !Boolean.parseBoolean(properties.getProperty("hud.settings.module.speed_3d", String.valueOf(false))),
                                 properties.getProperty("hud.settings.module.speed_pattern", "0.00"));
-                        default -> new ModuleCoordinates(null,false, true);
+                        default -> new ModuleCoordinates();
                     });
 
                     i++;
@@ -628,7 +631,7 @@ public class Config implements CustomFile<Config> {
                                     Boolean.parseBoolean(properties.getProperty("time24hr", String.valueOf(false))));
                             case ANGLE -> new ModuleAngle(i,false,ModuleAngle.Display.both);
                             case SPEED -> new ModuleSpeed(i,false,false,"0.00");
-                            default -> new ModuleCoordinates(null, false, true);
+                            default -> new ModuleCoordinates();
                         });
 
                         i++;
