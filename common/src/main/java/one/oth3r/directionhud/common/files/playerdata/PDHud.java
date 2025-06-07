@@ -39,7 +39,8 @@ public class PDHud {
             new ModuleWeather(5, true),
             new ModuleTime(6, true, false),
             new ModuleAngle(7, false, ModuleAngle.Display.both),
-            new ModuleSpeed(8, false, false, "0.00")
+            new ModuleSpeed(8, false, false, "0.00"),
+            new ModuleLight(9,false, ModuleLight.Target.eye, ModuleLight.Display.block)
     ));
     @SerializedName("setting")
     private Settings setting = new Settings();

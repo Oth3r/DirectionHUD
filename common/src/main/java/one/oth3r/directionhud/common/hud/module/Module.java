@@ -18,6 +18,7 @@ public enum Module {
     TIME("time", ModuleTime.class, List.of(Integer.class, Integer.class)),
     ANGLE("angle", ModuleAngle.class, List.of(Float.class, Float.class)),
     SPEED("speed", ModuleSpeed.class, List.of(Double.class)),
+    LIGHT("light", ModuleLight.class, List.of(Integer.class, Integer.class)),
     UNKNOWN("unknown", null, List.of());
 
     private final String name;

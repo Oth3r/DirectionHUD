@@ -174,6 +174,7 @@ public class Hud {
             instructions.put(Module.TIME, getTimeModule(player));
             instructions.put(Module.ANGLE, getAngleModule(player));
             instructions.put(Module.SPEED, getSpeedModule(player));
+            instructions.put(Module.LIGHT, getLightModule(player));
             return instructions;
         }
 
@@ -330,6 +331,14 @@ public class Hud {
 
             // assets
             return module.getDisplayString(player.getPCache().getSpeedData().getSpeed());
+        }
+
+        public static String getLightModule(Player player) {
+            ModuleLight module = player.getPCache().getHud().getModule(Module.LIGHT);
+            if (!module.isEnabled()) return "";
+            int[] lightLevel = player.getLightLevels(module.getSettingValue(ModuleLight.targetID).equals(ModuleLight.Target.eye));
+
+            return module.getDisplayString(lightLevel[0], lightLevel[1]);
         }
     }
 
@@ -554,6 +563,7 @@ public class Hud {
                                 random.nextBoolean() ? "" : random.nextBoolean() ? defaultIcons.storm() : defaultIcons.thunderstorm());
                 case SPEED -> mod.getDisplayTxT(player, random.nextDouble(1, 12));
                 case ANGLE -> mod.getDisplayTxT(player, random.nextFloat(-180, 180.1f), random.nextFloat(-90, 90.1f));
+                case LIGHT -> mod.getDisplayTxT(player, random.nextInt(0, 16), random.nextInt(0, 16));
                 // default is coordinates module
                 default -> mod.getDisplayTxT(player, randomLoc);
             };

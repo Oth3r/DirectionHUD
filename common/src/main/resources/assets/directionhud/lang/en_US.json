@@ -155,6 +155,7 @@
   "directionhud.hud.module.info.weather": "Displays the weather status of the current world.",
   "directionhud.hud.module.info.speed": "Displays the current movement speed.",
   "directionhud.hud.module.info.angle": "Displays the current viewing angle.",
+  "directionhud.hud.module.info.light": "Displays the sky and block light level for the current view target or location.",
 
   "directionhud.hud.module.msg.reset_all": "Reset %s HUD modules!",
   "directionhud.hud.module.msg.reset": "Reset the %s module settings!",
@@ -288,6 +289,21 @@
   "directionhud.hud.module.setting.angle.display.pitch.info": "Displays the player's Pitch.",
   "directionhud.hud.module.setting.angle.display.both": "Both",
   "directionhud.hud.module.setting.angle.display.both.info": "Displays both the player's Yaw & Pitch.",
+
+  "directionhud.hud.module.setting.light.light_display": "light display",
+  "directionhud.hud.module.setting.light.light_display.ui": "Light Display",
+  "directionhud.hud.module.setting.light.light_display.sky": "Sky",
+  "directionhud.hud.module.setting.light.light_display.sky.info": "Displays the sky light level.",
+  "directionhud.hud.module.setting.light.light_display.block": "Block",
+  "directionhud.hud.module.setting.light.light_display.block.info": "Displays the block light level.",
+  "directionhud.hud.module.setting.light.light_display.both": "Both",
+  "directionhud.hud.module.setting.light.light_display.both.info": "Displays both the sky and block light level.",
+  "directionhud.hud.module.setting.light.light_target": "light target",
+  "directionhud.hud.module.setting.light.light_target.ui": "Light Target",
+  "directionhud.hud.module.setting.light.light_target.eye": "Eye",
+  "directionhud.hud.module.setting.light.light_target.eye.info": "Displays the light level of the block in front of the currently targeted block.",
+  "directionhud.hud.module.setting.light.light_target.below": "Below",
+  "directionhud.hud.module.setting.light.light_target.below.info": "Displays the light level of the block at the player's feet.",
 
 
   "hud.color.ui": "HUD Color",

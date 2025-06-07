@@ -25,7 +25,8 @@ public class Events {
         // register the module text
         List<BaseModule> modules = List.of(
                 new ModuleAngle(),new ModuleCoordinates(),new ModuleDestination(),new ModuleDirection(),
-                new ModuleDistance(),new ModuleSpeed(),new ModuleTime(),new ModuleTracking(),new ModuleWeather()
+                new ModuleDistance(),new ModuleSpeed(),new ModuleTime(),new ModuleTracking(),new ModuleWeather(),
+                new ModuleLight()
         );
         modules.forEach(bm -> DisplayRegistry.registerModuleDisplay(bm.getModuleType(),bm.getDisplaySettings()));
     }
