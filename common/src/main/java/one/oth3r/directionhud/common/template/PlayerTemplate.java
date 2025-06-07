@@ -47,6 +47,14 @@ public abstract class PlayerTemplate {
 
     public abstract float getYaw();
     public abstract float getPitch();
+
+    /**
+     * gets the light level.
+     * @param lookTarget if enabled, it will get the light level of the next closest target after the player's target-look block
+     * @return an int array, 2 in length, first entry for the skylight, second entry for the block light. -1 is returned if not found
+     */
+    public abstract int[] getLightLevels(boolean lookTarget);
+
     public abstract Vec getVec();
     public abstract Loc getLoc();
     public abstract int getBlockX();
