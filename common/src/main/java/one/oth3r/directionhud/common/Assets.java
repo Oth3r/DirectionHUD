@@ -101,6 +101,7 @@ public class Assets {
         public static final String local = "\uD83D\uDCDA";
         public static final String global = "\uD83E\uDDED";
         public static final String mountain = "\u26F0";
+        public static final String eye = "\uD83D\uDC41";
     }
 
     public enum packets {
