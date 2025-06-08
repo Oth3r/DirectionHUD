@@ -69,35 +69,42 @@ public class ModuleText implements CustomFile<ModuleText> {
         if (jsonObject.getAsJsonPrimitive("version").getAsDouble() < 1.1) {
             /*
                 this update restructures the module-text.json file from having all the modules on the root to having them in a hashmap under modules
-                this update also adds a new boolean, load-missing on the root
+                it will only update the entries that have been updated per the new boolean \/
+                this update also adds a new boolean, load-missing on the root (defaults to false)
 
                 each module now has their own "displays" and "assets" subcategories to further help with reading and loading the file.
              */
             JsonElement newJson = gson.toJsonTree(new ModuleText());
             JsonObject modules = newJson.getAsJsonObject().getAsJsonObject("modules");
 
-            String[] moduleStrings = {"coordinates","destination","distance","tracking","direction","weather","time","angle","speed"};
+            // get a map with all the currently registered displays (for comparison’s sake)
+            JsonObject registeredModuleList = gson.toJsonTree(DisplayRegistry.getModules()).getAsJsonObject();
 
+            // list of module string from <=1.8
+            String[] moduleStrings = {"coordinates","destination","distance","tracking","direction","weather","time","angle","speed"};
+            // loop through each module
             for (String moduleString : moduleStrings) {
-                JsonObject moduleObject = new JsonObject(), oldModule = jsonObject.getAsJsonObject(moduleString);
+                JsonObject moduleObject = new JsonObject(), oldModule = jsonObject.getAsJsonObject(moduleString),
+                        registeredModule = registeredModuleList.getAsJsonObject(moduleString);
                 JsonObject displays = new JsonObject();
                 JsonObject assets = new JsonObject();
 
                 switch (moduleString) {
-                    case "coordinates" -> DynamicUpdater.handleSimpleUpdate(oldModule, displays, new String[]{"xyz", "xz"});
-                    case "destination" -> DynamicUpdater.handleSimpleUpdate(oldModule, displays, new String[]{"xyz", "xz", "name", "name_xz"});
-                    case "distance" -> DynamicUpdater.handleSimpleUpdate(oldModule, displays, new String[]{"number"});
-                    case "tracking" -> DynamicUpdater.handleModuleWithAssets(oldModule,displays,assets,new String[]{"tracking","elevation_tracking"},new String[]{"simple","compact","elevation"});
-                    case "direction" -> DynamicUpdater.handleModuleWithAssets(oldModule,displays,assets,new String[]{"facing"}, new String[]{"cardinal"});
-                    case "weather" -> DynamicUpdater.handleSimpleUpdate(oldModule, displays, new String[]{"weather","weather_single"});
-                    case "time" -> DynamicUpdater.handleSimpleUpdate(oldModule, displays, new String[]{"hour_AM","hour_PM","hour_24"});
-                    case "angle" -> DynamicUpdater.handleSimpleUpdate(oldModule, displays, new String[]{"yaw","pitch","both"});
-                    case "speed" -> DynamicUpdater.handleSimpleUpdate(oldModule, displays, new String[]{"xz_speed","xyz_speed"});
+                    case "coordinates" -> DynamicUpdater.handleSimpleUpdate(registeredModule,oldModule, displays, new String[]{"xyz", "xz"});
+                    case "destination" -> DynamicUpdater.handleSimpleUpdate(registeredModule,oldModule, displays, new String[]{"xyz", "xz", "name", "name_xz"});
+                    case "distance" -> DynamicUpdater.handleSimpleUpdate(registeredModule,oldModule, displays, new String[]{"number"});
+                    case "tracking" -> DynamicUpdater.handleModuleWithAssets(registeredModule,oldModule,displays,assets,new String[]{"tracking","elevation_tracking"},new String[]{"simple","compact","elevation"});
+                    case "direction" -> DynamicUpdater.handleModuleWithAssets(registeredModule,oldModule,displays,assets,new String[]{"facing"}, new String[]{"cardinal"});
+                    case "weather" -> DynamicUpdater.handleSimpleUpdate(registeredModule,oldModule, displays, new String[]{"weather","weather_single"});
+                    case "time" -> DynamicUpdater.handleSimpleUpdate(registeredModule,oldModule, displays, new String[]{"hour_AM","hour_PM","hour_24"});
+                    case "angle" -> DynamicUpdater.handleSimpleUpdate(registeredModule,oldModule, displays, new String[]{"yaw","pitch","both"});
+                    case "speed" -> DynamicUpdater.handleSimpleUpdate(registeredModule,oldModule, displays, new String[]{"xz_speed","xyz_speed"});
                 }
-
-                moduleObject.add("displays", displays);
-                if (!assets.isEmpty()) moduleObject.add("assets", assets);
-                modules.add(moduleString,moduleObject);
+                if (!displays.isEmpty() || !assets.isEmpty()) {
+                    if (!displays.isEmpty()) moduleObject.add("displays", displays);
+                    if (!assets.isEmpty()) moduleObject.add("assets", assets);
+                    modules.add(moduleString, moduleObject);
+                }
             }
             // update the json
             json = newJson;
@@ -110,16 +117,29 @@ public class ModuleText implements CustomFile<ModuleText> {
      * the updater class from the old, static way of moduletext to the new, dynamic registering way.
      */
     private static class DynamicUpdater {
-        private static void handleSimpleUpdate(JsonObject oldModule, JsonObject displays, String[] displayStrings) {
+        private static void handleSimpleUpdate(JsonObject registeredModule, JsonObject oldModule, JsonObject displays, String[] displayStrings) {
+            // filter down to each display
+            registeredModule = registeredModule.getAsJsonObject("displays");
             for (String key : displayStrings) {
-                displays.addProperty(key, oldModule.get(key).getAsString());
+                String oldString = oldModule.get(key).getAsString();
+                // don't do anything if the old module was left as default (the new system default to not populating old entries)
+                if (registeredModule.get(key).getAsString().equals(oldString)) return;
+                // else add it (there was a change)
+                displays.addProperty(key, oldString);
             }
         }
-        private static void handleModuleWithAssets(JsonObject oldModule, JsonObject displays, JsonObject assets, String[] displayStrings, String[] assetStrings) {
-            handleSimpleUpdate(oldModule,displays,displayStrings);
+        private static void handleModuleWithAssets(JsonObject registeredModule, JsonObject oldModule, JsonObject displays, JsonObject assets, String[] displayStrings, String[] assetStrings) {
+            handleSimpleUpdate(registeredModule,oldModule,displays,displayStrings);
+            // filter down to each asset
+            JsonObject registeredAssets = registeredModule.getAsJsonObject("assets");
             JsonObject oldAssets = oldModule.get("assets").getAsJsonObject();
+
             for (String key : assetStrings) {
-                assets.add(key, oldAssets.get(key).getAsJsonObject());
+                JsonObject assetObject = oldAssets.getAsJsonObject(key);
+                // don't do anything if the old asset was left as default
+                if (registeredAssets.getAsJsonObject(key).equals(assetObject)) return;
+                // else add the old asset
+                assets.add(key, assetObject);
             }
         }
     }

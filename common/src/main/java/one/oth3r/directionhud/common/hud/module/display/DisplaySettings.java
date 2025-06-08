@@ -87,7 +87,7 @@ public class DisplaySettings {
         for (Map.Entry<String, String> displayEntry : displays.entrySet()) {
             String innerKey = displayEntry.getKey();
             String inputValue = display.getDisplay(innerKey);
-            if (inputValue != null) {
+            if (inputValue != null && !inputValue.isEmpty()) {
                 displays.put(innerKey, inputValue);
             }
         }
@@ -96,7 +96,7 @@ public class DisplaySettings {
             for (String groupID : assets.getGroupIDs()) {
                 AssetGroup innerMap = assets.getAssets(groupID);
                 AssetGroup inputValue = display.getAssetGroup(groupID);
-                if (inputValue != null) {
+                if (inputValue != null && !inputValue.isEmpty()) {
                     for (Map.Entry<String, String> assetEntry : inputValue.entrySet()) {
                         String innerAssetID = assetEntry.getKey();
                         String innerAsset = assetEntry.getValue();
