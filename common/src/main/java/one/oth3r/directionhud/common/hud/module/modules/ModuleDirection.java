@@ -6,16 +6,13 @@ import one.oth3r.directionhud.common.hud.module.display.*;
 import one.oth3r.directionhud.common.utils.Helper;
 
 public class ModuleDirection extends BaseModule {
-    public static final String ASSET_CARDINAl = "cardinal";
-    public static final String DISPLAY_FACING = "facing";
-
     public ModuleDirection() {
         super(Module.DIRECTION);
     }
+
     public ModuleDirection(Integer order, boolean state) {
         super(Module.DIRECTION, order, state);
     }
-
     /**
      * the logic for getting the string for the module display
      *
@@ -39,6 +36,9 @@ public class ModuleDirection extends BaseModule {
 
         return DisplayRegistry.getFormatted(this.moduleType,DISPLAY_FACING,cardinal);
     }
+
+    public static final String ASSET_CARDINAl = "cardinal";
+    public static final String DISPLAY_FACING = "facing";
 
     @Override
     public DisplaySettings getDisplaySettings() {
