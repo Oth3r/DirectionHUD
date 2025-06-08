@@ -8,7 +8,7 @@ import one.oth3r.directionhud.common.hud.module.Module;
 import one.oth3r.directionhud.common.utils.Loc;
 
 public class ModuleCoordinates extends BaseModule {
-    public static final String xyzID = "xyz-display";
+    public static final String xyzID = "coordinates_xyz-display";
 
     public ModuleCoordinates() {
         super(Module.COORDINATES);

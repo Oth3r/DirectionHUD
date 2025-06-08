@@ -9,8 +9,8 @@ import one.oth3r.directionhud.common.hud.module.Module;
 import java.text.DecimalFormat;
 
 public class ModuleSpeed extends BaseModule {
-    public static final String calculation2DID = "2d-calculation";
-    public static final String displayPatternID = "display-pattern";
+    public static final String calculation2DID = "speed_2d-calculation";
+    public static final String displayPatternID = "speed_display-pattern";
 
     public ModuleSpeed() {
         super(Module.SPEED);

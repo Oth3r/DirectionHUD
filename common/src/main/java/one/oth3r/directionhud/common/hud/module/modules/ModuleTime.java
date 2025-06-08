@@ -8,7 +8,7 @@ import one.oth3r.directionhud.common.hud.module.Module;
 import one.oth3r.directionhud.common.utils.Helper;
 
 public class ModuleTime extends BaseModule {
-    public static final String hour24ID = "24hr-clock";
+    public static final String hour24ID = "time_24hr";
 
     public ModuleTime() {
         super(Module.TIME);

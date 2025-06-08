@@ -14,10 +14,10 @@ import one.oth3r.directionhud.common.utils.Loc;
 import java.util.Objects;
 
 public class ModuleTracking extends BaseModule {
-    public static final String hybridID = "hybrid";
-    public static final String targetID = "target";
-    public static final String typeID = "display-type";
-    public static final String elevationID = "show-elevation";
+    public static final String hybridID = "tracking_hybrid";
+    public static final String targetID = "tracking_target";
+    public static final String typeID = "tracking_display";
+    public static final String elevationID = "tracking_show-elevation";
 
     public ModuleTracking() {
         super(Module.TRACKING);

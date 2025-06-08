@@ -15,7 +15,7 @@ import java.text.DecimalFormat;
 import java.util.Objects;
 
 public class ModuleAngle extends BaseModule {
-    public static final String displayID = "display";
+    public static final String displayID = "angle_display";
 
     public ModuleAngle() {
         super(Module.ANGLE);
