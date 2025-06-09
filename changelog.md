@@ -1,77 +1,69 @@
-## v1.8.0.7
-* fixed the fallback language not working (spigot)
-* bumped config version to 1.61
-  * fixed the config language not being updated to the new case system (only a major issue for spigot)
+## b1.8.1.0.0 Modular Modules pt.2 (BETA)
+⚠️ THIS IS A BETA. \
+Upgrading to the latest stable 1.8.1 edition when it comes out **will be supported**, but please **delete all** new playerdata and config files if you want to downgrade. \
+Please report all bugs you find in these betas in [Discord](https://www.oth3r.one/discord) or [GitHub](https://github.com/Oth3r/DirectionHUD/issues)! \
+Everything should mostly work, just missing some polishing and tiny extra features.
 
-## v1.8.0.6
-* fixed HUD color `reset` button not working in the color edit screen 
-* synced localization files with Crowdin - thanks to all the contributors!
-  * German (de_De) and Slovak (sk_SK) are now at 100% translated!
 
-## v1.8.0.5
-* removed debug console printing on client (Fabric) (1.21.5)
-* fixed crash when tracking a target with no y level with elevation enabled on the tracking module
+Modular Modules? What about MORE modularity? \
+This update adds more to the base update that came before, with the backend changes that add dynamic module settings and display settings.
 
-## v1.8.0.4
-* fixed actionbar not displaying as fast on client (Fabric) (1.21.5)
+### Modules
+#### New light level module!
+This module includes an option to choose between viewing the light level at the player's target block or below the player with the light_target setting.
+The other setting for this module is the light_display setting. It can be used to choose between displaying skylight, block light, or both.
 
-## v1.8.0.3
-port to spigot and paper, also now with support for folia!
+#### Module Settings
+Changed module setting names to be more unique. This change is made for the new settings system. \
+Setting that are on / off now can be toggled with true / false
 
-* spigot and paper now have separate jar files
-* both versions are now bumped up to v1.8
-* the paper version now supports folia
-* all versions are now available on the main [DirectionHUD Modrinth page](https://modrinth.com/mod/directionhud).
+#### New HUD Module UI
+With the new Module Edit UI introduced in 1.8, there was going to be an issue when more modules got added.
+To fix this, disabled modules and enabled modules are now split! \
+Disabled modules now are orderless, and their order will automatically be the last in the module order when enabled / re-enabled.
+
+#### Module Text File
+The module-text.json file is now on version 1.1, and has gotten a structure change. 
+Every module has been moved from the root to the "modules" node on the root. 
+Each module now has a "displays" and an "assets" node to better distinguish what is what. \
+The new system doesn't populate every module entry on load, and only loads what is entered to the file.
+To help, a new toggle, "load-missing" was added for loading missing entries to the file.
+
+#### Backend rework
+Adding new modules was always a pain because of the way I first wrote them a good 4 years ago. 
+Everything was hardcoded, down to how they were displayed. 
+DirectionHUD 1.8 helped lighten the issue with the module text system, and a new way of registering modules.
+That wasn't enough though, and now, with 1.8.1, *most* everything to do with modules are easier with a registration system!
 
 ### Changelog:
-* new icon
-* bumped hud packet version to `v1.3` to support new plugin versions of DirectionHUD
-* fixed `/hud` color button hover color changing when hovering on different parts of the button
-
-## v1.8.0.2
-* fixed toggling BossBar while on client side causing a crash
-
-## v1.8.0.1
-* fixed destination module `name` and `name_xz` having the primary and secondary flipped inside of `module-text.json`
-* changed module name displays to be lowercase
-* fixed missing language files
-* edited clarifications to some hud module messages
-* config file for languages now shows the percent of translated text
-* language files with missing translations will default to english on servers
-
-## v1.8.0.0 - Custom Module Text!
-
-### Custom Module Text
-Added a new json file, `module-text.json` to customize each module's display settings.
-\
-Customize each entry using color and formatting codes, and use `%s` to substitute for the data being used for the module.
-\
-Read more about this on the new [DirectionHUD Docs](https://oth3r.github.io/DirectionHUD/module-text-json.html)!
-
-### New Module Edit UI
-A new GUI for editing a module!
-
-![module edit gui](https://oth3r.github.io/images/mods/directionhud/1.8/module_edit.png)
-
-### More Module Settings!
-* coordinates module `xz` mode
-* tracking module `elevation` toggle
-* flipped speed module speed calculation setting
-
-## Changelog:
-
-* added hud module edit chat UI
-* added hud module chat UI
-* added coordinates module `xz` - `xyz` toggle
-* added tracking module `elevation` toggle
-* added fuzzy sort filtering to command suggestions - thanks to greener.ca for the help!
-* fixed command suggester breaking when using the `execute run` command
-* fixed destination autoconvert not working
-* flipped speed module setting from 3d-calculation to 2d-calculation
-* The third argument in the `/hud color` command always displays even when it shouldn't
-* fixed `/hud color [primary, secondary]` command to display the color edit GUI
-* fixed the `/hud color` command's third command argument always displaying
-* migrated all files to new system
-* major backend changes & optimization
-* fixes to legacy file updaters
-* updated the module system in the playerdata file to be modular
+* added light module, defaults to off
+  * added light_target setting, defaults to eye
+  * added light_display setting, defaults to block
+* changed the module setting names to be more unique
+  * angle
+    * display -> angle_display
+  * tracking
+    * hybrid -> tracking_hybrid
+    * target -> tracking_target
+    * display-type -> tracking_display
+    * show-elevation -> tracking_show-elevation
+  * time
+    * 24hr-clock -> time_24hr
+  * speed
+    * 2d-calculation -> speed_2d-calculation
+    * display-pattern -> speed_display-pattern
+  * coordinates
+    * xyz-display -> coordinates_xyz-display
+* tweaked the module edit UI
+  * added a new section for disabled modules
+  * hud edit UI now only shows enabled modules
+* removed hud order from disabled modules
+* added support for entering true / false for toggleable settings
+* added module display and setting registration system
+* added support for overriding the language file via the configs
+  * put the custom language file in the `config/directionhud/lang/` folder
+* bumped packet version
+* more backend changes
+* module-text.json version 1.01 -> 1.1
+* playerdata & default-playerdata version 2.1 -> 2.2
+* other bug fixes and optimizations
