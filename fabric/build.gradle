@@ -100,8 +100,6 @@ publishMods {
 	version = mod_version
 	displayName = "b${mod_version} [Fabric]"
 
-	dryRun = true
-
 	curseforge {
 		accessToken = env.fetchOrNull('CURSEFORGE')
 		projectId = "843483"
