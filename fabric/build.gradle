@@ -2,7 +2,7 @@ plugins {
 	id 'base'
 	id 'fabric-loom' version '1.10-SNAPSHOT'
 	id 'maven-publish'
-	id "com.modrinth.minotaur" version "2.+"
+	id "me.modmuss50.mod-publish-plugin" version "0.8.4"
 	id 'net.darkhax.curseforgegradle' version '1.1.+'
 }
 
@@ -89,31 +89,37 @@ publishing {
 	}
 }
 
-import com.modrinth.minotaur.dependencies.ModDependency
-
-modrinth {
-	token = env.fetchOrNull('MODRINTH')
-	projectId = 'H8WCXRtb'
-	versionNumber = project.mod_version
-	versionName = "v${project.mod_version} [Fabric]"
-	uploadFile = remapJar
-	gameVersions = project.minecraft_versions.split(",").toList()
-	loaders = ['fabric', 'quilt']
-	dependencies = [
-			new ModDependency('P7dR8mSH', 'required') // Creates a new required dependency on Fabric API
-	]
+publishMods {
 	changelog = file('../changelog.md').text
-}
+	type = STABLE
 
-import net.darkhax.curseforgegradle.TaskPublishCurseForge
+	file = remapJar.archiveFile
+	modLoaders.add("fabric")
+	modLoaders.add("quilt")
 
-tasks.register('publishCurseForge', TaskPublishCurseForge) {
-	apiToken = env.fetchOrNull('CURSEFORGE')
+	version = mod_version
+	displayName = "v${mod_version} [Fabric]"
 
-	def mainFile = upload(843483, remapJar)
-	mainFile.changelog = file('../changelog.md')
-	mainFile.displayName = "v${project.mod_version}"
-	mainFile.addModLoader("fabric", "quilt")
-	mainFile.releaseType = "release"
-	mainFile.addEnvironment("client", "server")
+	dryRun = true
+
+	curseforge {
+		accessToken = env.fetchOrNull('CURSEFORGE')
+		projectId = "843483"
+		projectSlug = "directionhud-fabric"
+		minecraftVersions.addAll(minecraft_versions.split(",").toList())
+
+		requires("fabric-api")
+
+		announcementTitle = "Download from CurseForge"
+	}
+
+	modrinth {
+		accessToken = env.fetchOrNull('MODRINTH')
+		projectId = "H8WCXRtb"
+		minecraftVersions.addAll(minecraft_versions.split(",").toList())
+
+		requires("fabric-api")
+
+		announcementTitle = "Download from Modrinth"
+	}
 }
