@@ -467,25 +467,34 @@ public class Hud {
             // /modules [subcommand]
             if (pos == 0) {
                 suggester.add("order");
-                suggester.add("toggle");
                 suggester.add("reset");
                 suggester.add("edit");
                 suggester.add("setting");
+                if (!ModuleManager.State.getEnabled(player).isEmpty()) suggester.add("disable");
+                if (!ModuleManager.State.getDisabled(player).isEmpty()) suggester.add("enable");
                 return suggester;
             }
 
             // if -r is attached, remove it and continue with the suggester
             args[0] = args[0].replaceAll("-r", "");
 
-            // modules (order/toggle/reset/edit/setting) [module]
+            // modules (order/enable/disable/reset/edit/setting) [module]
             if (pos == 1) {
                 if (args[0].equals("setting")) {
                     suggester.addAll(PlayerData.getDefaults().getHud().getModules().stream()
-                            .filter(BaseModule::hasSettings) // only get the modules with editable settings
+                            .filter(bm -> bm.hasSettings() && bm.isEnabled()) // only get the modules with editable settings
+                            .map(mod -> mod.getModuleType().getName())
+                            .toList());
+                } else if (args[0].equals("enable")) {
+                    suggester.addAll(PlayerData.getDefaults().getHud().getModules().stream()
+                            .filter(bm -> !bm.isEnabled())
                             .map(mod -> mod.getModuleType().getName())
                             .toList());
                 } else {
-                    suggester.addAll(PlayerData.getDefaults().getHud().getModules().stream().map(mod -> mod.getModuleType().getName()).toList());
+                    suggester.addAll(PlayerData.getDefaults().getHud().getModules().stream()
+                            .filter(BaseModule::isEnabled)
+                            .map(mod -> mod.getModuleType().getName())
+                            .toList());
                 }
             }
 
