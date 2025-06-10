@@ -431,6 +431,7 @@ public class Hud {
                     }
                 }
             }
+            // DISABLED
             if (args[0].equals("disabled")) {
                 // send error if cmd length isn't long enough
                 if (args.length < 2) Disabled.UI(player, null, 1);
@@ -468,10 +469,15 @@ public class Hud {
             if (pos == 0) {
                 suggester.add("order");
                 suggester.add("reset");
-                suggester.add("edit");
                 suggester.add("setting");
-                if (!ModuleManager.State.getEnabled(player).isEmpty()) suggester.add("disable");
-                if (!ModuleManager.State.getDisabled(player).isEmpty()) suggester.add("enable");
+                if (!ModuleManager.State.getEnabled(player).isEmpty()) {
+                    suggester.add("disable");
+                    suggester.add("edit");
+                }
+                if (!ModuleManager.State.getDisabled(player).isEmpty()) {
+                    suggester.add("enable");
+                    suggester.add("disabled");
+                }
                 return suggester;
             }
 
