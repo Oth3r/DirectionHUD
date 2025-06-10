@@ -17,7 +17,8 @@ import java.util.stream.Collectors;
 
 public class ModuleManager {
     public static final Lang LANG = new Lang("directionhud.hud.module.");
-    private static final ActionResult INVALID_MODULE = new ActionResult(false, LANG.error("invalid"));
+    public static final ActionResult INVALID_MODULE = new ActionResult(false, LANG.error("invalid"));
+    public static final ActionResult DISABLED_MODULE = new ActionResult(false,State.LANG.error("disabled"));
 
     public static class Reset {
         /**
@@ -82,6 +83,8 @@ public class ModuleManager {
         }
     }
     public static class State {
+        public static final Lang LANG = new Lang("directionhud.hud.module.edit.");
+
         public static ActionResult disable(Player player, Module module) {
             if (module.equals(Module.UNKNOWN)) return INVALID_MODULE;
 
@@ -106,7 +109,7 @@ public class ModuleManager {
 
             // build the message
             CTxT msg = LANG.msg("state",
-                            Hud.modules.LANG.msg("state.disabled").color('c'),
+                            LANG.msg("state.disabled").color('c'),
                             new CTxT(module.toString()).color(CUtl.s())).append(" ")
                     .append(new CTxT(Assets.symbols.arrows.leftEnd).color(Assets.mainColors.back).btn(true)
                             .click(1, "/hud modules enable "+module.getName()+" "+order) // enable the module at the order it was at
@@ -144,13 +147,13 @@ public class ModuleManager {
 
             // build the message
             CTxT msg = LANG.msg("state",
-                    Hud.modules.LANG.msg("state.enabled").color('a'),
+                    LANG.msg("state.enabled").color('a'),
                     new CTxT(module.toString()).color(CUtl.s())).append(" ")
                     // edit pencil
                     .append(new CTxT(Assets.symbols.pencil).btn(true).color(Assets.mainColors.edit)
                             .click(1,"/hud modules edit "+module.getName())
-                            .hover(Hud.modules.Edit.LANG.hover("edit").color(Assets.mainColors.edit)
-                                    .append("\n").append(Hud.modules.Edit.LANG.hover("edit.click",new CTxT(module.getName()).color(CUtl.s())))));
+                            .hover(LANG.hover("edit").color(Assets.mainColors.edit)
+                                    .append("\n").append(LANG.hover("edit.click",new CTxT(module.getName()).color(CUtl.s())))));
 
             return new ActionResult(true, msg, "page", String.valueOf(page)); // return the page of the module
         }
@@ -174,6 +177,7 @@ public class ModuleManager {
         }
     }
     public static class Order {
+        public static final Lang LANG = new Lang("directionhud.hud.module.edit.");
 
         /**
          * move a module's position in the HUD
@@ -185,10 +189,8 @@ public class ModuleManager {
             // get the module in question
             BaseModule mod = player.getPData().getHud().getModule(module);
 
-            // error - you can't move a disabled module
-            if (!mod.isEnabled()) {
-                return new ActionResult(false, LANG.error("order"));
-            }
+            // error - you can't edit a disabled module
+            if (!mod.isEnabled()) return DISABLED_MODULE;
 
             // get order list and enabled list
             ArrayList<BaseModule> list = player.getPData().getHud().getModules(), enabled = State.getEnabled(player);
@@ -196,19 +198,6 @@ public class ModuleManager {
             newOrder = Math.max(1,Math.min(newOrder,enabled.size()));
             int oldOrder = mod.getOrder();
 
-
-//            if (oldOrder < newOrder) {
-//                // if old is less than new, start from the new order and move everything down one order
-//                for (int i = newOrder; i > oldOrder; i--) {
-//                    // set the order of the affected modules
-//                    player.getPData().getHud().getModule(enabled.get(i-1).getModuleType()).setOrder(i-1);
-//                }
-//            } else {
-//                // if new is less than old, start from the new order and move everything up
-//                for (int i = newOrder; i < oldOrder; i++) {
-//                    player.getPData().getHud().getModule(enabled.get(i-1).getModuleType()).setOrder(i + 1);
-//                }
-//            }
             // adjust the order numbers of the other modules
             if (oldOrder != newOrder) {
                 int direction = oldOrder < newOrder ? -1 : 1;
@@ -313,6 +302,7 @@ public class ModuleManager {
             if (module.equals(Module.UNKNOWN)) return INVALID_MODULE;
 
             BaseModule mod = player.getPData().getHud().getModule(module);
+            if (!mod.isEnabled()) return DISABLED_MODULE;
             ActionResult result = mod.setSetting(settingID, value);
 
             // set the module to save if a success

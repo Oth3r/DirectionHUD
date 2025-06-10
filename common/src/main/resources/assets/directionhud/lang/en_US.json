@@ -159,16 +159,8 @@
 
   "directionhud.hud.module.msg.reset_all": "Reset %s HUD modules!",
   "directionhud.hud.module.msg.reset": "Reset the %s module settings!",
-  "directionhud.hud.module.msg.order": "Set the %s module order to %s.",
-  "directionhud.hud.module.msg.state": "%1$s the %2$s module.",
-  "directionhud.hud.module.msg.state.disabled": "Disabled",
-  "directionhud.hud.module.msg.state.enabled": "Enabled",
 
   "directionhud.hud.module.error.invalid": "Invalid module entered!",
-  "directionhud.hud.module.error.state": "The %1$s module is already %2$s!",
-  "directionhud.hud.module.error.state.disabled": "disabled",
-  "directionhud.hud.module.error.state.enabled": "enabled",
-  "directionhud.hud.module.error.order": "You cannot move a disabled module!",
   "directionhud.hud.module.error.reset.already_reset": "The %1$s module's settings are already set to it's default state!",
 
 
@@ -176,6 +168,16 @@
 
   "directionhud.hud.module.edit.ui.none": "You have no modules to edit!",
   "directionhud.hud.module.edit.ui.none_2": "Click %s to find some to enable.",
+
+  "directionhud.hud.module.edit.error.disabled": "You can't edit a disabled module!",
+  "directionhud.hud.module.edit.error.state": "The %1$s module is already %2$s!",
+  "directionhud.hud.module.edit.error.state.disabled": "disabled",
+  "directionhud.hud.module.edit.error.state.enabled": "enabled",
+
+  "directionhud.hud.module.edit.msg.order": "Set the %1$s module's order to %2$s.",
+  "directionhud.hud.module.edit.msg.state": "%1$s the %2$s module.",
+  "directionhud.hud.module.edit.msg.state.disabled": "Disabled",
+  "directionhud.hud.module.edit.msg.state.enabled": "Enabled",
 
   "directionhud.hud.module.edit.hover.edit": "Edit",
   "directionhud.hud.module.edit.hover.edit.click": "Click to open the %s module's edit menu.",
