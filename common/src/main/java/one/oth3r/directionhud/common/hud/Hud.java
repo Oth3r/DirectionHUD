@@ -700,8 +700,9 @@ public class Hud {
                 // make the top bar
                 msg.append(" ").append(LANG.ui().color(Assets.mainColors.edit)).append(line);
 
+                ArrayList<BaseModule> enabled = ModuleManager.State.getEnabled(player);
                 // if empty
-                if (ModuleManager.State.getEnabled(player).isEmpty()) {
+                if (enabled.isEmpty()) {
                     msg.append("\n\n ")
                             .append(LANG.ui("none")).append("\n ").append(LANG.ui("none_2", getDisabledButton()))
                             .append("\n\n ").append(back).append(line);
@@ -711,11 +712,17 @@ public class Hud {
 
                 // validate the module
                 if (module.equals(Module.UNKNOWN)) {
-                    player.sendMessage(LANG.err("entered"));
+                    player.sendMessage(ModuleManager.INVALID_MODULE.getChatMessage());
                     return;
                 }
 
                 BaseModule mod = player.getPCache().getHud().getModule(module);
+                // if not enabled - error
+                if (!mod.isEnabled()) {
+                    player.sendMessage(ModuleManager.DISABLED_MODULE.getChatMessage());
+                    return;
+                }
+
                 //state
                 boolean state = mod.isEnabled();
                 CTxT toggle = CTxT.of(Assets.symbols.toggle).btn(true).color(CUtl.toggleColor(state))
