@@ -379,16 +379,31 @@ public class Hud {
             args[0] = args[0].replace("-r","");
             // RESET
             if (args[0].equals("reset")) {
-                Module module = (args.length > 1) ? Module.fromString(args[1]) : null;
-                ActionResult result = (module == null)
-                        ? ModuleManager.Reset.resetEverything(player) // Reset all modules
-                        : ModuleManager.Reset.resetModule(player, module); // Reset specific module
+                // has to be /reset (all/module)
+                if (args.length < 2) player.sendMessage(CUtl.usage(Assets.cmdUsage.hudModulesReset));
+                else {
+                    // module = module, unknown if all
+                    Module module = Module.fromString(args[1]);
+                    // throw error, check if actually unknown
+                    if (module.equals(Module.UNKNOWN) && !args[1].equals("all")) {
+                        player.sendMessage(ModuleManager.INVALID_MODULE.getChatMessage());
+                    }
 
-                if (Return) {
-                    if (module == null) UI(player, result.getChatMessage());
-                    else Edit.UI(player, result.getChatMessage(), module);
-                } else {
-                    player.sendMessage(result.getChatMessage());
+                    // if the player confirmed
+                    if (args.length == 3 && args[2].equalsIgnoreCase("confirm")) {
+                        ActionResult result = module.equals(Module.UNKNOWN)
+                                ? ModuleManager.Reset.resetEverything(player) // Reset all modules
+                                : ModuleManager.Reset.resetModule(player, module); // Reset specific module
+                        if (Return) {
+                            if (module.equals(Module.UNKNOWN)) UI(player, result.getChatMessage());
+                            else Edit.UI(player, result.getChatMessage(), module);
+                        } else {
+                            player.sendMessage(result.getChatMessage());
+                        }
+                    } else {
+                        // check for confirmation
+                        resetConfirmation(player, module, Return);
+                    }
                 }
             }
             // ENABLE
@@ -501,6 +516,8 @@ public class Hud {
                             .filter(BaseModule::isEnabled)
                             .map(mod -> mod.getModuleType().getName())
                             .toList());
+                    // reset all
+                    if (args[0].equals("reset")) suggester.add("all");
                 }
             }
 
@@ -553,6 +570,30 @@ public class Hud {
                 }
             }
             return suggester;
+        }
+
+        /**
+         * generates a confirmation message for resetting module(s)
+         */
+        public static void resetConfirmation(Player player, Module module, boolean Return) {
+            boolean all = module.equals(Module.UNKNOWN);
+            CTxT msgAlt = all ? LANG.msg("reset.confirm.all") : new CTxT(module.getName());
+            msgAlt.color('c');
+
+            String command = "/hud modules reset "+ (all ?
+                    "all" : module.getName()) +" confirm";
+            String returnCmd = Return?command.replaceFirst("reset","reset-r"):command;
+
+            CTxT clickButton = CUtl.DLANG.btn("click").btn(true).color(CUtl.s())
+                    .hover(CUtl.DLANG.hover("click").color(CUtl.s())
+                            .append("\n").append(LANG.hover("reset.click")))
+                    .click(1, returnCmd);
+
+            CTxT msg = CUtl.tag().append(LANG.msg("reset.confirm",msgAlt)).append("\n ")
+                    .append(LANG.msg("reset.confirm_action",clickButton,
+                            new CTxT(command).color(CUtl.s()).click(2,command)));
+
+            player.sendMessage(msg);
         }
 
         /**
@@ -963,7 +1004,7 @@ public class Hud {
             // only make it clickable if any of the modules can reset
             if (player.getPData().getHud().getModules().stream().anyMatch(ModuleManager.Reset::canReset)) {
                 reset.color('c')
-                        .click(1,"/hud modules reset-r")
+                        .click(1,"/hud modules reset-r all")
                         .hover(CUtl.LANG.hover("reset").color('c').append("\n")
                                 // click to [reset] [all] modules.
                                 .append(LANG.hover("reset.all",

@@ -162,6 +162,10 @@
 
   "directionhud.hud.module.msg.reset_all": "Reset %s HUD modules!",
   "directionhud.hud.module.msg.reset": "Reset the %s module settings!",
+  "directionhud.hud.module.msg.reset.confirm": "Are you sure you want to reset %s module?",
+  "directionhud.hud.module.msg.reset.confirm.all": "every",
+  "directionhud.hud.module.msg.reset.confirm_action": "%1$s here or type %2$s.",
+  "directionhud.hud.module.hover.reset.click": "Click to confirm reset.",
 
   "directionhud.hud.module.error.invalid": "Invalid module entered!",
   "directionhud.hud.module.error.reset.already_reset": "The %1$s module's settings are already set to it's default state!",

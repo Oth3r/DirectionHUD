@@ -48,6 +48,7 @@ public class Assets {
         public static final String hud = "/hud";
         public static final String hudColor = "/hud color";
         public static final String hudModules = "/hud modules (order, toggle, reset)";
+        public static final String hudModulesReset = "/hud modules reset <all, module> (confirm)";
         public static final String hudSettings = "/hud settings";
         public static final String dest = "/dest | /destination";
         public static final String destAdd = "... add <name> (x) (y) (z) (dimension) (color)";
