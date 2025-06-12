@@ -13,6 +13,9 @@
   "directionhud.fill.off": "off",
   "directionhud.fill.on": "on",
 
+  "directionhud.button.click": "CLICK",
+  "directionhud.hover.click": "Click",
+
   "on": "on",
   "off": "off",
 
