@@ -3,6 +3,7 @@ package one.oth3r.directionhud.common.hud.module.setting;
 import com.google.gson.annotations.SerializedName;
 
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 public class ModuleSetting<V> implements Cloneable {
 
@@ -88,5 +89,17 @@ public class ModuleSetting<V> implements Cloneable {
         } catch (ReflectiveOperationException ignored) {
             return copy;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        ModuleSetting<?> that = (ModuleSetting<?>) o;
+        return Objects.equals(id, that.id) && Objects.equals(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, value);
     }
 }

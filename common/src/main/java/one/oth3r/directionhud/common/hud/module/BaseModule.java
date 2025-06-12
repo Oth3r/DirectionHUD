@@ -220,13 +220,14 @@ public abstract class BaseModule implements Cloneable {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof BaseModule that)) return false;
-        return Objects.equals(order, that.order) && state == that.state && moduleType == that.moduleType;
+        if (o == null || getClass() != o.getClass()) return false;
+        BaseModule that = (BaseModule) o;
+        return state == that.state && moduleType == that.moduleType && Objects.equals(order, that.order) && Objects.equals(settings, that.settings);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(moduleType, order, state);
+        return Objects.hash(moduleType, order, state, settings);
     }
 
     @Override
