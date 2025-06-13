@@ -58,6 +58,13 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+      - name: Sync with remote branch
+        run: |
+          git fetch origin ${{ github.event.inputs.localization_branch_name }}
+          if ! git merge --ff-only origin/${{ github.event.inputs.localization_branch_name }}; then
+            echo "No fast-forward merge possible, skipping merge."
+          fi
+
       - name: Rename JSON Files to Lowercase
         env:
           TARGET_DIR: "common/src/main/resources/assets/directionhud/lang/"
@@ -86,9 +93,6 @@ jobs:
             fi
           done
           echo "JSON file renaming complete."
-          git status --porcelain -unormal --
-          git diff --cached
-          git diff
 
       - name: Create Pull Request with Translation Changes
         uses: peter-evans/create-pull-request@v6
