@@ -17,11 +17,10 @@ on:
         default: 'dev'
 
 jobs:
-  crowdin:
+  download-translations:
     runs-on: ubuntu-latest
     steps:
-      # 1. Checkout the BASE branch first. The PR branch will be created later.
-      # This step will fail if the base branch does not exist, providing the necessary validation.
+      # Checkout the BASE branch first. The PR branch will be created later.
       - name: Checkout Base Branch
         uses: actions/checkout@v4
         with:
@@ -38,8 +37,6 @@ jobs:
           upload_sources: false
           upload_translations: false
           download_translations: true
-          # We acknowledge Crowdin creates a commit and pushes it.
-          # This setting only prevents Crowdin from opening a PR itself.
           create_pull_request: false
           localization_branch_name: ${{ github.event.inputs.localization_branch_name }}
         env:
@@ -47,8 +44,20 @@ jobs:
           CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
           CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
 
-      # After Crowdin, it has committed and pushed translations.
-      # Now, we perform our renames on top of Crowdin's commit.
+  rename-and-pr:
+    needs: download-translations
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Localization Branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.localization_branch_name }}
+
+      - name: Configure Git User
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: Rename JSON Files to Lowercase
         env:
           TARGET_DIR: "common/src/main/resources/assets/directionhud/lang/"
@@ -71,31 +80,18 @@ jobs:
               if [ -e "$new_path" ] && [ ! "$(readlink -f "$original_path")" = "$(readlink -f "$new_path")" ]; then
                 echo "::warning file=$original_path::Cannot rename '$original_path' to '$new_path' because it already exists. Skipping."
               else
-                # Use git mv to properly track renames in Git. This will stage the changes.
                 git mv "$original_path" "$new_path"
               fi
             fi
           done
           echo "JSON file renaming complete."
-          git status --porcelain -unormal -- # show current status
-          git diff --cached # show staged changes
-          git diff # show unstaged changes (should be none after git mv)
-
-      # Mark the workspace directory as safe to allow Git commits
-      - name: Mark Work Directory as Safe
-        run: |
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-
-      # Fix .git permission issues that may block commit
-      - name: Fix Permissions (if needed)
-        run: |
-          echo "Fixing .git directory permissions if needed..."
-          chmod -R u+rw .git || echo ".git permission adjustment skipped (not needed)"
+          git status --porcelain -unormal --
+          git diff --cached
+          git diff
 
       - name: Commit Renamed Files
         run: |
           echo "Committing renamed files..."
-          # Add any potentially unstaged changes (though git mv stages automatically)
           git add -A
           git commit -m "Rename JSON translation files to lowercase for consistency"
           echo "Renames committed."
@@ -105,15 +101,10 @@ jobs:
           echo "Pushing combined changes to ${{ github.event.inputs.localization_branch_name }}..."
           git push origin ${{ github.event.inputs.localization_branch_name }}
 
-      # Now, the 'peter-evans/create-pull-request' action will simply create a PR
-      # from the already existing branch (which has both commits).
       - name: Create Pull Request with Translation Changes
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          # IMPORTANT: Do NOT specify 'commit-message' here.
-          # The commits are already made in the previous steps.
-          # This action will now just create the PR from the existing branch.
           branch: ${{ github.event.inputs.localization_branch_name }}
           base: ${{ github.event.inputs.pull_request_base_branch }}
           delete-branch: true
