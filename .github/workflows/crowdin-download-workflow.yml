@@ -80,6 +80,7 @@ jobs:
               if [ -e "$new_path" ] && [ ! "$(readlink -f "$original_path")" = "$(readlink -f "$new_path")" ]; then
                 echo "::warning file=$original_path::Cannot rename '$original_path' to '$new_path' because it already exists. Skipping."
               else
+                # Use git mv to stage the rename for the create-pull-request action
                 git mv "$original_path" "$new_path"
               fi
             fi
@@ -88,18 +89,6 @@ jobs:
           git status --porcelain -unormal --
           git diff --cached
           git diff
-
-      - name: Commit Renamed Files
-        run: |
-          echo "Committing renamed files..."
-          git add -A
-          git commit -m "Rename JSON translation files to lowercase for consistency"
-          echo "Renames committed."
-
-      - name: Push Changes to Localization Branch
-        run: |
-          echo "Pushing combined changes to ${{ github.event.inputs.localization_branch_name }}..."
-          git push origin ${{ github.event.inputs.localization_branch_name }}
 
       - name: Create Pull Request with Translation Changes
         uses: peter-evans/create-pull-request@v6
@@ -115,3 +104,6 @@ jobs:
             **Changes:**
             - Fetched new translations by Crowdin (first commit).
             - Renamed JSON translation files to lowercase for consistency (second commit).
+          # Commit all changes (including the git mv operations)
+          commit-message: "Rename JSON translation files to lowercase for consistency"
+          add-paths: .
