@@ -32,34 +32,36 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+      # Ensure .git directory has correct permissions at the very beginning of Git operations
+      - name: Fix Git Permissions (Initial & Aggressive)
+        run: |
+          echo "Ensuring .git directory has correct permissions..."
+          sudo chown -R $(id -u):$(id -g) .git
+          sudo chmod -R u+rwX .git
+          # Also remove any potential stale lock files immediately
+          rm -f .git/index.lock
+          rm -f .git/HEAD.lock
+          find .git/refs -name "*.lock" -delete
+          echo "Permissions fixed and locks cleared."
+          git status --porcelain -unormal -- # For diagnostics
+
       - name: Synchronize with Crowdin (Download Only)
         uses: crowdin/github-action@v2
         with:
           upload_sources: false
           upload_translations: false
           download_translations: true
-          # Disable automatic PR creation by Crowdin action, we do it manually
+          # We acknowledge Crowdin creates a commit and pushes it.
+          # This setting only prevents Crowdin from opening a PR itself.
           create_pull_request: false
-          # We are on the base branch, but we tell the action what the new branch will be.
-          # Note: The action itself may not use this if not creating a PR, but it's good for clarity.
           localization_branch_name: ${{ github.event.inputs.localization_branch_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
           CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
 
-      - name: Prepare for Pull Request Creation
-        run: |
-          # Check if there is at least one commit to reset from.
-          if git rev-parse HEAD~1 >/dev/null 2>&1; then
-            echo "Resetting previous commit (if any) to prepare for PR creation..."
-            git reset --soft HEAD~1
-          else
-            echo "No prior commit to reset. Proceeding."
-          fi
-          git add -A
-          git status --porcelain -unormal -- # For debugging, shows what's staged/unstaged
-
+      # After Crowdin, it has committed and pushed translations.
+      # Now, we perform our renames on top of Crowdin's commit.
       - name: Rename JSON Files to Lowercase
         env:
           TARGET_DIR: "common/src/main/resources/assets/directionhud/lang/"
@@ -82,30 +84,45 @@ jobs:
               if [ -e "$new_path" ] && [ ! "$(readlink -f "$original_path")" = "$(readlink -f "$new_path")" ]; then
                 echo "::warning file=$original_path::Cannot rename '$original_path' to '$new_path' because it already exists. Skipping."
               else
-                # Use git mv instead of mv to properly track renames in Git
+                # Use git mv to properly track renames in Git. This will stage the changes.
                 git mv "$original_path" "$new_path"
               fi
             fi
           done
-
           echo "JSON file renaming complete."
+          git status --porcelain -unormal -- # show current status
+          git diff --cached # show staged changes
+          git diff # show unstaged changes (should be none after git mv)
 
-      # 2. Use the 'create-pull-request' action to handle commits and PR creation.
-      # This is cleaner than managing commits manually.
+      - name: Commit Renamed Files
+        run: |
+          echo "Committing renamed files..."
+          # Add any potentially unstaged changes (though git mv stages automatically)
+          git add -A
+          git commit -m "Rename JSON translation files to lowercase for consistency"
+          echo "Renames committed."
+
+      - name: Push Changes to Localization Branch
+        run: |
+          echo "Pushing combined changes to ${{ github.event.inputs.localization_branch_name }}..."
+          git push origin ${{ github.event.inputs.localization_branch_name }}
+
+      # Now, the 'peter-evans/create-pull-request' action will simply create a PR
+      # from the already existing branch (which has both commits).
       - name: Create Pull Request with Translation Changes
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          # The action will collect all changes, create a commit, and then the PR.
-          commit-message: 'Update translations from Crowdin'
-          # This is the new branch that will be created by the action.
+          # IMPORTANT: Do NOT specify 'commit-message' here.
+          # The commits are already made in the previous steps.
+          # This action will now just create the PR from the existing branch.
           branch: ${{ github.event.inputs.localization_branch_name }}
           base: ${{ github.event.inputs.pull_request_base_branch }}
           delete-branch: true
           title: 'Update Crowdin Translations'
           body: |
-            This PR contains the latest translations from Crowdin.
+            This PR contains the latest translations from Crowdin and updated file names.
             
             **Changes:**
-            - Fetched new translations.
-            - Renamed JSON translation files to lowercase for consistency.
+            - Fetched new translations by Crowdin (first commit).
+            - Renamed JSON translation files to lowercase for consistency (second commit).
