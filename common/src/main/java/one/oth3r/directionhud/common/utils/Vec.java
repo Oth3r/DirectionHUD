@@ -23,6 +23,7 @@ public class Vec {
         z = vec.z;
     }
 
+    /// NORMAL GETTERS
     public double getX() {
         return x;
     }
@@ -33,6 +34,19 @@ public class Vec {
 
     public double getZ() {
         return z;
+    }
+
+    /// BLOCK GETTERS (floors the number and returns an int)
+    public int getBlockX() {
+        return (int) Math.floor(x);
+    }
+
+    public int getBlockY() {
+        return (int) Math.floor(y);
+    }
+
+    public int getBlockZ() {
+        return (int) Math.floor(z);
     }
 
     public Vec add(Vec addVec) {
