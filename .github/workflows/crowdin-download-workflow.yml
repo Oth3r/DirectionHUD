@@ -3,76 +3,72 @@ name: Crowdin Download Action
 permissions:
   contents: write
   pull-requests: write
-  actions: read
 
 on:
   workflow_dispatch:
     inputs:
       localization_branch_name:
-        description: 'The branch to download translations into (e.g., crowdin_translations)'
-        required: false
-        default: 'crowdin_translations'
+        description: 'The branch to create for the translations PR.'
+        required: true
+        default: 'crowdin/translations'
       pull_request_base_branch:
-        description: 'The base branch for the pull request (e.g., master, main)'
-        required: false
-        default: 'master'
+        description: 'The base branch for the pull request.'
+        required: true
+        default: 'dev'
 
 jobs:
   crowdin:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Localization Branch
+      # 1. Checkout the BASE branch first. The PR branch will be created later.
+      # This step will fail if the base branch does not exist, providing the necessary validation.
+      - name: Checkout Base Branch
         uses: actions/checkout@v4
         with:
-          # Check out the branch where translations will be downloaded.
-          # If the branch doesn't exist, it will be created from the default branch (e.g., 'master' or 'main').
-          ref: ${{ github.event.workflow_dispatch.inputs.localization_branch_name }}
+          ref: ${{ github.event.inputs.pull_request_base_branch }}
 
       - name: Configure Git User
-        # Configure Git with a user name and email for the commits made by the workflow.
-        # This makes the commits identifiable as coming from the GitHub Actions bot.
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Synchronize with Crowdin (Download Only)
-        # Uses the Crowdin GitHub Action to download translations.
         uses: crowdin/github-action@v2
         with:
           upload_sources: false
           upload_translations: false
           download_translations: true
-          create_pull_request: false # Disable automatic PR creation by Crowdin action
-          localization_branch_name: ${{ github.event.workflow_dispatch.inputs.localization_branch_name }}
+          # Disable automatic PR creation by Crowdin action, we do it manually
+          create_pull_request: false
+          # We are on the base branch, but we tell the action what the new branch will be.
+          # Note: The action itself may not use this if not creating a PR, but it's good for clarity.
+          localization_branch_name: ${{ github.event.inputs.localization_branch_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
           CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
 
       - name: Rename JSON Files to Lowercase
-        # This step finds only JSON files within the specified 'lang' directory
-        # that contain uppercase letters and renames them to their lowercase equivalents.
+        env:
+          TARGET_DIR: "common/src/main/resources/assets/directionhud/lang/"
         run: |
-          TARGET_DIR="common/src/main/resources/assets/directionhud/lang/"
           echo "Starting renaming process for JSON files within $TARGET_DIR..."
+          if [ ! -d "$TARGET_DIR" ]; then
+            echo "Warning: Target directory '$TARGET_DIR' does not exist. Skipping rename."
+            exit 0
+          fi
 
-          # Process only JSON files: Find all files with .json extension and uppercase
-          # characters in their name and rename them to lowercase.
-          # We use -depth to ensure if a file path contained uppercase directories
           find "$TARGET_DIR" -type f -name '*[A-Z]*.json' | while IFS= read -r file; do
             original_path="$file"
             dir_name=$(dirname "$original_path")
             base_name=$(basename "$original_path")
           
-            # Convert only the base name (filename + extension) to lowercase
             new_base_name=$(echo "$base_name" | tr '[:upper:]' '[:lower:]')
             new_path="$dir_name/$new_base_name"
 
             if [ "$original_path" != "$new_path" ]; then
-              # Check if the target lowercase file already exists and is a different file
-              # to prevent accidental overwrites if, for example, "file.json" and "FILE.json" both existed.
               if [ -e "$new_path" ] && [ ! "$(readlink -f "$original_path")" = "$(readlink -f "$new_path")" ]; then
-                echo "::warning file=$original_path::Cannot rename '$original_path' to '$new_path' because '$new_path' already exists and is a different file. Skipping."
+                echo "::warning file=$original_path::Cannot rename '$original_path' to '$new_path' because it already exists. Skipping."
               else
                 mv -v "$original_path" "$new_path"
               fi
@@ -81,21 +77,22 @@ jobs:
 
           echo "JSON file renaming complete."
 
-      - name: Commit Lowercase Changes
-        # Stages all changes (including renames) and creates a commit.
-        # The 'git diff --cached --exit-code ||' part ensures that a commit
-        # is only made if there are actual changes to commit, preventing empty commits.
-        run: |
-          git add .
-          git diff --cached --exit-code || git commit -m "Rename Crowdin translations to be lowercase"
-
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
+      # 2. Use the 'create-pull-request' action to handle commits and PR creation.
+      # This is cleaner than managing commits manually.
+      - name: Create Pull Request with Translation Changes
+        uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: 'Updated Crowdin translations'
-          title: 'Updated Crowdin translations'
-          body: 'This PR contains updated translations from Crowdin, with JSON filenames converted to lowercase.'
-          branch: ${{ github.event.workflow_dispatch.inputs.localization_branch_name }}
-          base: ${{ github.event.workflow_dispatch.inputs.pull_request_base_branch }}
+          # The action will collect all changes, create a commit, and then the PR.
+          commit-message: 'Update translations from Crowdin'
+          # This is the new branch that will be created by the action.
+          branch: ${{ github.event.inputs.localization_branch_name }}
+          base: ${{ github.event.inputs.pull_request_base_branch }}
           delete-branch: true
+          title: 'Update Crowdin Translations'
+          body: |
+            This PR contains the latest translations from Crowdin.
+            
+            **Changes:**
+            - Fetched new translations.
+            - Renamed JSON translation files to lowercase for consistency.
