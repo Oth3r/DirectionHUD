@@ -30,7 +30,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
       - name: Synchronize with Crowdin (Download Only)
         uses: crowdin/github-action@v2
         with:
@@ -44,7 +43,7 @@ jobs:
           CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
           CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
 
-  rename-and-pr:
+  rename-files:
     needs: download-translations
     runs-on: ubuntu-latest
     steps:
@@ -57,14 +56,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Sync with remote branch
-        run: |
-          git fetch origin ${{ github.event.inputs.localization_branch_name }}
-          if ! git merge --ff-only origin/${{ github.event.inputs.localization_branch_name }}; then
-            echo "No fast-forward merge possible, skipping merge."
-          fi
-
       - name: Rename JSON Files to Lowercase
         env:
           TARGET_DIR: "common/src/main/resources/assets/directionhud/lang/"
@@ -74,40 +65,59 @@ jobs:
             echo "Warning: Target directory '$TARGET_DIR' does not exist. Skipping rename."
             exit 0
           fi
-
           find "$TARGET_DIR" -type f -name '*[A-Z]*.json' | while IFS= read -r file; do
             original_path="$file"
             dir_name=$(dirname "$original_path")
             base_name=$(basename "$original_path")
-
             new_base_name=$(echo "$base_name" | tr '[:upper:]' '[:lower:]')
             new_path="$dir_name/$new_base_name"
-
             if [ "$original_path" != "$new_path" ]; then
               if [ -e "$new_path" ] && [ ! "$(readlink -f "$original_path")" = "$(readlink -f "$new_path")" ]; then
                 echo "::warning file=$original_path::Cannot rename '$original_path' to '$new_path' because it already exists. Skipping."
               else
-                # Use git mv to stage the rename for the create-pull-request action
                 git mv "$original_path" "$new_path"
               fi
             fi
           done
           echo "JSON file renaming complete."
 
-      - name: Create Pull Request with Translation Changes
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.event.inputs.localization_branch_name }}
-          base: ${{ github.event.inputs.pull_request_base_branch }}
-          delete-branch: false
-          title: 'Update Crowdin Translations'
-          body: |
-            This PR contains the latest translations from Crowdin and updated file names.
+      - name: Commit Renamed Files
+        run: |
+          echo "Committing renamed files..."
+          git add -A
+          git commit -m "Rename JSON translation files to lowercase for consistency"
+          echo "Renames committed."
 
-            **Changes:**
-            - Fetched new translations by Crowdin (first commit).
-            - Renamed JSON translation files to lowercase for consistency (second commit).
-          # Commit all changes (including the git mv operations)
-          commit-message: "Rename JSON translation files to lowercase for consistency"
-          add-paths: .
+      - name: Push Changes to Localization Branch
+        run: |
+          echo "Pushing combined changes to ${{ github.event.inputs.localization_branch_name }}..."
+          git push origin ${{ github.event.inputs.localization_branch_name }}
+
+  create-pr:
+    needs: [ download-translations, rename-files ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.localization_branch_name }}
+
+      - name: Set up Git config
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+      - name: Install GitHub CLI
+        run: sudo apt-get install gh -y
+
+      - name: Authenticate GitHub CLI
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+
+      - name: Create Pull Request
+        run: |
+          gh pr create \
+            --title "Update translations and filenames from Crowdin" \
+            --body "This PR includes:\n- New translations from Crowdin\n- Renamed translation files to lowercase" \
+            --head ${{ github.event.inputs.localization_branch_name }} \
+            --base ${{ github.event.inputs.pull_request_base_branch }} \
+            --label "localization"
