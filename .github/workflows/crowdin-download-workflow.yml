@@ -48,18 +48,6 @@ jobs:
           CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
           CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
 
-      - name: Debug - Before Renaming Files
-        run: |
-          echo "--- Debug: Before Renaming Files ---"
-          ls -la common/src/main/resources/assets/directionhud/lang/
-          ls -la common/src/main/resources/assets/directionhud/
-          ls -la common/src/main/resources/assets/
-          ls -la common/src/main/resources/
-          ls -la common/src/main/
-          ls -la common/src/
-          ls -la common/
-          ls -la .git/objects/
-
       - name: Rename JSON Files to Lowercase
         env:
           TARGET_DIR: "common/src/main/resources/assets/directionhud/lang/"
@@ -82,23 +70,13 @@ jobs:
               if [ -e "$new_path" ] && [ ! "$(readlink -f "$original_path")" = "$(readlink -f "$new_path")" ]; then
                 echo "::warning file=$original_path::Cannot rename '$original_path' to '$new_path' because it already exists. Skipping."
               else
-                mv -v "$original_path" "$new_path"
+                # Use git mv instead of mv to properly track renames in Git
+                git mv "$original_path" "$new_path"
               fi
             fi
           done
 
           echo "JSON file renaming complete."
-
-      - name: Debug - After Renaming Files
-        run: |
-          echo "--- Debug: After Renaming Files ---"
-          ls -la common/src/main/resources/assets/directionhud/lang/
-          ls -la common/src/main/resources/assets/directionhud/
-          ls -la .git/objects/
-          echo "--- Debug: Git Status and Diff before PR ---"
-          git status
-          git diff --cached
-          git diff
 
       # 2. Use the 'create-pull-request' action to handle commits and PR creation.
       # This is cleaner than managing commits manually.
