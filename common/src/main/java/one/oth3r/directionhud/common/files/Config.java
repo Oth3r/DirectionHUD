@@ -2,7 +2,6 @@ package one.oth3r.directionhud.common.files;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
@@ -34,12 +33,12 @@ public class Config implements CustomFile<Config> {
     private transient boolean legacyCheck = false;
 
     @SerializedName("version")
-    private Double version = 1.61;
+    private Double version = 1.7;
     @SerializedName("lang")
     private String lang = "en_us";
     @SerializedName("lang-options") @SuppressWarnings("unused")
-    private final String[] lang_options = {"English - en_US (100%)","German - de_DE (100%)","Slovak - sk_SK (100%)","Russian - ru_RU (98%)",
-            "Chinese Simplified - zh_CN (77%)","Chinese Traditional - zh_TW (77%)","Ukrainian - uk_UA (40%)","Hungarian - hu_HU (40%)"};
+    private final String[] lang_options = {"English - en_us (100%)","German - de_de (64%)","Slovak - sk_sk (64%)","Russian - ru_ru (64%)",
+            "Chinese Simplified - zh_cn (64%)","Chinese Traditional - zh_tw (64%)"};
     @SerializedName("online-mode")
     private Boolean online = true;
     @SerializedName("location")
@@ -369,7 +368,13 @@ public class Config implements CustomFile<Config> {
     public void updateFileInstance() {
         if (version.equals(1.6)) {
             version = 1.61;
+            // rename lang to have uppercase letters (en_us -> en_US)
             this.lang = this.lang.substring(0,3)+this.lang.substring(3).toUpperCase();
+        }
+        if (version.equals(1.61)) {
+            version = 1.7;
+            // rename lang to have lowercase letters (en_US -> en_us)
+            this.lang = this.lang.substring(0,3)+this.lang.substring(3).toLowerCase();
         }
     }
 
