@@ -245,15 +245,16 @@ public class Helper {
             public static ArrayList<String> xyz(Player player, String current, int type) {
                 // type = 3: all 3, ect
                 ArrayList<String> list = new ArrayList<>();
+                Vec vec = player.getVec();
                 if (type == 3) {
-                    list.add(String.valueOf(player.getBlockX()));
-                    list.add(player.getBlockX()+" "+player.getBlockZ());
-                    list.add(player.getBlockX()+" "+player.getBlockY()+" "+player.getBlockZ());
+                    list.add(String.valueOf(vec.getBlockX()));
+                    list.add(vec.getBlockX()+" "+vec.getBlockZ());
+                    list.add(vec.getBlockX()+" "+vec.getBlockY()+" "+vec.getBlockZ());
                 } else if (type == 2) {
-                    list.add(String.valueOf(player.getBlockY()));
-                    list.add(player.getBlockY()+" "+player.getBlockZ());
+                    list.add(String.valueOf(vec.getBlockY()));
+                    list.add(vec.getBlockY()+" "+vec.getBlockZ());
                 } else if (type == 1) {
-                    list.add(String.valueOf(player.getBlockZ()));
+                    list.add(String.valueOf(vec.getBlockZ()));
                 }
                 // don't suggest if typing letters or different coordinates
                 if (current.isEmpty() || list.get(0).startsWith(current)) return list;

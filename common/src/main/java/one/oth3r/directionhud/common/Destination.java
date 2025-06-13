@@ -177,7 +177,7 @@ public class Destination {
             // get from cache because called in a loop
             Dest dest = player.getPCache().getDEST().getDestination();
             if (!dest.hasXYZ()) return new Dest();
-            if (player.getPCache().getDEST().getDestSettings().getYlevel()) dest.setY(player.getBlockY());
+            if (player.getPCache().getDEST().getDestSettings().getYlevel()) dest.setY(player.getVec().getBlockY());
             return new Dest(dest);
         }
         public static boolean inAutoClearRadius(Player player, Loc loc) {
