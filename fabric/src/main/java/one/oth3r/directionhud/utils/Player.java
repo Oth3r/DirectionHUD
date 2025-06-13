@@ -222,21 +222,6 @@ public class Player extends PlayerTemplate {
         else return new Loc(this);
     }
 
-    @Override
-    public int getBlockX() {
-        return player.getBlockX();
-    }
-
-    @Override
-    public int getBlockY() {
-        return player.getBlockY();
-    }
-
-    @Override
-    public int getBlockZ() {
-        return player.getBlockZ();
-    }
-
     /// particles
     public DustParticleEffect getParticle(ParticleType particleType) {
         String color;
