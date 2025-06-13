@@ -48,6 +48,18 @@ jobs:
           CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
           CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
 
+      - name: Prepare for Pull Request Creation
+        run: |
+          # Check if there is at least one commit to reset from.
+          if git rev-parse HEAD~1 >/dev/null 2>&1; then
+            echo "Resetting previous commit (if any) to prepare for PR creation..."
+            git reset --soft HEAD~1
+          else
+            echo "No prior commit to reset. Proceeding."
+          fi
+          git add -A
+          git status --porcelain -unormal -- # For debugging, shows what's staged/unstaged
+
       - name: Rename JSON Files to Lowercase
         env:
           TARGET_DIR: "common/src/main/resources/assets/directionhud/lang/"
