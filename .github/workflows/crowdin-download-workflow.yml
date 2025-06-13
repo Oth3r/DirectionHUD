@@ -107,7 +107,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ github.event.inputs.localization_branch_name }}
           base: ${{ github.event.inputs.pull_request_base_branch }}
-          delete-branch: true
+          delete-branch: false
           title: 'Update Crowdin Translations'
           body: |
             This PR contains the latest translations from Crowdin and updated file names.
