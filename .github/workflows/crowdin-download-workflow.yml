@@ -30,6 +30,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: Synchronize with Crowdin (Download Only)
         uses: crowdin/github-action@v2
         with:
@@ -56,6 +57,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: Rename JSON Files to Lowercase
         env:
           TARGET_DIR: "common/src/main/resources/assets/directionhud/lang/"
@@ -116,7 +118,7 @@ jobs:
       - name: Create Pull Request
         run: |
           gh pr create \
-            --title "Update translations and filenames from Crowdin" \
+            --title "Update translations from Crowdin" \
             --body "This PR includes:\n- New translations from Crowdin\n- Renamed translation files to lowercase" \
             --head ${{ github.event.inputs.localization_branch_name }} \
             --base ${{ github.event.inputs.pull_request_base_branch }} \
