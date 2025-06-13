@@ -647,6 +647,7 @@ public class Hud {
          * @return the HEX code of the color
          */
         public static String stateColor(Player player, Module module) {
+            // todo make better, maybe by storing the last built module, and seeing if its empty for the module
             // bad data
             if (module.equals(Module.UNKNOWN)) return Assets.mainColors.error;
             // get the module
@@ -802,7 +803,7 @@ public class Hud {
                 msg.append("\n\n ").append(createModuleSwitcher(player, module));
 
                 // reset button
-                CTxT reset = CUtl.LANG.btn("reset").btn(true).color('7'); // todo reset confirmation
+                CTxT reset = CUtl.LANG.btn("reset").btn(true).color('7');
                 // enable if the module can be reset
                 if (ModuleManager.Reset.canResetSettings(mod)) {
                     reset.color('c')
