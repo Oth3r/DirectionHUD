@@ -32,7 +32,7 @@ public interface CustomFile <T extends CustomFile<T>> {
             fileNotExist();
         }
         catch (Exception e) {
-            DirectionHUD.LOGGER.info(String.format("ERROR SAVING '%s`: %s", getFile().getName(), e.getMessage()));
+            DirectionHUD.LOGGER.info(String.format("ERROR SAVING '%s`: %s", getFile().getName(), e));
         }
     }
 
@@ -53,7 +53,7 @@ public interface CustomFile <T extends CustomFile<T>> {
         }
         // cant load for some reason
         catch (Exception e) {
-            DirectionHUD.LOGGER.info(String.format("ERROR LOADING '%s': %s", file.getName(),e.getMessage()));
+            DirectionHUD.LOGGER.info(String.format("ERROR LOADING '%s': %s", file.getName(),e));
         }
         // save after loading
         save();
@@ -63,21 +63,17 @@ public interface CustomFile <T extends CustomFile<T>> {
         // try to read the json
         T file;
         JsonElement json = JsonParser.parseReader(reader);
-        try {
-            file = Helper.getGson().fromJson(json, getFileClass());
-        } catch (Exception e) {
-            throw new NullPointerException();
-        }
+        // update the json element so it can be read properly
+        json = this.updateJSON(json);
+        file = Helper.getGson().fromJson(json, getFileClass());
 
-        // if the file couldn't be parsed, (null) try using the custom update method using the JsonElement on the current file
-        // if not use the new file object that is loaded with the file data, and call update using that
+        // if the file couldn't be parsed, (null) throw an exception,
+        // otherwise copy over the read file to the current file & run the post update func
         if (file == null) {
-            this.update(json);
+            throw new NullPointerException();
         } else {
-            // update the instance
-            file.update(json);
-            // load the file to the current object
             copyFileData(file);
+            updateFileInstance();
         }
     }
 
@@ -93,9 +89,17 @@ public interface CustomFile <T extends CustomFile<T>> {
     void copyFileData(T newFile);
 
     /**
-     * updates the file based on the version number of the current instance
+     * override to update the raw JsonElement before being parsed to the file object. Any changes to *this* file object will be DISCARDED.
+     * @return the updated JsonElement
      */
-    void update(JsonElement json);
+    default JsonElement updateJSON(JsonElement json) {
+        return json;
+    }
+
+    /**
+     * POST LOAD: after the JSON is loaded to this current instance, this method is called.
+     */
+    void updateFileInstance();
 
     /**
      * logic for the file not existing when loading, defaults to saving

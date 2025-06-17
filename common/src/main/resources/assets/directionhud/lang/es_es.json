@@ -91,8 +91,6 @@
   "hud.ui.default": "Predeterminados del HUD",
   "hud.button": "HUD",
   "hud.hover": "Haz clic para mostrar los comandos del HUD principales.",
-  "hud.module.ui": "Módulos del HUD",
-  "hud.module.button": "MÓDULOS",
   "hud.module.hover.reset.all.fill": "todo",
   "hud.color.button": "COLOR",
   "hud.color.button.primary": "PRIMARIO",

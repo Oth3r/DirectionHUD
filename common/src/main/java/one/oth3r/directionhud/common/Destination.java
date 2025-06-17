@@ -177,7 +177,7 @@ public class Destination {
             // get from cache because called in a loop
             Dest dest = player.getPCache().getDEST().getDestination();
             if (!dest.hasXYZ()) return new Dest();
-            if (player.getPCache().getDEST().getDestSettings().getYlevel()) dest.setY(player.getBlockY());
+            if (player.getPCache().getDEST().getDestSettings().getYlevel()) dest.setY(player.getVec().getBlockY());
             return new Dest(dest);
         }
         public static boolean inAutoClearRadius(Player player, Loc loc) {
@@ -213,7 +213,7 @@ public class Destination {
         public static void clear(Player player, int reason) {
             // if the destination was already cleared
             if (!get(player).hasXYZ()) {
-                player.sendMessage(LANG.error("cleared"));
+                player.sendMessage(LANG.err("cleared"));
                 return;
             }
             Dest current = get(player);
@@ -276,7 +276,7 @@ public class Destination {
             }
             // check if already in autoclear radius
             if (inAutoClearRadius(player,dest)) {
-                player.sendMessage(LANG.error("already_at"));
+                player.sendMessage(LANG.err("already_at"));
                 return;
             }
             // set the destination and send the message
@@ -306,7 +306,7 @@ public class Destination {
             }
             // check if already in autoclear radius (after converting)
             if (inAutoClearRadius(player,destination)) {
-                player.sendMessage(LANG.error("already_at"));
+                player.sendMessage(LANG.err("already_at"));
                 return;
             }
             set(player,destination.getThis());
@@ -642,16 +642,16 @@ public class Destination {
             switch (args[0]) {
                 case "edit" -> editCMDExecutor(player, Helper.trimStart(args, 1), false, Return);
                 case "send" -> {
-                    if (args.length == 2) player.sendMessage(CUtl.LANG.error("args"));
+                    if (args.length == 2) player.sendMessage(CUtl.LANG.err("args"));
                     if (args.length == 3) {
                         // dest saved send (name)
                         Dest dest = new DestEntry(player, args[1], false);
                         if (dest.hasDestRequirements()) social.send.logic(player,args[2],dest);
-                        else player.sendMessage(Destination.LANG.error("invalid"));
+                        else player.sendMessage(Destination.LANG.err("invalid"));
                     }
                 }
                 case "delete" -> {
-                    if (args.length == 1) player.sendMessage(CUtl.LANG.error("args"));
+                    if (args.length == 1) player.sendMessage(CUtl.LANG.err("args"));
                     if (args.length == 2) delete(Return,player,new DestEntry(player, args[1], false));
                 }
                 case "set" -> {
@@ -737,7 +737,7 @@ public class Destination {
             switch (args[0]) {
                 case "edit" -> editCMDExecutor(player, Helper.trimStart(args,1),true,false);
                 case "delete" -> {
-                    if (args.length == 1) player.sendMessage(CUtl.LANG.error("args"));
+                    if (args.length == 1) player.sendMessage(CUtl.LANG.err("args"));
                     if (args.length == 2) delete(false,player,new DestEntry(player, args[1], true));
                 }
                 case "add" -> addCMDExecutor(player, Helper.trimStart(args,1), true);
@@ -790,11 +790,11 @@ public class Destination {
             switch (args[0]) {
                 case "name" -> {
                     if (args.length == 3) editName(Return, player, new DestEntry(player,args[1],global), args[2]);
-                    else player.sendMessage(Destination.LANG.error("invalid"));
+                    else player.sendMessage(Destination.LANG.err("invalid"));
                 }
                 case "color" -> {
                     if (args.length == 3) setColor(player, new DestEntry(player,args[1],global), DHud.preset.DEFAULT_UI_SETTINGS, args[2], Return);
-                    else player.sendMessage(Destination.LANG.error("invalid"));
+                    else player.sendMessage(Destination.LANG.err("invalid"));
                 }
                 case "colorui" -> {
                     if (args.length == 2) colorUI(player, DHud.preset.DEFAULT_UI_SETTINGS,args[1]);
@@ -802,10 +802,10 @@ public class Destination {
                 }
                 case "order" -> {
                     if (args.length == 3) editOrder(Return, player, new DestEntry(player,args[1],global), args[2]);
-                    else player.sendMessage(Destination.LANG.error("invalid"));
+                    else player.sendMessage(Destination.LANG.err("invalid"));
                 }
                 case "location" -> {
-                    if (args.length == 2) player.sendMessage(Destination.LANG.error("invalid"));
+                    if (args.length == 2) player.sendMessage(Destination.LANG.err("invalid"));
                     // location (dimension)
                     if (args.length == 3 && !Num.isInt(args[2])) {
                         Loc loc = new Loc();
@@ -1051,14 +1051,14 @@ public class Destination {
                 if (this.hasDestRequirements()) {
                     // if valid but name is too long
                     if (this.getName().length() > Helper.MAX_NAME) {
-                        player.sendMessage(CUtl.LANG.error("length",Helper.MAX_NAME));
+                        player.sendMessage(CUtl.LANG.err("length",Helper.MAX_NAME));
                         return true;
                     }
                     // valid, no errors
                     return false;
                 }
                 // send invalid error and return true
-                player.sendMessage(Destination.LANG.error("invalid"));
+                player.sendMessage(Destination.LANG.err("invalid"));
                 return true;
             }
         }
@@ -1098,12 +1098,12 @@ public class Destination {
             if (destination.sendErrors()) return;
             // if there are the max amount of saved destinations
             if (destination.getList().size() >= FileData.getConfig().getDestination().getMaxSaved()) {
-                player.sendMessage(LANG.error("max"));
+                player.sendMessage(LANG.err("max"));
                 return;
             }
             // if there is a destination with the same name
             if (getNames(destination.getList()).contains(destination.getName())) {
-                player.sendMessage(LANG.error("duplicate",CTxT.of(destination.getName()).color(CUtl.s())));
+                player.sendMessage(LANG.err("duplicate",CTxT.of(destination.getName()).color(CUtl.s())));
                 return;
             }
 
@@ -1148,7 +1148,7 @@ public class Destination {
             if (destination.sendErrors()) return;
             // if there's already a destination with the new name
             if (getNames(destination.list).contains(newName)) {
-                player.sendMessage(LANG.error("duplicate",CTxT.of(newName).color(CUtl.s())));
+                player.sendMessage(LANG.err("duplicate",CTxT.of(newName).color(CUtl.s())));
                 return;
             }
 
@@ -1175,7 +1175,7 @@ public class Destination {
             if (destination.sendErrors()) return;
             // make sure the new order is a number
             if (!Num.isInt(newOrderString)) {
-                player.sendMessage(CUtl.LANG.error("number"));
+                player.sendMessage(CUtl.LANG.err("number"));
                 return;
             }
             // get the formatted name
@@ -1466,7 +1466,7 @@ public class Destination {
          */
         public static boolean cooldown(Player player) {
             if (player.getPCache().getSocialCooldown() != null) {
-                player.sendMessage(CUtl.LANG.error("social.cooldown"));
+                player.sendMessage(CUtl.LANG.err("social.cooldown"));
                 return true;
             }
             return false;
@@ -1546,33 +1546,33 @@ public class Destination {
                 // cooldown check
                 if (cooldown(player)) return;
                 if (!target.isValid()) {
-                    player.sendMessage(CUtl.LANG.error("player", CTxT.of(targetPlayer).color(CUtl.s())));
+                    player.sendMessage(CUtl.LANG.err("player", CTxT.of(targetPlayer).color(CUtl.s())));
                     return;
                 }
                 if (target == player) {
-                    player.sendMessage(LANG.error("self"));
+                    player.sendMessage(LANG.err("self"));
                     return;
                 }
                 // target doesn't have sending enabled
                 if (!Helper.checkEnabled(player).send()) {
-                    player.sendMessage(LANG.error("target_disabled",CTxT.of(target.getName()).color(CUtl.s())));
+                    player.sendMessage(LANG.err("target_disabled",CTxT.of(target.getName()).color(CUtl.s())));
                     return;
                 }
                 // LOC VALIDATION
                 // custom name too long
                 if (dest.getName() != null &&
                         dest.getName().length() > Helper.MAX_NAME) {
-                    player.sendMessage(CUtl.LANG.error("length",Helper.MAX_NAME));
+                    player.sendMessage(CUtl.LANG.err("length",Helper.MAX_NAME));
                     return;
                 }
                 // invalid coordinates
                 if (!dest.hasXYZ()) {
-                    player.sendMessage(CUtl.LANG.error("coordinates"));
+                    player.sendMessage(CUtl.LANG.err("coordinates"));
                     return;
                 }
                 // invalid dimension
                 if (!Dimension.checkValid(dest.getDimension())) {
-                    player.sendMessage(CUtl.LANG.error("dimension"));
+                    player.sendMessage(CUtl.LANG.err("dimension"));
                     return;
                 }
 
@@ -1718,7 +1718,7 @@ public class Destination {
             public static void clear(Player player, int reason) {
                 // nothing to clear
                 if (!hasTargetEntry(player)) {
-                    player.sendMessage(LANG.error("cleared"));
+                    player.sendMessage(LANG.err("cleared"));
                     return;
                 }
                 // get the reason for clearing
@@ -1771,25 +1771,25 @@ public class Destination {
                 if (cooldown(player)) return;
                 // bad data check
                 if (!target.isValid()) {
-                    player.sendMessage(CUtl.LANG.error("player", CTxT.of(target_string).color(CUtl.s())));
+                    player.sendMessage(CUtl.LANG.err("player", CTxT.of(target_string).color(CUtl.s())));
                     return;
                 }
                 if (target.equals(player)) {
-                    player.sendMessage(LANG.error("self"));
+                    player.sendMessage(LANG.err("self"));
                     return;
                 }
                 if (!(boolean) player.getPData().getDEST().getSetting(Setting.features__track)) {
-                    player.sendMessage(LANG.error("target_disabled",target.getHighlightedName()));
+                    player.sendMessage(LANG.err("target_disabled",target.getHighlightedName()));
                     return;
                 }
                 // tracking request already pending
                 if (DHud.inbox.search(player, DHud.inbox.Type.track_pending,"player_name",target_string) != null) {
-                    player.sendMessage(LANG.error("pending",target.getHighlightedName()));
+                    player.sendMessage(LANG.err("pending",target.getHighlightedName()));
                     return;
                 }
                 // already tracking the target
                 if (getTarget(player).isValid() && Objects.equals(getTarget(player), target)) {
-                    player.sendMessage(LANG.error("already_tracking",target.getHighlightedName()));
+                    player.sendMessage(LANG.err("already_tracking",target.getHighlightedName()));
                     return;
                 }
 
@@ -1829,11 +1829,11 @@ public class Destination {
                 Player target = new Player(tracker);
                 // if player in questions is null
                 if (!target.isValid()) {
-                    player.sendMessage(CUtl.LANG.error("player",CTxT.of(tracker).color(CUtl.s())));
+                    player.sendMessage(CUtl.LANG.err("player",CTxT.of(tracker).color(CUtl.s())));
                     return;
                 }
                 if (player == target) {
-                    player.sendMessage(LANG.error("self"));
+                    player.sendMessage(LANG.err("self"));
                     return;
                 }
 
@@ -1844,7 +1844,7 @@ public class Destination {
 
                 // entry doesn't exist
                 if (entry == null) {
-                    player.sendMessage(LANG.error("none",target.getHighlightedName()));
+                    player.sendMessage(LANG.err("none",target.getHighlightedName()));
                     return;
                 }
                 // get the ID
@@ -2096,7 +2096,7 @@ public class Destination {
             // custom setter for custom settings
             if (setting.equals(Setting.autoclear_rad)) {
                 if (!Helper.Num.isInt(state)) {
-                    player.sendMessage(CUtl.LANG.error("number"));
+                    player.sendMessage(CUtl.LANG.err("number"));
                     return;
                 }
                 int i = Math.max(Math.min(Num.toInt(state),15),1);

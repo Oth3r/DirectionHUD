@@ -1,16 +1,23 @@
 package one.oth3r.directionhud.utils;
 
+import net.minecraft.block.ShapeContext;
+import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.dimension.DimensionEntry;
 import one.oth3r.directionhud.common.files.dimension.DimensionEntry.*;
-import one.oth3r.directionhud.common.files.dimension.DimensionSettings;
 import one.oth3r.directionhud.common.files.dimension.RatioEntry;
 import one.oth3r.directionhud.common.template.FeatureChecker;
 import one.oth3r.directionhud.common.utils.Helper.*;
@@ -35,6 +42,40 @@ public class Utl {
         for (ServerPlayerEntity p : DirectionHUD.getData().getServer().getPlayerManager().getPlayerList())
             array.add(new Player(p));
         return array;
+    }
+
+    /**
+     * Gets the side of the block pos that the player is looking at. The block pos will be where a block *would* be placed.
+     * @param serverPlayer the server player
+     * @param range the maximum range to check for
+     * @return the block pos where a block *would* be placed OR NULL if not found.
+     */
+    public static BlockPos getSideOfBlockPosPlayerIsLookingAt(ServerPlayerEntity serverPlayer, double range) {
+        // pos, adjusted to player eye level
+        Vec3d rayStart = serverPlayer.getPos().add(0, serverPlayer.getEyeHeight(serverPlayer.getPose()), 0);
+        // extend ray by the range
+        Vec3d rayEnd = rayStart.add(serverPlayer.getRotationVector().multiply(range));
+
+        BlockHitResult hitResult = serverPlayer.getServerWorld().raycast(new RaycastContext(rayStart, rayEnd, RaycastContext.ShapeType.OUTLINE, RaycastContext.FluidHandling.NONE, ShapeContext.absent()));
+
+        if (hitResult.getType() == HitResult.Type.BLOCK) {
+            return hitResult.getBlockPos().offset(hitResult.getSide());
+        }
+
+        return null;
+    }
+
+    /**
+     * gets the player's block interaction range
+     * @param player the player to check
+     */
+    public static double getPlayerReach(PlayerEntity player) {
+        // use the BLOCK_INTERACTION_RANGE attribute if available
+        if (player.getAttributeInstance(EntityAttributes.BLOCK_INTERACTION_RANGE) != null) {
+            return player.getAttributeValue(EntityAttributes.BLOCK_INTERACTION_RANGE);
+        }
+        // fallback to 5
+        return 5;
     }
 
     public static class CheckEnabled extends FeatureChecker {

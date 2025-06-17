@@ -6,7 +6,7 @@
 
 files: [
   {
-    "source": "common/src/main/resources/assets/directionhud/lang/en_US.json",
+    "source": "common/src/main/resources/assets/directionhud/lang/en_us.json",
     "translation": "common/src/main/resources/assets/directionhud/lang/%locale_with_underscore%.json",
   }
 ]

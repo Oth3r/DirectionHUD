@@ -25,6 +25,9 @@ public class Assets {
         public static final String custom = "#c4ff14";
         public static final String presets = "#2dedff";
         public static final String global = "#60a4fc";
+
+        public static final String on = "#55ff55";
+        public static final String off = "#ff5555";
     }
 
     public static String barColor(Hud.Setting.BarColor color) {
@@ -45,6 +48,7 @@ public class Assets {
         public static final String hud = "/hud";
         public static final String hudColor = "/hud color";
         public static final String hudModules = "/hud modules (order, toggle, reset)";
+        public static final String hudModulesReset = "/hud modules reset <all, module> (confirm)";
         public static final String hudSettings = "/hud settings";
         public static final String dest = "/dest | /destination";
         public static final String destAdd = "... add <name> (x) (y) (z) (dimension) (color)";
@@ -98,14 +102,16 @@ public class Assets {
         public static final String local = "\uD83D\uDCDA";
         public static final String global = "\uD83E\uDDED";
         public static final String mountain = "\u26F0";
+        public static final String eye = "\uD83D\uDC41";
+        public static final String tag = "\uD83C\uDFF7";
     }
 
     public enum packets {
-        INITIALIZATION("initialize_v1.3"),
-        PLAYER_DATA("player_data_v1.2"),
-        HUD("hud_v1.3"),
-        SPIGOT_PLAYER_DATA("spigot_player_data_v1.2"),
-        SPIGOT_HUD("spigot_hud_v1.2");
+        INITIALIZATION("initialize_v1.4"),
+        PLAYER_DATA("player_data_v1.3"),
+        HUD("hud_v1.4"),
+        SPIGOT_PLAYER_DATA("spigot_player_data_v1.3"),
+        SPIGOT_HUD("spigot_hud_v1.3");
 
         private final String identifier;
 
