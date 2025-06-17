@@ -1,10 +1,4 @@
-## b1.8.1.0.0 Modular Modules pt.2 (BETA)
-⚠️ THIS IS A BETA. \
-Upgrading to the latest stable 1.8.1 edition when it comes out **will be supported**, but please **delete all** new playerdata and config files if you want to downgrade. \
-Please report all bugs you find in these betas in [Discord](https://www.oth3r.one/discord) or [GitHub](https://github.com/Oth3r/DirectionHUD/issues)! \
-Everything should mostly work, just missing some polishing and tiny extra features.
-
-
+## v1.8.1.0 Modular Modules pt.2
 Modular Modules? What about MORE modularity? \
 This update adds more to the base update that came before, with the backend changes that add dynamic module settings and display settings.
 
@@ -60,10 +54,13 @@ That wasn't enough though, and now, with 1.8.1, *most* everything to do with mod
 * removed hud order from disabled modules
 * added support for entering true / false for toggleable settings
 * added module display and setting registration system
+* added module reset confirmation before actually resetting
+* reverted language file capitalization change (en_US -> en_us)
 * added support for overriding the language file via the configs
   * put the custom language file in the `config/directionhud/lang/` folder
 * bumped packet version
 * more backend changes
-* module-text.json version 1.01 -> 1.1
-* playerdata & default-playerdata version 2.1 -> 2.2
+* module-text version 1.01 -> 1.1
+* playerdata & default-playerdata version 2.1 -> 2.3
+* config version 1.61 -> 1.7
 * other bug fixes and optimizations

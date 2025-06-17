@@ -91,14 +91,14 @@ publishing {
 
 publishMods {
 	changelog = file('../changelog.md').text
-	type = BETA
+	type = STABLE
 
 	file = remapJar.archiveFile
 	modLoaders.add("fabric")
 	modLoaders.add("quilt")
 
 	version = mod_version
-	displayName = "b${mod_version} [Fabric]"
+	displayName = "v${mod_version} [Fabric]"
 
 	curseforge {
 		accessToken = env.fetchOrNull('CURSEFORGE')
