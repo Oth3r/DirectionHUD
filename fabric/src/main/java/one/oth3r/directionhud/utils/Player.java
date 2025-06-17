@@ -10,7 +10,6 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.LightType;
-import net.minecraft.world.World;
 import net.minecraft.util.math.Vec3d;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.hud.module.ModuleInstructions;
