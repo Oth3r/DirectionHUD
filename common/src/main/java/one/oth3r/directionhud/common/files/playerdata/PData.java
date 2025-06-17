@@ -152,30 +152,6 @@ public class PData extends BasePData implements CustomFile<PData> {
         return DirectionHUD.getData().getDataDirectory()+"playerdata/";
     }
 
-    @Override
-    public void updateFromReader(BufferedReader reader) {
-        // try to read the json
-        PData file;
-        JsonElement json = JsonParser.parseReader(reader);
-        try {
-            file = Helper.getGson().fromJson(json, PData.class);
-        } catch (Exception e) {
-            throw new NullPointerException();
-        }
-
-        // if the file couldn't be parsed, (null) try using the custom update method using the JsonElement on the current file
-        // if not use the new file object that is loaded with the file data, and call update using that
-        if (file == null) {
-            this.updateJSON(json);
-        } else {
-            file.player = this.player;
-            // update the instance
-            file.updateJSON(json);
-            // load the file to the current object
-            copyFileData(file);
-        }
-    }
-
     /**
      * updates the file based on the version number of the current instance
      */
