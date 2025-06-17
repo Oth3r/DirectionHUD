@@ -502,17 +502,17 @@ public class Hud {
             // modules (order/enable/disable/reset/edit/setting) [module]
             if (pos == 1) {
                 if (args[0].equals("setting")) {
-                    suggester.addAll(PlayerData.getDefaults().getHud().getModules().stream()
+                    suggester.addAll(player.getPCache().getHud().getModules().stream()
                             .filter(bm -> bm.hasSettings() && bm.isEnabled()) // only get the modules with editable settings
                             .map(mod -> mod.getModuleType().getName())
                             .toList());
                 } else if (args[0].equals("enable")) {
-                    suggester.addAll(PlayerData.getDefaults().getHud().getModules().stream()
+                    suggester.addAll(player.getPCache().getHud().getModules().stream()
                             .filter(bm -> !bm.isEnabled())
                             .map(mod -> mod.getModuleType().getName())
                             .toList());
                 } else {
-                    suggester.addAll(PlayerData.getDefaults().getHud().getModules().stream()
+                    suggester.addAll(player.getPCache().getHud().getModules().stream()
                             .filter(BaseModule::isEnabled)
                             .map(mod -> mod.getModuleType().getName())
                             .toList());
