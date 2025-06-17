@@ -33,6 +33,7 @@ That wasn't enough though, and now, with 1.8.1, *most* everything to do with mod
 * added light module, defaults to off
   * added light_target setting, defaults to eye
   * added light_display setting, defaults to block
+* added show-name setting to destination module
 * changed the module setting names to be more unique
   * angle
     * display -> angle_display
