@@ -8,6 +8,9 @@ import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.LightType;
+import net.minecraft.world.World;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.hud.module.ModuleInstructions;
 import one.oth3r.directionhud.common.utils.*;
@@ -188,6 +191,24 @@ public class Player extends PlayerTemplate {
         return player.getPitch();
     }
 
+    /**
+     * gets the light level.
+     *
+     * @param lookTarget if enabled, it will get the light level of the next closest target after the player's target-look block
+     * @return an int array, 2 in length, first entry for the skylight, second entry for the block light.
+     */
+    @Override
+    public int[] getLightLevels(boolean lookTarget) {
+        BlockPos pos = player.getBlockPos();
+        // try to get the look target if possible
+        if (lookTarget) {
+            pos = Utl.getSideOfBlockPosPlayerIsLookingAt(serverPlayer, Utl.getPlayerReach(player));
+            if (pos == null) return new int[]{-1,-1};
+        }
+
+        return new int[]{player.getWorld().getLightLevel(LightType.SKY,pos),player.getWorld().getLightLevel(LightType.BLOCK,pos)};
+    }
+
     @Override
     public Vec getVec() {
         return new Vec(player.getX(),player.getY()+1,player.getZ());
@@ -197,21 +218,6 @@ public class Player extends PlayerTemplate {
     public Loc getLoc() {
         if (player == null) return new Loc();
         else return new Loc(this);
-    }
-
-    @Override
-    public int getBlockX() {
-        return player.getBlockX();
-    }
-
-    @Override
-    public int getBlockY() {
-        return player.getBlockY();
-    }
-
-    @Override
-    public int getBlockZ() {
-        return player.getBlockZ();
     }
 
     /// particles

@@ -17,7 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CUtl {
-    public static final Lang LANG = new Lang("");
+    public static final Lang LANG = new Lang(""), DLANG = new Lang("directionhud."); // need to migrate everything back to dlang
     public static CTxT tag() {
         return CTxT.of("").append(CTxT.of("DirectionHUD").btn(true).color(p())).append(" ");
     }
@@ -243,9 +243,9 @@ public class CUtl {
          */
         public static String format(char character) {
             return switch (character) {
-                case 'c' -> "#FF5555";
+                case 'c' -> Assets.mainColors.off;
                 case 'e' -> "#FFFF55";
-                case 'a' -> "#55FF55";
+                case 'a' -> Assets.mainColors.on;
                 case '7' -> "#AAAAAA";
                 default -> "#FFFFFF";
             };

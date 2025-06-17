@@ -26,6 +26,11 @@ public class BaseModuleAdapter implements JsonDeserializer<BaseModule> {
 
         // get the module enum from the "module" entry, then the module class from the enum
         String moduleType = jsonObject.get("module").getAsString();
-        return context.deserialize(json,Module.fromString(moduleType).getModuleClass());
+        BaseModule baseModule = context.deserialize(json,Module.fromString(moduleType).getModuleClass());
+
+        // call reassignValidators() after deserialization
+        baseModule.reassignValidators();
+
+        return baseModule;
     }
 }

@@ -1,10 +1,13 @@
 package one.oth3r.directionhud.common.files;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.template.CustomFile;
 import one.oth3r.directionhud.common.utils.Dest;
+import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Loc;
 import org.jetbrains.annotations.NotNull;
 
@@ -66,9 +69,10 @@ public class GlobalDest implements CustomFile<GlobalDest> {
      * @param json
      */
     @Override
-    public void update(JsonElement json) {
+    public JsonElement updateJSON(JsonElement json) {
+        Gson gson = Helper.getGson();
         // if the json is just an array (legacy file)
-        if (json.isJsonArray() && version == 1.0) {
+        if (json.isJsonArray()) {
             JsonArray DestArray = json.getAsJsonArray();
 
             ArrayList<Dest> updated = new ArrayList<>();
@@ -88,8 +92,20 @@ public class GlobalDest implements CustomFile<GlobalDest> {
                 }
             }
 
-            this.destinations = updated;
+            json = new JsonObject();
+            json.getAsJsonObject().addProperty("version", 1.0);
+            json.getAsJsonObject().add("destinations",gson.toJsonTree(updated));
         }
+
+        return json;
+    }
+
+    /**
+     * POST LOAD: after the JSON is loaded to this current instance, this method is called.
+     */
+    @Override
+    public void updateFileInstance() {
+
     }
 
     /**
