@@ -71,24 +71,27 @@ public class ModuleSetting<V> implements Cloneable {
         this.validator = (ModuleSettingHandler<V>) validator;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public ModuleSetting<V> clone() {
-        ModuleSetting<V> copy;
-        try {
-            copy = (ModuleSetting<V>) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError("ModuleSetting should be cloneable", e);
-        }
-        try {
-            if (value != null) {
-                Method m = value.getClass().getMethod("clone");
-                copy.value = (V) m.invoke(value);
+        V clonedValue = cloneValue(value);
+        return new ModuleSetting<>(id, clonedValue, validator);
+    }
+
+    /**
+     * attempts to clone the value using its clone method or returns the same instance if not cloneable.
+     */
+    @SuppressWarnings("unchecked")
+    protected V cloneValue(V original) {
+        if (original == null) return null;
+        if (original instanceof Cloneable) {
+            try {
+                Method cloneMethod = original.getClass().getMethod("clone");
+                return (V) cloneMethod.invoke(original);
+            } catch (ReflectiveOperationException ignored) {
+                // fallback to shallow copy if clone fails
             }
-            return copy;
-        } catch (ReflectiveOperationException ignored) {
-            return copy;
         }
+        return original;
     }
 
     @Override
