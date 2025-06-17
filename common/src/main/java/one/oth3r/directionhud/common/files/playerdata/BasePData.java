@@ -208,9 +208,6 @@ public abstract class BasePData {
 
             }
 
-            // copy over the fixed modules
-            this.hud.setModules(newModules);
-
             /*
             This new system completely removes the order of modules when disabled, only giving module order to enabled modules - thus easier to manage enabled modules
                 - calling ModuleManager.Order.fixOrder() will do this automatically!
