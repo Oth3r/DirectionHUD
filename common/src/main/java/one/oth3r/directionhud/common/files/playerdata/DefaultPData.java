@@ -40,7 +40,7 @@ public class DefaultPData extends BasePData implements CustomFile<DefaultPData> 
      */
     @Override
     public void updateFileInstance() {
-        //
+        // run the module order fixer just in case
         ModuleManager.Order.fixOrder(this.hud.getModules(), true);
     }
 
