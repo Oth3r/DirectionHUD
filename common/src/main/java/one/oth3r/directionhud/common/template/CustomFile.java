@@ -60,7 +60,6 @@ public interface CustomFile <T extends CustomFile<T>> {
     }
 
     default void updateFromReader(BufferedReader reader) {
-        // todo port to OtterLib
         // try to read the json
         T file;
         JsonElement json = JsonParser.parseReader(reader);
