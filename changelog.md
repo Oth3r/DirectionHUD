@@ -1,3 +1,8 @@
+## v1.8.1.1
+* fixed module cloning error
+* fixed stack overflow error when updating playerdata
+* fixed minimum version being too low on 1.21.6
+
 ## v1.8.1.0 Modular Modules pt.2
 Modular Modules? What about MORE modularity? \
 This update adds more to the base update that came before, with the backend changes that add dynamic module settings and display settings.
