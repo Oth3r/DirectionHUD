@@ -32,7 +32,7 @@ public class PDHud {
     @SerializedName("modules")
     private ArrayList<BaseModule> modules = new ArrayList<>(List.of(
             new ModuleCoordinates(0, true, true),
-            new ModuleDestination(1, true),
+            new ModuleDestination(1, true,true),
             new ModuleDistance(2, true),
             new ModuleTracking(3, false, true, ModuleTracking.Target.player, ModuleTracking.Type.simple, false),
             new ModuleDirection(4, true),

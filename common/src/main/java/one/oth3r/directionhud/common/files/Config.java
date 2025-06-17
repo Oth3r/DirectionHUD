@@ -511,7 +511,7 @@ public class Config implements CustomFile<Config> {
                         case COORDINATES -> new ModuleCoordinates(i,
                                 Boolean.parseBoolean(properties.getProperty("hud.module.coordinates", String.valueOf(true))),true);
                         case DESTINATION -> new ModuleDestination(i,
-                                Boolean.parseBoolean(properties.getProperty("hud.module.destination", String.valueOf(true))));
+                                Boolean.parseBoolean(properties.getProperty("hud.module.destination", String.valueOf(true))),true);
                         case DISTANCE -> new ModuleDistance(i,
                                 Boolean.parseBoolean(properties.getProperty("hud.module.distance", String.valueOf(true))));
                         case TRACKING -> new ModuleTracking(i,
@@ -621,7 +621,7 @@ public class Config implements CustomFile<Config> {
                             case COORDINATES -> new ModuleCoordinates(i,
                                     Boolean.parseBoolean(properties.getProperty("coordinates", String.valueOf(true))),true);
                             case DESTINATION -> new ModuleDestination(i,
-                                    Boolean.parseBoolean(properties.getProperty("destination", String.valueOf(true))));
+                                    Boolean.parseBoolean(properties.getProperty("destination", String.valueOf(true))),true);
                             case DISTANCE -> new ModuleDistance(i,
                                     Boolean.parseBoolean(properties.getProperty("distance", String.valueOf(true))));
                             case TRACKING -> new ModuleTracking(i,

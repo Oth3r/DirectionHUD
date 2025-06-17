@@ -255,6 +255,10 @@
   "directionhud.hud.module.setting.coordinates.coordinates_xyz-display.true": "XYZ",
   "directionhud.hud.module.setting.coordinates.coordinates_xyz-display.false": "XY",
 
+  "directionhud.hud.module.setting.destination.destination_show-name": "destination name",
+  "directionhud.hud.module.setting.destination.destination_show-name.ui": "Destination Name",
+  "directionhud.hud.module.setting.destination.destination_show-name.info": "Shows the destination name (if available).",
+
   "directionhud.hud.module.setting.time.time_24hr": "clock display type",
   "directionhud.hud.module.setting.time.time_24hr.ui": "Clock Display Type",
   "directionhud.hud.module.setting.time.time_24hr.info": "Changes the format of the clock.",

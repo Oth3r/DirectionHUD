@@ -92,7 +92,7 @@ public abstract class BasePData {
             // the new module list
             ArrayList<BaseModule> newModules = new ArrayList<>();
             // get the hud
-            JsonObject hud = json.getAsJsonObject().getAsJsonObject("hud");
+            JsonObject hud = jsonObj.getAsJsonObject("hud");
             // hud.order is a string of modules in the order that they show up in game
             JsonArray order = hud.getAsJsonArray("order");
             // get the module settings - (hud.setting.module) as jsonObject
@@ -113,7 +113,7 @@ public abstract class BasePData {
 
                 switch (module) {
                     case COORDINATES -> newModules.add(new ModuleCoordinates(i,state, true));
-                    case DESTINATION -> newModules.add(new ModuleDestination(i, state));
+                    case DESTINATION -> newModules.add(new ModuleDestination(i, state,true));
                     case DISTANCE -> newModules.add(new ModuleDistance(i, state));
                     case TRACKING -> newModules.add(new ModuleTracking(i, state,
                             moduleSettings.getAsJsonPrimitive("tracking_hybrid").getAsBoolean(),
@@ -138,8 +138,8 @@ public abstract class BasePData {
             // fix the order
             ModuleManager.Order.fixOrder(newModules, factoryDefault);
             hud.add("modules", gson.toJsonTree(newModules));
-            // bump the version; skip 2.1 as this would technically fix for updating 2.2 as well
-            json.getAsJsonObject().addProperty("version", 2.2);
+            // bump the version; skip 2.1 & 2.2 as this would technically fix for updating 2.3 as well
+            jsonObj.addProperty("version", 2.3);
         }
 
         if (version == 2.1) {
@@ -152,7 +152,7 @@ public abstract class BasePData {
              */
 
             // get the hud
-            JsonObject hud = json.getAsJsonObject().getAsJsonObject("hud");
+            JsonObject hud = jsonObj.getAsJsonObject("hud");
             // get the module states
             JsonArray modules = hud.getAsJsonArray("modules");
 
@@ -174,7 +174,7 @@ public abstract class BasePData {
                         boolean xyzDisplay = module.getAsJsonPrimitive("xyz-display").getAsBoolean();
                         yield new ModuleCoordinates(order, state, xyzDisplay);
                     }
-                    case DESTINATION -> new ModuleDestination(order,state);
+                    case DESTINATION -> new ModuleDestination(order,state,true);
                     case DISTANCE -> new ModuleDistance(order,state);
                     case TRACKING -> {
                         boolean hybrid = module.getAsJsonPrimitive("hybrid").getAsBoolean();
@@ -218,11 +218,38 @@ public abstract class BasePData {
             ModuleManager.Order.fixOrder(newModules, factoryDefault);
 
             hud.add("modules", gson.toJsonTree(newModules));
-            json.getAsJsonObject().addProperty("version", 2.2);
+
+            // skip 2.2 as this would also add the destination setting automatically
+            jsonObj.addProperty("version", 2.3);
         }
 
-        // even if the version doesn't need to be updated, run the module order fixer just in case
-        ModuleManager.Order.fixOrder(this.hud.getModules(), factoryDefault);
+        if (version == 2.2) {
+            /// add the destination show-name setting
+            // get the hud
+            JsonObject hud = jsonObj.getAsJsonObject("hud");
+            // get the module states
+            JsonArray modules = hud.getAsJsonArray("modules");
+
+            for (JsonElement element : modules) {
+                JsonObject module = element.getAsJsonObject();
+
+                // get the module type
+                String mod = module.getAsJsonPrimitive("module").getAsString();
+                Module moduleType = Module.fromString(mod);
+                if (moduleType.equals(Module.DESTINATION)) {
+                    JsonArray settings = module.getAsJsonArray("settings");
+
+                    JsonObject showName = new JsonObject();
+                    showName.addProperty("id","destination_show-name");
+                    showName.addProperty("value",true);
+
+                    settings.add(showName);
+                }
+            }
+            // bump to 2.3
+            jsonObj.addProperty("version", 2.3);
+        }
+
         return json;
     }
 }
