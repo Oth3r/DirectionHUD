@@ -50,7 +50,7 @@ public class ModEvents {
             while (keyBinding.wasPressed()) {
                 if (DirectionHUD.getData().isOnSupportedServer()) {
                     assert client.player != null;
-                    client.player.networkHandler.sendCommand("hud toggle");
+                    client.player.networkHandler.sendChatCommand("hud toggle");
                 }
             }
         }
