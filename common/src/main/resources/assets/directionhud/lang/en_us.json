@@ -16,6 +16,11 @@
   "directionhud.button.click": "CLICK",
   "directionhud.hover.click": "Click",
 
+  "directionhud.confirm.hover": "Click to confirm",
+  "directionhud.confirm.ui": "Confirm",
+  "directionhud.confirm.msg": "Are you sure you want to do this?",
+  "directionhud.confirm.msg.action": "%1$s or type:",
+
   "on": "on",
   "off": "off",
 
