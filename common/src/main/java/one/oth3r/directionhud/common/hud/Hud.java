@@ -401,7 +401,9 @@ public class Hud {
                         }
                     } else {
                         // check for confirmation
-                        resetConfirmation(player, module, Return);
+                        CUtl.confirmation(player, "/hud modules reset "+
+                                (module.equals(Module.UNKNOWN) ? "all" : module.getName()),
+                                "reset");
                     }
                 }
             }
@@ -569,30 +571,6 @@ public class Hud {
                 }
             }
             return suggester;
-        }
-
-        /**
-         * generates a confirmation message for resetting module(s)
-         */
-        public static void resetConfirmation(Player player, Module module, boolean Return) {
-            boolean all = module.equals(Module.UNKNOWN);
-            CTxT msgAlt = all ? LANG.msg("reset.confirm.all") : new CTxT(module.getName());
-            msgAlt.color('c');
-
-            String command = "/hud modules reset "+ (all ?
-                    "all" : module.getName()) +" confirm";
-            String returnCmd = Return?command.replaceFirst("reset","reset-r"):command;
-
-            CTxT clickButton = CUtl.DLANG.btn("click").btn(true).color(CUtl.s())
-                    .hover(CUtl.DLANG.hover("click").color(CUtl.s())
-                            .append("\n").append(LANG.hover("reset.click")))
-                    .click(1, returnCmd);
-
-            CTxT msg = CUtl.tag().append(LANG.msg("reset.confirm",msgAlt)).append("\n ")
-                    .append(LANG.msg("reset.confirm_action",clickButton,
-                            new CTxT(command).color(CUtl.s()).click(2,command)));
-
-            player.sendMessage(msg);
         }
 
         /**
