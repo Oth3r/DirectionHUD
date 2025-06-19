@@ -102,7 +102,7 @@ public class ModuleManager {
             mod.setState(false);
 
             // fix the order
-            Order.fixOrder(player.getPCache().getHud().getModules());
+            Order.fixOrder(player.getPData().getHud().getModules());
 
             // save the changes
             player.getPData().queueSave();
