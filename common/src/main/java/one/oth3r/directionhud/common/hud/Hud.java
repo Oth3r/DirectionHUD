@@ -367,7 +367,6 @@ public class Hud {
          * @param args the command arguments provided by the player
          */
         public static void CMDExecutor(Player player, String[] args) {
-            System.out.println(Arrays.toString(args));
             // UI
             if (args.length == 0) {
                 UI(player, null);
