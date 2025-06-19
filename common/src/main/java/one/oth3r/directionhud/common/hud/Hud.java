@@ -601,7 +601,7 @@ public class Hud {
          */
         public static CTxT moduleExample(Player player, Module module) {
             // assets
-            BaseModule mod = player.getPData().getHud().getModule(module);
+            BaseModule mod = player.getPCache().getHud().getModule(module);
             Random random = new Random();
             Loc randomLoc = new Loc(
                     random.nextInt(5000),random.nextInt(-64,200),random.nextInt(5000));
@@ -1003,7 +1003,7 @@ public class Hud {
             // the reset button
             CTxT reset = CUtl.LANG.btn("reset").btn(true).color('7');
             // only make it clickable if any of the modules can reset
-            if (player.getPData().getHud().getModules().stream().anyMatch(ModuleManager.Reset::canReset)) {
+            if (player.getPCache().getHud().getModules().stream().anyMatch(ModuleManager.Reset::canReset)) {
                 reset.color('c')
                         .click(1,"/hud modules reset-r all")
                         .hover(CUtl.LANG.hover("reset").color('c').append("\n")
