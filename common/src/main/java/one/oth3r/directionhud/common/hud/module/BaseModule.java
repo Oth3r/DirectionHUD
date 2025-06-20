@@ -12,6 +12,7 @@ import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class BaseModule implements Cloneable {
     @SerializedName("module")
@@ -88,6 +89,21 @@ public abstract class BaseModule implements Cloneable {
 
     public List<ModuleSetting<?>> getSettings() {
         return new ArrayList<>(settings);
+    }
+
+    /**
+     * removes settings with duplicate setting IDs (if a player edits or something bad happens)
+     */
+    public void removeDuplicateSettings() {
+        Collection<? extends ModuleSetting<?>> fixedSettings = settings.stream()
+                .collect(Collectors.toMap(
+                        ModuleSetting::getId,     // key = ID
+                        obj -> obj,          // value = the object itself
+                        (existing, duplicate) -> existing // keep first occurrence
+                ))
+                .values();
+        settings.clear();
+        settings.addAll(fixedSettings);
     }
 
     /**
