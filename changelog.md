@@ -1,3 +1,10 @@
+## v1.8.1.2
+* fixed all other module's order not being adjusted correctly when disabling a module
+* removed testing console prints when using the `/hud module` command
+* increased the efficiency of `/hud module` commands by not reading from the file as much
+* updated hud module reset confirmation with a generic, more readable message
+* now removes duplicate module settings on load, as a precaution
+
 ## v1.8.1.1
 * fixed module cloning error
 * fixed stack overflow error when updating playerdata
