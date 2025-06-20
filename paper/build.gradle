@@ -63,7 +63,7 @@ processResources {
 //jar {
 //    base.archivesName = "directionhud-dev"
 //    version = 0
-//    destinationDirectory = file("R:/Coding/1 Servers/2Latest Paper/plugins")
+//    destinationDirectory = file("R:/Minecraft/Servers/.Paper/.Latest/plugins")
 //}
 
 modrinth {
