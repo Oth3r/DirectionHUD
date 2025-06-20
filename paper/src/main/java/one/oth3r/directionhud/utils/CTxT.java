@@ -56,6 +56,16 @@ public class CTxT extends ChatText<TextComponent, CTxT> {
         this.text = Component.text(text);
         return this;
     }
+
+    public CTxT text(CTxT text) {
+        this.text = text.text.toBuilder().build();
+        return this;
+    }
+
+    public CTxT text(TextComponent text) {
+        this.text = text.toBuilder().build();
+        return this;
+    }
     
     @Override
     public CTxT append(String append) {
