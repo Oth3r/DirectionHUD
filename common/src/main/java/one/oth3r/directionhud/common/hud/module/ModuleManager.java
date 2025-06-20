@@ -102,7 +102,7 @@ public class ModuleManager {
             mod.setState(false);
 
             // fix the order
-            Order.fixOrder(player.getPCache().getHud().getModules());
+            Order.fixOrder(player.getPData().getHud().getModules());
 
             // save the changes
             player.getPData().queueSave();
@@ -269,6 +269,8 @@ public class ModuleManager {
 
             // set each order in the list from 1 - max (if the module already has an order
             setOrder(list);
+            // remove duplicate settings
+            list.forEach(BaseModule::removeDuplicateSettings);
         }
 
         /**
@@ -287,6 +289,10 @@ public class ModuleManager {
             }
         }
 
+        /**
+         * gets a module at a specific order - min and max clamps are used to make sure no out of bounds errors occur
+         * @param order the order to check
+         */
         public static Module getModuleAt(Player player, int order) {
             ArrayList<BaseModule> modules = State.getEnabled(player);
             if (modules.isEmpty()) return Module.UNKNOWN;
