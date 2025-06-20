@@ -1,7 +1,7 @@
 plugins {
     id 'base'
     id 'java'
-    id "com.modrinth.minotaur" version "2.+"
+    id "me.modmuss50.mod-publish-plugin" version "0.8.4"
 }
 
 base {
@@ -66,13 +66,25 @@ processResources {
 //    destinationDirectory = file("R:/Minecraft/Servers/.Paper/.Latest/plugins")
 //}
 
-modrinth {
-    token = env.fetchOrNull('MODRINTH')
-    projectId = 'H8WCXRtb'
-    versionNumber = project.spigot_version
-    versionName = "v${project.spigot_version} [Paper]"
-    uploadFile = jar
-    gameVersions = [project.minecraft_version]
-    loaders = ['paper', 'folia', 'purpur']
+publishMods {
     changelog = file('../changelog.md').text
+    type = STABLE
+
+    file = jar.archiveFile
+    modLoaders.add("paper")
+    modLoaders.add("folia")
+    modLoaders.add("purpur")
+
+    version = paper_version
+    displayName = "v${paper_version} [Paper]"
+
+    modrinth {
+        accessToken = env.fetchOrNull('MODRINTH')
+        projectId = "H8WCXRtb"
+        minecraftVersions.addAll(minecraft_versions.split(",").toList())
+
+        requires("fabric-api")
+
+        announcementTitle = "Download from Modrinth"
+    }
 }
