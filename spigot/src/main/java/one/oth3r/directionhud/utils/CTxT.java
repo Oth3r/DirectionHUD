@@ -53,6 +53,16 @@ public class CTxT extends ChatText<TextComponent, CTxT> {
         this.text = new TextComponent(text);
         return this;
     }
+
+    public CTxT text(CTxT text) {
+        this.text = text.text.duplicate();
+        return this;
+    }
+
+    public CTxT text(TextComponent text) {
+        this.text = text.duplicate();
+        return this;
+    }
     
     @Override
     public CTxT append(String append) {

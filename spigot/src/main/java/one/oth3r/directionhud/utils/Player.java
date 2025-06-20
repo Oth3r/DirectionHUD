@@ -6,8 +6,6 @@ import net.md_5.bungee.api.ChatMessageType;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.PacketHelper;
 import one.oth3r.directionhud.common.Assets;
-import one.oth3r.directionhud.common.Destination;
-import one.oth3r.directionhud.common.hud.Hud;
 import one.oth3r.directionhud.common.files.playerdata.CachedPData;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.files.playerdata.PData;
@@ -16,11 +14,12 @@ import one.oth3r.directionhud.common.utils.*;
 import one.oth3r.directionhud.common.template.PlayerTemplate;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Particle;
-import org.bukkit.util.Vector;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.util.RayTraceResult;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -150,6 +149,49 @@ public class Player extends PlayerTemplate {
         return player.getWorld().isThundering();
     }
 
+    /**
+     * gets the light level.
+     *
+     * @param lookTarget if enabled, it will get the light level of the next closest target after the player's target-look block
+     * @return an int array, 2 in length, first entry for the skylight, second entry for the block light. -1 is returned if not found
+     */
+    @Override
+    public int[] getLightLevels(boolean lookTarget) {
+        Location location = player.getLocation();
+
+        // if getting the look target
+        if (lookTarget) {
+            // ray trace
+            RayTraceResult result = player.rayTraceBlocks(5);
+            // if possible
+            if (result != null && result.getHitBlock() != null) {
+                Block block = result.getHitBlock();
+                // if not passible, the block that is the hit face
+                if (!block.isPassable()) {
+                    BlockFace face = result.getHitBlockFace();
+                    // if null, null, but else get the location
+                    if (face == null) location = null;
+                    else {
+                        location = block.getRelative(face).getLocation();
+                    }
+                }
+                // else get the passible block location
+                else location = block.getLocation();
+            }
+            // if not possible, null
+            else location = null;
+
+            // if null return bad data
+            if (location == null) return new int[]{-1,-1};
+        }
+
+        // return the gathered data
+        return new int[]{
+                location.getBlock().getLightFromSky(),
+                location.getBlock().getLightFromBlocks()
+        };
+    }
+
     @Override
     public float getYaw() {
         return player.getLocation().getYaw();
@@ -169,21 +211,6 @@ public class Player extends PlayerTemplate {
     public Loc getLoc() {
         if (isValid()) return new Loc(new Player(player));
         else return new Loc();
-    }
-
-    @Override
-    public int getBlockX() {
-        return player.getLocation().getBlockX();
-    }
-
-    @Override
-    public int getBlockY() {
-        return player.getLocation().getBlockY();
-    }
-
-    @Override
-    public int getBlockZ() {
-        return player.getLocation().getBlockZ();
     }
 
     public org.bukkit.entity.Player getPlayer() {
