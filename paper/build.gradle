@@ -60,11 +60,14 @@ processResources {
 }
 
 //build in testing server dir
-//jar {
-//    base.archivesName = "directionhud-dev"
-//    version = 0
-//    destinationDirectory = file("R:/Minecraft/Servers/.Paper/.Latest/plugins")
-//}
+tasks.register('buildAndMoveJar', Jar) {
+    archiveBaseName.set("directionhud-paper-dev")
+    version = "0"
+    from(sourceSets.main.output)
+
+    destinationDirectory.set(file("/mnt/1TBM2/Minecraft/Servers/Paper/Latest/plugins"))
+//    destinationDirectory.set(file("R:/Minecraft/Servers/Paper/Latest/plugins"))
+}
 
 publishMods {
     changelog = file('../changelog.md').text
