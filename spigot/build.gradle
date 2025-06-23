@@ -25,12 +25,19 @@ repositories {
         url = uri("https://repo.opencollab.dev/main/")
     }
 }
+
 sourceSets {
+    // Define a new sourceSet for the common code
     main {
-        java.srcDirs = ['src/main/java', '../common/src/main/java']
-        resources.srcDirs = ['src/main/resources', '../common/src/main/resources']
+        java {
+            srcDir '../common/src/main/java'
+        }
+        resources {
+            srcDir '../common/src/main/resources'
+        }
     }
 }
+
 dependencies {
     implementation 'org.apache.commons:commons-configuration2:2.11.0'
     compileOnly ("org.spigotmc:spigot-api:${project.minecraft_version}-R0.1-SNAPSHOT")
