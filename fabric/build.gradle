@@ -12,12 +12,18 @@ version = project.mod_version
 group = project.maven_group
 
 repositories {
-	maven { url = "https://maven.terraformersmc.com/releases/" }
+	maven {
+		name = "Terraformers"
+		url = "https://maven.terraformersmc.com/"
+	}
 	maven {
 		name = "geyser"
 		url = uri("https://repo.opencollab.dev/main/")
 	}
-	maven { url = "https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1" }
+	maven {
+		name = "DevAuth"
+		url = "https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1"
+	}
 }
 
 sourceSets {
@@ -42,7 +48,7 @@ dependencies {
 	modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
 
 	include implementation('org.apache.commons:commons-text:1.10.0')
-	modRuntimeOnly("me.djtheredstoner:DevAuth-fabric:${project.devauth_version}")
+	modRuntimeOnly "me.djtheredstoner:DevAuth-fabric:${project.devauth_version}"
 }
 
 processResources {
