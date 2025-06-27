@@ -19,15 +19,6 @@ public class FileData {
     }
 
     /**
-     * module display data
-     */
-    private static final ModuleText moduleText = new ModuleText();
-
-    public static ModuleText getModuleText() {
-        return moduleText;
-    }
-
-    /**
      * global destinations
      */
     private static final GlobalDest globalDestinations = new GlobalDest();
@@ -53,7 +44,7 @@ public class FileData {
         PlayerData.loadDefaults();
         LangReader.loadLanguageFile();
         Dimension.loadDimensionSettings();
-        moduleText.load();
+        new ModuleText().load();
         // the server has to be started to edit per world data
         if (DirectionHUD.getData().isServerStarted() && config.getDestination().getGlobal()) loadGlobalDestinations();
     }

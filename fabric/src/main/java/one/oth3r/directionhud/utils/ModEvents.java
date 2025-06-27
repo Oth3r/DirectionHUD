@@ -182,6 +182,7 @@ public class ModEvents {
     }
 
     public static void registerCommon() {
+        Events.init();
         ModData modData = DirectionHUD.getData();
         // directory
         modData.setConfigDirectory(FabricLoader.getInstance().getConfigDir().toFile()+"/directionhud/");

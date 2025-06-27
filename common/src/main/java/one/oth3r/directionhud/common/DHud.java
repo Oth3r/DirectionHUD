@@ -808,7 +808,7 @@ public class DHud {
                 ArrayList<String> names = getNames(presets);
                 // remove the bad data
                 if (!names.contains(name)) {
-                    player.sendMessage(preset.LANG.error("invalid"));
+                    player.sendMessage(preset.LANG.err("invalid"));
                     return;
                 }
                 // color fixer
@@ -830,15 +830,15 @@ public class DHud {
                 ArrayList<ColorPreset> presets = player.getPData().getColorPresets();
                 // errors
                 if (getNames(presets).contains(name)) {
-                    player.sendMessage(LANG.error("duplicate"));
+                    player.sendMessage(LANG.err("duplicate"));
                     return;
                 }
                 if (name.length() > Helper.MAX_NAME) {
-                    player.sendMessage(CUtl.LANG.error("length",Helper.MAX_NAME));
+                    player.sendMessage(CUtl.LANG.err("length",Helper.MAX_NAME));
                     return;
                 }
                 if (presets.size() >= FileData.getConfig().getMaxColorPresets()) {
-                    player.sendMessage(LANG.error("max"));
+                    player.sendMessage(LANG.err("max"));
                     return;
                 }
                 // fix the color
@@ -863,15 +863,15 @@ public class DHud {
                 ArrayList<String> names = getNames(presets);
                 // remove the bad data
                 if (!names.contains(name)) {
-                    player.sendMessage(LANG.error("invalid"));
+                    player.sendMessage(LANG.err("invalid"));
                     return;
                 }
                 if (names.contains(newName)) {
-                    player.sendMessage(LANG.error("duplicate"));
+                    player.sendMessage(LANG.err("duplicate"));
                     return;
                 }
                 if (newName.length() > Helper.MAX_NAME) {
-                    player.sendMessage(CUtl.LANG.error("length",Helper.MAX_NAME));
+                    player.sendMessage(CUtl.LANG.err("length",Helper.MAX_NAME));
                     return;
                 }
                 int index = names.indexOf(name);
@@ -894,7 +894,7 @@ public class DHud {
                 ArrayList<String> names = getNames(presets);
                 // remove the bad data
                 if (!names.contains(name)) {
-                    player.sendMessage(LANG.error("invalid"));
+                    player.sendMessage(LANG.err("invalid"));
                     return;
                 }
                 ColorPreset entry = presets.get(names.indexOf(name));

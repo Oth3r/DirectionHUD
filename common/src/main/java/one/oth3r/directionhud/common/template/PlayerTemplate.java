@@ -15,17 +15,38 @@ public abstract class PlayerTemplate {
     public String toString() {
         return "DirectionHUD Player: "+getName();
     }
-    public abstract boolean isValid();
-    public abstract String getName();
+
     /**
-     * makes a CTxT with the players name in the secondary color
+     * checks if a player is valid to use other methods on.
+     */
+    public abstract boolean isValid();
+
+    /**
+     * gets the player's name as a plaintext string
+     */
+    public abstract String getName();
+
+    /**
+     * makes a CTxT with the player's name in the secondary color
      * @return the highlighted player name
      */
     public CTxT getHighlightedName() {
         return CTxT.of(getName()).color(CUtl.s());
     }
+
+    /**
+     * gets the player's UUID
+     */
     public abstract String getUUID();
+
+    /**
+     * gets the player's spawn dimension (if possible, overworld if not)
+     */
     public abstract String getSpawnDimension();
+
+    /**
+     * gets the player's current dimension
+     */
     public abstract String getDimension();
 
     /**
@@ -33,32 +54,51 @@ public abstract class PlayerTemplate {
      * @return the world time in ticks
      */
     public abstract int getTimeOfDay();
+
+    /**
+     * gets the world time as a long
+     */
     public abstract long getWorldTime();
 
     /**
-     * the storm status of a world
+     * the storm status of the player's world
      */
     public abstract boolean hasStorm();
 
     /**
-     * the thunderstorm status of a world
+     * the thunderstorm status of the player's world
      */
     public abstract boolean hasThunderstorm();
 
-    public abstract float getYaw();
-    public abstract float getPitch();
+    /**
+     * gets the light level.
+     * @param lookTarget if enabled, it will get the light level of the next closest target after the player's target-look block
+     * @return an int array, 2 in length, first entry for the skylight, second entry for the block light. -1 is returned if not found
+     */
+    public abstract int[] getLightLevels(boolean lookTarget);
+
+    /// Location Methods
     public abstract Vec getVec();
     public abstract Loc getLoc();
-    public abstract int getBlockX();
-    public abstract int getBlockY();
-    public abstract int getBlockZ();
+
+    /// Player Display Methods
     public abstract void performCommand(String cmd);
     public abstract void sendMessage(CTxT message);
     public abstract void sendActionBar(CTxT message);
     public abstract void displayBossBar(CTxT message);
     public abstract void removeBossBar();
 
+    /// PlayerData Methods
+    /**
+     * gets the player's data from file
+     * @return retrieves the player data file
+     */
     public abstract PData getPData();
+
+    /**
+     * gets the player data from cache
+     * @return a smaller, cached version of {@link PData}
+     */
     public abstract CachedPData getPCache();
 
     public void updateHUD() {
@@ -76,6 +116,8 @@ public abstract class PlayerTemplate {
         // else clear the actionBar
         else this.sendActionBar(CTxT.of(""));
     }
+
+    /// Packet Methods
     public abstract void sendPDataPackets();
     public abstract void sendHUDPackets(ModuleInstructions instructions);
 
@@ -100,8 +142,18 @@ public abstract class PlayerTemplate {
         else displayBossBar(message);
     }
 
-    /// PARTICLES
+    /// ROTATION
+    /**
+     * gets the player's yaw
+     */
+    public abstract float getYaw();
 
+    /**
+     * gets the player's pitch
+     */
+    public abstract float getPitch();
+
+    /// PARTICLES
     /**
      * spawns a particle at the given location
      * @param particleType the type of particle

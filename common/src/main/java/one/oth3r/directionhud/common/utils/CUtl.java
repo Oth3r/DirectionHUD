@@ -17,7 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CUtl {
-    public static final Lang LANG = new Lang("");
+    public static final Lang LANG = new Lang(""), DLANG = new Lang("directionhud."); // need to migrate everything back to dlang
     public static CTxT tag() {
         return CTxT.of("").append(CTxT.of("DirectionHUD").btn(true).color(p())).append(" ");
     }
@@ -83,6 +83,31 @@ public class CUtl {
         // add a space for the length of the int
         // return the CTxT
         return CTxT.of("\n"+ " ".repeat(Math.max(0, length))).strikethrough(true);
+    }
+
+    /**
+     * generates a confirmation message with the command provided
+     */
+    public static void confirmation(Player player, String command, String returnKey) {
+        if (!command.endsWith("confirm")) command +=" confirm";
+
+        String returnCmd = returnKey!=null?
+                command.replaceFirst(returnKey,returnKey+"-r") : command;
+
+        CTxT clickButton = CUtl.DLANG.btn("click").btn(true).color(CUtl.s())
+                .hover(CUtl.DLANG.get("confirm.hover").color(CUtl.s())
+                        .append("\n").append(new CTxT(command)))
+                .click(1, returnCmd);
+        CTxT line = makeLine(55);
+
+        CTxT msg = new CTxT(" ").append(DLANG.get("confirm.ui").color(CUtl.s()))
+                .append(line).append("\n ")
+                .append(DLANG.get("confirm.msg")).append("\n\n ")
+                .append(DLANG.get("confirm.msg.action",clickButton)).append("\n ")
+                .append(new CTxT(command).color(CUtl.s()).click(2,command))
+                .append(line);
+
+        player.sendMessage(msg);
     }
 
     /**
@@ -243,9 +268,9 @@ public class CUtl {
          */
         public static String format(char character) {
             return switch (character) {
-                case 'c' -> "#FF5555";
+                case 'c' -> Assets.mainColors.off;
                 case 'e' -> "#FFFF55";
-                case 'a' -> "#55FF55";
+                case 'a' -> Assets.mainColors.on;
                 case '7' -> "#AAAAAA";
                 default -> "#FFFFFF";
             };
