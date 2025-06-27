@@ -56,7 +56,7 @@ public class Utl {
         // extend ray by the range
         Vec3d rayEnd = rayStart.add(serverPlayer.getRotationVector().multiply(range));
 
-        BlockHitResult hitResult = serverPlayer.getServerWorld().raycast(new RaycastContext(rayStart, rayEnd, RaycastContext.ShapeType.OUTLINE, RaycastContext.FluidHandling.NONE, ShapeContext.absent()));
+        BlockHitResult hitResult = serverPlayer.getServerWorld().raycast(new RaycastContext(rayStart, rayEnd, RaycastContext.ShapeType.OUTLINE, RaycastContext.FluidHandling.NONE, serverPlayer));
 
         if (hitResult.getType() == HitResult.Type.BLOCK) {
             return hitResult.getBlockPos().offset(hitResult.getSide());

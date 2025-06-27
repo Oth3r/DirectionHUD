@@ -100,9 +100,9 @@ public class ModuleText implements CustomFile<ModuleText> {
                     case "angle" -> DynamicUpdater.handleSimpleUpdate(registeredModule,oldModule, displays, new String[]{"yaw","pitch","both"});
                     case "speed" -> DynamicUpdater.handleSimpleUpdate(registeredModule,oldModule, displays, new String[]{"xz_speed","xyz_speed"});
                 }
-                if (!displays.isEmpty() || !assets.isEmpty()) {
-                    if (!displays.isEmpty()) moduleObject.add("displays", displays);
-                    if (!assets.isEmpty()) moduleObject.add("assets", assets);
+                if (!displays.entrySet().isEmpty() || !assets.entrySet().isEmpty()) {
+                    if (!displays.entrySet().isEmpty()) moduleObject.add("displays", displays);
+                    if (!assets.entrySet().isEmpty()) moduleObject.add("assets", assets);
                     modules.add(moduleString, moduleObject);
                 }
             }
