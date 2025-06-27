@@ -1,6 +1,7 @@
 
 package one.oth3r.directionhud.common.files.playerdata;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 public abstract class BasePData {
 
     @SerializedName("version")
-    protected Double version = 2.1;
+    protected Double version = 2.2;
     @SerializedName("hud")
     protected PDHud hud = new PDHud();
     @SerializedName("destination")
@@ -66,10 +67,17 @@ public abstract class BasePData {
 
     /**
      * updates all base pData elements
+     *
      * @param json the json with the file data
+     * @return
      */
-    public void baseUpdater(JsonElement json) {
-        if (version.equals(2.0)) {
+    public JsonElement baseJSONUpdater(JsonElement json, boolean factoryDefault) {
+        if (json == null || json.isJsonNull()) return new JsonObject().getAsJsonNull();
+        Gson gson = Helper.getGson();
+        JsonObject jsonObj = json.getAsJsonObject();
+        double version = jsonObj.getAsJsonPrimitive("version").getAsDouble();
+
+        if (version == 2.0) {
 
             ///  module updater
             /*
@@ -84,7 +92,7 @@ public abstract class BasePData {
             // the new module list
             ArrayList<BaseModule> newModules = new ArrayList<>();
             // get the hud
-            JsonObject hud = json.getAsJsonObject().getAsJsonObject("hud");
+            JsonObject hud = jsonObj.getAsJsonObject("hud");
             // hud.order is a string of modules in the order that they show up in game
             JsonArray order = hud.getAsJsonArray("order");
             // get the module settings - (hud.setting.module) as jsonObject
@@ -105,7 +113,7 @@ public abstract class BasePData {
 
                 switch (module) {
                     case COORDINATES -> newModules.add(new ModuleCoordinates(i,state, true));
-                    case DESTINATION -> newModules.add(new ModuleDestination(i, state));
+                    case DESTINATION -> newModules.add(new ModuleDestination(i, state,true));
                     case DISTANCE -> newModules.add(new ModuleDistance(i, state));
                     case TRACKING -> newModules.add(new ModuleTracking(i, state,
                             moduleSettings.getAsJsonPrimitive("tracking_hybrid").getAsBoolean(),
@@ -127,12 +135,118 @@ public abstract class BasePData {
                 i++;
             }
 
-            // copy the fixed modules
-            this.hud.setModules(newModules);
-
-            // bump the version
-            this.version = 2.1;
+            // fix the order
+            ModuleManager.Order.fixOrder(newModules, factoryDefault);
+            hud.add("modules", gson.toJsonTree(newModules));
+            // bump the version; skip 2.1 & 2.2 as this would technically fix for updating 2.3 as well
+            jsonObj.addProperty("version", 2.3);
         }
 
+        if (version == 2.1) {
+            /// updated module system updater
+            /*
+            The new system completely overhauls the hud module setting system.
+            1. get the list of modules
+            2. loop through each module, hard coding the extraction of the module settings based on the module type
+            hud -> modules
+             */
+
+            // get the hud
+            JsonObject hud = jsonObj.getAsJsonObject("hud");
+            // get the module states
+            JsonArray modules = hud.getAsJsonArray("modules");
+
+
+            ArrayList<BaseModule> newModules = new ArrayList<>();
+            for (JsonElement element : modules) {
+                JsonObject module = element.getAsJsonObject();
+
+                // get the module type
+                String mod = module.getAsJsonPrimitive("module").getAsString();
+                int order = module.getAsJsonPrimitive("order").getAsInt();
+                boolean state = module.getAsJsonPrimitive("state").getAsBoolean();
+
+                Module moduleType = Module.fromString(mod);
+                if (moduleType.equals(Module.UNKNOWN)) continue;
+
+                newModules.add(switch (moduleType) {
+                    case COORDINATES -> {
+                        boolean xyzDisplay = module.getAsJsonPrimitive("xyz-display").getAsBoolean();
+                        yield new ModuleCoordinates(order, state, xyzDisplay);
+                    }
+                    case DESTINATION -> new ModuleDestination(order,state,true);
+                    case DISTANCE -> new ModuleDistance(order,state);
+                    case TRACKING -> {
+                        boolean hybrid = module.getAsJsonPrimitive("hybrid").getAsBoolean();
+                        ModuleTracking.Target target = Enums.get(
+                                module.getAsJsonPrimitive("target").getAsString(),ModuleTracking.Target.class);
+                        ModuleTracking.Type type = Enums.get(
+                                module.getAsJsonPrimitive("display-type").getAsString(),ModuleTracking.Type.class);
+                        boolean elevation = module.getAsJsonPrimitive("show-elevation").getAsBoolean();
+
+                        yield new ModuleTracking(order,state,
+                                hybrid,target,type,elevation);
+                    }
+                    case DIRECTION -> new ModuleDirection(order,state);
+                    case WEATHER -> new ModuleWeather(order,state);
+                    case TIME -> {
+                        boolean time24hr = module.getAsJsonPrimitive("24hr-clock").getAsBoolean();
+                        yield new ModuleTime(order,state,time24hr);
+                    }
+                    case ANGLE -> {
+                        ModuleAngle.Display display = Enums.get(
+                                module.getAsJsonPrimitive("display").getAsString(),ModuleAngle.Display.class);
+                        yield new ModuleAngle(order,state,display);
+                    }
+                    case SPEED -> {
+                        boolean speed2D = module.getAsJsonPrimitive("2d-calculation").getAsBoolean();
+                        String speedPattern = module.getAsJsonPrimitive("display-pattern").getAsString();
+                        yield new ModuleSpeed(order, state, speed2D, speedPattern);
+                    }
+                    default -> throw new IllegalStateException("Unexpected value: " + moduleType);
+                });
+
+            }
+
+            /*
+            This new system completely removes the order of modules when disabled, only giving module order to enabled modules - thus easier to manage enabled modules
+                - calling ModuleManager.Order.fixOrder() will do this automatically!
+             */
+            ModuleManager.Order.fixOrder(newModules, factoryDefault);
+
+            hud.add("modules", gson.toJsonTree(newModules));
+
+            // skip 2.2 as this would also add the destination setting automatically
+            jsonObj.addProperty("version", 2.3);
+        }
+
+        if (version == 2.2) {
+            /// add the destination show-name setting
+            // get the hud
+            JsonObject hud = jsonObj.getAsJsonObject("hud");
+            // get the module states
+            JsonArray modules = hud.getAsJsonArray("modules");
+
+            for (JsonElement element : modules) {
+                JsonObject module = element.getAsJsonObject();
+
+                // get the module type
+                String mod = module.getAsJsonPrimitive("module").getAsString();
+                Module moduleType = Module.fromString(mod);
+                if (moduleType.equals(Module.DESTINATION)) {
+                    JsonArray settings = module.getAsJsonArray("settings");
+
+                    JsonObject showName = new JsonObject();
+                    showName.addProperty("id","destination_show-name");
+                    showName.addProperty("value",true);
+
+                    settings.add(showName);
+                }
+            }
+            // bump to 2.3
+            jsonObj.addProperty("version", 2.3);
+        }
+
+        return json;
     }
 }

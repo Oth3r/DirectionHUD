@@ -95,16 +95,26 @@ public class LangReader {
 
     private static InputStream getInputStream(boolean english) {
         ClassLoader classLoader = DirectionHUD.class.getClassLoader();
-        InputStream inputStream = classLoader.getResourceAsStream("assets/directionhud/lang/"+FileData.getConfig().getLang()+".json");
-        // make null if english
-        if (english) inputStream = null;
+        String lang = FileData.getConfig().getLang();
 
-        // if it cant read (null), try again, but with the english file
-        if (inputStream == null) inputStream = classLoader.getResourceAsStream("assets/directionhud/lang/en_us.json");
+        // the list of attempts to load the language file
+        String[] paths = {
+                DirectionHUD.getData().getConfigDirectory() + "lang/" + lang + ".json",
+                "assets/directionhud/lang/" + lang + ".json",
+                "assets/directionhud/lang/en_us.json"
+        };
+        // if english, only attempt english
+        if (english) paths = new String[]{"assets/directionhud/lang/en_us.json"};
 
-        // if null after that, throw an exception
-        if (inputStream == null) throw new IllegalArgumentException("CANT LOAD THE LANGUAGE FILE. DIRECTIONHUD WILL BREAK.");
-        return inputStream;
+        // try to load the language files
+        for (String path : paths) {
+            InputStream inputStream = classLoader.getResourceAsStream(path);
+            if (inputStream != null) {
+                return inputStream;
+            }
+        }
+
+        throw new IllegalArgumentException("CANT LOAD THE LANGUAGE FILE. DIRECTIONHUD WILL BREAK.");
     }
 
     public static String getLanguageValue(String key) {

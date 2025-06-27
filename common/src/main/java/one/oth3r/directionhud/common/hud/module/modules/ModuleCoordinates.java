@@ -1,56 +1,51 @@
 package one.oth3r.directionhud.common.hud.module.modules;
 
-import com.google.gson.annotations.SerializedName;
 import one.oth3r.directionhud.common.hud.module.BaseModule;
+import one.oth3r.directionhud.common.hud.module.display.DisplaySettings;
+import one.oth3r.directionhud.common.hud.module.display.DisplayRegistry;
+import one.oth3r.directionhud.common.hud.module.setting.BooleanModuleSettingHandler;
 import one.oth3r.directionhud.common.hud.module.Module;
-
-import java.util.Objects;
+import one.oth3r.directionhud.common.utils.Loc;
 
 public class ModuleCoordinates extends BaseModule {
-    public static final String xyzID = "xyz-display";
-    @SerializedName(xyzID)
-    protected boolean xyz;
-
-    @Override
-    public String[] getSettingIDs() {
-        return new String[]{xyzID};
-    }
+    public static final String xyzID = "coordinates_xyz-display";
 
     public ModuleCoordinates() {
-        super(one.oth3r.directionhud.common.hud.module.Module.COORDINATES);
-        this.order = 1;
-        this.state = true;
-        this.xyz = true;
+        super(Module.COORDINATES);
     }
 
-    public ModuleCoordinates(int order, boolean state, boolean xyz) {
+    public ModuleCoordinates(Integer order, boolean state, boolean xyz) {
         super(Module.COORDINATES, order, state);
-        this.xyz = xyz;
+        registerSetting(xyzID, xyz,new BooleanModuleSettingHandler(
+                this.moduleType,xyzID,true,false
+        ));
     }
 
-    public boolean isXyz() {
-        return xyz;
+    /**
+     * the logic for getting the string for the module display
+     *
+     * @param args the correct arguments for displaying the module
+     * @return the module display
+     */
+    @Override
+    protected String display(Object... args) {
+        Loc loc = (Loc) args[0];
+        return ((Boolean) getSettingValue(xyzID)) ?
+                DisplayRegistry.getFormatted(this.moduleType,DISPLAY_XYZ,
+                        loc.getX(), loc.getY(), loc.getZ()) :
+                DisplayRegistry.getFormatted(this.moduleType,DISPLAY_XZ,
+                        loc.getX(), loc.getZ());
     }
 
-    public void setXyz(boolean xyz) {
-        this.xyz = xyz;
-    }
+    public static final String DISPLAY_XYZ = "xyz";
+    public static final String DISPLAY_XZ = "xz";
 
     @Override
-    public BaseModule clone() {
-        return new ModuleCoordinates(this.order, this.state, this.xyz);
-    }
+    public DisplaySettings getDisplaySettings() {
+        DisplaySettings display = new DisplaySettings();
+        display.addDisplay(DISPLAY_XYZ,"&1XYZ: &2%s %s %s");
+        display.addDisplay(DISPLAY_XZ,"&1XZ: &2%s %s");
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        ModuleCoordinates that = (ModuleCoordinates) o;
-        return xyz == that.xyz;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), xyz);
+        return display;
     }
 }
