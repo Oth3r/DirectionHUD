@@ -5,6 +5,9 @@ import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.hud.Hud;
+import one.oth3r.directionhud.common.hud.module.BaseModule;
+import one.oth3r.directionhud.common.hud.module.display.DisplayRegistry;
+import one.oth3r.directionhud.common.hud.module.modules.*;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Dest;
 import one.oth3r.directionhud.common.utils.Helper;
@@ -15,8 +18,19 @@ import one.oth3r.directionhud.utils.Utl;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 
 public class Events {
+    public static void init() {
+        // register the module text
+        List<BaseModule> modules = List.of(
+                new ModuleAngle(),new ModuleCoordinates(),new ModuleDestination(),new ModuleDirection(),
+                new ModuleDistance(),new ModuleSpeed(),new ModuleTime(),new ModuleTracking(),new ModuleWeather(),
+                new ModuleLight()
+        );
+        modules.forEach(bm -> DisplayRegistry.registerModuleDisplay(bm.getModuleType(),bm.getDisplaySettings()));
+    }
+
     public static void serverStart() {
         DirectionHUD.getData().setServerStarted(true);
         try {

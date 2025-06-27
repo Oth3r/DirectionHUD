@@ -129,9 +129,10 @@ public class Loc {
      * creates a Loc based on the player's current location and dimension
      */
     public Loc(Player player) {
-        this.x = xzBounds(player.getBlockX());
-        this.y = yBounds(player.getBlockY());
-        this.z = xzBounds(player.getBlockZ());
+        Vec vec = player.getVec();
+        this.x = xzBounds(vec.getBlockX());
+        this.y = yBounds(vec.getBlockY());
+        this.z = xzBounds(vec.getBlockZ());
         this.dimension = player.getDimension();
     }
 
@@ -181,7 +182,7 @@ public class Loc {
     public Vec getVec(Player player) {
         // make sure y isn't null, using the player y if needed
         Integer i = this.y;
-        if (i == null) i = player.getBlockY();
+        if (i == null) i = player.getVec().getBlockY();
 
         // if nothing else is null, return as vec
         if (this.x != null && this.z != null) {

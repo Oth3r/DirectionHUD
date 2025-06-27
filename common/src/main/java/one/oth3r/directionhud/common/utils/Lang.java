@@ -17,8 +17,17 @@ public class Lang {
         return CUtl.getLangEntry(location+key, args);
     }
 
-    public CTxT error(String key, Object... args) {
+    /**
+     * gets the error message for the given key with the ERROR: prefix
+     */
+    public CTxT err(String key, Object... args) {
         return CUtl.error().append(get("error."+key, args));
+    }
+    /**
+     * gets the error message for the given key without an extra prefix
+     */
+    public CTxT error(String key, Object... args) {
+        return get("error."+key, args);
     }
 
     public CTxT btn(String key, Object... args) {
