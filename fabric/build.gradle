@@ -12,6 +12,7 @@ version = project.mod_version
 group = project.maven_group
 
 repositories {
+	mavenLocal()
 	maven {
 		name = "Terraformers"
 		url = "https://maven.terraformersmc.com/"
@@ -23,6 +24,10 @@ repositories {
 	maven {
 		name = "DevAuth"
 		url = "https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1"
+	}
+	maven {
+		name "oth3rMavenSnapshots"
+		url "https://maven.oth3r.one/snapshots"
 	}
 }
 
@@ -49,6 +54,9 @@ dependencies {
 
 	include implementation('org.apache.commons:commons-text:1.10.0')
 	modRuntimeOnly "me.djtheredstoner:DevAuth-fabric:${project.devauth_version}"
+
+	// otterlib
+	modImplementation "one.oth3r:otterlib:${project.otterlib_version}"
 }
 
 processResources {
@@ -59,6 +67,8 @@ processResources {
 			minecraft_version      : minecraft_version,
 			min_minecraft_version  : min_minecraft_version,
 			max_minecraft_version  : max_minecraft_version,
+			otterlib_version       : otterlib_version,
+			otterlib_max_version   : otterlib_max_version,
 			loader_version         : loader_version
 	]
 
