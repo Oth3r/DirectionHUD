@@ -56,7 +56,7 @@ dependencies {
 	modRuntimeOnly "me.djtheredstoner:DevAuth-fabric:${project.devauth_version}"
 
 	// otterlib
-	modImplementation "one.oth3r:otterlib:${project.otterlib_version}"
+	modImplementation "one.oth3r:otterlib:${project.otterlib_version}-fabric"
 }
 
 processResources {
