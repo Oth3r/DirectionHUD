@@ -39,7 +39,7 @@ sourceSets {
 }
 
 dependencies {
-    implementation 'org.apache.commons:commons-configuration2:2.11.0'
+    implementation 'org.apache.commons:commons-configuration2:2.12.0'
     compileOnly ("org.spigotmc:spigot-api:${project.minecraft_version}-R0.1-SNAPSHOT")
     compileOnly ('org.geysermc.floodgate:api:2.2.2-SNAPSHOT')
 }

@@ -10,6 +10,6 @@ pluginManagement {
 }
 
 // enable one at a time
-include('fabric')
+//include('fabric')
 //include('spigot')
-//include('paper')
+include('paper')
