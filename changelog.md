@@ -1,3 +1,6 @@
+## v1.8.1.3
+* fixed the coordinates module's y level being off by 1 (now matches the vanilla f3 screen)
+
 ## v1.8.1.2
 * fixed all other module's order not being adjusted correctly when disabling a module
 * removed testing console prints when using the `/hud module` command
