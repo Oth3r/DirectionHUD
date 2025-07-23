@@ -439,8 +439,15 @@ public class Hud {
                 else {
                     // if the module is selected via number, get the module at the order
                     if (Num.isInt(args[1])) {
-                        Edit.UI(player, null,
-                                ModuleManager.State.getEnabled(player).get(Math.max(0,Math.min(ModuleManager.State.getEnabled(player).size()-1, Num.toInt(args[1])))).getModuleType());
+                        // if there are no enabled modules, pick the unknown module
+                        if (ModuleManager.State.getEnabled(player).isEmpty())
+                            Edit.UI(player, null, Module.UNKNOWN);
+                        else {
+                            // get the module at the order provided, clamping it to the size of the enabled modules
+                            Edit.UI(player, null,
+                                    ModuleManager.State.getEnabled(player)
+                                            .get(Math.max(0,Math.min(ModuleManager.State.getEnabled(player).size()-1, Num.toInt(args[1])))).getModuleType());
+                        }
                     } else {
                         // else the module is selected from string
                         Edit.UI(player, null, Module.fromString(args[1]));
