@@ -193,7 +193,7 @@ public class Config implements CustomFile<Config> {
         @SerializedName("max-saved")
         private Integer maxSaved = 50;
         @SerializedName("global")
-        private Boolean global = false;
+        private Global global = new Global();
         @SerializedName("lastdeath")
         private LastDeath lastDeath = new LastDeath();
         @SerializedName("loop-ticks")
@@ -225,11 +225,11 @@ public class Config implements CustomFile<Config> {
             this.maxSaved = maxSaved;
         }
 
-        public Boolean getGlobal() {
+        public Global getGlobal() {
             return global;
         }
 
-        public void setGlobal(Boolean global) {
+        public void setGlobal(Global global) {
             this.global = global;
         }
 
@@ -247,6 +247,37 @@ public class Config implements CustomFile<Config> {
 
         public void setLoop(Integer loop) {
             this.loop = loop;
+        }
+
+        public static class Global {
+            @SerializedName("enabled")
+            private Boolean enabled = false;
+            @SerializedName("public-editing")
+            private Boolean publicEditing = false;
+
+            public Global() {
+            }
+
+            public Global(Global global) {
+                this.enabled = global.enabled;
+                this.publicEditing = global.publicEditing;
+            }
+
+            public Boolean isEnabled() {
+                return enabled;
+            }
+
+            public void setEnabled(Boolean enabled) {
+                this.enabled = enabled;
+            }
+
+            public Boolean getPublicEditing() {
+                return publicEditing;
+            }
+
+            public void setPublicEditing(Boolean publicEditing) {
+                this.publicEditing = publicEditing;
+            }
         }
 
         public static class LastDeath {
@@ -361,6 +392,25 @@ public class Config implements CustomFile<Config> {
         this.maxColorPresets = newFile.maxColorPresets;
     }
 
+    @Override
+    public JsonElement updateJSON(JsonElement json) {
+        JsonObject jsonObj = json.getAsJsonObject();
+        double version = jsonObj.get("version").getAsDouble();
+
+        if (version == 1.7) {
+            JsonObject destinationObj = jsonObj.getAsJsonObject("destination");
+            boolean globalEnabled = destinationObj.get("global").getAsBoolean();
+            Destination.Global global = new Destination.Global();
+            global.setEnabled(globalEnabled);
+
+            destinationObj.add("global", Helper.getGson().toJsonTree(global));
+
+            jsonObj.addProperty("version", 1.8);
+        }
+
+        return json;
+    }
+
     /**
      * POST LOAD: after the JSON is loaded to this current instance, this method is called.
      */
@@ -462,7 +512,7 @@ public class Config implements CustomFile<Config> {
                 // CONFIG
                 config.getLocation().setMaxXZ(Integer.parseInt((String) properties.computeIfAbsent("max-xz", a -> String.valueOf(config.getLocation().getMaxXZ()))));
                 config.getLocation().setMaxY(Integer.parseInt((String) properties.computeIfAbsent("max-y", a -> String.valueOf(config.getLocation().getMaxY()))));
-                config.getDestination().setGlobal(Boolean.parseBoolean((String) properties.computeIfAbsent("global-destinations", a -> String.valueOf(config.getDestination().getGlobal()))));
+                config.getDestination().getGlobal().setEnabled(Boolean.parseBoolean((String) properties.computeIfAbsent("global-destinations", a -> String.valueOf(config.getDestination().getGlobal().isEnabled()))));
                 config.getDestination().setSaving(Boolean.parseBoolean((String) properties.computeIfAbsent("destination-saving", a -> String.valueOf(config.getDestination().getSaving()))));
                 config.getDestination().setMaxSaved(Integer.parseInt((String) properties.computeIfAbsent("destination-max", a -> String.valueOf(config.getDestination().getMaxSaved()))));
                 config.getDestination().getLastDeath().setSaving(Boolean.parseBoolean((String) properties.computeIfAbsent("lastdeath-saving", a -> String.valueOf(config.getDestination().getLastDeath().getSaving()))));
