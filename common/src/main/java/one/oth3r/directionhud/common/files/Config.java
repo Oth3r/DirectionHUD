@@ -1,8 +1,6 @@
 package one.oth3r.directionhud.common.files;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import one.oth3r.directionhud.DirectionHUD;
@@ -25,9 +23,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 public class Config implements CustomFile<Config> {
     private transient boolean legacyCheck = false;
@@ -162,12 +158,15 @@ public class Config implements CustomFile<Config> {
         private boolean editing = true;
         @SerializedName("loop-ticks")
         private int loop = 1;
+        @SerializedName("enabled-modules")
+        private HashMap<Module, Boolean> enabledModules = updateModuleMap(new HashMap<>());
 
         public Hud() {}
 
         public Hud(Hud hud) {
             this.editing = hud.editing;
             this.loop = hud.loop;
+            this.enabledModules = hud.enabledModules;
         }
 
         public Boolean getEditing() {
@@ -184,6 +183,36 @@ public class Config implements CustomFile<Config> {
 
         public void setLoop(Integer loop) {
             this.loop = loop;
+        }
+
+        public HashMap<Module, Boolean> getEnabledModules() {
+            return enabledModules;
+        }
+
+        public void setEnabledModules(HashMap<Module, Boolean> enabledModules) {
+            this.enabledModules = enabledModules;
+        }
+
+        /**
+         * edits the module map to only include valid modules, adding / removing entries as needed.
+         * @param modules the map to edit
+         * @return the updated map
+         */
+        public static HashMap<Module, Boolean> updateModuleMap(HashMap<Module,Boolean> modules) {
+            // get all module ids that doesn't include the unknown module
+            List<Module> moduleList = Arrays.stream(Module.values())
+                    .filter(module -> !module.equals(Module.UNKNOWN))
+                    .toList();
+
+            // remove entries not in moduleIds
+            modules.entrySet().removeIf(entry -> !moduleList.contains(entry.getKey()));
+
+            // add missing valid entries with default value true
+            for (Module module : moduleList) {
+                modules.putIfAbsent(module, true);
+            }
+
+            return modules;
         }
     }
 
@@ -416,12 +445,15 @@ public class Config implements CustomFile<Config> {
      */
     @Override
     public void updateFileInstance() {
-        if (version.equals(1.6)) {
+        // update the module map to fix bad data
+        Hud.updateModuleMap(hud.enabledModules);
+
+        if (version == 1.6) {
             version = 1.61;
             // rename lang to have uppercase letters (en_us -> en_US)
             this.lang = this.lang.substring(0,3)+this.lang.substring(3).toUpperCase();
         }
-        if (version.equals(1.61)) {
+        if (version == 1.61) {
             version = 1.7;
             // rename lang to have lowercase letters (en_US -> en_us)
             this.lang = this.lang.substring(0,3)+this.lang.substring(3).toLowerCase();
