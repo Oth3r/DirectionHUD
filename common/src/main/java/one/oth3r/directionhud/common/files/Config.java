@@ -33,7 +33,7 @@ public class Config implements CustomFile<Config> {
     private transient boolean legacyCheck = false;
 
     @SerializedName("version")
-    private Double version = 1.7;
+    private double version = 1.8;
     @SerializedName("lang")
     private String lang = "en_us";
     @SerializedName("lang-options") @SuppressWarnings("unused")
@@ -50,7 +50,7 @@ public class Config implements CustomFile<Config> {
     @SerializedName("social")
     private Social social = new Social();
     @SerializedName("max-color-presets")
-    private Integer maxColorPresets = 14;
+    private int maxColorPresets = 14;
 
     public Config() {}
 
@@ -130,8 +130,8 @@ public class Config implements CustomFile<Config> {
     }
 
     public static class Social {
-        private Boolean enabled = true;
-        private Integer cooldown = 10;
+        private boolean enabled = true;
+        private int cooldown = 10;
 
         public Social() {}
 
@@ -159,9 +159,9 @@ public class Config implements CustomFile<Config> {
 
     public static class Hud {
         @SerializedName("editing")
-        private Boolean editing = true;
+        private boolean editing = true;
         @SerializedName("loop-ticks")
-        private Integer loop = 1;
+        private int loop = 1;
 
         public Hud() {}
 
@@ -189,15 +189,15 @@ public class Config implements CustomFile<Config> {
 
     public static class Destination {
         @SerializedName("saving")
-        private Boolean saving = true;
+        private boolean saving = true;
         @SerializedName("max-saved")
-        private Integer maxSaved = 50;
+        private int maxSaved = 50;
         @SerializedName("global")
         private Global global = new Global();
         @SerializedName("lastdeath")
         private LastDeath lastDeath = new LastDeath();
         @SerializedName("loop-ticks")
-        private Integer loop = 20;
+        private int loop = 20;
 
         public Destination() {}
 
@@ -251,9 +251,9 @@ public class Config implements CustomFile<Config> {
 
         public static class Global {
             @SerializedName("enabled")
-            private Boolean enabled = false;
+            private boolean enabled = false;
             @SerializedName("public-editing")
-            private Boolean publicEditing = false;
+            private boolean publicEditing = false;
 
             public Global() {
             }
