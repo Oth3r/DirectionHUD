@@ -84,7 +84,7 @@ jobs:
                 echo "Conflict: Lowercase file '$new_path' exists and is different from '$original_path'."
                 echo "Deleting '$new_path' to allow renaming of '$original_path'."
                 git rm --cached "$new_path" # Remove from Git index, keep local copy
-                rm "$new_path
+                rm "$new_path"
               fi
           
               # Perform the two-step rename to handle case-only changes reliably
