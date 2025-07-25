@@ -74,18 +74,9 @@ jobs:
             new_base_name=$(echo "$base_name" | tr '[:upper:]' '[:lower:]')
             new_path="$dir_name/$new_base_name"
             if [ "$original_path" != "$new_path" ]; then
-              if [ -e "$new_path" ] && [ "$(readlink -f "$original_path")" != "$(readlink -f "$new_path")" ]; then
-                echo "::warning file=$original_path::Cannot rename '$original_path' to '$new_path' because it already exists. Skipping."
-              else
-                # if only case is changing, use a temp name to avoid git mv failure
-                if [ "$(readlink -f "$original_path")" = "$(readlink -f "$new_path")" ]; then
-                  temp_path="${new_path}.temp_rename"
-                  git mv "$original_path" "$temp_path"
-                  git mv "$temp_path" "$new_path"
-                else
-                  git mv "$original_path" "$new_path"
-                fi
-              fi
+              temp_path="${new_path}.temp_rename"
+              git mv "$original_path" "$temp_path"
+              git mv "$temp_path" "$new_path"
             fi
           done
           echo "JSON file renaming complete."
