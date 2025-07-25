@@ -33,8 +33,8 @@ public class Config implements CustomFile<Config> {
     @SerializedName("lang")
     private String lang = "en_us";
     @SerializedName("lang-options") @SuppressWarnings("unused")
-    private final String[] lang_options = {"English - en_us (100%)","German - de_de (64%)","Slovak - sk_sk (64%)","Russian - ru_ru (64%)",
-            "Chinese Simplified - zh_cn (64%)","Chinese Traditional - zh_tw (64%)"};
+    private final String[] lang_options = {"English - en_us (100%)","Slovak - sk_sk (100%)","Russian - ru_ru (100%)","German - de_de (77%)",
+            "Chinese Simplified - zh_cn (65%)","Chinese Traditional - zh_tw (64%)"};
     @SerializedName("online-mode")
     private Boolean online = true;
     @SerializedName("location")
