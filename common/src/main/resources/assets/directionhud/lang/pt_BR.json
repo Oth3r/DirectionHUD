@@ -1,0 +1,15 @@
+{
+  "category.directionhud.all": "DirectionHUD",
+  "directionhud.fill.off": "desligado",
+  "off": "desligado",
+  "error.command": "Comando não reconhecido!",
+  "error.args": "Argumentos de comando inválido!",
+  "error.coordinates": "Coordenadas inválidas!",
+  "error.dimension": "Dimensão inválida!",
+  "error.number": "Número inválido!",
+  "error.setting": "Configuração inválida!",
+  "error.disabled": "Este comando está desativado!",
+  "error.player": "%s está “desligado” ou não existe!",
+  "hover.accept": "Clique para aceitar.",
+  "dhud.inbox.ui.destination": "Destino %s"
+}
