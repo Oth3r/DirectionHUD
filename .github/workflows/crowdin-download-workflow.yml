@@ -77,17 +77,31 @@ jobs:
 
             # Only attempt to rename if the new path is different (case-sensitive)
             if [ "$original_path" != "$new_path" ]; then
-              echo "Renaming '$original_path' to '$new_path'"
-              # Check if the lowercase version already exists (e.g., if it was already renamed)
-              if [ -f "$new_path" ] && [ "$original_path" -ef "$new_path" ]; then
-                echo "Skipping: '$new_path' already exists and is the same file as '$original_path'."
-              elif [ -f "$new_path" ] && [ ! "$original_path" -ef "$new_path" ]; then
-                echo "Error: Cannot rename '$original_path'. A different file already exists at '$new_path'."
-                # You might want to exit with an error here, or decide to overwrite
-                exit 1
+              echo "Attempting to rename '$original_path' to '$new_path'"
+
+              # Check if the lowercase version already exists and is a different file
+              if [ -f "$new_path" ] && [ ! "$original_path" -ef "$new_path" ]; then
+                echo "Conflict: Lowercase file '$new_path' exists and is different from '$original_path'."
+                echo "Deleting '$new_path' to allow renaming of '$original_path'."
+                git rm --cached "$new_path" # Remove from Git index, keep local copy
+                rm "$new_path
+              fi
+          
+              # Perform the two-step rename to handle case-only changes reliably
+              temp_rename_path="${original_path}.temp_rename_action" # Use a distinct temp name
+
+              if git mv "$original_path" "$temp_rename_path"; then
+                echo "  Successfully moved to temporary: '$temp_rename_path'"
+                if git mv "$temp_rename_path" "$new_path"; then
+                  echo "  Successfully renamed '$original_path' to '$new_path'."
+                else
+                  echo "Error: Failed to move temporary file '$temp_rename_path' to '$new_path'."
+                  git mv "$temp_rename_path" "$original_path" # Revert if second move fails
+                  exit 1
+                fi
               else
-                # Perform the git move. Git should handle case-only renames
-                git mv "$original_path" "$new_path"
+                echo "Error: Failed to move '$original_path' to temporary path '$temp_rename_path'."
+                exit 1
               fi
             else
               echo "Skipping: '$original_path' is already lowercase or does not require renaming."
