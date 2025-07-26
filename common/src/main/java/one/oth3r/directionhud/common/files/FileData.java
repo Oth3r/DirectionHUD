@@ -46,7 +46,7 @@ public class FileData {
         Dimension.loadDimensionSettings();
         new ModuleText().load();
         // the server has to be started to edit per world data
-        if (DirectionHUD.getData().isServerStarted() && config.getDestination().getGlobal()) loadGlobalDestinations();
+        if (DirectionHUD.getData().isServerStarted() && config.getDestination().getGlobal().isEnabled()) loadGlobalDestinations();
     }
 
     /**
