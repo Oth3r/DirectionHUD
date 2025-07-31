@@ -39,7 +39,7 @@ public class ActionBarMixin {
             if (modData.isOnSupportedServer() &&
                     (boolean) hud.getSetting(Hud.Setting.state) &&
                     hud.getSetting(Hud.Setting.type).equals(Hud.Setting.DisplayType.actionbar.toString())) {
-                modData.getActionBarOverride().setOverride(CTxT.of((MutableText) message));
+                modData.getActionBarOverride().setOverride(new CTxT((MutableText) message));
             }
         }
     }

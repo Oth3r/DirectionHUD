@@ -28,10 +28,10 @@ import java.util.List;
 
 public class Utl {
     public static CTxT getTranslation(String key, Object... args) {
-        return CTxT.of(Text.translatable(key, args));
+        return new CTxT(Text.translatable(key, args));
     }
     public static CTxT getTxTFromObj(Object obj) {
-        CTxT txt = CTxT.of("");
+        CTxT txt = new CTxT();
         if (obj instanceof CTxT) txt.append(((CTxT) obj).b());
         else if (obj instanceof Text) txt.append((MutableText) obj);
         else txt.append(String.valueOf(obj));

@@ -5,6 +5,7 @@ import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.common.utils.Helper.Command.Suggester;
+import one.oth3r.otterlib.chat.hover.HoverAction;
 
 import java.util.Objects;
 
@@ -56,14 +57,14 @@ public class Dest extends Loc {
 
     @Override
     public CTxT getBadge() {
-        CTxT msg = CTxT.of("");
+        CTxT msg = new CTxT();
         // if there's a dimension, add a dimension badge to the start of the message
         if (this.getDimension() != null) msg.append(Dimension.getBadge(getDimension())).append(" ");
         // if there's a name, make the badge the name, e.g. [O] name
-        if (this.name != null) msg.append(CTxT.of(this.name).color(this.color==null?"#ffffff":this.color)
-                .hover(CTxT.of(getXYZ())));
+        if (this.name != null) msg.append(new CTxT(this.name).color(this.color==null?"#ffffff":this.color)
+                .hover(HoverAction.of(new CTxT(getXYZ()))));
             // no name, just have the coordinates
-        else msg.append(CTxT.of(getXYZ()));
+        else msg.append(new CTxT(getXYZ()));
         return msg;
     }
 
@@ -72,9 +73,9 @@ public class Dest extends Loc {
      * @return badge
      */
     public CTxT getNamelessBadge() {
-        CTxT msg = CTxT.of("");
+        CTxT msg = new CTxT();
         msg.append(Dimension.getBadge(getDimension())).append(" ");
-        msg.append(CTxT.of(getXYZ()).hover(CTxT.of(this.name).color(this.color==null?"#ffffff":this.color)));
+        msg.append(new CTxT(getXYZ()).hover(HoverAction.of(new CTxT(this.name).color(this.color==null?"#ffffff":this.color))));
         return msg;
     }
 

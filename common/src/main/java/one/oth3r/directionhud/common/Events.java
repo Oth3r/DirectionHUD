@@ -12,9 +12,12 @@ import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Dest;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Loc;
-import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
+import one.oth3r.directionhud.utils.CTxT;
+import one.oth3r.otterlib.file.LanguageReader;
+import one.oth3r.otterlib.file.ResourceReader;
+import one.oth3r.otterlib.registry.LanguageReg;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -29,6 +32,12 @@ public class Events {
                 new ModuleLight()
         );
         modules.forEach(bm -> DisplayRegistry.registerModuleDisplay(bm.getModuleType(),bm.getDisplaySettings()));
+
+        // register the main language file
+        LanguageReg.registerLang(Assets.MOD_ID,new LanguageReader(
+                DirectionHUD.getData().getDefaultLanguageLocation(),
+                new ResourceReader(DirectionHUD.getData().getConfigDirectory()),
+                "en_us",FileData.getConfig().getLang()));
     }
 
     public static void serverStart() {
@@ -87,7 +96,7 @@ public class Events {
                 dest.convertTo(toDIM);
                 Destination.dest.set(player,dest);
                 player.sendMessage(CUtl.tag().append(Destination.LANG.msg("autoconvert.destination",
-                        CTxT.of("\n ").append(Destination.LANG.msg("autoconvert.destination.2",loc.getBadge(),dest.getBadge())))));
+                        new CTxT("\n ").append(Destination.LANG.msg("autoconvert.destination.2",loc.getBadge(),dest.getBadge())))));
             } else if ((boolean) player.getPData().getDEST().getSetting(Destination.Setting.autoclear)) {
                 // clear if autoclear is on
                 Destination.dest.clear(player, 3);

@@ -16,7 +16,7 @@ public class BossBarManager {
     private final Map<Player, Identifier> bossBars = new HashMap<>();
     public void addPlayer(Player player) {
         bossBars.put(player, Identifier.of(DirectionHUD.MOD_ID,player.getUUID()+"-bossbar"));
-        DirectionHUD.getData().getServer().getBossBarManager().add(bossBars.get(player),CTxT.of("").b()).addPlayer(player.getPlayer());
+        DirectionHUD.getData().getServer().getBossBarManager().add(bossBars.get(player),new CTxT().b()).addPlayer(player.getPlayer());
     }
     public void removePlayer(Player player) {
         Identifier identifier = bossBars.remove(player);

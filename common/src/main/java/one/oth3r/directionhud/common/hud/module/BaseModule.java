@@ -61,12 +61,12 @@ public abstract class BaseModule implements Cloneable {
                 else throw new IllegalArgumentException();
             } catch (Exception e) {
                 // setting value invalid
-                return new ActionResult(false,LANG.error("invalid.setting_value",
-                        new CTxT(settingID).color(CUtl.s())));
+                return new ActionResult(false,new CTxT(LANG.error("invalid.setting_value",
+                        new CTxT(settingID).color(CUtl.s()))));
             }
         } else {
-            return new ActionResult(false, LANG.error(
-                    settings.isEmpty() ? "no_settings" : "invalid", moduleType.getCTxT()));
+            return new ActionResult(false,new CTxT(LANG.error(
+                    settings.isEmpty() ? "no_settings" : "invalid", moduleType.getCTxT())));
         }
     }
 

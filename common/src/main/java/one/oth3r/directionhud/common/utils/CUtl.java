@@ -2,6 +2,7 @@ package one.oth3r.directionhud.common.utils;
 
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.Assets;
+import one.oth3r.directionhud.common.assets.DColors;
 import one.oth3r.directionhud.common.hud.Hud;
 import one.oth3r.directionhud.common.files.LangReader;
 import one.oth3r.directionhud.common.hud.HudColor;
@@ -9,6 +10,10 @@ import one.oth3r.directionhud.common.utils.Helper.*;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
+import one.oth3r.otterlib.chat.click.ClickAction;
+import one.oth3r.otterlib.chat.click.ClickActions;
+import one.oth3r.otterlib.chat.hover.HoverAction;
+import one.oth3r.otterlib.chat.Rainbow;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -19,7 +24,7 @@ import java.util.regex.Pattern;
 public class CUtl {
     public static final Lang LANG = new Lang(""), DLANG = new Lang("directionhud."); // need to migrate everything back to dlang
     public static CTxT tag() {
-        return CTxT.of("").append(CTxT.of("DirectionHUD").btn(true).color(p())).append(" ");
+        return new CTxT("DirectionHUD").wrapper().color(p()).append(" ");
     }
     public static String p() {
         return DirectionHUD.getData().getPrimary();
@@ -63,8 +68,13 @@ public class CUtl {
         }
     }
 
+    /**
+     * green if true red if false
+     * @param button the boolean to check
+     * @return the color string
+     */
     public static String toggleColor(boolean button) {
-        return button?"#55FF55":"#FF5555";
+        return button? DColors.ON : DColors.OFF;
     }
     // OFF/ON w/COLOR
     public static CTxT toggleTxT(boolean button) {
@@ -72,8 +82,9 @@ public class CUtl {
     }
     // [OFF/ON] (COLOR & FUNCTIONALITY)
     public static CTxT toggleBtn(boolean button, String cmd) {
-        return LANG.btn(button?"on":"off").btn(true).color(button?'a':'c').hover(LANG.hover("state",
-                toggleTxT(!button))).click(1,cmd+(button?"off":"on"));
+        return LANG.btn(button?"on":"off").wrapper().color(toggleColor(button))
+                .hover(HoverAction.of(LANG.hover("state", toggleTxT(!button))))
+                .click(new ClickAction(ClickActions.RUN_COMMAND,cmd+(button?"off":"on")));
     }
 
     /**
@@ -82,7 +93,7 @@ public class CUtl {
     public static CTxT makeLine(int length) {
         // add a space for the length of the int
         // return the CTxT
-        return CTxT.of("\n"+ " ".repeat(Math.max(0, length))).strikethrough(true);
+        return new CTxT("\n"+ " ".repeat(Math.max(0, length))).strikethrough(true);
     }
 
     /**
@@ -94,17 +105,17 @@ public class CUtl {
         String returnCmd = returnKey!=null?
                 command.replaceFirst(returnKey,returnKey+"-r") : command;
 
-        CTxT clickButton = CUtl.DLANG.btn("click").btn(true).color(CUtl.s())
-                .hover(CUtl.DLANG.get("confirm.hover").color(CUtl.s())
-                        .append("\n").append(new CTxT(command)))
-                .click(1, returnCmd);
+        CTxT clickButton = DLANG.btn("click").wrapper().color(CUtl.s())
+                .hover(HoverAction.of(DLANG.get("confirm.hover").color(CUtl.s())
+                        .append("\n").append(new CTxT(command))))
+                .click(new ClickAction(ClickActions.RUN_COMMAND, returnCmd));
         CTxT line = makeLine(55);
 
         CTxT msg = new CTxT(" ").append(DLANG.get("confirm.ui").color(CUtl.s()))
                 .append(line).append("\n ")
                 .append(DLANG.get("confirm.msg")).append("\n\n ")
                 .append(DLANG.get("confirm.msg.action",clickButton)).append("\n ")
-                .append(new CTxT(command).color(CUtl.s()).click(2,command))
+                .append(new CTxT(command).color(CUtl.s()).click(new ClickAction(ClickActions.SUGGEST_COMMAND,command)))
                 .append(line);
 
         player.sendMessage(msg);
@@ -127,7 +138,7 @@ public class CUtl {
     public static CTxT parse(Player player, String input) {
         // assets
         ArrayList<Character> selectors = new ArrayList<>(List.of('1','2','b','i','s','u','o','r'));
-        CTxT output = CTxT.of("");
+        CTxT output = new CTxT();
 
         HudColor color = HudColor.PRIMARY;
         StringBuilder current = new StringBuilder();
@@ -206,7 +217,9 @@ public class CUtl {
 
     public static class CButton {
         public static CTxT back(String cmd) {
-            return LANG.btn("back").btn(true).color(Assets.mainColors.back).click(1,cmd).hover(CTxT.of(cmd).color(Assets.mainColors.back).append("\n").append(LANG.hover("back")));
+            return new CTxT(LANG.btn("back")).wrapper().color(Assets.mainColors.back)
+                    .click(new ClickAction(ClickActions.RUN_COMMAND,cmd))
+                    .hover(HoverAction.of(new CTxT(cmd).color(Assets.mainColors.back).append("\n").append(LANG.hover("back"))));
         }
     }
 
@@ -277,7 +290,7 @@ public class CUtl {
         }
 
         public static CTxT getBadge(String hex) {
-            return CTxT.of(Assets.symbols.square+" "+format(hex).toUpperCase()).color(hex);
+            return new CTxT(Assets.symbols.square+" "+format(hex).toUpperCase()).color(hex);
         }
 
         public static float[] HSB(String hex) {

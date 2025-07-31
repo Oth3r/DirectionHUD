@@ -30,6 +30,7 @@ import one.oth3r.directionhud.common.hud.module.ModuleInstructions;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.packet.PacketSender;
 import one.oth3r.directionhud.packet.Payloads;
+import one.oth3r.otterlib.file.LanguageReader;
 import org.lwjgl.glfw.GLFW;
 
 public class ModEvents {

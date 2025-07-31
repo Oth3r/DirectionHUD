@@ -1,6 +1,7 @@
 package one.oth3r.directionhud.common.hud.module;
 
 import one.oth3r.directionhud.common.Assets;
+import one.oth3r.directionhud.common.assets.DColors;
 import one.oth3r.directionhud.common.files.playerdata.PDHud;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.hud.Hud;
@@ -10,6 +11,9 @@ import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Lang;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
+import one.oth3r.otterlib.chat.click.ClickAction;
+import one.oth3r.otterlib.chat.click.ClickActions;
+import one.oth3r.otterlib.chat.hover.HoverAction;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -26,7 +30,7 @@ public class ModuleManager {
          */
         public static ActionResult resetEverything(Player player) {
             player.getPData().getHud().setModules(PlayerData.getDefaults().getHud().getModules());
-            return new ActionResult(true, LANG.msg("reset_all", CUtl.LANG.btn("all").color('c')));
+            return new ActionResult(true, LANG.msg("reset_all", CUtl.LANG.btn("all").color(DColors.RESET)));
         }
 
         /**
@@ -59,7 +63,7 @@ public class ModuleManager {
             // set the module to the reset one (saves)
             player.getPData().getHud().setModule(resetModule);
 
-            return new ActionResult(true, LANG.msg("reset", CTxT.of(module.toString()).color(CUtl.s())));
+            return new ActionResult(true, LANG.msg("reset", new CTxT(module.toString()).color(CUtl.s())));
         }
 
         /**
@@ -109,12 +113,12 @@ public class ModuleManager {
 
             // build the message
             CTxT msg = LANG.msg("state",
-                            LANG.msg("state.disabled").color('c'),
+                            LANG.msg("state.disabled").color(DColors.OFF),
                             new CTxT(module.toString()).color(CUtl.s())).append(" ")
-                    .append(new CTxT(Assets.symbols.arrows.leftEnd).color(Assets.mainColors.back).btn(true)
-                            .click(1, "/hud modules enable "+module.getName()+" "+order) // enable the module at the order it was at
-                            .hover(Hud.modules.Disabled.LANG.hover("undo").color(Assets.mainColors.back).append("\n")
-                                    .append(Hud.modules.Disabled.LANG.hover("undo.click",new CTxT(module.getName()).color(CUtl.s())))));
+                    .append(new CTxT(Assets.symbols.arrows.leftEnd).color(Assets.mainColors.back).wrapper()
+                            .click(ClickAction.of(ClickActions.RUN_COMMAND, "/hud modules enable "+module.getName()+" "+order)) // enable the module at the order it was at
+                            .hover(HoverAction.of(Hud.modules.Disabled.LANG.hover("undo").color(Assets.mainColors.back).append("\n")
+                                    .append(Hud.modules.Disabled.LANG.hover("undo.click",new CTxT(module.getName()).color(CUtl.s()))))));
 
             return new ActionResult(true, msg, "module", Order.getModuleAt(player,order-1).toString());
         }
@@ -147,13 +151,13 @@ public class ModuleManager {
 
             // build the message
             CTxT msg = LANG.msg("state",
-                    LANG.msg("state.enabled").color('a'),
+                    LANG.msg("state.enabled").color(DColors.ON),
                     new CTxT(module.toString()).color(CUtl.s())).append(" ")
                     // edit pencil
-                    .append(new CTxT(Assets.symbols.pencil).btn(true).color(Assets.mainColors.edit)
-                            .click(1,"/hud modules edit "+module.getName())
-                            .hover(LANG.hover("edit").color(Assets.mainColors.edit)
-                                    .append("\n").append(LANG.hover("edit.click",new CTxT(module.getName()).color(CUtl.s())))));
+                    .append(new CTxT(Assets.symbols.pencil).wrapper().color(Assets.mainColors.edit)
+                            .click(ClickAction.of(ClickActions.RUN_COMMAND,"/hud modules edit "+module.getName()))
+                            .hover(HoverAction.of(LANG.hover("edit").color(Assets.mainColors.edit)
+                                    .append("\n").append(LANG.hover("edit.click",new CTxT(module.getName()).color(CUtl.s()))))));
 
             return new ActionResult(true, msg, "page", String.valueOf(page)); // return the page of the module
         }
@@ -217,8 +221,8 @@ public class ModuleManager {
 
             // set the order of module to <>
             CTxT msg = LANG.msg("order",
-                    CTxT.of(module.toString()).color(CUtl.s()),
-                    CTxT.of(String.valueOf(order)).color(CUtl.s()));
+                    new CTxT(module.toString()).color(CUtl.s()),
+                    new CTxT(String.valueOf(order)).color(CUtl.s()));
 
             return new ActionResult(true, msg);
         }

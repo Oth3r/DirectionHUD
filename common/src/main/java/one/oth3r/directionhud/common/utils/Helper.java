@@ -5,12 +5,16 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import one.oth3r.directionhud.common.DHud;
+import one.oth3r.directionhud.common.assets.DColors;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.hud.module.*;
 import one.oth3r.directionhud.common.hud.module.setting.ModuleSettingAdapterFactory;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Player;
 import one.oth3r.directionhud.utils.Utl;
+import one.oth3r.otterlib.chat.click.ClickAction;
+import one.oth3r.otterlib.chat.click.ClickActions;
+import one.oth3r.otterlib.chat.hover.HoverAction;
 import org.apache.commons.text.similarity.FuzzyScore;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 
@@ -525,18 +529,20 @@ public class Helper {
             int max = getTotalPages();
             if (page > max) page = max;
             if (page < 2) page = 1;
-            CTxT left = CTxT.of("");
-            CTxT right = CTxT.of("");
+            CTxT left = new CTxT();
+            CTxT right = new CTxT();
             // if at the start left is gray else not
-            if (page==1) left.append(CTxT.of("<<").btn(true).color('7'));
-            else left.append(CTxT.of("<<").btn(true).color(CUtl.s()).click(1,command+(page-1)));
+            if (page==1) left.append(new CTxT("<<").wrapper().color(DColors.DISABLED));
+            else left.append(new CTxT("<<").wrapper().color(CUtl.s()).click(new ClickAction(ClickActions.RUN_COMMAND,command+(page-1))));
             // if at the end right is gray else not
-            if (page==max) right.append(CTxT.of(">>").btn(true).color('7'));
-            else right.append(CTxT.of(">>").btn(true).color(CUtl.s()).click(1,command+(page+1)));
+            if (page==max) right.append(new CTxT(">>").wrapper().color(DColors.DISABLED));
+            else right.append(new CTxT(">>").wrapper().color(CUtl.s()).click(new ClickAction(ClickActions.RUN_COMMAND,command+(page+1))));
             // build and return
-            return CTxT.of("")
+            return new CTxT()
                     .append(left).append(" ")
-                    .append(CTxT.of(String.valueOf(page)).btn(true).color(CUtl.p()).click(2,command).hover(CUtl.LANG.hover("page_set").color(CUtl.p())))
+                    .append(new CTxT(String.valueOf(page)).wrapper().color(CUtl.p())
+                            .click(new ClickAction(ClickActions.SUGGEST_COMMAND,command))
+                            .hover(HoverAction.of(CUtl.LANG.hover("page_set").color(CUtl.p()))))
                     .append(" ").append(right);
         }
     }

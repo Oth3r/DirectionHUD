@@ -14,7 +14,7 @@ public class Lang {
     }
 
     public CTxT get(String key, Object... args) {
-        return CUtl.getLangEntry(location+key, args);
+        return new LangEntry(location+key, args).asCTxT();
     }
 
     /**
@@ -23,6 +23,7 @@ public class Lang {
     public CTxT err(String key, Object... args) {
         return CUtl.error().append(get("error."+key, args));
     }
+
     /**
      * gets the error message for the given key without an extra prefix
      */

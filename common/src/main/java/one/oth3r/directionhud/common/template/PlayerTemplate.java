@@ -31,7 +31,7 @@ public abstract class PlayerTemplate {
      * @return the highlighted player name
      */
     public CTxT getHighlightedName() {
-        return CTxT.of(getName()).color(CUtl.s());
+        return new CTxT(getName()).color(CUtl.s());
     }
 
     /**
@@ -106,7 +106,7 @@ public abstract class PlayerTemplate {
         if (!(boolean) this.getPCache().getHud().getSetting(Hud.Setting.state)) {
             //if actionbar send empty to clear else remove bossbar
             if (this.getPCache().getHud().getSetting(Hud.Setting.type).equals(Hud.Setting.DisplayType.actionbar.toString()))
-                this.sendActionBar(CTxT.of(""));
+                this.sendActionBar(new CTxT());
             else this.removeBossBar();
         }
         // if actionbar make sure no bossbar
@@ -114,7 +114,7 @@ public abstract class PlayerTemplate {
             this.removeBossBar();
         }
         // else clear the actionBar
-        else this.sendActionBar(CTxT.of(""));
+        else this.sendActionBar(new CTxT());
     }
 
     /// Packet Methods
@@ -128,7 +128,7 @@ public abstract class PlayerTemplate {
                 this.getPCache().setMsg("hud.enabled_but_off", 1);
                 // if actionbar, clear once, if bossbar remove player
                 if ((Hud.Setting.DisplayType.get((String) this.getPCache().getHud().getSetting(Hud.Setting.type)).equals(Hud.Setting.DisplayType.actionbar))) {
-                    sendActionBar(CTxT.of(""));
+                    sendActionBar(new CTxT());
                 } else removeBossBar();
             }
             return;

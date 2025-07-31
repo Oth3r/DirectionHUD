@@ -1,6 +1,7 @@
 package one.oth3r.directionhud.common.utils;
 
 import com.google.gson.Gson;
+import one.oth3r.directionhud.common.assets.DColors;
 import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.utils.CTxT;
@@ -198,9 +199,9 @@ public class Loc {
      * @return badge
      */
     public CTxT getBadge() {
-        CTxT msg = CTxT.of("");
+        CTxT msg = new CTxT();
         if (this.dimension != null) msg.append(Dimension.getBadge(getDimension())).append(" ");
-        return msg.append(CTxT.of(getXYZ()).color('f'));
+        return msg.append(new CTxT(getXYZ()).color(DColors.WHITE));
     }
 
     /**
