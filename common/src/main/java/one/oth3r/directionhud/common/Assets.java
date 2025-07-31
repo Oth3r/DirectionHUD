@@ -3,6 +3,7 @@ package one.oth3r.directionhud.common;
 import one.oth3r.directionhud.common.hud.Hud;
 
 public class Assets {
+    public static final String MOD_ID = "directionhud";
 
     public static class mainColors {
         public static final String convert = "#ffa93f";
