@@ -93,7 +93,7 @@ publishMods {
         projectId = "H8WCXRtb"
         minecraftVersions.addAll(minecraft_versions.split(",").toList())
 
-        requires("fabric-api")
+        requires("fabric-api", "otterlib")
 
         announcementTitle = "Download from Modrinth"
     }
