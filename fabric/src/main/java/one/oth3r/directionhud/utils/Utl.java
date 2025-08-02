@@ -15,6 +15,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import one.oth3r.directionhud.DirectionHUD;
+import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.dimension.DimensionEntry;
 import one.oth3r.directionhud.common.files.dimension.DimensionEntry.*;
@@ -85,7 +86,8 @@ public class Utl {
 
         @Override
         public boolean globalEditing() {
-            return super.globalEditing() && (player.getPlayer().hasPermissionLevel(2) || DirectionHUD.getData().isSingleplayer());
+            return super.globalEditing() && (player.getPlayer().hasPermissionLevel(2) || DirectionHUD.getData().isSingleplayer() ||
+                    FileData.getConfig().getDestination().getGlobal().getPublicEditing()); // if public editing is enabled, allow global editing
         }
 
         @Override
