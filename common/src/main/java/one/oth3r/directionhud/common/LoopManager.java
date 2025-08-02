@@ -155,6 +155,9 @@ public class LoopManager {
                         Loc targetLoc = target.getLoc();
                         targetLoc.convertTo(player.getDimension());
                         targetVec = targetLoc.getVec(player);
+
+                        // add one to the y to point towards the body of the target player
+                        targetVec = targetVec.add(0,1,0);
                     }
                 }
                 // actually send the particles

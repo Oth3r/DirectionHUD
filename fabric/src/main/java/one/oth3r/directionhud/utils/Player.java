@@ -213,7 +213,7 @@ public class Player extends PlayerTemplate {
 
     @Override
     public Vec getVec() {
-        return new Vec(player.getX(),player.getY()+1,player.getZ());
+        return new Vec(player.getX(),player.getY(),player.getZ());
     }
 
     @Override
