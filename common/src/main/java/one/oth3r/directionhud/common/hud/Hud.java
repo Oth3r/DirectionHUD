@@ -5,6 +5,7 @@ import one.oth3r.directionhud.common.Assets.symbols.arrows;
 import one.oth3r.directionhud.common.DHud;
 import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.LoopManager;
+import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.hud.Hud.Setting.*;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.dimension.DimensionEntry.*;
@@ -165,17 +166,21 @@ public class Hud {
          */
         public static ModuleInstructions getModuleInstructions(Player player) {
             ModuleInstructions instructions = new ModuleInstructions();
-            instructions.put(Module.COORDINATES, getCoordinatesModule(player));
-            instructions.put(Module.DESTINATION, getDestinationModule(player));
-            instructions.put(Module.DISTANCE, getDistanceModule(player));
-            instructions.put(Module.TRACKING, getTrackingModule(player));
-            instructions.put(Module.DIRECTION, getDirectionModule(player));
-            instructions.put(Module.WEATHER, getWeatherModule(player));
-            instructions.put(Module.TIME, getTimeModule(player));
-            instructions.put(Module.ANGLE, getAngleModule(player));
-            instructions.put(Module.SPEED, getSpeedModule(player));
-            instructions.put(Module.LIGHT, getLightModule(player));
+            if (isEnabled(Module.COORDINATES)) instructions.put(Module.COORDINATES, getCoordinatesModule(player));
+            if (isEnabled(Module.DESTINATION)) instructions.put(Module.DESTINATION, getDestinationModule(player));
+            if (isEnabled(Module.DISTANCE)) instructions.put(Module.DISTANCE, getDistanceModule(player));
+            if (isEnabled(Module.TRACKING)) instructions.put(Module.TRACKING, getTrackingModule(player));
+            if (isEnabled(Module.DIRECTION)) instructions.put(Module.DIRECTION, getDirectionModule(player));
+            if (isEnabled(Module.WEATHER)) instructions.put(Module.WEATHER, getWeatherModule(player));
+            if (isEnabled(Module.TIME)) instructions.put(Module.TIME, getTimeModule(player));
+            if (isEnabled(Module.ANGLE)) instructions.put(Module.ANGLE, getAngleModule(player));
+            if (isEnabled(Module.SPEED)) instructions.put(Module.SPEED, getSpeedModule(player));
+            if (isEnabled(Module.LIGHT)) instructions.put(Module.LIGHT, getLightModule(player));
             return instructions;
+        }
+
+        private static boolean isEnabled(Module module) {
+            return Boolean.TRUE.equals(FileData.getConfig().getHud().getEnabledModules().get(module));
         }
 
         public static String getCoordinatesModule(Player player) {
@@ -439,8 +444,15 @@ public class Hud {
                 else {
                     // if the module is selected via number, get the module at the order
                     if (Num.isInt(args[1])) {
-                        Edit.UI(player, null,
-                                ModuleManager.State.getEnabled(player).get(Math.max(0,Math.min(ModuleManager.State.getEnabled(player).size()-1, Num.toInt(args[1])))).getModuleType());
+                        // if there are no enabled modules, pick the unknown module
+                        if (ModuleManager.State.getEnabled(player).isEmpty())
+                            Edit.UI(player, null, Module.UNKNOWN);
+                        else {
+                            // get the module at the order provided, clamping it to the size of the enabled modules
+                            Edit.UI(player, null,
+                                    ModuleManager.State.getEnabled(player)
+                                            .get(Math.max(0,Math.min(ModuleManager.State.getEnabled(player).size()-1, Num.toInt(args[1])))).getModuleType());
+                        }
                     } else {
                         // else the module is selected from string
                         Edit.UI(player, null, Module.fromString(args[1]));

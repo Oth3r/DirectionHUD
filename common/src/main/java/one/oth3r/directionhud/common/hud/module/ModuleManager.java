@@ -1,9 +1,10 @@
 package one.oth3r.directionhud.common.hud.module;
 
 import one.oth3r.directionhud.common.Assets;
-import one.oth3r.directionhud.common.files.playerdata.PDHud;
+import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.hud.Hud;
+import one.oth3r.directionhud.common.hud.module.modules.*;
 import one.oth3r.directionhud.common.utils.ActionResult;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Helper;
@@ -13,12 +14,43 @@ import one.oth3r.directionhud.utils.Player;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class ModuleManager {
     public static final Lang LANG = new Lang("directionhud.hud.module.");
     public static final ActionResult INVALID_MODULE = new ActionResult(false, LANG.error("invalid"));
     public static final ActionResult DISABLED_MODULE = new ActionResult(false,State.LANG.error("disabled"));
+
+    public static ArrayList<BaseModule> getDefaultModules() {
+        // get the list of all modules
+        ArrayList<BaseModule> modules = new ArrayList<>(List.of(
+                new ModuleCoordinates(0, true, true),
+                new ModuleDestination(1, true,true),
+                new ModuleDistance(2, true),
+                new ModuleTracking(3, false, true, ModuleTracking.Target.player, ModuleTracking.Type.simple, false),
+                new ModuleDirection(4, true),
+                new ModuleWeather(5, true),
+                new ModuleTime(6, true, false),
+                new ModuleAngle(7, false, ModuleAngle.Display.both),
+                new ModuleSpeed(8, false, false, "0.00"),
+                new ModuleLight(9,false, ModuleLight.Target.eye, ModuleLight.Display.block)
+        ));
+        // remove modules that are not enabled in the config
+        return removeDisabledModules(modules);
+    }
+
+    /**
+     * removes modules that are disabled in the config
+     * @param modules the module list to filter
+     * @return the filtered list of modules
+     */
+    public static ArrayList<BaseModule> removeDisabledModules(ArrayList<BaseModule> modules) {
+        return new ArrayList<>(modules.stream()
+                .filter(module -> Boolean.TRUE.equals(FileData.getConfig().getHud().getEnabledModules()
+                        .get(module.moduleType)))
+                .toList());
+    }
 
     public static class Reset {
         /**
@@ -246,7 +278,7 @@ public class ModuleManager {
 
             // the default list of modules
             ArrayList<BaseModule> defaultList;
-            if (getFactoryDefault) defaultList = new PDHud().getModules();
+            if (getFactoryDefault) defaultList = getDefaultModules();
             else defaultList = PlayerData.getDefaults().getHud().getModules();
 
             // if the module isn't valid or there's a duplicate module, remove

@@ -1,8 +1,6 @@
 package one.oth3r.directionhud.common.files;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import one.oth3r.directionhud.DirectionHUD;
@@ -25,20 +23,18 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 public class Config implements CustomFile<Config> {
     private transient boolean legacyCheck = false;
 
     @SerializedName("version")
-    private Double version = 1.7;
+    private double version = 1.8;
     @SerializedName("lang")
     private String lang = "en_us";
     @SerializedName("lang-options") @SuppressWarnings("unused")
-    private final String[] lang_options = {"English - en_us (100%)","German - de_de (64%)","Slovak - sk_sk (64%)","Russian - ru_ru (64%)",
-            "Chinese Simplified - zh_cn (64%)","Chinese Traditional - zh_tw (64%)"};
+    private final String[] lang_options = {"English - en_us (100%)","Slovak - sk_sk (100%)","Russian - ru_ru (100%)","German - de_de (77%)",
+            "Chinese Simplified - zh_cn (65%)","Chinese Traditional - zh_tw (64%)"};
     @SerializedName("online-mode")
     private Boolean online = true;
     @SerializedName("location")
@@ -50,7 +46,7 @@ public class Config implements CustomFile<Config> {
     @SerializedName("social")
     private Social social = new Social();
     @SerializedName("max-color-presets")
-    private Integer maxColorPresets = 14;
+    private int maxColorPresets = 14;
 
     public Config() {}
 
@@ -130,8 +126,8 @@ public class Config implements CustomFile<Config> {
     }
 
     public static class Social {
-        private Boolean enabled = true;
-        private Integer cooldown = 10;
+        private boolean enabled = true;
+        private int cooldown = 10;
 
         public Social() {}
 
@@ -159,15 +155,18 @@ public class Config implements CustomFile<Config> {
 
     public static class Hud {
         @SerializedName("editing")
-        private Boolean editing = true;
+        private boolean editing = true;
         @SerializedName("loop-ticks")
-        private Integer loop = 1;
+        private int loop = 1;
+        @SerializedName("enabled-modules")
+        private HashMap<Module, Boolean> enabledModules = updateModuleMap(new HashMap<>());
 
         public Hud() {}
 
         public Hud(Hud hud) {
             this.editing = hud.editing;
             this.loop = hud.loop;
+            this.enabledModules = hud.enabledModules;
         }
 
         public Boolean getEditing() {
@@ -185,19 +184,49 @@ public class Config implements CustomFile<Config> {
         public void setLoop(Integer loop) {
             this.loop = loop;
         }
+
+        public HashMap<Module, Boolean> getEnabledModules() {
+            return enabledModules;
+        }
+
+        public void setEnabledModules(HashMap<Module, Boolean> enabledModules) {
+            this.enabledModules = enabledModules;
+        }
+
+        /**
+         * edits the module map to only include valid modules, adding / removing entries as needed.
+         * @param modules the map to edit
+         * @return the updated map
+         */
+        public static HashMap<Module, Boolean> updateModuleMap(HashMap<Module,Boolean> modules) {
+            // get all module ids that doesn't include the unknown module
+            List<Module> moduleList = Arrays.stream(Module.values())
+                    .filter(module -> !module.equals(Module.UNKNOWN))
+                    .toList();
+
+            // remove entries not in moduleIds
+            modules.entrySet().removeIf(entry -> !moduleList.contains(entry.getKey()));
+
+            // add missing valid entries with default value true
+            for (Module module : moduleList) {
+                modules.putIfAbsent(module, true);
+            }
+
+            return modules;
+        }
     }
 
     public static class Destination {
         @SerializedName("saving")
-        private Boolean saving = true;
+        private boolean saving = true;
         @SerializedName("max-saved")
-        private Integer maxSaved = 50;
+        private int maxSaved = 50;
         @SerializedName("global")
-        private Boolean global = false;
+        private Global global = new Global();
         @SerializedName("lastdeath")
         private LastDeath lastDeath = new LastDeath();
         @SerializedName("loop-ticks")
-        private Integer loop = 20;
+        private int loop = 20;
 
         public Destination() {}
 
@@ -225,11 +254,11 @@ public class Config implements CustomFile<Config> {
             this.maxSaved = maxSaved;
         }
 
-        public Boolean getGlobal() {
+        public Global getGlobal() {
             return global;
         }
 
-        public void setGlobal(Boolean global) {
+        public void setGlobal(Global global) {
             this.global = global;
         }
 
@@ -247,6 +276,37 @@ public class Config implements CustomFile<Config> {
 
         public void setLoop(Integer loop) {
             this.loop = loop;
+        }
+
+        public static class Global {
+            @SerializedName("enabled")
+            private boolean enabled = false;
+            @SerializedName("public-editing")
+            private boolean publicEditing = false;
+
+            public Global() {
+            }
+
+            public Global(Global global) {
+                this.enabled = global.enabled;
+                this.publicEditing = global.publicEditing;
+            }
+
+            public Boolean isEnabled() {
+                return enabled;
+            }
+
+            public void setEnabled(Boolean enabled) {
+                this.enabled = enabled;
+            }
+
+            public Boolean getPublicEditing() {
+                return publicEditing;
+            }
+
+            public void setPublicEditing(Boolean publicEditing) {
+                this.publicEditing = publicEditing;
+            }
         }
 
         public static class LastDeath {
@@ -361,17 +421,39 @@ public class Config implements CustomFile<Config> {
         this.maxColorPresets = newFile.maxColorPresets;
     }
 
+    @Override
+    public JsonElement updateJSON(JsonElement json) {
+        JsonObject jsonObj = json.getAsJsonObject();
+        double version = jsonObj.get("version").getAsDouble();
+
+        if (version == 1.7) {
+            JsonObject destinationObj = jsonObj.getAsJsonObject("destination");
+            boolean globalEnabled = destinationObj.get("global").getAsBoolean();
+            Destination.Global global = new Destination.Global();
+            global.setEnabled(globalEnabled);
+
+            destinationObj.add("global", Helper.getGson().toJsonTree(global));
+
+            jsonObj.addProperty("version", 1.8);
+        }
+
+        return json;
+    }
+
     /**
      * POST LOAD: after the JSON is loaded to this current instance, this method is called.
      */
     @Override
     public void updateFileInstance() {
-        if (version.equals(1.6)) {
+        // update the module map to fix bad data
+        Hud.updateModuleMap(hud.enabledModules);
+
+        if (version == 1.6) {
             version = 1.61;
             // rename lang to have uppercase letters (en_us -> en_US)
             this.lang = this.lang.substring(0,3)+this.lang.substring(3).toUpperCase();
         }
-        if (version.equals(1.61)) {
+        if (version == 1.61) {
             version = 1.7;
             // rename lang to have lowercase letters (en_US -> en_us)
             this.lang = this.lang.substring(0,3)+this.lang.substring(3).toLowerCase();
@@ -462,7 +544,7 @@ public class Config implements CustomFile<Config> {
                 // CONFIG
                 config.getLocation().setMaxXZ(Integer.parseInt((String) properties.computeIfAbsent("max-xz", a -> String.valueOf(config.getLocation().getMaxXZ()))));
                 config.getLocation().setMaxY(Integer.parseInt((String) properties.computeIfAbsent("max-y", a -> String.valueOf(config.getLocation().getMaxY()))));
-                config.getDestination().setGlobal(Boolean.parseBoolean((String) properties.computeIfAbsent("global-destinations", a -> String.valueOf(config.getDestination().getGlobal()))));
+                config.getDestination().getGlobal().setEnabled(Boolean.parseBoolean((String) properties.computeIfAbsent("global-destinations", a -> String.valueOf(config.getDestination().getGlobal().isEnabled()))));
                 config.getDestination().setSaving(Boolean.parseBoolean((String) properties.computeIfAbsent("destination-saving", a -> String.valueOf(config.getDestination().getSaving()))));
                 config.getDestination().setMaxSaved(Integer.parseInt((String) properties.computeIfAbsent("destination-max", a -> String.valueOf(config.getDestination().getMaxSaved()))));
                 config.getDestination().getLastDeath().setSaving(Boolean.parseBoolean((String) properties.computeIfAbsent("lastdeath-saving", a -> String.valueOf(config.getDestination().getLastDeath().getSaving()))));
