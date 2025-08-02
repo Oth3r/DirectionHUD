@@ -78,8 +78,9 @@ public class LoopManager {
         10/12/24
         */
 
-        // only update the speed if the module and hud is on
-        if ((boolean) player.getPCache().getHud().getSetting(Hud.Setting.state) && player.getPCache().getHud().getModule(Module.SPEED).isEnabled()) {
+        // only update the speed if the module and hud is on AND the speed module is enabled
+        if (FileData.getConfig().getHud().getEnabledModules().get(Module.SPEED) &&
+                (boolean) player.getPCache().getHud().getSetting(Hud.Setting.state) && player.getPCache().getHud().getModule(Module.SPEED).isEnabled()) {
             CachedPData.SpeedData speedData = player.getPCache().getSpeedData();
 
             Vec pos = player.getVec(), oldPos = speedData.getVec();
@@ -155,6 +156,9 @@ public class LoopManager {
                         Loc targetLoc = target.getLoc();
                         targetLoc.convertTo(player.getDimension());
                         targetVec = targetLoc.getVec(player);
+
+                        // add one to the y to point towards the body of the target player
+                        targetVec = targetVec.add(0,1,0);
                     }
                 }
                 // actually send the particles
