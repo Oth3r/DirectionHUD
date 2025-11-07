@@ -14,7 +14,6 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.WorldSavePath;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.DirectionHUDClient;
@@ -38,13 +37,11 @@ public class ModEvents {
         private static KeyBinding keyBinding;
 
         private static void register() {
-            KeyBinding.Category dhudCategory = KeyBinding.Category.create(Identifier.of(DirectionHUD.MOD_ID, "main"));
-
             keyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                     "key.directionhud.keybind.toggle",
                     InputUtil.Type.KEYSYM,
                     GLFW.GLFW_KEY_H,
-                    dhudCategory
+                    "category.directionhud.all"
             ));
 
         }

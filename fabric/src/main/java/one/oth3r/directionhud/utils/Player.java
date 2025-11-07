@@ -152,27 +152,27 @@ public class Player extends PlayerTemplate {
 
     @Override
     public String getDimension() {
-        return Utl.dim.format(player.getEntityWorld().getRegistryKey());
+        return Utl.dim.format(player.getWorld().getRegistryKey());
     }
 
     @Override
     public int getTimeOfDay() {
-        return (int) player.getEntityWorld().getTimeOfDay() % 24000;
+        return (int) player.getWorld().getTimeOfDay() % 24000;
     }
 
     @Override
     public long getWorldTime() {
-        return player.getEntityWorld().getTime();
+        return player.getWorld().getTime();
     }
 
     @Override
     public boolean hasStorm() {
-        return player.getEntityWorld().isRaining();
+        return player.getWorld().isRaining();
     }
 
     @Override
     public boolean hasThunderstorm() {
-        return player.getEntityWorld().isThundering();
+        return player.getWorld().isThundering();
     }
 
     @Override
@@ -180,7 +180,7 @@ public class Player extends PlayerTemplate {
         if (client) return null;
         ServerPlayerEntity.Respawn respawn = serverPlayer.getRespawn();
         if (respawn == null) return Utl.dim.format(World.OVERWORLD);
-        return Utl.dim.format(respawn.respawnData().getDimension());
+        return Utl.dim.format(respawn.dimension());
     }
 
     @Override
@@ -208,7 +208,7 @@ public class Player extends PlayerTemplate {
             if (pos == null) return new int[]{-1,-1};
         }
 
-        return new int[]{player.getEntityWorld().getLightLevel(LightType.SKY,pos),player.getEntityWorld().getLightLevel(LightType.BLOCK,pos)};
+        return new int[]{player.getWorld().getLightLevel(LightType.SKY,pos),player.getWorld().getLightLevel(LightType.BLOCK,pos)};
     }
 
     @Override
@@ -251,7 +251,7 @@ public class Player extends PlayerTemplate {
 
     @Override
     public void spawnParticle(ParticleType particleType, Vec position) {
-        serverPlayer.getEntityWorld().spawnParticles(serverPlayer,getParticle(particleType),
+        serverPlayer.getWorld().spawnParticles(serverPlayer,getParticle(particleType),
                 true,true,position.getX(),position.getY(),position.getZ(),1,0,0,0,1);
     }
 }

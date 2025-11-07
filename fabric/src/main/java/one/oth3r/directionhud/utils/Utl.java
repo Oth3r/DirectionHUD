@@ -53,11 +53,11 @@ public class Utl {
      */
     public static BlockPos getSideOfBlockPosPlayerIsLookingAt(ServerPlayerEntity serverPlayer, double range) {
         // pos, adjusted to player eye level
-        Vec3d rayStart = serverPlayer.getEntityPos().add(0, serverPlayer.getEyeHeight(serverPlayer.getPose()), 0);
+        Vec3d rayStart = serverPlayer.getPos().add(0, serverPlayer.getEyeHeight(serverPlayer.getPose()), 0);
         // extend ray by the range
         Vec3d rayEnd = rayStart.add(serverPlayer.getRotationVector().multiply(range));
 
-        BlockHitResult hitResult = serverPlayer.getEntityWorld().raycast(new RaycastContext(rayStart, rayEnd, RaycastContext.ShapeType.OUTLINE, RaycastContext.FluidHandling.NONE, ShapeContext.absent()));
+        BlockHitResult hitResult = serverPlayer.getWorld().raycast(new RaycastContext(rayStart, rayEnd, RaycastContext.ShapeType.OUTLINE, RaycastContext.FluidHandling.NONE, ShapeContext.absent()));
 
         if (hitResult.getType() == HitResult.Type.BLOCK) {
             return hitResult.getBlockPos().offset(hitResult.getSide());
