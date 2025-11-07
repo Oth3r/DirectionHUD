@@ -1,5 +1,6 @@
 {
-  "category.directionhud.all": "DirectionHUD",
+  "directionhud.msg.prefix": "DirectionHUD",
+  "key.category.directionhud.main": "DirectionHUD",
   "key.directionhud.keybind.toggle": "Toggle HUD",
 
   "msg.usage": "USAGE:",

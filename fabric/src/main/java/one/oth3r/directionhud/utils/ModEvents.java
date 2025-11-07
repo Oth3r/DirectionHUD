@@ -41,7 +41,7 @@ public class ModEvents {
                     "key.directionhud.keybind.toggle",
                     InputUtil.Type.KEYSYM,
                     GLFW.GLFW_KEY_H,
-                    "category.directionhud.all"
+                    "key.category.directionhud.main"
             ));
 
         }
