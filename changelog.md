@@ -1,3 +1,6 @@
+## v1.8.2.1
+* added the DirectionHUD prefix to the language file
+
 # v1.8.2.0 The Config Update
 Added 2 new config options!
 \
