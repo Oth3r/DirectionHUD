@@ -40,7 +40,7 @@ public class ModCommands {
     public static class Register {
         public static void destination(CommandDispatcher<ServerCommandSource> dispatcher) {
             dispatcher.register(CommandManager.literal("dest")
-                    .requires((commandSource) -> commandSource.hasPermissionLevel(0))
+                    .requires((commandSource) -> true)
                     .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.DESTINATION))
                     .then(CommandManager.argument("args", StringArgumentType.string())
                             .suggests((context, builder) -> getSuggestions(context,builder,1, Command.DESTINATION))
@@ -73,7 +73,7 @@ public class ModCommands {
 
         public static void hud(CommandDispatcher<ServerCommandSource> dispatcher) {
             dispatcher.register(CommandManager.literal("hud")
-                    .requires((commandSource) -> commandSource.hasPermissionLevel(0))
+                    .requires((commandSource) -> true)
                     .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.HUD))
                     .then(CommandManager.argument("args", StringArgumentType.string())
                             .suggests((context, builder) -> getSuggestions(context,builder,1, Command.HUD))
@@ -104,7 +104,7 @@ public class ModCommands {
 
         public static void directionhud(CommandDispatcher<ServerCommandSource> dispatcher) {
             dispatcher.register(CommandManager.literal("dhud")
-                    .requires((commandSource) -> commandSource.hasPermissionLevel(0))
+                    .requires((commandSource) -> true)
                     .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.DIRECTIONHUD))
                     .then(CommandManager.argument("args", StringArgumentType.string())
                             .suggests((context, builder) -> getSuggestions(context,builder,1, Command.DIRECTIONHUD))

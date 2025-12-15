@@ -1,6 +1,7 @@
 package one.oth3r.directionhud.utils;
 
 import net.minecraft.block.ShapeContext;
+import net.minecraft.command.DefaultPermissions;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.RegistryKey;
@@ -86,7 +87,7 @@ public class Utl {
 
         @Override
         public boolean globalEditing() {
-            return super.globalEditing() && (player.getPlayer().hasPermissionLevel(2) || DirectionHUD.getData().isSingleplayer() ||
+            return super.globalEditing() && (player.getPlayer().getPermissions().hasPermission(DefaultPermissions.ADMINS) || DirectionHUD.getData().isSingleplayer() ||
                     FileData.getConfig().getDestination().getGlobal().getPublicEditing()); // if public editing is enabled, allow global editing
         }
 
@@ -101,8 +102,9 @@ public class Utl {
         }
 
         @Override
-        public boolean reload() {
-            return player.getPlayer().hasPermissionLevel(2) || DirectionHUD.getData().isSingleplayer();
+        public boolean reload()
+        {
+            return player.getPlayer().getPermissions().hasPermission(DefaultPermissions.ADMINS) || DirectionHUD.getData().isSingleplayer();
         }
     }
 
