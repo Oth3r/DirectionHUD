@@ -72,7 +72,7 @@ tasks.register('buildAndMoveJar', Jar) {
     version = "0"
     from(sourceSets.main.output)
 
-    destinationDirectory.set(file("/mnt/1TBM2/Minecraft/Servers/Paper/Latest/plugins"))
+    destinationDirectory.set(file(env.fetchOrNull('LINUX_MOUNT')+"Minecraft/Servers/Paper/Latest/plugins"))
 //    destinationDirectory.set(file("R:/Minecraft/Servers/Paper/Latest/plugins"))
 }
 
