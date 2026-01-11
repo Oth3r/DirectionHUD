@@ -1,3 +1,6 @@
+## v1.8.2.2
+* fixed jitteriness of the speed module [Paper, Spigot]
+
 ## v1.8.2.1
 * added the DirectionHUD prefix to the language file
 

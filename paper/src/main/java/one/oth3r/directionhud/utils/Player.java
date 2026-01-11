@@ -136,7 +136,8 @@ public class Player extends PlayerTemplate {
 
     @Override
     public long getWorldTime() {
-        return player.getWorld().getTime();
+        // this is the player time, fix when there is an issue todo
+        return player.getPlayerTime();
     }
 
     @Override
