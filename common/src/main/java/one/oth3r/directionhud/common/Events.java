@@ -98,10 +98,12 @@ public class Events {
     public static void playerDeath(Player player, Loc deathLoc) {
         if (!Helper.checkEnabled(player).lastdeath()) return;
         Destination.lastdeath.add(player, deathLoc);
-        CTxT msg = CUtl.tag().append(Destination.lastdeath.LANG.msg("save",
-                deathLoc.getBadge()
-                .append(" ").append(Destination.dest.setButtons(new Dest(deathLoc,null,null),
-                        Dimension.canConvert(player.getSpawnDimension(), deathLoc.getDimension())))));
-        player.sendMessage(msg);
+        player.getRespawnLocationAsync().thenAccept(dimension -> {
+            CTxT msg = CUtl.tag().append(Destination.lastdeath.LANG.msg("save",
+                    deathLoc.getBadge()
+                            .append(" ").append(Destination.dest.setButtons(new Dest(deathLoc, null, null),
+                                    Dimension.canConvert(dimension, deathLoc.getDimension())))));
+            player.sendMessage(msg);
+        });
     }
 }

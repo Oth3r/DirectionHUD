@@ -2,7 +2,6 @@ package one.oth3r.directionhud.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.kyori.adventure.chat.ChatType;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.PacketHelper;
 import one.oth3r.directionhud.common.Assets;
@@ -12,16 +11,14 @@ import one.oth3r.directionhud.common.files.playerdata.PData;
 import one.oth3r.directionhud.common.hud.module.ModuleInstructions;
 import one.oth3r.directionhud.common.utils.*;
 import one.oth3r.directionhud.common.template.PlayerTemplate;
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.Particle;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.util.RayTraceResult;
 
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class Player extends PlayerTemplate {
     private org.bukkit.entity.Player player;
@@ -118,10 +115,23 @@ public class Player extends PlayerTemplate {
 
     @Override
     public String getSpawnDimension() {
-        if (player.getRespawnLocation() != null && player.getRespawnLocation().getWorld() != null) {
-            return Utl.dim.format(player.getRespawnLocation().getWorld());
-        }
-        return Utl.dim.format(Bukkit.getWorlds().get(0));
+        return "";
+    }
+
+    public CompletableFuture<String> getRespawnLocationAsync() {
+        CompletableFuture<String> future = new CompletableFuture<>();
+
+        Bukkit.getGlobalRegionScheduler().run(DirectionHUD.getData().getPlugin(), task -> {
+            // Perform logic on the global thread
+            Location location = player.getRespawnLocation();
+            World world;
+            if (location == null) world = Bukkit.getWorlds().getFirst();
+            else world = location.getWorld();
+
+            future.complete(Utl.dim.format(world));
+        });
+
+        return future;
     }
 
     @Override
