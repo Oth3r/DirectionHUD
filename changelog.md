@@ -1,3 +1,6 @@
+## v1.8.2.3
+* made the respawn dimension getter async, hopefully preventing a crash on folia [Paper]
+
 ## v1.8.2.2
 * fixed jitteriness of the speed module [Paper, Spigot]
 
