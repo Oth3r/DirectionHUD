@@ -78,6 +78,9 @@ public abstract class PlayerTemplate {
     public abstract int[] getLightLevels(boolean lookTarget);
 
     /// Location Methods
+    /**
+     * gets a Vec to the players body level, not their feet
+     */
     public abstract Vec getVec();
     public abstract Loc getLoc();
 

@@ -211,9 +211,16 @@ public class Player extends PlayerTemplate {
         return new int[]{player.getEntityWorld().getLightLevel(LightType.SKY,pos),player.getEntityWorld().getLightLevel(LightType.BLOCK,pos)};
     }
 
+    /**
+     * gets a Vec to the players body level, not their feet
+     */
     @Override
     public Vec getVec() {
-        return new Vec(player.getX(),player.getY(),player.getZ());
+        double adjustment = 1;
+        if (player.getVehicle() != null) adjustment += .45;
+        else if (player.isCrawling() || player.isSwimming()) adjustment -= .65;
+        else if (player.isGliding()) adjustment -= 1;
+        return new Vec(player.getX(),player.getY()+adjustment,player.getZ());
     }
 
     @Override
