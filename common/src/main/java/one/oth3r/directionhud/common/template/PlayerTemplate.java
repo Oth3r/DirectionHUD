@@ -1,13 +1,12 @@
 package one.oth3r.directionhud.common.template;
 
+import one.oth3r.directionhud.common.Destination;
+import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.hud.Hud;
 import one.oth3r.directionhud.common.files.playerdata.CachedPData;
 import one.oth3r.directionhud.common.files.playerdata.PData;
 import one.oth3r.directionhud.common.hud.module.ModuleInstructions;
-import one.oth3r.directionhud.common.utils.CUtl;
-import one.oth3r.directionhud.common.utils.Loc;
-import one.oth3r.directionhud.common.utils.ParticleType;
-import one.oth3r.directionhud.common.utils.Vec;
+import one.oth3r.directionhud.common.utils.*;
 import one.oth3r.directionhud.utils.CTxT;
 
 public abstract class PlayerTemplate {
@@ -90,6 +89,15 @@ public abstract class PlayerTemplate {
     public abstract void sendActionBar(CTxT message);
     public abstract void displayBossBar(CTxT message);
     public abstract void removeBossBar();
+    public void sendLastDeathMessage(Loc deathLoc) {
+        sendMessage(getLastDeathMessage(deathLoc,getSpawnDimension()));
+    }
+    protected CTxT getLastDeathMessage(Loc deathLoc, String spawnDimension) {
+        return CUtl.tag().append(Destination.lastdeath.LANG.msg("save",
+                deathLoc.getBadge()
+                        .append(" ").append(Destination.dest.setButtons(new Dest(deathLoc, null, null),
+                                Dimension.canConvert(spawnDimension, deathLoc.getDimension())))));
+    }
 
     /// PlayerData Methods
     /**
