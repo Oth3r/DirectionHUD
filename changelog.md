@@ -1,13 +1,19 @@
-## v1.8.2.3
+# v1.8.2.4
+#### Fixes
+* fixed height of origin for particles that show up when pointing from the player
+
+## Past Changes
+
+### v1.8.2.3
 * made the respawn dimension getter async, hopefully preventing a crash on folia [Paper]
 
-## v1.8.2.2
+### v1.8.2.2
 * fixed jitteriness of the speed module [Paper, Spigot]
 
-## v1.8.2.1
+### v1.8.2.1
 * added the DirectionHUD prefix to the language file
 
-# v1.8.2.0 The Config Update
+### v1.8.2.0 The Config Update
 Added 2 new config options!
 \
 Hud module toggles, and a toggle for allowing anyone to add and edit global destinations.
