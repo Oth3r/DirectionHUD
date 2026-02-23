@@ -26,7 +26,7 @@ public abstract class FeatureChecker {
     public abstract boolean reload();
 
     public boolean global() {
-        return FileData.getConfig().getDestination().getGlobal();
+        return FileData.getConfig().getDestination().getGlobal().isEnabled();
     }
 
     public boolean globalEditing() {

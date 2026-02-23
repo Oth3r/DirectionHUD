@@ -78,8 +78,9 @@ public class LoopManager {
         10/12/24
         */
 
-        // only update the speed if the module and hud is on
-        if ((boolean) player.getPCache().getHud().getSetting(Hud.Setting.state) && player.getPCache().getHud().getModule(Module.SPEED).isEnabled()) {
+        // only update the speed if the module and hud is on AND the speed module is enabled
+        if (FileData.getConfig().getHud().getEnabledModules().get(Module.SPEED) &&
+                (boolean) player.getPCache().getHud().getSetting(Hud.Setting.state) && player.getPCache().getHud().getModule(Module.SPEED).isEnabled()) {
             CachedPData.SpeedData speedData = player.getPCache().getSpeedData();
 
             Vec pos = player.getVec(), oldPos = speedData.getVec();

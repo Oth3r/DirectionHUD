@@ -1,6 +1,7 @@
 package one.oth3r.directionhud.utils;
 
 import net.minecraft.block.ShapeContext;
+import net.minecraft.command.DefaultPermissions;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.RegistryKey;
@@ -15,6 +16,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import one.oth3r.directionhud.DirectionHUD;
+import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.dimension.DimensionEntry;
 import one.oth3r.directionhud.common.files.dimension.DimensionEntry.*;
@@ -52,11 +54,11 @@ public class Utl {
      */
     public static BlockPos getSideOfBlockPosPlayerIsLookingAt(ServerPlayerEntity serverPlayer, double range) {
         // pos, adjusted to player eye level
-        Vec3d rayStart = serverPlayer.getPos().add(0, serverPlayer.getEyeHeight(serverPlayer.getPose()), 0);
+        Vec3d rayStart = serverPlayer.getEntityPos().add(0, serverPlayer.getEyeHeight(serverPlayer.getPose()), 0);
         // extend ray by the range
         Vec3d rayEnd = rayStart.add(serverPlayer.getRotationVector().multiply(range));
 
-        BlockHitResult hitResult = serverPlayer.getWorld().raycast(new RaycastContext(rayStart, rayEnd, RaycastContext.ShapeType.OUTLINE, RaycastContext.FluidHandling.NONE, ShapeContext.absent()));
+        BlockHitResult hitResult = serverPlayer.getEntityWorld().raycast(new RaycastContext(rayStart, rayEnd, RaycastContext.ShapeType.OUTLINE, RaycastContext.FluidHandling.NONE, ShapeContext.absent()));
 
         if (hitResult.getType() == HitResult.Type.BLOCK) {
             return hitResult.getBlockPos().offset(hitResult.getSide());
@@ -85,7 +87,8 @@ public class Utl {
 
         @Override
         public boolean globalEditing() {
-            return super.globalEditing() && (player.getPlayer().hasPermissionLevel(2) || DirectionHUD.getData().isSingleplayer());
+            return super.globalEditing() && (player.getPlayer().getPermissions().hasPermission(DefaultPermissions.ADMINS) || DirectionHUD.getData().isSingleplayer() ||
+                    FileData.getConfig().getDestination().getGlobal().getPublicEditing()); // if public editing is enabled, allow global editing
         }
 
         @Override
@@ -99,8 +102,9 @@ public class Utl {
         }
 
         @Override
-        public boolean reload() {
-            return player.getPlayer().hasPermissionLevel(2) || DirectionHUD.getData().isSingleplayer();
+        public boolean reload()
+        {
+            return player.getPlayer().getPermissions().hasPermission(DefaultPermissions.ADMINS) || DirectionHUD.getData().isSingleplayer();
         }
     }
 

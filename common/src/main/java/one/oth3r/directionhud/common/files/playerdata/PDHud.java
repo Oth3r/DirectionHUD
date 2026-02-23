@@ -7,12 +7,11 @@ import one.oth3r.directionhud.common.hud.Hud;
 import one.oth3r.directionhud.common.hud.HudColor;
 import one.oth3r.directionhud.common.hud.module.BaseModule;
 import one.oth3r.directionhud.common.hud.module.Module;
-import one.oth3r.directionhud.common.hud.module.modules.*;
+import one.oth3r.directionhud.common.hud.module.ModuleManager;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.utils.Player;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class PDHud {
 
@@ -30,18 +29,7 @@ public class PDHud {
     private transient Player player;
 
     @SerializedName("modules")
-    private ArrayList<BaseModule> modules = new ArrayList<>(List.of(
-            new ModuleCoordinates(0, true, true),
-            new ModuleDestination(1, true,true),
-            new ModuleDistance(2, true),
-            new ModuleTracking(3, false, true, ModuleTracking.Target.player, ModuleTracking.Type.simple, false),
-            new ModuleDirection(4, true),
-            new ModuleWeather(5, true),
-            new ModuleTime(6, true, false),
-            new ModuleAngle(7, false, ModuleAngle.Display.both),
-            new ModuleSpeed(8, false, false, "0.00"),
-            new ModuleLight(9,false, ModuleLight.Target.eye, ModuleLight.Display.block)
-    ));
+    private ArrayList<BaseModule> modules = ModuleManager.getDefaultModules();
     @SerializedName("setting")
     private Settings setting = new Settings();
     @SerializedName("primary")

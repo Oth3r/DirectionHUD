@@ -64,23 +64,50 @@ jobs:
         run: |
           echo "Starting renaming process for JSON files within $TARGET_DIR..."
           if [ ! -d "$TARGET_DIR" ]; then
-            echo "Warning: Target directory '$TARGET_DIR' does not exist. Skipping rename."
+            echo "Warning: Target directory '\$TARGET_DIR' does not exist. Skipping rename."
             exit 0
           fi
+
           find "$TARGET_DIR" -type f -name '*[A-Z]*.json' | while IFS= read -r file; do
             original_path="$file"
             dir_name=$(dirname "$original_path")
             base_name=$(basename "$original_path")
             new_base_name=$(echo "$base_name" | tr '[:upper:]' '[:lower:]')
             new_path="$dir_name/$new_base_name"
+
+            # Only attempt to rename if the new path is different (case-sensitive)
             if [ "$original_path" != "$new_path" ]; then
-              if [ -e "$new_path" ] && [ ! "$(readlink -f "$original_path")" = "$(readlink -f "$new_path")" ]; then
-                echo "::warning file=$original_path::Cannot rename '$original_path' to '$new_path' because it already exists. Skipping."
-              else
-                git mv "$original_path" "$new_path"
+              echo "Attempting to rename '$original_path' to '$new_path'"
+
+              # Check if the lowercase version already exists and is a different file
+              if [ -f "$new_path" ] && [ ! "$original_path" -ef "$new_path" ]; then
+                echo "Conflict: Lowercase file '$new_path' exists and is different from '$original_path'."
+                echo "Deleting '$new_path' to allow renaming of '$original_path'."
+                git rm --cached "$new_path" # Remove from Git index, keep local copy
+                rm "$new_path"
               fi
+          
+              # Perform the two-step rename to handle case-only changes reliably
+              temp_rename_path="${original_path}.temp_rename_action" # Use a distinct temp name
+
+              if git mv "$original_path" "$temp_rename_path"; then
+                echo "  Successfully moved to temporary: '$temp_rename_path'"
+                if git mv "$temp_rename_path" "$new_path"; then
+                  echo "  Successfully renamed '$original_path' to '$new_path'."
+                else
+                  echo "Error: Failed to move temporary file '$temp_rename_path' to '$new_path'."
+                  git mv "$temp_rename_path" "$original_path" # Revert if second move fails
+                  exit 1
+                fi
+              else
+                echo "Error: Failed to move '$original_path' to temporary path '$temp_rename_path'."
+                exit 1
+              fi
+            else
+              echo "Skipping: '$original_path' is already lowercase or does not require renaming."
             fi
           done
+
           echo "JSON file renaming complete."
 
       - name: Commit Renamed Files

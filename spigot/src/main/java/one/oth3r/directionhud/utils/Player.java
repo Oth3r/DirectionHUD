@@ -136,6 +136,7 @@ public class Player extends PlayerTemplate {
 
     @Override
     public long getWorldTime() {
+        // this is also not correct, but will fix later todo
         return player.getWorld().getTime();
     }
 
