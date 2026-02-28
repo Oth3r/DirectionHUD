@@ -897,7 +897,7 @@ public class Hud {
                 final String enabledColor = CUtl.s(), disabledColor = Assets.mainColors.gray;
 
                 // build the button
-                CTxT button = LANG.btn().text(text).wrapper().color(enabled ? enabledColor : disabledColor);
+                CTxT button = new CTxT(text).wrapper().color(enabled ? enabledColor : disabledColor);
 
                 // if not enabled, return now
                 if (!enabled) return button;
@@ -1517,7 +1517,7 @@ public class Hud {
             }
             if (setting.equals(Setting.bossbar__color)) {
                 button.append(LANG.get(setting+"."+player.getPCache().getHud().getSetting(setting)).wrapper()
-                        .color(Assets.barColor((BarColor.valueOf((String) player.getPCache().getHud().getSetting(setting)))))
+                        .color(CUtl.color.format(Assets.barColor((BarColor.valueOf((String) player.getPCache().getHud().getSetting(setting))))))
                         .click(ClickAction.of(ClickActions.SUGGEST_COMMAND,"/hud settings set-r "+setting+" "))
                         .hover(HoverAction.of(LANG.hover("set.custom",LANG.get("category",
                                 LANG.get("category.bossbar"),LANG.get(setting.toString()))))));
@@ -1540,9 +1540,9 @@ public class Hud {
          * @param aboveTxT the TxT that appears above the UI, can be null
          */
         public static void UI(Player player, CTxT aboveTxT) {
-            CTxT msg = new CTxT();
+            CTxT msg = new CTxT(), line = CUtl.makeLine(30);
             if (aboveTxT != null) msg.append(aboveTxT).append("\n");
-            msg.append(" ").append(LANG.ui().color(Assets.mainColors.setting)).append(new CTxT("\n                              \n").strikethrough(true));
+            msg.append(" ").append(LANG.ui().color(Assets.mainColors.setting)).append(line).append("\n");
             //HUD
             msg.append(" ").append(LANG.get("category.hud").color(CUtl.p())).append(":\n  ");
             msg     //STATE
@@ -1582,8 +1582,7 @@ public class Hud {
             }
             if (resetOn) reset.color(DColors.RESET).click(ClickAction.of(ClickActions.RUN_COMMAND,"/hud settings reset-r all"))
                     .hover(HoverAction.of(CUtl.LANG.hover("reset.settings",CUtl.LANG.hover("reset.fill"),CUtl.LANG.btn("all").color(CUtl.s()))));
-            msg.append("\n    ").append(reset).append("  ").append(CUtl.CButton.back("/hud")).append("\n")
-                    .append(new CTxT("                              ").strikethrough(true));
+            msg.append("\n    ").append(reset).append("  ").append(CUtl.CButton.back("/hud")).append(line);
             player.sendMessage(msg);
         }
     }
