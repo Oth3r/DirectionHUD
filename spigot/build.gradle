@@ -12,6 +12,7 @@ group = project.maven_group
 
 repositories {
     mavenCentral()
+    mavenLocal()
     maven {
         name = "spigotmc-repo"
         url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/"
@@ -39,9 +40,11 @@ sourceSets {
 }
 
 dependencies {
-    implementation 'org.apache.commons:commons-configuration2:2.12.0'
+    implementation 'org.apache.commons:commons-configuration2:2.13.0'
     compileOnly ("org.spigotmc:spigot-api:${project.minecraft_version}-R0.1-SNAPSHOT")
     compileOnly ('org.geysermc.floodgate:api:2.2.2-SNAPSHOT')
+
+    implementation "one.oth3r:otterlib:${project.otterlib_version}-spigot"
 }
 
 def targetJavaVersion = 17

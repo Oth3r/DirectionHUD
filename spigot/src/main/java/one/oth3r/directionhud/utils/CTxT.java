@@ -1,44 +1,54 @@
 package one.oth3r.directionhud.utils;
 
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.chat.hover.content.Text;
-import one.oth3r.directionhud.common.template.ChatText;
+import one.oth3r.directionhud.common.Assets;
+import one.oth3r.directionhud.common.utils.LangEntry;
+import one.oth3r.otterlib.chat.LoaderText;
+import one.oth3r.otterlib.registry.LanguageReg;
 
-public class CTxT extends ChatText<TextComponent, CTxT> {
+import java.util.ArrayList;
+
+public class CTxT extends LoaderText<CTxT> {
+    protected LangEntry lang = null;
+
     public CTxT() {
         this.text = new TextComponent("");
     }
 
     public CTxT(CTxT main) {
         super(main);
-    }
-
-    public CTxT(TextComponent text) {
-        this.text = text.duplicate();
+        lang = main.lang;
     }
 
     public CTxT(String text) {
         this.text = new TextComponent(text);
     }
 
-    public static CTxT of(String of) {
-        return new CTxT(of);
+    public CTxT(TextComponent text) {
+        this.text = text.duplicate();
     }
 
-    public static CTxT of(TextComponent of) {
-        return new CTxT(of);
+    public CTxT(LangEntry lang) {
+        this.lang = lang;
     }
 
-    public static CTxT of(CTxT of) {
-        return new CTxT(of);
+    public CTxT append(LangEntry append) {
+        return super.append(new CTxT(append));
+    }
+
+    public CTxT translatable(CTxT cTxT) {
+        this.lang = cTxT.lang;
+        return this;
+    }
+
+    public CTxT translatable(LangEntry lang) {
+        this.lang = lang;
+        return this;
     }
 
     @Override
     public void copyFromObject(CTxT old) {
+        this.lang = old.lang;
         super.copyFromObject(old);
         this.text = old.text.duplicate();
     }
@@ -48,77 +58,19 @@ public class CTxT extends ChatText<TextComponent, CTxT> {
         return new CTxT(this);
     }
 
-    @Override
-    public CTxT text(String text) {
-        this.text = new TextComponent(text);
-        return this;
-    }
-
-    public CTxT text(CTxT text) {
-        this.text = text.text.duplicate();
-        return this;
-    }
-
-    public CTxT text(TextComponent text) {
-        this.text = text.duplicate();
-        return this;
-    }
-    
-    @Override
-    public CTxT append(String append) {
-        this.append(new CTxT(append));
-        return this;
-    }
-
-    @Override
-    public CTxT append(TextComponent append) {
-        this.append(new CTxT(append));
-        return this;
-    }
-
-    private ClickEvent getClickEvent() {
-        if (this.clickEvent == null || this.clickEvent.value() == null) return null;
-        return switch (this.clickEvent.key()) {
-            case 1 -> new ClickEvent(ClickEvent.Action.RUN_COMMAND, clickEvent.value());
-            case 2 -> new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, clickEvent.value());
-            case 3 -> new ClickEvent(ClickEvent.Action.OPEN_URL, clickEvent.value());
-            default -> null;
-        };
-    }
-    private HoverEvent getHoverEvent() {
-        if (this.hoverEvent == null) return null;
-        return new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder(this.hoverEvent.b()).create()));
-    }
-
-    @Override
+    @Override @SuppressWarnings("unchecked")
     public TextComponent b() {
-        TextComponent output = new TextComponent();
-        if (this.rainbow.isEnabled()) {
-            text = this.rainbow.colorize(text.toPlainText(), this).b();
-        } else text.setColor(ChatColor.of(this.color));
-        text.setClickEvent(getClickEvent());
-        text.setHoverEvent(getHoverEvent());
-        text.setItalic(this.italic);
-        text.setBold(this.bold);
-        text.setStrikethrough(this.strikethrough);
-        text.setUnderlined(this.underline);
+        // if lang is not null, use the language registry to get the translated text
+        if (lang != null) {
+            LoaderText<?> langText = LanguageReg.getLang(Assets.MOD_ID).translatable(lang.key(), lang.args());
+            this.text = langText.getText();
+            ArrayList<CTxT> arrayList = (ArrayList<CTxT>) langText.getAppends();
+            arrayList.addAll(this.append);
+            this.append = arrayList;
 
-        if (this.button) output.addExtra("[");
-        output.addExtra(text);
-        if (this.button) output.addExtra("]");
-        output.setClickEvent(getClickEvent());
-        output.setHoverEvent(getHoverEvent());
-        output.setItalic(this.italic);
-        output.setBold(this.bold);
-        output.setStrikethrough(this.strikethrough);
-        output.setUnderlined(this.underline);
-        for (CTxT txt : this.append) output.addExtra(txt.b());
-        return output;
-    }
-
-    @Override
-    public String toString() {
-        return b().toPlainText();
+            this.lang = null; // clear lang to prevent infinite recursion
+        }
+        return super.b();
     }
 
 }
