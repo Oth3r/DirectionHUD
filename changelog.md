@@ -1,26 +1,13 @@
-# v1.8.2.4
-#### Fixes
-* fixed height of origin for particles that show up when pointing from the player
+# v1.8.3.0
+OtterLib support if finally here!
+This update has been a long time coming, but since the scope was so big, working on it was a pain. 
+There is going to be some issues with some of the messages displayed in the mod so please let me know if y'all find any.
+Hopefully after this update smooths out, I can go back to adding cool features!
+Thank you all for the support over the years!
+
+#### Additions
+* added OtterLib as a required dependency
+* (probably) added a bunch of text related bugs 🥲
 
 ## Past Changes
-
-### v1.8.2.3
-* made the respawn dimension getter async, hopefully preventing a crash on folia [Paper]
-
-### v1.8.2.2
-* fixed jitteriness of the speed module [Paper, Spigot]
-
-### v1.8.2.1
-* added the DirectionHUD prefix to the language file
-
-### v1.8.2.0 The Config Update
-Added 2 new config options!
-\
-Hud module toggles, and a toggle for allowing anyone to add and edit global destinations.
-
-* added a new config group `global` under `destination`
-  * added a new toggle `public-editing` which allows anyone to add and edit global destinations
-* added a new config group `enabled-modules` under `hud`
-  * each module under this group is a toggle to enable or disable that module globally
-* fixed an issue where the HUD module edit UI would not open when all modules were disabled
-* updated translations from Crowdin
+nothing here...
