@@ -1,11 +1,12 @@
 package one.oth3r.directionhud.packet;
 
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type;
+import net.minecraft.resources.Identifier;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.Assets;
 
@@ -14,68 +15,68 @@ import java.nio.charset.StandardCharsets;
 
 public class Payloads {
 
-    public record Initialization(String value) implements CustomPayload {
-        public static final CustomPayload.Id<Initialization> ID = new CustomPayload.Id<>(
-                Identifier.of(DirectionHUD.MOD_ID,Assets.packets.INITIALIZATION.getIdentifier()));
+    public record Initialization(String value) implements CustomPacketPayload {
+        public static final CustomPacketPayload.Type<Initialization> ID = new CustomPacketPayload.Type<>(
+                Identifier.fromNamespaceAndPath(DirectionHUD.MOD_ID,Assets.packets.INITIALIZATION.getIdentifier()));
 
-        public static final PacketCodec<RegistryByteBuf, Initialization> CODEC = PacketCodecs.STRING.xmap(Initialization::new, Initialization::value).cast();
+        public static final StreamCodec<RegistryFriendlyByteBuf, Initialization> CODEC = ByteBufCodecs.STRING_UTF8.map(Initialization::new, Initialization::value).cast();
 
         @Override
-        public Id<Initialization> getId() {
+        public Type<Initialization> type() {
             return ID;
         }
     }
 
-    public record HUD(String value) implements CustomPayload {
-        public static final CustomPayload.Id<HUD> ID = new CustomPayload.Id<>(
-                Identifier.of(DirectionHUD.MOD_ID,Assets.packets.HUD.getIdentifier()));
+    public record HUD(String value) implements CustomPacketPayload {
+        public static final CustomPacketPayload.Type<HUD> ID = new CustomPacketPayload.Type<>(
+                Identifier.fromNamespaceAndPath(DirectionHUD.MOD_ID,Assets.packets.HUD.getIdentifier()));
 
-        public static final PacketCodec<RegistryByteBuf, HUD> CODEC = PacketCodecs.STRING.xmap(HUD::new, HUD::value).cast();
+        public static final StreamCodec<RegistryFriendlyByteBuf, HUD> CODEC = ByteBufCodecs.STRING_UTF8.map(HUD::new, HUD::value).cast();
 
         @Override
-        public Id<HUD> getId() {
+        public Type<HUD> type() {
             return ID;
         }
     }
 
-    public record PlayerData(String value) implements CustomPayload {
-        public static final CustomPayload.Id<PlayerData> ID = new CustomPayload.Id<>(
-                Identifier.of(DirectionHUD.MOD_ID,Assets.packets.SPIGOT_PLAYER_DATA.getIdentifier()));
+    public record PlayerData(String value) implements CustomPacketPayload {
+        public static final CustomPacketPayload.Type<PlayerData> ID = new CustomPacketPayload.Type<>(
+                Identifier.fromNamespaceAndPath(DirectionHUD.MOD_ID,Assets.packets.SPIGOT_PLAYER_DATA.getIdentifier()));
 
-        public static final PacketCodec<RegistryByteBuf, PlayerData> CODEC = PacketCodecs.STRING.xmap(PlayerData::new, PlayerData::value).cast();
+        public static final StreamCodec<RegistryFriendlyByteBuf, PlayerData> CODEC = ByteBufCodecs.STRING_UTF8.map(PlayerData::new, PlayerData::value).cast();
 
         @Override
-        public Id<PlayerData> getId() {
+        public Type<PlayerData> type() {
             return ID;
         }
     }
 
     // SPIGOT
 
-    public record SpigotHUD(String value) implements CustomPayload {
-        public static final CustomPayload.Id<SpigotHUD> ID = new CustomPayload.Id<>(
-                Identifier.of(DirectionHUD.MOD_ID,Assets.packets.SPIGOT_HUD.getIdentifier()));
+    public record SpigotHUD(String value) implements CustomPacketPayload {
+        public static final CustomPacketPayload.Type<SpigotHUD> ID = new CustomPacketPayload.Type<>(
+                Identifier.fromNamespaceAndPath(DirectionHUD.MOD_ID,Assets.packets.SPIGOT_HUD.getIdentifier()));
 
-        public static final PacketCodec<PacketByteBuf, SpigotHUD> CODEC = PacketCodec.of(
+        public static final StreamCodec<FriendlyByteBuf, SpigotHUD> CODEC = StreamCodec.ofMember(
                 (value, buf) -> buf.writeBytes(ByteBuffer.wrap(value.value.getBytes(StandardCharsets.UTF_8))),
                 buf -> new SpigotHUD(new String(buf.readByteArray(), StandardCharsets.UTF_8)));
 
         @Override
-        public Id<SpigotHUD> getId() {
+        public Type<SpigotHUD> type() {
             return ID;
         }
     }
 
-    public record SpigotPlayerData(String value) implements CustomPayload {
-        public static final CustomPayload.Id<SpigotPlayerData> ID = new CustomPayload.Id<>(
-                Identifier.of(DirectionHUD.MOD_ID,Assets.packets.PLAYER_DATA.getIdentifier()));
+    public record SpigotPlayerData(String value) implements CustomPacketPayload {
+        public static final CustomPacketPayload.Type<SpigotPlayerData> ID = new CustomPacketPayload.Type<>(
+                Identifier.fromNamespaceAndPath(DirectionHUD.MOD_ID,Assets.packets.PLAYER_DATA.getIdentifier()));
 
-        public static final PacketCodec<PacketByteBuf, SpigotPlayerData> CODEC = PacketCodec.of(
+        public static final StreamCodec<FriendlyByteBuf, SpigotPlayerData> CODEC = StreamCodec.ofMember(
                 (value, buf) -> buf.writeBytes(ByteBuffer.wrap(value.value.getBytes(StandardCharsets.UTF_8))),
                 buf -> new SpigotPlayerData(new String(buf.readByteArray(), StandardCharsets.UTF_8)));
 
         @Override
-        public Id<SpigotPlayerData> getId() {
+        public Type<SpigotPlayerData> type() {
             return ID;
         }
     }

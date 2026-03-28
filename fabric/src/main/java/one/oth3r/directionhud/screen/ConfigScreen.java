@@ -2,10 +2,10 @@ package one.oth3r.directionhud.screen;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.tooltip.Tooltip;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Util;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.files.Config;
@@ -33,50 +33,50 @@ public class ConfigScreen extends Screen {
     protected void init() {
         super.init();
         // config file
-        addDrawableChild(ButtonWidget.builder(Text.literal(FileData.getConfig().getFileName()), button -> {
-                    Util.getOperatingSystem().open(FileData.getConfig().getFileName());
+        addRenderableWidget(Button.builder(Component.literal(FileData.getConfig().getFileName()), button -> {
+                    Util.getPlatform().openUri(FileData.getConfig().getFileName());
                 })
-                .dimensions(width / 2-100, 10, 200, 20)
-                .tooltip(Tooltip.of(LANG.get("tooltip.file").b()))
+                .bounds(width / 2-100, 10, 200, 20)
+                .tooltip(Tooltip.create(LANG.get("tooltip.file").b()))
                 .build());
         // dimension settings file
-        addDrawableChild(ButtonWidget.builder(Text.literal(Dimension.getDimensionSettings().getFileName()), button -> {
-                    Util.getOperatingSystem().open(Dimension.getDimensionSettings().getFile());
+        addRenderableWidget(Button.builder(Component.literal(Dimension.getDimensionSettings().getFileName()), button -> {
+                    Util.getPlatform().openFile(Dimension.getDimensionSettings().getFile());
                 })
-                .dimensions(width / 2-100, 35, 200, 20)
-                .tooltip(Tooltip.of(LANG.get("tooltip.file").b()))
+                .bounds(width / 2-100, 35, 200, 20)
+                .tooltip(Tooltip.create(LANG.get("tooltip.file").b()))
                 .build());
         // default pData file
-        addDrawableChild(
-                ButtonWidget.builder(Text.literal(PlayerData.getDefaults().getFileName()), button -> {
-                    Util.getOperatingSystem().open(PlayerData.getDefaults().getFile());
+        addRenderableWidget(
+                Button.builder(Component.literal(PlayerData.getDefaults().getFileName()), button -> {
+                    Util.getPlatform().openFile(PlayerData.getDefaults().getFile());
                 })
-                .dimensions(width / 2-100, 60, 200, 20)
-                .tooltip(Tooltip.of(LANG.get("tooltip.file").b()))
+                .bounds(width / 2-100, 60, 200, 20)
+                .tooltip(Tooltip.create(LANG.get("tooltip.file").b()))
                 .build());
         // open folder button
-        addDrawableChild(
-                ButtonWidget.builder(LANG.btn("folder").b(), button -> {
-                            Util.getOperatingSystem().open(Paths.get(DirectionHUD.getData().getConfigDirectory()).toUri());
+        addRenderableWidget(
+                Button.builder(LANG.btn("folder").b(), button -> {
+                            Util.getPlatform().openUri(Paths.get(DirectionHUD.getData().getConfigDirectory()).toUri());
                         })
-                        .dimensions(width / 2-100, 85, 200, 20)
-                        .tooltip(Tooltip.of(LANG.get("tooltip.folder").b()))
+                        .bounds(width / 2-100, 85, 200, 20)
+                        .tooltip(Tooltip.create(LANG.get("tooltip.folder").b()))
                         .build());
 
         // open folder button
-        addDrawableChild(
-                ButtonWidget.builder(LANG.btn("save").b(), button -> {
-                            client.setScreen(PARENT);
+        addRenderableWidget(
+                Button.builder(LANG.btn("save").b(), button -> {
+                            minecraft.setScreen(PARENT);
                             FileData.loadFiles();
                         })
-                        .dimensions(width / 2-100, height-30, 200, 20)
-                        .tooltip(Tooltip.of(LANG.get("tooltip.save").b()))
+                        .bounds(width / 2-100, height-30, 200, 20)
+                        .tooltip(Tooltip.create(LANG.get("tooltip.save").b()))
                         .build());
     }
 
     @Override
-    public void close() {
-        assert client != null;
-        client.setScreen(PARENT);
+    public void onClose() {
+        assert minecraft != null;
+        minecraft.setScreen(PARENT);
     }
 }

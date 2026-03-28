@@ -2,7 +2,6 @@ package one.oth3r.directionhud.common.hud.module;
 
 import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.assets.DColors;
-import one.oth3r.directionhud.common.files.playerdata.PDHud;
 import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.hud.Hud;
@@ -12,7 +11,7 @@ import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Lang;
 import one.oth3r.directionhud.utils.CTxT;
-import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.DPlayer;
 import one.oth3r.otterlib.chat.click.ClickAction;
 import one.oth3r.otterlib.chat.click.ClickActions;
 import one.oth3r.otterlib.chat.hover.HoverAction;
@@ -61,7 +60,7 @@ public class ModuleManager {
         /**
          * resets all modules to their default state
          */
-        public static ActionResult resetEverything(Player player) {
+        public static ActionResult resetEverything(DPlayer player) {
             player.getPData().getHud().setModules(PlayerData.getDefaults().getHud().getModules());
             return new ActionResult(true, LANG.msg("reset_all", CUtl.LANG.btn("all").color(DColors.RESET)));
         }
@@ -72,7 +71,7 @@ public class ModuleManager {
          * @param player the target player
          * @param module the module to reset
          */
-        public static ActionResult resetModule(Player player, Module module) {
+        public static ActionResult resetModule(DPlayer player, Module module) {
             if (module.equals(Module.UNKNOWN)) {
                 return INVALID_MODULE;
             }
@@ -122,7 +121,7 @@ public class ModuleManager {
     public static class State {
         public static final Lang LANG = new Lang("directionhud.hud.module.edit.");
 
-        public static ActionResult disable(Player player, Module module) {
+        public static ActionResult disable(DPlayer player, Module module) {
             if (module.equals(Module.UNKNOWN)) return INVALID_MODULE;
 
             // get the module
@@ -156,7 +155,7 @@ public class ModuleManager {
             return new ActionResult(true, msg, "module", Order.getModuleAt(player,order-1).toString());
         }
 
-        public static ActionResult enable(Player player, Module module, Integer order) {
+        public static ActionResult enable(DPlayer player, Module module, Integer order) {
             if (module.equals(Module.UNKNOWN)) return INVALID_MODULE;
 
             // get the module
@@ -199,7 +198,7 @@ public class ModuleManager {
          * Gets a list of modules that are enabled, sorted by their order.
          * @return a list of enabled modules in the HUD order
          */
-        public static ArrayList<BaseModule> getEnabled(Player player) {
+        public static ArrayList<BaseModule> getEnabled(DPlayer player) {
             return player.getPCache().getHud().getModules().stream().filter(BaseModule::isEnabled)
                     .sorted(Comparator.comparingInt(BaseModule::getOrder))
                     .collect(Collectors.toCollection(ArrayList::new));
@@ -208,7 +207,7 @@ public class ModuleManager {
         /**
          * Gets a list of modules that are disabled.
          */
-        public static ArrayList<BaseModule> getDisabled(Player player) {
+        public static ArrayList<BaseModule> getDisabled(DPlayer player) {
             return player.getPCache().getHud().getModules().stream().filter(mod -> !mod.isEnabled())
                     .collect(Collectors.toCollection(ArrayList::new));
         }
@@ -221,7 +220,7 @@ public class ModuleManager {
          * @param module module to move
          * @param newOrder position in the list, starts at 1
          */
-        public static ActionResult move(Player player, Module module, int newOrder) {
+        public static ActionResult move(DPlayer player, Module module, int newOrder) {
             if (module.equals(Module.UNKNOWN)) return INVALID_MODULE;
             // get the module in question
             BaseModule mod = player.getPData().getHud().getModule(module);
@@ -330,7 +329,7 @@ public class ModuleManager {
          * gets a module at a specific order - min and max clamps are used to make sure no out of bounds errors occur
          * @param order the order to check
          */
-        public static Module getModuleAt(Player player, int order) {
+        public static Module getModuleAt(DPlayer player, int order) {
             ArrayList<BaseModule> modules = State.getEnabled(player);
             if (modules.isEmpty()) return Module.UNKNOWN;
             // use min and max to make sure no out of bounds errors happen
@@ -341,7 +340,7 @@ public class ModuleManager {
     public static class Setting {
         public static final Lang LANG = new Lang("directionhud.hud.module.setting.");
 
-        public static ActionResult setSetting(Player player, Module module, String settingID, String value) {
+        public static ActionResult setSetting(DPlayer player, Module module, String settingID, String value) {
             if (module.equals(Module.UNKNOWN)) return INVALID_MODULE;
 
             BaseModule mod = player.getPData().getHud().getModule(module);

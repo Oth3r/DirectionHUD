@@ -1,6 +1,6 @@
 package one.oth3r.directionhud.utils;
 
-import net.minecraft.text.MutableText;
+import net.minecraft.network.chat.MutableComponent;
 import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.utils.LangEntry;
 import one.oth3r.otterlib.chat.LoaderText;
@@ -23,7 +23,7 @@ public class CTxT extends LoaderText<CTxT> {
         super(text);
     }
 
-    public CTxT(MutableText text) {
+    public CTxT(MutableComponent text) {
         super(text);
     }
 
@@ -57,7 +57,7 @@ public class CTxT extends LoaderText<CTxT> {
     }
 
     @Override @SuppressWarnings("unchecked")
-    public MutableText b() {
+    public MutableComponent b() {
         // if lang is not null, use the language registry to get the translated text
         if (lang != null) {
             LoaderText<?> langText = LanguageReg.getLang(Assets.MOD_ID).translatable(lang.key(), lang.args());

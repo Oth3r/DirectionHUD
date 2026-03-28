@@ -10,7 +10,7 @@ import one.oth3r.directionhud.common.utils.Helper.Command.Suggester;
 import one.oth3r.directionhud.common.utils.Helper.Num;
 import one.oth3r.directionhud.common.utils.Helper.ListPage;
 import one.oth3r.directionhud.common.utils.Helper.Enums;
-import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.DPlayer;
 import one.oth3r.directionhud.utils.Utl;
 import one.oth3r.directionhud.common.Destination.Setting.*;
 import one.oth3r.directionhud.utils.CTxT;
@@ -18,7 +18,6 @@ import one.oth3r.otterlib.chat.click.ClickAction;
 import one.oth3r.otterlib.chat.click.ClickActions;
 import one.oth3r.otterlib.chat.hover.HoverAction;
 
-import java.awt.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -98,7 +97,7 @@ public class Destination {
     }
     public static class commandExecutor {
 
-        public static void logic(Player player, String[] args) {
+        public static void logic(DPlayer player, String[] args) {
             if (!Helper.checkEnabled(player).destination()) return;
             if (args.length == 0) {
                 UI(player);
@@ -124,7 +123,7 @@ public class Destination {
 
     }
     public static class commandSuggester {
-        public static ArrayList<String> logic(Player player, int pos, String[] args) {
+        public static ArrayList<String> logic(DPlayer player, int pos, String[] args) {
             ArrayList<String> suggester = new ArrayList<>();
             if (!Helper.checkEnabled(player).destination()) return suggester;
             if (pos == 1) {
@@ -175,7 +174,7 @@ public class Destination {
                     .hover(HoverAction.of(new CTxT(Assets.cmdUsage.destSet).color(Assets.mainColors.set)
                             .append("\n").append(LANG.hover("set_self"))));
         }
-        public static CTxT CLEAR_BUTTON(Player player) {
+        public static CTxT CLEAR_BUTTON(DPlayer player) {
             boolean o = Destination.dest.get(player).hasXYZ();
             String clearColor = o ? DColors.DELETE : DColors.DISABLED;
             return new CTxT(Assets.symbols.x).wrapper().color(clearColor)
@@ -183,14 +182,14 @@ public class Destination {
                     .hover(HoverAction.of(new CTxT(Assets.cmdUsage.destClear).color(clearColor)
                             .append("\n").append(LANG.hover("clear"))));
         }
-        public static Dest get(Player player) {
+        public static Dest get(DPlayer player) {
             // get from cache because called in a loop
             Dest dest = player.getPCache().getDEST().getDestination();
             if (!dest.hasXYZ()) return new Dest();
             if (player.getPCache().getDEST().getDestSettings().getYlevel()) dest.setY(player.getVec().getBlockY());
             return new Dest(dest);
         }
-        public static boolean inAutoClearRadius(Player player, Loc loc) {
+        public static boolean inAutoClearRadius(DPlayer player, Loc loc) {
             if ((boolean) player.getPData().getDEST().getSetting(Setting.autoclear))
                 return player.getVec().distanceTo(loc.getVec(player)) <= (int) player.getPData().getDEST().getSetting(Setting.autoclear_rad);
             else return false;
@@ -200,7 +199,7 @@ public class Destination {
          * gets the distance to the destination. <br>
          * @return the distance, -1 if there's no destination set
          */
-        public static int getDist(Player player) {
+        public static int getDist(DPlayer player) {
             Dest dest = get(player);
 
             if (!dest.hasXYZ()) return -1;
@@ -210,7 +209,7 @@ public class Destination {
         /**
          * clears the destination without notifying the player
          */
-        public static void clear(Player player) {
+        public static void clear(DPlayer player) {
             player.getPData().getDEST().setDest(new Dest());
         }
         /**
@@ -220,7 +219,7 @@ public class Destination {
          *               2 = reaching the destination
          *               3 = switching dimensions
          */
-        public static void clear(Player player, int reason) {
+        public static void clear(DPlayer player, int reason) {
             // if the destination was already cleared
             if (!get(player).hasXYZ()) {
                 player.sendMessage(LANG.err("cleared"));
@@ -246,7 +245,7 @@ public class Destination {
         /**
          * sets the destination without notifying the player, still checks for autoclear instantly clearing or not
          */
-        public static void set(Player player, Dest loc) {
+        public static void set(DPlayer player, Dest loc) {
             if (!inAutoClearRadius(player, loc)) {
                 player.getPData().getDEST().setDest(loc);
             }
@@ -255,7 +254,7 @@ public class Destination {
          * generates the set message for the player
          * @param setLoc the text for the location set
          */
-        public static void setMSG(Player player, CTxT setLoc) {
+        public static void setMSG(DPlayer player, CTxT setLoc) {
             player.sendMessage(CUtl.tag().append(LANG.msg("set",setLoc)).append("\n ")
                     .append(LANG.msg("set.info",
                             CUtl.toggleTxT((boolean) player.getPData().getDEST().getSetting(Setting.autoclear)),
@@ -266,7 +265,7 @@ public class Destination {
          * @param dest the location to set
          * @param convert to convert to the players dimension or not
          */
-        public static void playerSet(Player player, Dest dest, boolean convert) {
+        public static void playerSet(DPlayer player, Dest dest, boolean convert) {
             // handle bad data
             if (!dest.hasXYZ()) {
                 player.sendMessage(CUtl.error("coordinates"));
@@ -300,7 +299,7 @@ public class Destination {
          * @param name the name of the destination to get
          * @param convert to convert to the players destination or not
          */
-        public static void setSaved(Player player, String name, boolean global, boolean convert) {
+        public static void setSaved(DPlayer player, String name, boolean global, boolean convert) {
             saved.DestEntry destination = new saved.DestEntry(player,name,global);
             // handle bad data
             if (!destination.hasDestRequirements()) {
@@ -355,7 +354,7 @@ public class Destination {
          * @param args the destination args ONLY (trim out excess beforehand)
          * @return the destination from the args
          */
-        public static Dest getDestArgs(Player player, String[] args, boolean reqName) {
+        public static Dest getDestArgs(DPlayer player, String[] args, boolean reqName) {
             // <xyz or xy> (dimension) (color)
             // (name) <xyz or xy> (dimension) (color)
 
@@ -464,11 +463,11 @@ public class Destination {
         }
 
         /**
-         * returns a suggester for a destination at the pos (for turning into a destination with {@link dest#getDestArgs(Player, String[], boolean)})
+         * returns a suggester for a destination at the pos (for turning into a destination with {@link dest#getDestArgs(DPlayer, String[], boolean)})
          * @param pos trimmed pos starting at the destination
          * @param args trimmed args starting at the destination
          */
-        public static ArrayList<String> destSuggester(Player player, int pos, String[] args, boolean reqName) {
+        public static ArrayList<String> destSuggester(DPlayer player, int pos, String[] args, boolean reqName) {
             String current = Suggester.getCurrent(args,pos);
             ArrayList<String> suggester = new ArrayList<>();
 
@@ -574,7 +573,7 @@ public class Destination {
         }
 
         // SUGGESTERS AND EXECUTORS
-        public static void setCMDExecutor(Player player, String[] args) {
+        public static void setCMDExecutor(DPlayer player, String[] args) {
             if (args.length < 1) {
                 player.sendMessage(CUtl.usage(Assets.cmdUsage.destSet));
                 return;
@@ -590,7 +589,7 @@ public class Destination {
             // set the destination
             playerSet(player, getDestArgs(player, destArgs, false), convert);
         }
-        public static ArrayList<String> setCMDSuggester(Player player, int pos, String[] args) {
+        public static ArrayList<String> setCMDSuggester(DPlayer player, int pos, String[] args) {
             // use the dest Suggester
             ArrayList<String> suggester = new ArrayList<>(destSuggester(player, pos, args, false));
 
@@ -631,7 +630,7 @@ public class Destination {
         /*
         all command executors and suggesters for SAVED
          */
-        public static void CMDExecutor(Player player, String[] args) {
+        public static void CMDExecutor(DPlayer player, String[] args) {
             // make sure saving is enabled
             if (!Helper.checkEnabled(player).saving()) return;
             // UI
@@ -674,7 +673,7 @@ public class Destination {
                 default -> player.sendMessage(CUtl.usage(Assets.cmdUsage.destSaved));
             }
         }
-        public static ArrayList<String> CMDSuggester(Player player, int pos, String[] args) {
+        public static ArrayList<String> CMDSuggester(DPlayer player, int pos, String[] args) {
             ArrayList<String> suggester = new ArrayList<>();
             if (!Helper.checkEnabled(player).saving()) return suggester;
             // saved add
@@ -702,7 +701,7 @@ public class Destination {
                     if (pos == 1) suggester.addAll(getCMDNames(getList(player)));
                     // saved send name (player)
                     if (pos == 2) {
-                        for (Player s : Utl.getPlayers()) {
+                        for (DPlayer s : Utl.getPlayers()) {
                             if (s.equals(player)) continue;
                             suggester.add(s.getName());
                         }
@@ -714,7 +713,7 @@ public class Destination {
             return suggester;
         }
 
-        public static void globalCMDExecutor(Player player, String[] args) {
+        public static void globalCMDExecutor(DPlayer player, String[] args) {
             if (!Helper.checkEnabled(player).global()) return;
 
             // ui
@@ -754,7 +753,7 @@ public class Destination {
                 default -> player.sendMessage(CUtl.usage(Assets.cmdUsage.destGlobalPerms));
             }
         }
-        public static ArrayList<String> globalCMDSuggester(Player player, int pos, String[] args) {
+        public static ArrayList<String> globalCMDSuggester(DPlayer player, int pos, String[] args) {
             ArrayList<String> suggester = new ArrayList<>();
 
             if (pos == 0) {
@@ -789,7 +788,7 @@ public class Destination {
             return suggester;
         }
 
-        public static void editCMDExecutor(Player player, String[] args, boolean global, boolean Return) {
+        public static void editCMDExecutor(DPlayer player, String[] args, boolean global, boolean Return) {
             if (args.length == 0) return;
             // edit (name)
             if (args.length == 1) {
@@ -839,7 +838,7 @@ public class Destination {
                 }
             }
         }
-        public static ArrayList<String> editCMDSuggester(Player player, boolean global, int pos, String[] args) {
+        public static ArrayList<String> editCMDSuggester(DPlayer player, boolean global, int pos, String[] args) {
             String current = Suggester.getCurrent(args,pos);
             ArrayList<String> suggester = new ArrayList<>();
             // saved edit (type)
@@ -881,7 +880,7 @@ public class Destination {
             return suggester;
         }
 
-        public static void addCMDExecutor(Player player, String[] args, boolean global) {
+        public static void addCMDExecutor(DPlayer player, String[] args, boolean global) {
             if (!Helper.checkEnabled(player).saving() && !Helper.checkEnabled(player).globalEditing()) {
                 return;
             }
@@ -893,7 +892,7 @@ public class Destination {
 
             add(player,new DestEntry(player,dest.getDestArgs(player,args,true),global));
         }
-        public static ArrayList<String> addCMDSuggester(Player player, int pos, String[] args) {
+        public static ArrayList<String> addCMDSuggester(DPlayer player, int pos, String[] args) {
             if (!Helper.checkEnabled(player).saving() && !Helper.checkEnabled(player).globalEditing()) {
                 return new ArrayList<>();
             }
@@ -906,7 +905,7 @@ public class Destination {
         public static class DestEntry extends Dest {
             // dest helper
             private transient final ArrayList<Dest> list;
-            private transient final Player player;
+            private transient final DPlayer player;
             private transient Integer index;
             // figure out what type of destination it is on creation
             public transient final boolean global;
@@ -916,7 +915,7 @@ public class Destination {
              * @param dest the destination
              * @param global weather it's a global destination or not
              */
-            public DestEntry(Player player, Dest dest, boolean global) {
+            public DestEntry(DPlayer player, Dest dest, boolean global) {
                 super(dest);
                 // global dest list handling
                 this.global = global;
@@ -930,7 +929,7 @@ public class Destination {
              * @param name name of the dest
              * @param global weather it's a global destination or not
              */
-            public DestEntry(Player player, String name, boolean global) {
+            public DestEntry(DPlayer player, String name, boolean global) {
                 super();
                 // global dest list handling
                 this.global = global;
@@ -949,7 +948,7 @@ public class Destination {
             /**
              * get the dest list depending on the global state
              */
-            private static ArrayList<Dest> getListType(Player player, boolean global) {
+            private static ArrayList<Dest> getListType(DPlayer player, boolean global) {
                 return global ? FileData.getGlobal().getDestinations() : saved.getList(player);
             }
 
@@ -1076,7 +1075,7 @@ public class Destination {
         /**
          * gets the player destination list
          */
-        public static ArrayList<Dest> getList(Player player) {
+        public static ArrayList<Dest> getList(DPlayer player) {
             return player.getPData().getDEST().getSaved();
         }
 
@@ -1101,7 +1100,7 @@ public class Destination {
          * saves a new destination
          * @param destination the destination to save
          */
-        public static void add(Player player, DestEntry destination) {
+        public static void add(DPlayer player, DestEntry destination) {
             // format the color
             destination.setColor(CUtl.color.colorHandler(player,destination.getColor()));
             // if errors were sent (invalid), return
@@ -1135,7 +1134,7 @@ public class Destination {
          * @param Return to return back to the saved UI or not
          * @param destination the destination to remove
          */
-        public static void delete(boolean Return, Player player, DestEntry destination) {
+        public static void delete(boolean Return, DPlayer player, DestEntry destination) {
             ListPage<Dest> listPage = new ListPage<>(destination.getList(),PER_PAGE);
             // if errors were sent (invalid), return
             if (destination.sendErrors()) return;
@@ -1153,7 +1152,7 @@ public class Destination {
          * @param destination destination to edit
          * @param newName the new name for the destination
          */
-        public static void editName(boolean Return, Player player, DestEntry destination, String newName) {
+        public static void editName(boolean Return, DPlayer player, DestEntry destination, String newName) {
             // if errors were sent (invalid), return
             if (destination.sendErrors()) return;
             // if there's already a destination with the new name
@@ -1180,7 +1179,7 @@ public class Destination {
          * @param destination destination to edit
          * @param newOrderString the new order for the destination (as a string)
          */
-        public static void editOrder(boolean Return, Player player, DestEntry destination, String newOrderString) {
+        public static void editOrder(boolean Return, DPlayer player, DestEntry destination, String newOrderString) {
             // if errors were sent (invalid), return
             if (destination.sendErrors()) return;
             // make sure the new order is a number
@@ -1203,7 +1202,7 @@ public class Destination {
          * @param destination destination to edit
          * @param newLoc the new Loc for the destination
          */
-        public static void editLocation(boolean Return, Player player, DestEntry destination, Loc newLoc) {
+        public static void editLocation(boolean Return, DPlayer player, DestEntry destination, Loc newLoc) {
             // if errors were sent (invalid), return
             if (destination.sendErrors()) return;
 
@@ -1233,7 +1232,7 @@ public class Destination {
          * @param newColor the color to set to
          * @param Return whether to return to the UI or not
          */
-        public static void setColor(Player player, DestEntry destination, String UISettings, String newColor, boolean Return) {
+        public static void setColor(DPlayer player, DestEntry destination, String UISettings, String newColor, boolean Return) {
             // if errors were sent (invalid), return
             if (destination.sendErrors()) return;
             // handle color
@@ -1254,7 +1253,7 @@ public class Destination {
          * @param UISettings the color UI settings
          * @param name the name of the destination to edit
          */
-        public static void colorUI(Player player, String UISettings, String name) {
+        public static void colorUI(DPlayer player, String UISettings, String name) {
             DestEntry destination = new DestEntry(player,name,false);
             // if errors were sent (invalid), return
             if (destination.sendErrors()) return;
@@ -1275,7 +1274,7 @@ public class Destination {
          * UI for editing / viewing a destination
          * @param destination the destination to edit
          */
-        public static void editUI(Player player, DestEntry destination) {
+        public static void editUI(DPlayer player, DestEntry destination) {
             // if errors were sent (invalid), return
             if (destination.sendErrors()) return;
             ListPage<Dest> listPage = new ListPage<>(new ArrayList<>(destination.getList()),PER_PAGE);
@@ -1329,7 +1328,7 @@ public class Destination {
          * main saved destination UI
          * @param pg page to show
          */
-        public static void UI(Player player, int pg) {
+        public static void UI(DPlayer player, int pg) {
             ListPage<Dest> listPage = new ListPage<>(new ArrayList<>(getList(player)),PER_PAGE);
             // build the message
             CTxT msg = new CTxT(" "), line = new CTxT("\n                                             ").strikethrough(true);
@@ -1372,7 +1371,7 @@ public class Destination {
          * global destinations UI
          * @param pg page to show
          */
-        public static void globalUI(Player player, int pg) {
+        public static void globalUI(DPlayer player, int pg) {
             ListPage<Dest> listPage = new ListPage<>(new ArrayList<>(FileData.getGlobal().getDestinations()), PER_PAGE);
             // build the message
             CTxT msg = new CTxT(" "), line = new CTxT("\n                                             ").strikethrough(true);
@@ -1415,7 +1414,7 @@ public class Destination {
                 .click(ClickAction.of(ClickActions.RUN_COMMAND,"/dest lastdeath"))
                 .hover(HoverAction.of(new CTxT(Assets.cmdUsage.destLastdeath).color(Assets.mainColors.lastdeath).append("\n").append(LANG.hover())));
 
-        public static void CMDExecutor(Player player, String[] args) {
+        public static void CMDExecutor(DPlayer player, String[] args) {
             if (!Helper.checkEnabled(player).lastdeath()) return;
             if (args.length == 0) {
                 UI(player,1);
@@ -1432,7 +1431,7 @@ public class Destination {
          * adds another location to the death list
          * @param loc Loc to add
          */
-        public static void add(Player player, Loc loc) {
+        public static void add(DPlayer player, Loc loc) {
             ArrayList<Loc> deaths = (ArrayList<Loc>) player.getPData().getDEST().getLastdeath();
             if (Dimension.checkValid(loc.getDimension())) {
                 //add to the top of the list
@@ -1447,7 +1446,7 @@ public class Destination {
          * the LastDeath UI
          * @param pg pg to display
          */
-        public static void UI(Player player,int pg) {
+        public static void UI(DPlayer player, int pg) {
             Helper.ListPage<Loc> listPage = new Helper.ListPage<>((ArrayList<Loc>)player.getPData().getDEST().getLastdeath(),PER_PAGE);
             CTxT msg = new CTxT(""), line = new CTxT("\n                                   ").strikethrough(true);
             msg.append(" ").append(LANG.ui().color(Assets.mainColors.lastdeath)).append(line).append("\n ");
@@ -1477,7 +1476,7 @@ public class Destination {
          * returns if there is a social cooldown for the player or not, and if there is send an error message
          * @return if there is a social cooldown or not
          */
-        public static boolean cooldown(Player player) {
+        public static boolean cooldown(DPlayer player) {
             if (player.getPCache().getSocialCooldown() != null) {
                 player.sendMessage(CUtl.LANG.err("social.cooldown"));
                 return true;
@@ -1493,7 +1492,7 @@ public class Destination {
                     .click(ClickAction.of(ClickActions.SUGGEST_COMMAND,"/dest send "))
                     .hover(HoverAction.of(new CTxT(Assets.cmdUsage.destSend).color(Assets.mainColors.send).append("\n").append(LANG.hover())));
 
-            public static void CMDExecutor(Player player, String[] args) {
+            public static void CMDExecutor(DPlayer player, String[] args) {
                 // enabled check
                 if (!Helper.checkEnabled(player).send()) return;
                 // send <IGN>
@@ -1528,7 +1527,7 @@ public class Destination {
                 logic(player, args[0], dest.getDestArgs(player,destArgs,false));
             }
 
-            public static ArrayList<String> CMDSuggester(Player player, int pos, String[] args) {
+            public static ArrayList<String> CMDSuggester(DPlayer player, int pos, String[] args) {
                 ArrayList<String> suggester = new ArrayList<>();
                 // enabled check
                 if (!Helper.checkEnabled(player).send()) return suggester;
@@ -1553,9 +1552,9 @@ public class Destination {
              * @param targetPlayer the player string receiving the Loc
              * @param dest Loc to send
              */
-            public static void logic(Player player, String targetPlayer, Dest dest) {
+            public static void logic(DPlayer player, String targetPlayer, Dest dest) {
                 // get the target player from string
-                Player target = new Player(targetPlayer);
+                DPlayer target = new DPlayer(targetPlayer);
                 // remove bad data
                 // cooldown check
                 if (cooldown(player)) return;
@@ -1607,7 +1606,7 @@ public class Destination {
              * @param dest the Loc to display
              * @return the CTxT built
              */
-            public static CTxT getSendTxt(Player player, Dest dest) {
+            public static CTxT getSendTxt(DPlayer player, Dest dest) {
                 CTxT txt = new CTxT("").append(dest.getBadge()).append(" ");
                 // if color is null, empty string
                 String colorCMD = dest.getColor() == null ? "" : "\""+dest.getColor()+"\"";
@@ -1640,7 +1639,7 @@ public class Destination {
                                 .hover(HoverAction.of(new CTxT(Assets.cmdUsage.destTrackClear).color(color).append("\n").append(LANG.hover("clear")))));
             }
 
-            public static void CMDExecutor(Player player, String[] args) {
+            public static void CMDExecutor(DPlayer player, String[] args) {
                 if (!Helper.checkEnabled(player).track()) return;
                 //dest track
                 if (args.length == 1 && args[0].equalsIgnoreCase("clear")) {
@@ -1661,7 +1660,7 @@ public class Destination {
                     }
                 } else player.sendMessage(CUtl.usage(Assets.cmdUsage.destTrack));
             }
-            public static ArrayList<String> CMDSuggester(Player player, int pos, String[] args) {
+            public static ArrayList<String> CMDSuggester(DPlayer player, int pos, String[] args) {
                 ArrayList<String> suggester = new ArrayList<>();
                 // track (clear*|set|cancel*|accept*|deny*)
                 if (pos == 0) {
@@ -1714,17 +1713,17 @@ public class Destination {
              * returns the current tracking target as a player
              * @return the target
              */
-            public static Player getTarget(Player player) {
+            public static DPlayer getTarget(DPlayer player) {
                 // get from cache, called from loop
                 String track = player.getPCache().getDEST().getTracking();
-                if (track == null) return new Player();
-                return new Player(track);
+                if (track == null) return new DPlayer();
+                return new DPlayer(track);
             }
 
             /**
              * if the player has an entry in the target section (NOT IF ITS VALID OR NOT)
              */
-            public static boolean hasTargetEntry(Player player) {
+            public static boolean hasTargetEntry(DPlayer player) {
                 return player.getPCache().getDEST().getTracking() != null;
             }
 
@@ -1732,7 +1731,7 @@ public class Destination {
              * clear the tracker with a reason
              * @param reason 1 = command clear, 2 = tracking off, 3 = target tracking off
              */
-            public static void clear(Player player, int reason) {
+            public static void clear(DPlayer player, int reason) {
                 // nothing to clear
                 if (!hasTargetEntry(player)) {
                     player.sendMessage(LANG.err("cleared"));
@@ -1753,7 +1752,7 @@ public class Destination {
             /**
              * clears the tracker
              */
-            public static void clear(Player player) {
+            public static void clear(DPlayer player) {
                 // clear everything to do with tracking in the msg data system
                 for (String key: player.getPCache().getMsgKeys())
                     if (key.contains("tracking")) player.getPCache().setMsg(key,0);
@@ -1766,7 +1765,7 @@ public class Destination {
              * @param player the person tracking
              * @param target the target
              */
-            public static void set(Player player, Player target) {
+            public static void set(DPlayer player, DPlayer target) {
                 // if online, use UUID, if not use the target NAME
                 if (FileData.getConfig().getOnline()) player.getPData().getDEST().setTracking(target.getUUID());
                 else player.getPData().getDEST().setTracking(target.getName());
@@ -1782,8 +1781,8 @@ public class Destination {
              * @param player the tracker
              * @param target_string the target (as a string)
              */
-            public static void initialize(Player player, String target_string) {
-                Player target = new Player(target_string);
+            public static void initialize(DPlayer player, String target_string) {
+                DPlayer target = new DPlayer(target_string);
                 // cooldown check
                 if (cooldown(player)) return;
                 // bad data check
@@ -1842,10 +1841,10 @@ public class Destination {
              * @param type the type of processing
              * @param Return if it should return to the inbox or not
              */
-            public static void process(Player player, String tracker, ProcessType type, boolean Return) {
+            public static void process(DPlayer player, String tracker, ProcessType type, boolean Return) {
                 // processing both accepting and denying @ same time because the code is so similar
                 // removing bad data woo
-                Player target = new Player(tracker);
+                DPlayer target = new DPlayer(tracker);
                 // if player in questions is null
                 if (!target.isValid()) {
                     player.sendMessage(CUtl.LANG.err("player",new CTxT(tracker).color(CUtl.s())));
@@ -1900,7 +1899,7 @@ public class Destination {
             /**
              * logic for sending temporary tracking messages to player
              */
-            public static void logic(Player player) {
+            public static void logic(DPlayer player) {
                 // if there isn't an entry in the tracking
                 if (!getTarget(player).isValid()) return;
                 // INFO (null if not sent, not if otherwise)
@@ -1913,7 +1912,7 @@ public class Destination {
                     Destination.social.track.clear(player, 2);
                     return;
                 }
-                Player target = Destination.social.track.getTarget(player);
+                DPlayer target = Destination.social.track.getTarget(player);
                 // clear if tracking oneself, dunno how its possible, but it happened before
                 if (target.equals(player)) {
                     Destination.social.track.clear(player);
@@ -2000,7 +1999,7 @@ public class Destination {
                 .click(ClickAction.of(ClickActions.RUN_COMMAND,"/dest settings"))
                 .hover(HoverAction.of(new CTxT(Assets.cmdUsage.destSettings).color(Assets.mainColors.setting).append("\n")
                         .append(CUtl.LANG.hover("settings",CUtl.LANG.get("destination")))));
-        public static void CMDExecutor(Player player, String[] args) {
+        public static void CMDExecutor(DPlayer player, String[] args) {
             // UI
             if (args.length == 0) {
                 UI(player, null);
@@ -2026,7 +2025,7 @@ public class Destination {
                 if (args.length == 3) colorUI(player,args[2],Setting.get(args[1]));
             }
         }
-        public static ArrayList<String> CMDSuggester(Player player, int pos, String[] args) {
+        public static ArrayList<String> CMDSuggester(DPlayer player, int pos, String[] args) {
             ArrayList<String> suggester = new ArrayList<>();
             // base
             if (pos == 0) {
@@ -2077,7 +2076,7 @@ public class Destination {
          * @param setting setting to reset
          * @param Return to return back to the settings UI
          */
-        public static void reset(Player player, Setting setting, boolean Return) {
+        public static void reset(DPlayer player, Setting setting, boolean Return) {
             // reset all
             if (setting.equals(Setting.none)) {
                 // reset every setting
@@ -2110,7 +2109,7 @@ public class Destination {
          * @param state the new state for the setting
          * @param Return to return back to the settings UI
          */
-        public static void change(Player player, Setting setting, String state, boolean Return) {
+        public static void change(DPlayer player, Setting setting, String state, boolean Return) {
             boolean bool = state.equals("on");
             CTxT setTxT = new CTxT("");
             // custom setter for custom settings
@@ -2158,7 +2157,7 @@ public class Destination {
         /**
          * checks if a setting can be reset by comparing the current state to the config state
          */
-        public static boolean canBeReset(Player player, Setting type) {
+        public static boolean canBeReset(DPlayer player, Setting type) {
             boolean output = false;
             if (type.equals(Setting.none)) return false;
             if (player.getPData().getDEST().getSetting(type) != getConfig(type)) output = true;
@@ -2175,7 +2174,7 @@ public class Destination {
          * @param setting setting for the button
          * @return the CTxT with the button
          */
-        public static CTxT resetBtn(Player player, Setting setting) {
+        public static CTxT resetBtn(DPlayer player, Setting setting) {
             CTxT msg = new CTxT(Assets.symbols.x).wrapper().color(DColors.DISABLED);
             if (canBeReset(player,setting)) {
                 msg.color(DColors.RESET).click(ClickAction.of(ClickActions.RUN_COMMAND, "/dest settings reset-r " + setting))
@@ -2190,7 +2189,7 @@ public class Destination {
          * @param setting the setting for the buttons
          * @return the CTxT with the button
          */
-        public static CTxT getButtons(Player player, Setting setting) {
+        public static CTxT getButtons(DPlayer player, Setting setting) {
             boolean state = (boolean) player.getPData().getDEST().getSetting(setting);
             CTxT button = new CTxT("");
             if (setting.equals(Setting.none)) return button;
@@ -2230,7 +2229,7 @@ public class Destination {
          * @param UISettings the UI settings
          * @param setting the particle color to edit
          */
-        public static void colorUI(Player player, String UISettings, Setting setting) {
+        public static void colorUI(DPlayer player, String UISettings, Setting setting) {
             // return if not a color setting
             if (!Setting.colors().contains(setting)) return;
             String currentColor = (String) player.getPData().getDEST().getSetting(setting);
@@ -2251,7 +2250,7 @@ public class Destination {
          * @param color the color to set to
          * @param Return return to color UI
          */
-        public static void setParticleColor(Player player, String UISettings, Setting type, String color, boolean Return) {
+        public static void setParticleColor(DPlayer player, String UISettings, Setting type, String color, boolean Return) {
             // format color
             color = CUtl.color.colorHandler(player,color,(String)player.getPData().getDEST().getSetting(type));
             player.getPData().getDEST().setSetting(type,color);
@@ -2262,7 +2261,7 @@ public class Destination {
          * the main UI for destination settings
          * @param aboveTxT the TxT to show above the UI
          */
-        public static void UI(Player player, CTxT aboveTxT) {
+        public static void UI(DPlayer player, CTxT aboveTxT) {
             CTxT msg = new CTxT(""), line = new CTxT("\n                                ").strikethrough(true);
             if (aboveTxT != null) msg.append(aboveTxT).append("\n");
             msg.append(" ").append(LANG.ui().color(Assets.mainColors.setting)).append(line).append("\n");
@@ -2359,7 +2358,7 @@ public class Destination {
     /**
      * main chatUI for the destination
      */
-    public static void UI(Player player) {
+    public static void UI(DPlayer player) {
         CTxT msg = new CTxT(" "), line = new CTxT("\n                                  ").strikethrough(true);
         msg.append(LANG.ui("commands").color(Assets.mainColors.dest)).append(line).append("\n ");
         // lmao this is a mess but is it the best way to do it? dunno

@@ -3,7 +3,7 @@ package one.oth3r.directionhud.common.utils;
 import com.google.gson.Gson;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.utils.CTxT;
-import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.DPlayer;
 import one.oth3r.directionhud.common.utils.Helper.Command.Suggester;
 import one.oth3r.otterlib.chat.hover.HoverAction;
 
@@ -32,7 +32,7 @@ public class Dest extends Loc {
         color = dest.color;
     }
 
-    public Dest(Player player, String name, String color) {
+    public Dest(DPlayer player, String name, String color) {
         super(player);
         this.name = name;
         this.color = color;

@@ -8,7 +8,7 @@ import one.oth3r.directionhud.common.utils.*;
 import one.oth3r.directionhud.common.utils.Helper.Enums;
 import one.oth3r.directionhud.common.utils.Helper.*;
 import one.oth3r.directionhud.common.utils.Helper.Command.Suggester;
-import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.DPlayer;
 import one.oth3r.directionhud.utils.Utl;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.otterlib.chat.click.ClickAction;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class DHud {
     public static final Lang LANG = new Lang("dhud.");
 
-    public static void CMDExecutor(Player player, String[] args) {
+    public static void CMDExecutor(DPlayer player, String[] args) {
         if (args.length == 0) {
             UI(player);
             return;
@@ -42,7 +42,7 @@ public class DHud {
             default -> player.sendMessage(CUtl.error("command"));
         }
     }
-    public static ArrayList<String> CMDSuggester(Player player, int pos, String[] args) {
+    public static ArrayList<String> CMDSuggester(DPlayer player, int pos, String[] args) {
         ArrayList<String> suggester = new ArrayList<>();
         if (!Helper.checkEnabled(player).hud()) return suggester;
         if (pos == 1) {
@@ -78,10 +78,10 @@ public class DHud {
      * reloads DirectionHUD
      * @param player null if reloading from the console
      */
-    public static void reload(Player player) {
+    public static void reload(DPlayer player) {
         FileData.loadFiles();
         // fully reload the players
-        for (Player pl: Utl.getPlayers()) {
+        for (DPlayer pl: Utl.getPlayers()) {
             Events.playerSoftLeave(pl);
             Events.playerJoin(pl);
         }
@@ -98,7 +98,7 @@ public class DHud {
                 .click(ClickAction.of(ClickActions.RUN_COMMAND,"/dhud inbox"))
                 .hover(HoverAction.of(new CTxT(Assets.cmdUsage.inbox).color(Assets.mainColors.inbox).append("\n").append(LANG.hover())));
 
-        public static void CMDExecutor(Player player, String[] args) {
+        public static void CMDExecutor(DPlayer player, String[] args) {
             if (!FileData.getConfig().getSocial().getEnabled()) return;
             // UI
             if (args.length <= 1) {
@@ -123,7 +123,7 @@ public class DHud {
         /**
          * counts down all expire clocks in the inbox
          */
-        public static void tick(Player player) {
+        public static void tick(DPlayer player) {
             ArrayList<HashMap<String, String>> inbox = player.getPCache().getInbox();
             // don't process anything if empty
             if (inbox.isEmpty()) return;
@@ -139,7 +139,7 @@ public class DHud {
                     iterator.remove();
                     // send expire messages if pending expired
                     if (entry.get("type").equals(Type.track_pending.name())) {
-                        Player target = new Player(entry.get("player_name"));
+                        DPlayer target = new DPlayer(entry.get("player_name"));
                         if (!target.isValid()) continue;
                         target.sendMessage(CUtl.tag().append(Destination.social.track.LANG.msg("expired.target", player.getHighlightedName())));
                         player.sendMessage(CUtl.tag().append(Destination.social.track.LANG.msg("expired",target.getHighlightedName())));
@@ -153,7 +153,7 @@ public class DHud {
         /**
          * removes all entries to deal with tracking, because tracking entries doesn't save between sessions
          */
-        public static void removeAllTracking(Player player) {
+        public static void removeAllTracking(DPlayer player) {
             // removes all pending and requests from the player and their targets
             ArrayList<HashMap<String, String>> inbox = player.getPCache().getInbox();
             // iterate over the arraylist, as we are editing it, cant use for loop
@@ -166,8 +166,8 @@ public class DHud {
                     Type type = entry.get("type").equals(Type.track_pending.name())?
                             Type.track_request : Type.track_pending;
                     // use name if online mode is off
-                    Player target = new Player(entry.get("player_uuid"));
-                    if (!FileData.getConfig().getOnline()) target = new Player(entry.get("player_name"));
+                    DPlayer target = new DPlayer(entry.get("player_uuid"));
+                    if (!FileData.getConfig().getOnline()) target = new DPlayer(entry.get("player_name"));
                     if (target.isValid()) {
                         // search for the opposite type of the player and the id to match it in target inbox and remove
                         removeEntry(target, DHud.inbox.search(target, type,"id",entry.get("id")));
@@ -186,7 +186,7 @@ public class DHud {
          * @param value the value to match
          * @return the first entry that contains the key and value
          */
-        public static HashMap<String, String> search(Player player, Type type, String key, String value) {
+        public static HashMap<String, String> search(DPlayer player, Type type, String key, String value) {
             ArrayList<HashMap<String, String>> inbox = player.getPCache().getInbox();
             for (HashMap<String, String> entry: inbox) {
                 // if the type isn't null, and it doesn't match, continue to the next entry
@@ -201,7 +201,7 @@ public class DHud {
          * @param type the type of entry to search for
          * @return null if none found, the list of entries if there are any
          */
-        public static ArrayList<HashMap<String, String>> getAllType(Player player, Type type) {
+        public static ArrayList<HashMap<String, String>> getAllType(DPlayer player, Type type) {
             ArrayList<HashMap<String, String>> inbox = player.getPCache().getInbox();
             ArrayList<HashMap<String, String>> matches = new ArrayList<>();
             for (HashMap<String, String> entry: inbox)
@@ -216,7 +216,7 @@ public class DHud {
          * @param from the player that is sending the tracking request
          * @param time the amount of time that the entry is going to last
          */
-        public static void addTracking(Player target, Player from, int time) {
+        public static void addTracking(DPlayer target, DPlayer from, int time) {
             String ID = Helper.createID();
             // create the track request for the target
             ArrayList<HashMap<String, String>> inbox = target.getPCache().getInbox();
@@ -247,7 +247,7 @@ public class DHud {
          * @param time how long the entry should last
          * @param dest the destination location
          */
-        public static void addDest(Player target, Player from, int time, Dest dest) {
+        public static void addDest(DPlayer target, DPlayer from, int time, Dest dest) {
             if (!dest.hasXYZ() || dest.getDimension() == null) return;
 
             ArrayList<HashMap<String, String>> inbox = target.getPCache().getInbox();
@@ -266,7 +266,7 @@ public class DHud {
          * removes the entry provided
          * @param entry the entry to remove
          */
-        public static void removeEntry(Player player, HashMap<String, String> entry) {
+        public static void removeEntry(DPlayer player, HashMap<String, String> entry) {
             if (entry == null) return;
             ArrayList<HashMap<String, String>> inbox = player.getPCache().getInbox();
             inbox.remove(entry);
@@ -278,7 +278,7 @@ public class DHud {
          * @param ID the id of the entry to remove
          * @param playerBased if requested by the player, to send a message and return or not
          */
-        public static void delete(Player player, String ID, boolean playerBased) {
+        public static void delete(DPlayer player, String ID, boolean playerBased) {
             Helper.ListPage<HashMap<String, String>> listPage = new Helper.ListPage<>(player.getPCache().getInbox(),PER_PAGE);
             //delete via ID (command)
             HashMap<String, String> entry = search(player,null,"id",ID);
@@ -297,14 +297,14 @@ public class DHud {
          * @param entry entry data
          * @return the TxT created
          */
-        public static CTxT getEntryTxT(Player player, HashMap<String, String> entry) {
+        public static CTxT getEntryTxT(DPlayer player, HashMap<String, String> entry) {
             // get the entry type
             Type type = Enums.get(entry.get("type"),Type.class);
             // get the entry name
             String name = entry.get("player_name");
             // get name from UUID if online mode is on
             if (FileData.getConfig().getOnline()) {
-                Player player_uuid = new Player(entry.get("player_uuid"));
+                DPlayer player_uuid = new DPlayer(entry.get("player_uuid"));
                 if (player_uuid.isValid()) name = player_uuid.getName();
             }
             // make the TxTs that make things easier
@@ -348,7 +348,7 @@ public class DHud {
             return msg;
         }
 
-        public static void UI(Player player, int pg) {
+        public static void UI(DPlayer player, int pg) {
             Helper.ListPage<HashMap<String, String>> listPage = new Helper.ListPage<>(player.getPCache().getInbox(),PER_PAGE);
             CTxT msg = new CTxT(" "), line = new CTxT("\n                                   ").strikethrough(true);
             msg.append(LANG.ui().color(Assets.mainColors.inbox)).append(line).append("\n ");
@@ -376,7 +376,7 @@ public class DHud {
                 .click(ClickAction.of(ClickActions.RUN_COMMAND,"/dhud preset"))
                 .hover(HoverAction.of(new CTxT("/dhud presets").color(Assets.mainColors.presets).append("\n").append(LANG.hover())));
 
-        public static void colorCMDExecutor(Player player, String[] args) {
+        public static void colorCMDExecutor(DPlayer player, String[] args) {
             if (args.length != 5) return;
             // /dhud color (settings) (type) (subtype) (set/preset) (color/page)
             if (Enums.toStringList(Type.values()).contains(args[1])) {
@@ -385,7 +385,7 @@ public class DHud {
                 if (args[3].equals("preset")) UI(player,args[0],type,args[2],args[4]);
             }
         }
-        public static void CMDExecutor(Player player, String[] args) {
+        public static void CMDExecutor(DPlayer player, String[] args) {
             if (!Helper.checkEnabled(player).customPresets()) return;
             if (args.length <= 1) {
                 // preset ui
@@ -418,7 +418,7 @@ public class DHud {
                 if (args[0].equals("color")) custom.setColor(player,"",args[1],args[2],Return);
             }
         }
-        public static ArrayList<String> CMDSuggester(Player player, int pos, String[] args) {
+        public static ArrayList<String> CMDSuggester(DPlayer player, int pos, String[] args) {
             ArrayList<String> suggester = new ArrayList<>();
             if (!Helper.checkEnabled(player).customPresets()) return suggester;
             /*
@@ -469,7 +469,7 @@ public class DHud {
          * @param subtype color subtype
          * @param color the color to set
          */
-        public static void setColor(Player player, String UISettings, Type type, String subtype, String color) {
+        public static void setColor(DPlayer player, String UISettings, Type type, String subtype, String color) {
             // /dhud color (settings) (type) (subtype) set (color)
             switch (type) {
                 case hud -> {
@@ -582,7 +582,7 @@ public class DHud {
          * @param subtype subtype of color
          * @param page the page to display
          */
-        public static void UI(Player player, String UISettings, Type type, String subtype, String page) {
+        public static void UI(DPlayer player, String UISettings, Type type, String subtype, String page) {
             // top button initialization
             String clickCMD = String.format("/dhud color %s %s \"%s\" ",UISettings,type,subtype);
 
@@ -740,7 +740,7 @@ public class DHud {
              * @param pg the page of the custom presets to display
              * @param aboveTxT the TxT to show above the UI
              */
-            public static void UI(Player player, int pg, CTxT aboveTxT) {
+            public static void UI(DPlayer player, int pg, CTxT aboveTxT) {
                 CTxT msg = aboveTxT==null?new CTxT(" "):aboveTxT.append("\n "),
                         line = new CTxT("\n                               ").strikethrough(true);
                 msg.append(LANG.ui("custom").color(Assets.mainColors.presets)).append(line);
@@ -791,7 +791,7 @@ public class DHud {
              * @param name the name of the preset to edit
              * @param aboveTxT the TxT above the UI
              */
-            public static void colorUI(Player player, String UISettings, String name, CTxT aboveTxT) {
+            public static void colorUI(DPlayer player, String UISettings, String name, CTxT aboveTxT) {
                 ArrayList<ColorPreset> presets = player.getPData().getColorPresets();
                 ArrayList<String> names = getNames(presets);
                 if (!names.contains(name)) return;
@@ -814,7 +814,7 @@ public class DHud {
              * @param color the new color to set to
              * @param Return whether to return to the UI or not
              */
-            public static void setColor(Player player, String UISettings, String name, String color, boolean Return) {
+            public static void setColor(DPlayer player, String UISettings, String name, String color, boolean Return) {
                 ArrayList<ColorPreset> presets = player.getPData().getColorPresets();
                 ArrayList<String> names = getNames(presets);
                 // remove the bad data
@@ -837,7 +837,7 @@ public class DHud {
              * saves a new preset
              * @param Return displays the UI or not
              */
-            public static void save(Player player, String name, String color, boolean Return) {
+            public static void save(DPlayer player, String name, String color, boolean Return) {
                 ArrayList<ColorPreset> presets = player.getPData().getColorPresets();
                 // errors
                 if (getNames(presets).contains(name)) {
@@ -869,7 +869,7 @@ public class DHud {
              * renames an existing preset
              * @param Return displays the UI or not
              */
-            public static void rename(Player player, String name, String newName, boolean Return) {
+            public static void rename(DPlayer player, String name, String newName, boolean Return) {
                 ArrayList<ColorPreset> presets = player.getPData().getColorPresets();
                 ArrayList<String> names = getNames(presets);
                 // remove the bad data
@@ -900,7 +900,7 @@ public class DHud {
              * deletes an existing preset
              * @param Return displays the UI or not
              */
-            public static void delete(Player player, String name, boolean Return) {
+            public static void delete(DPlayer player, String name, boolean Return) {
                 ArrayList<ColorPreset> presets = player.getPData().getColorPresets();
                 ArrayList<String> names = getNames(presets);
                 // remove the bad data
@@ -924,7 +924,7 @@ public class DHud {
     /**
      * the main directionHUD UI
      */
-    public static void UI(Player player) {
+    public static void UI(DPlayer player) {
         CTxT msg = new CTxT(" "), line = new CTxT("\n                             ").strikethrough(true);
         msg.append(new CTxT("DirectionHUD").color(CUtl.p())
                         .hover(HoverAction.of(new CTxT(DirectionHUD.getData().getVersion()+Assets.symbols.link).color(CUtl.s())))

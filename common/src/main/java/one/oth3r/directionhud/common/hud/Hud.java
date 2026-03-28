@@ -22,7 +22,7 @@ import one.oth3r.directionhud.common.utils.Helper.Enums;
 import one.oth3r.directionhud.common.utils.Helper.Num;
 import one.oth3r.directionhud.common.utils.Helper.ListPage;
 import one.oth3r.directionhud.utils.CTxT;
-import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.DPlayer;
 import one.oth3r.otterlib.chat.Rainbow;
 import one.oth3r.otterlib.chat.click.ClickAction;
 import one.oth3r.otterlib.chat.click.ClickActions;
@@ -96,7 +96,7 @@ public class Hud {
 
     public static final Lang LANG = new Lang("hud.");
 
-    public static void CMDExecutor(Player player, String[] args) {
+    public static void CMDExecutor(DPlayer player, String[] args) {
         if (!Helper.checkEnabled(player).hud()) return;
         if (args.length == 0) {
             UI(player,null);
@@ -113,7 +113,7 @@ public class Hud {
         }
     }
 
-    public static ArrayList<String> CMDSuggester(Player player, int pos, String[] args) {
+    public static ArrayList<String> CMDSuggester(DPlayer player, int pos, String[] args) {
         ArrayList<String> suggester = new ArrayList<>();
         if (!Helper.checkEnabled(player).hud()) return suggester;
         if (pos == 1) {
@@ -142,7 +142,7 @@ public class Hud {
          * @param instructions instructions for building the HUD
          * @return a CTxT with the fully built HUD
          */
-        public static CTxT compile(Player player, ModuleInstructions instructions) {
+        public static CTxT compile(DPlayer player, ModuleInstructions instructions) {
             // returns a CTxT with the fully built HUD
             player.getPCache().getRainbow(HudColor.PRIMARY).setPosition(LoopManager.rainbowF);
             CTxT msg = new CTxT();
@@ -171,7 +171,7 @@ public class Hud {
          * puts all HUD building instructions into a HashMap
          * @return HUD building instructions
          */
-        public static ModuleInstructions getModuleInstructions(Player player) {
+        public static ModuleInstructions getModuleInstructions(DPlayer player) {
             ModuleInstructions instructions = new ModuleInstructions();
             if (isEnabled(Module.COORDINATES)) instructions.put(Module.COORDINATES, getCoordinatesModule(player));
             if (isEnabled(Module.DESTINATION)) instructions.put(Module.DESTINATION, getDestinationModule(player));
@@ -190,7 +190,7 @@ public class Hud {
             return Boolean.TRUE.equals(FileData.getConfig().getHud().getEnabledModules().get(module));
         }
 
-        public static String getCoordinatesModule(Player player) {
+        public static String getCoordinatesModule(DPlayer player) {
             ModuleCoordinates module = player.getPCache().getHud().getModule(Module.COORDINATES);
             // if the module isn't enabled, return empty
             if (!module.isEnabled()) return "";
@@ -198,7 +198,7 @@ public class Hud {
             return module.getDisplayString(player.getLoc());
         }
 
-        public static String getDestinationModule(Player player) {
+        public static String getDestinationModule(DPlayer player) {
             ModuleDestination module = player.getPCache().getHud().getModule(Module.DESTINATION);
             // if the module isn't enabled, return empty
             if (!module.isEnabled()) return "";
@@ -210,7 +210,7 @@ public class Hud {
             return module.getDisplayString(dest);
         }
 
-        public static String getDistanceModule(Player player) {
+        public static String getDistanceModule(DPlayer player) {
             ModuleDistance module = player.getPCache().getHud().getModule(Module.DISTANCE);
             // if the module isn't enabled, return empty
             if (!module.isEnabled()) return "";
@@ -222,7 +222,7 @@ public class Hud {
             return module.getDisplayString(distance);
         }
 
-        public static String getTrackingModule(Player player) {
+        public static String getTrackingModule(DPlayer player) {
             ModuleTracking module = player.getPCache().getHud().getModule(Module.TRACKING);
             // if the module isn't enabled, return empty
             if (!module.isEnabled()) return "";
@@ -236,7 +236,7 @@ public class Hud {
             // if PLAYER or HYBRID (TRACKING CHECK)
             if (trackingTarget.equals(ModuleTracking.Target.player) || hybrid) {
                 // get the target
-                Player target = Destination.social.track.getTarget(player);
+                DPlayer target = Destination.social.track.getTarget(player);
                 // make sure the player is real
                 if (target.isValid()) {
                     Loc plLoc = new Loc(target);
@@ -269,7 +269,7 @@ public class Hud {
             return module.getDisplayString(rotation, player.getLoc(), pointLoc);
         }
 
-        public static String getDirectionModule(Player player) {
+        public static String getDirectionModule(DPlayer player) {
             ModuleDirection module = player.getPCache().getHud().getModule(Module.DIRECTION);
             // if the module isn't enabled, return empty
             if (!module.isEnabled()) return "";
@@ -279,7 +279,7 @@ public class Hud {
             return module.getDisplayString(rotation);
         }
 
-        public static String getWeatherModule(Player player) {
+        public static String getWeatherModule(DPlayer player) {
             ModuleWeather module = player.getPCache().getHud().getModule(Module.WEATHER);
             Time timeSettings = Dimension.getTimeSettings(player.getDimension());
             Weather weatherSettings = timeSettings.getWeather();
@@ -312,7 +312,7 @@ public class Hud {
             return module.getDisplayString(weatherIcon,extraIcons);
         }
 
-        public static String getTimeModule(Player player) {
+        public static String getTimeModule(DPlayer player) {
             ModuleTime module = player.getPCache().getHud().getModule(Module.TIME);
             Time timeSettings = Dimension.getTimeSettings(player.getDimension());
             // if not enabled, return empty
@@ -327,7 +327,7 @@ public class Hud {
             return module.getDisplayString(hour, minute);
         }
 
-        public static String getAngleModule(Player player) {
+        public static String getAngleModule(DPlayer player) {
             ModuleAngle module = player.getPCache().getHud().getModule(Module.ANGLE);
             // if the module isn't enabled, return empty
             if (!module.isEnabled()) return "";
@@ -336,7 +336,7 @@ public class Hud {
             return module.getDisplayString(player.getYaw(), player.getPitch());
         }
 
-        public static String getSpeedModule(Player player) {
+        public static String getSpeedModule(DPlayer player) {
             ModuleSpeed module = player.getPCache().getHud().getModule(Module.SPEED);
             // if the module isn't enabled, return empty
             if (!module.isEnabled()) return "";
@@ -345,7 +345,7 @@ public class Hud {
             return module.getDisplayString(player.getPCache().getSpeedData().getSpeed());
         }
 
-        public static String getLightModule(Player player) {
+        public static String getLightModule(DPlayer player) {
             ModuleLight module = player.getPCache().getHud().getModule(Module.LIGHT);
             if (!module.isEnabled()) return "";
             int[] lightLevel = player.getLightLevels(module.getSettingValue(ModuleLight.targetID).equals(ModuleLight.Target.eye));
@@ -378,7 +378,7 @@ public class Hud {
          * @param player the player executing the command
          * @param args the command arguments provided by the player
          */
-        public static void CMDExecutor(Player player, String[] args) {
+        public static void CMDExecutor(DPlayer player, String[] args) {
             // UI
             if (args.length == 0) {
                 UI(player, null);
@@ -498,7 +498,7 @@ public class Hud {
                 } else player.sendMessage(CUtl.error("number"));
             }
         }
-        public static ArrayList<String> CMDSuggester(Player player, int pos, String[] args) {
+        public static ArrayList<String> CMDSuggester(DPlayer player, int pos, String[] args) {
             ArrayList<String> suggester = new ArrayList<>();
             // /modules [subcommand]
             if (pos == 0) {
@@ -595,7 +595,7 @@ public class Hud {
         /**
          * generates an example with random data for the given module as a CTxT
          */
-        public static CTxT moduleExample(Player player, Module module) {
+        public static CTxT moduleExample(DPlayer player, Module module) {
             // assets
             BaseModule mod = player.getPCache().getHud().getModule(module);
             Random random = new Random();
@@ -642,7 +642,7 @@ public class Hud {
          * <br>{@link #STATE_GREEN} when on and displaying
          * @return the HEX code of the color
          */
-        public static String stateColor(Player player, Module module) {
+        public static String stateColor(DPlayer player, Module module) {
             // todo make better, maybe by storing the last built module, and seeing if its empty for the module
             // bad data
             if (module.equals(Module.UNKNOWN)) return Assets.mainColors.error;
@@ -688,11 +688,11 @@ public class Hud {
             private static final int PER_PAGE = 6;
             public static final Lang LANG = new Lang("directionhud.hud.module.disabled.");
 
-            public static ListPage<BaseModule> getList(Player player) {
+            public static ListPage<BaseModule> getList(DPlayer player) {
                 return new ListPage<>(ModuleManager.State.getDisabled(player), PER_PAGE);
             }
 
-            public static void UI(Player player, CTxT aboveTxT, int pg) {
+            public static void UI(DPlayer player, CTxT aboveTxT, int pg) {
                 ListPage<BaseModule> listPage = getList(player);
                 CTxT msg = new CTxT(), line = CUtl.makeLine(30);
 
@@ -743,7 +743,7 @@ public class Hud {
              * @param aboveTxT the text to show above the UI
              * @param module the module to edit
              */
-            public static void UI(Player player, CTxT aboveTxT, Module module) {
+            public static void UI(DPlayer player, CTxT aboveTxT, Module module) {
                 // data
                 CTxT msg = new CTxT(), line = CUtl.makeLine(40), back = CUtl.CButton.back("/hud modules");
 
@@ -823,7 +823,7 @@ public class Hud {
             /**
              * creates the preview bar for the module edit UI
              */
-            private static CTxT createPreviewBar(Player player, Module module) {
+            private static CTxT createPreviewBar(DPlayer player, Module module) {
                 CTxT refresh = new CTxT(arrows.repeat).wrapper().color(DColors.REFRESH)
                         .click(ClickAction.of(ClickActions.RUN_COMMAND, "/hud modules edit "+module))
                         .hover(HoverAction.of(LANG.hover("refresh").color(DColors.REFRESH).append("\n")
@@ -838,7 +838,7 @@ public class Hud {
             /**
              * creates the buttons to switch which module to edit
              */
-            private static CTxT createModuleSwitcher(Player player, Module module) {
+            private static CTxT createModuleSwitcher(DPlayer player, Module module) {
                 ArrayList<BaseModule> modules = ModuleManager.State.getEnabled(player);
                 BaseModule mod = player.getPCache().getHud().getModule(module);
                 // the module index starts at 1, so adjust accordingly
@@ -918,7 +918,7 @@ public class Hud {
             /**
              * creates the module order navigation buttons
              */
-            private static CTxT createModuleOrderUI(Player player, Module module) {
+            private static CTxT createModuleOrderUI(DPlayer player, Module module) {
                 // order starts at 1, index starts at 0
                 int currentOrder = player.getPCache().getHud().getModule(module).getOrder(), moduleIndex = currentOrder - 1;
                 boolean leftEnabled = moduleIndex > 0, rightEnabled = moduleIndex < ModuleManager.State.getEnabled(player).size()-1;
@@ -983,7 +983,7 @@ public class Hud {
          * the HUD Modules chat UI
          * @param aboveTxT a messages that displays above the UI
          */
-        public static void UI(Player player, CTxT aboveTxT) {
+        public static void UI(DPlayer player, CTxT aboveTxT) {
             CTxT msg = new CTxT(), line = CUtl.makeLine(25);
 
             // add the text above if available
@@ -1039,7 +1039,7 @@ public class Hud {
                     .hover(HoverAction.of(new CTxT().append(new CTxT(Assets.cmdUsage.hudColor).rainbow(new Rainbow(15f,45f)).b()).append("\n").append(LANG.hover())));
         }
 
-        public static void cmdExecutor(Player player, String[] args) {
+        public static void cmdExecutor(DPlayer player, String[] args) {
             if (args.length == 0) {
                 UI(player, null);
                 return;
@@ -1074,7 +1074,7 @@ public class Hud {
                 else setToggle(player,args.length==4?args[3]:"normal",args[0],ColorToggle.get(args[1]),args[2].equals("on"),Return);
             }
         }
-        public static ArrayList<String> cmdSuggester(Player player, int pos, String[] args) {
+        public static ArrayList<String> cmdSuggester(DPlayer player, int pos, String[] args) {
             ArrayList<String> suggester = new ArrayList<>();
             // color
             if (pos == 0) {
@@ -1117,7 +1117,7 @@ public class Hud {
          * @param typ default HUD color type to get
          * @return the default PlayerData entry for the HUD color type
          */
-        public static PDHud.Color defaultEntry(Player player, int typ) {
+        public static PDHud.Color defaultEntry(DPlayer player, int typ) {
             PDHud.Color color;
             if (typ==1) color = PlayerData.getDefaults().getHud().getPrimary();
             else color = PlayerData.getDefaults().getHud().getSecondary();
@@ -1130,7 +1130,7 @@ public class Hud {
          * @param typ the color typ
          * @return the color pData
          */
-        public static PDHud.Color getEntry(Player player, int typ) {
+        public static PDHud.Color getEntry(DPlayer player, int typ) {
             if (typ==1) return player.getPCache().getHud().getPrimary();
             else return player.getPCache().getHud().getSecondary();
         }
@@ -1139,7 +1139,7 @@ public class Hud {
          * @param typ typ
          * @param entry entry to set
          */
-        public static void setEntry(Player player, int typ, PDHud.Color entry) {
+        public static void setEntry(DPlayer player, int typ, PDHud.Color entry) {
             if (typ==1) player.getPData().getHud().setPrimary(entry);
             else player.getPData().getHud().setSecondary(entry);
         }
@@ -1149,7 +1149,7 @@ public class Hud {
          * @param type the HUD color type
          * @param Return to return back to the color UI or not
          */
-        public static void reset(Player player, String UISettings, String type, boolean Return) {
+        public static void reset(DPlayer player, String UISettings, String type, boolean Return) {
             switch (type) {
                 case "all" -> {
                     player.getPData().getHud().setPrimary(defaultEntry(player,1));
@@ -1174,7 +1174,7 @@ public class Hud {
          * @param color the color to set
          * @param Return to return back to the color UI or not
          */
-        public static void setColor(Player player, String UISettings, String type, String color, boolean Return) {
+        public static void setColor(DPlayer player, String UISettings, String type, String color, boolean Return) {
             int typ = type.equals("primary")?1:2;
             PDHud.Color colorEntry = getEntry(player,typ);
             colorEntry.setColor(CUtl.color.colorHandler(player,color,defaultEntry(player,typ).getColor()));
@@ -1191,7 +1191,7 @@ public class Hud {
          * @param state the state to set the toggle to
          * @param Return to return back to the color UI or not
          */
-        public static void setToggle(Player player, String UISettings, String colorType, ColorToggle colorToggle, boolean state, boolean Return) {
+        public static void setToggle(DPlayer player, String UISettings, String colorType, ColorToggle colorToggle, boolean state, boolean Return) {
             int typ = colorType.equals("primary")?1:2;
             PDHud.Color colorEntry = getEntry(player,typ);
             // edit the correct toggle
@@ -1219,7 +1219,7 @@ public class Hud {
          * @param rainbow the rainbow object to use for when the hud color needs a rainbow object
          * @return returns a {@link CTxT} colored using the player's hud color
          */
-        public static CTxT addColor(Player player, String txt, HudColor color, Rainbow rainbow) {
+        public static CTxT addColor(DPlayer player, String txt, HudColor color, Rainbow rainbow) {
             // get the color settings for the hud color
             PDHud.Color colorSettings = color.getSettings(player);
 
@@ -1229,9 +1229,9 @@ public class Hud {
         }
 
         /**
-         * overflow of {@link #addColor(Player, String, HudColor, Rainbow)} but with a CTxT input instead of a string input
+         * overflow of {@link #addColor(DPlayer, String, HudColor, Rainbow)} but with a CTxT input instead of a string input
          */
-        public static CTxT addColor(Player player, CTxT txt, HudColor color, Rainbow rainbow) {
+        public static CTxT addColor(DPlayer player, CTxT txt, HudColor color, Rainbow rainbow) {
             return addColor(player,txt.toString(),color,rainbow);
         }
 
@@ -1241,7 +1241,7 @@ public class Hud {
          * @param color HUD color
          * @param aboveTxT text that gets placed above the UI
          */
-        public static void changeUI(Player player, String setting, HudColor color, CTxT aboveTxT) {
+        public static void changeUI(DPlayer player, String setting, HudColor color, CTxT aboveTxT) {
             // if invalid
             if (color == null) {
                 player.sendMessage(CUtl.error("args"));
@@ -1284,7 +1284,7 @@ public class Hud {
          * main UI for HUD colors
          * @param aboveTxT text that gets placed above the UI
          */
-        public static void UI(Player player, CTxT aboveTxT) {
+        public static void UI(DPlayer player, CTxT aboveTxT) {
             CTxT msg = new CTxT(), line = new CTxT("\n                                ").strikethrough(true);
             if (aboveTxT != null) msg.append(aboveTxT).append("\n");
             msg.append(" ").append(LANG.ui().rainbow(new Rainbow(15f,45f))).append(line).append("\n ")
@@ -1317,7 +1317,7 @@ public class Hud {
                     .click(ClickAction.of(ClickActions.RUN_COMMAND,"/hud settings"))
                     .hover(HoverAction.of(new CTxT(Assets.cmdUsage.hudSettings).color(Assets.mainColors.setting).append("\n").append(CUtl.LANG.hover("settings",CUtl.LANG.get("hud")))));
         }
-        public static void CMDExecutor(Player player, String[] args) {
+        public static void CMDExecutor(DPlayer player, String[] args) {
             //UI
             if (args.length == 0) {
                 UI(player, null);
@@ -1391,7 +1391,7 @@ public class Hud {
          * @param setting setting to reset
          * @param Return to return back to the settings UI
          */
-        public static void reset(Player player, Setting setting, boolean Return) {
+        public static void reset(DPlayer player, Setting setting, boolean Return) {
             // non resettable settings
             if (setting.equals(Setting.bossbar__distance_max)) return;
             // reset all
@@ -1422,7 +1422,7 @@ public class Hud {
          * @param state the new state for the setting
          * @param Return to return back to the settings UI
          */
-        public static void change(Player player, Setting setting, String state, boolean Return) {
+        public static void change(DPlayer player, Setting setting, String state, boolean Return) {
             boolean bool = state.equals("on");
             CTxT setTxT = new CTxT();
             // ON/OFF simple on off toggle
@@ -1468,7 +1468,7 @@ public class Hud {
         /**
          * checks if a setting can be reset by comparing the current state to the config state
          */
-        public static boolean canBeReset(Player player, Setting setting) {
+        public static boolean canBeReset(DPlayer player, Setting setting) {
             boolean output = false;
             // bossbar max isn't a base, so skip
             if (setting.equals(Setting.none) || setting.equals(Setting.bossbar__distance_max)) return false;
@@ -1484,7 +1484,7 @@ public class Hud {
          * @param setting setting for the button
          * @return the CTxT with the button
          */
-        public static CTxT resetBtn(Player player, Setting setting) {
+        public static CTxT resetBtn(DPlayer player, Setting setting) {
             CTxT msg = new CTxT(Assets.symbols.x).wrapper().color(DColors.DISABLED);
             if (canBeReset(player,setting)) {
                 msg.color(DColors.RESET)
@@ -1501,7 +1501,7 @@ public class Hud {
          * @param setting the setting for the buttons
          * @return the CTxT with the button
          */
-        public static CTxT getButtons(Player player, Setting setting) {
+        public static CTxT getButtons(DPlayer player, Setting setting) {
             // if there's something in module the command 'end's in module, to return to the module command instead of the settings command
             CTxT button = new CTxT();
             if (setting.equals(Setting.state)) {
@@ -1539,7 +1539,7 @@ public class Hud {
          * the settings UI
          * @param aboveTxT the TxT that appears above the UI, can be null
          */
-        public static void UI(Player player, CTxT aboveTxT) {
+        public static void UI(DPlayer player, CTxT aboveTxT) {
             CTxT msg = new CTxT(), line = CUtl.makeLine(30);
             if (aboveTxT != null) msg.append(aboveTxT).append("\n");
             msg.append(" ").append(LANG.ui().color(Assets.mainColors.setting)).append(line).append("\n");
@@ -1596,7 +1596,7 @@ public class Hud {
      * the main UI for the HUD
      * @param aboveTxT TxT that shows up before the UI
      */
-    public static void UI(Player player, CTxT aboveTxT) {
+    public static void UI(DPlayer player, CTxT aboveTxT) {
         CTxT msg = new CTxT(), line = new CTxT("\n                            ").strikethrough(true);
         if (aboveTxT != null) msg.append(aboveTxT).append("\n");
         msg.append(" ").append(LANG.ui("commands").color(CUtl.p())).append(line).append("\n ");
@@ -1610,14 +1610,5 @@ public class Hud {
         msg.append(CUtl.CButton.back("/dhud"));
         msg.append(line);
         player.sendMessage(msg);
-//
-//        player.sendMessage(new CTxT(Assets.cmdUsage.hudSettings).color(Assets.mainColors.setting)
-//                .append("\n")
-//                .append(CUtl.LANG.hover("settings",CUtl.LANG.get("hud"))));
-//
-        CTxT cTxT = CUtl.LANG.hover("settings",CUtl.LANG.get("hud").color(Color.BLUE).underline())
-                .bold().color(Color.YELLOW).wrapper().hover(HoverAction.of(new CTxT("test")));
-        System.out.println(cTxT);
-        player.sendMessage(cTxT);
     }
 }

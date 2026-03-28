@@ -1,4 +1,3 @@
-
 package one.oth3r.directionhud.common.files.playerdata;
 
 import com.google.gson.Gson;

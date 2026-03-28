@@ -1,8 +1,8 @@
 package one.oth3r.directionhud.utils;
 
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.PlayerManager;
-import net.minecraft.server.command.CommandManager;
+import net.minecraft.server.players.PlayerList;
+import net.minecraft.commands.Commands;
 import one.oth3r.directionhud.common.utils.DirectionHudData;
 
 import java.util.ArrayList;
@@ -11,15 +11,15 @@ public class ModData extends DirectionHudData {
     private boolean isSingleplayer;
     private boolean onSupportedServer;
 
-    private PlayerManager playerManager;
+    private PlayerList playerManager;
     private MinecraftServer server;
-    private CommandManager commandManager;
+    private Commands commandManager;
 
     // todo make bossbar manager a common object
     private final BossBarManager bossBarManager = new BossBarManager();
     private final HudClientActionBarOverride actionBarOverride = new HudClientActionBarOverride(40);
     // todo make clientPlayers common
-    private final ArrayList<Player> clientPlayers = new ArrayList<>();
+    private final ArrayList<DPlayer> clientPlayers = new ArrayList<>();
 
     public ModData(boolean isMod, String version, String primary, String secondary) {
         super(isMod, primary, secondary);
@@ -68,15 +68,15 @@ public class ModData extends DirectionHudData {
         return actionBarOverride;
     }
 
-    public ArrayList<Player> getClientPlayers() {
+    public ArrayList<DPlayer> getClientPlayers() {
         return clientPlayers;
     }
 
-    public PlayerManager getPlayerManager() {
+    public PlayerList getPlayerManager() {
         return playerManager;
     }
 
-    public void setPlayerManager(PlayerManager playerManager) {
+    public void setPlayerManager(PlayerList playerManager) {
         this.playerManager = playerManager;
     }
 
@@ -88,11 +88,11 @@ public class ModData extends DirectionHudData {
         this.server = server;
     }
 
-    public CommandManager getCommandManager() {
+    public Commands getCommandManager() {
         return commandManager;
     }
 
-    public void setCommandManager(CommandManager commandManager) {
+    public void setCommandManager(Commands commandManager) {
         this.commandManager = commandManager;
     }
 }

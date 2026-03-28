@@ -1,7 +1,7 @@
 package one.oth3r.directionhud.common.hud;
 
 import one.oth3r.directionhud.common.files.playerdata.PDHud;
-import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.DPlayer;
 
 import java.util.Arrays;
 
@@ -28,7 +28,7 @@ public enum HudColor {
     /**
      * gets a {@link PDHud.Color} from the player's playerdata cache
      */
-    public PDHud.Color getSettings(Player player) {
+    public PDHud.Color getSettings(DPlayer player) {
         return player.getPCache().getHud().getColor(this);
     }
 

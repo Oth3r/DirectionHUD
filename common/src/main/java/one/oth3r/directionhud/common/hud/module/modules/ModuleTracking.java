@@ -1,5 +1,7 @@
 package one.oth3r.directionhud.common.hud.module.modules;
 
+// TODO(Ravel): ambiguous static import, members with name arrows have different new names
+//
 import static one.oth3r.directionhud.common.Assets.symbols.arrows;
 import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.hud.module.BaseModule;

@@ -10,7 +10,7 @@ import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.hud.module.*;
 import one.oth3r.directionhud.common.hud.module.setting.ModuleSettingAdapterFactory;
 import one.oth3r.directionhud.utils.CTxT;
-import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.DPlayer;
 import one.oth3r.directionhud.utils.Utl;
 import one.oth3r.otterlib.chat.click.ClickAction;
 import one.oth3r.otterlib.chat.click.ClickActions;
@@ -246,7 +246,7 @@ public class Helper {
              * @param current current typed string
              * @param type amount of coordinates, 3 xyz, 2 z|yz, 1 z
              */
-            public static ArrayList<String> xyz(Player player, String current, int type) {
+            public static ArrayList<String> xyz(DPlayer player, String current, int type) {
                 // type = 3: all 3, ect
                 ArrayList<String> list = new ArrayList<>();
                 Vec vec = player.getVec();
@@ -269,10 +269,10 @@ public class Helper {
              * suggests player strings excluding the inputted player
              * @param player player to exclude
              */
-            public static ArrayList<String> players(Player player) {
+            public static ArrayList<String> players(DPlayer player) {
 
                 ArrayList<String> list = new ArrayList<>();
-                for (Player entry: Utl.getPlayers())
+                for (DPlayer entry: Utl.getPlayers())
                     if (!entry.equals(player)) list.add(entry.getName());
                 return list;
             }
@@ -296,7 +296,7 @@ public class Helper {
              * suggests a list of colors and player presets
              * @param displayEmpty if the list displays when the current is empty or not
              */
-            public static ArrayList<String> colors(Player player, String current, boolean displayEmpty) {
+            public static ArrayList<String> colors(DPlayer player, String current, boolean displayEmpty) {
                 ArrayList<String> list = new ArrayList<>();
                 ArrayList<String> presets = new ArrayList<>();
                 // add all presets to a list
@@ -426,7 +426,7 @@ public class Helper {
         }
     }
 
-    public static Utl.CheckEnabled checkEnabled(Player player) {
+    public static Utl.CheckEnabled checkEnabled(DPlayer player) {
         return new Utl.CheckEnabled(player);
     }
 

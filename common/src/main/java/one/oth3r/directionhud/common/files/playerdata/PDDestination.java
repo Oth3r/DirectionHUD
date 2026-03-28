@@ -1,4 +1,3 @@
-
 package one.oth3r.directionhud.common.files.playerdata;
 
 import com.google.gson.annotations.SerializedName;
@@ -8,14 +7,14 @@ import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.utils.Dest;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Loc;
-import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.DPlayer;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class PDDestination {
 
-    public void setPlayer(Player player) {
+    public void setPlayer(DPlayer player) {
         this.player = player;
     }
     
@@ -24,7 +23,7 @@ public class PDDestination {
         player.getPData().queueSave();
     }
     
-    private transient Player player;
+    private transient DPlayer player;
 
     @SerializedName("saved")
     private ArrayList<Dest> saved = new ArrayList<>();

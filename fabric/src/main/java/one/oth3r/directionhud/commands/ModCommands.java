@@ -5,14 +5,14 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.level.ServerPlayer;
 import one.oth3r.directionhud.common.DHud;
 import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.hud.Hud;
 import one.oth3r.directionhud.common.utils.Helper;
-import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.DPlayer;
 
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
@@ -38,100 +38,100 @@ public class ModCommands {
      * registers fabric dhud commands
      */
     public static class Register {
-        public static void destination(CommandDispatcher<ServerCommandSource> dispatcher) {
-            dispatcher.register(CommandManager.literal("dest")
+        public static void destination(CommandDispatcher<CommandSourceStack> dispatcher) {
+            dispatcher.register(Commands.literal("dest")
                     .requires((commandSource) -> true)
                     .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.DESTINATION))
-                    .then(CommandManager.argument("args", StringArgumentType.string())
+                    .then(Commands.argument("args", StringArgumentType.string())
                             .suggests((context, builder) -> getSuggestions(context,builder,1, Command.DESTINATION))
                             .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.DESTINATION))
-                            .then(CommandManager.argument("args", StringArgumentType.string())
+                            .then(Commands.argument("args", StringArgumentType.string())
                                     .suggests((context, builder) -> getSuggestions(context,builder,2, Command.DESTINATION))
                                     .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.DESTINATION))
-                                    .then(CommandManager.argument("args", StringArgumentType.string())
+                                    .then(Commands.argument("args", StringArgumentType.string())
                                             .suggests((context, builder) -> getSuggestions(context,builder,3, Command.DESTINATION))
                                             .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.DESTINATION))
-                                            .then(CommandManager.argument("args", StringArgumentType.string())
+                                            .then(Commands.argument("args", StringArgumentType.string())
                                                     .suggests((context, builder) -> getSuggestions(context,builder,4, Command.DESTINATION))
                                                     .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.DESTINATION))
-                                                    .then(CommandManager.argument("args", StringArgumentType.string())
+                                                    .then(Commands.argument("args", StringArgumentType.string())
                                                             .suggests((context, builder) -> getSuggestions(context,builder,5, Command.DESTINATION))
                                                             .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.DESTINATION))
-                                                            .then(CommandManager.argument("args", StringArgumentType.string())
+                                                            .then(Commands.argument("args", StringArgumentType.string())
                                                                     .suggests((context, builder) -> getSuggestions(context,builder,6, Command.DESTINATION))
                                                                     .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.DESTINATION))
-                                                                    .then(CommandManager.argument("args", StringArgumentType.string())
+                                                                    .then(Commands.argument("args", StringArgumentType.string())
                                                                             .suggests((context, builder) -> getSuggestions(context,builder,7, Command.DESTINATION))
                                                                             .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.DESTINATION))
-                                                                            .then(CommandManager.argument("args", StringArgumentType.string())
+                                                                            .then(Commands.argument("args", StringArgumentType.string())
                                                                                     .suggests((context, builder) -> getSuggestions(context,builder,8, Command.DESTINATION))
                                                                                     .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.DESTINATION))
                                                                                     .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.DESTINATION)))))))))));
-            dispatcher.register(CommandManager.literal("destination").redirect(dispatcher.getRoot().getChild("dest"))
+            dispatcher.register(Commands.literal("destination").redirect(dispatcher.getRoot().getChild("dest"))
                     .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.DESTINATION)));
         }
 
-        public static void hud(CommandDispatcher<ServerCommandSource> dispatcher) {
-            dispatcher.register(CommandManager.literal("hud")
+        public static void hud(CommandDispatcher<CommandSourceStack> dispatcher) {
+            dispatcher.register(Commands.literal("hud")
                     .requires((commandSource) -> true)
                     .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.HUD))
-                    .then(CommandManager.argument("args", StringArgumentType.string())
+                    .then(Commands.argument("args", StringArgumentType.string())
                             .suggests((context, builder) -> getSuggestions(context,builder,1, Command.HUD))
                             .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.HUD))
-                            .then(CommandManager.argument("args", StringArgumentType.string())
+                            .then(Commands.argument("args", StringArgumentType.string())
                                     .suggests((context, builder) -> getSuggestions(context,builder,2, Command.HUD))
                                     .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.HUD))
-                                    .then(CommandManager.argument("args", StringArgumentType.string())
+                                    .then(Commands.argument("args", StringArgumentType.string())
                                             .suggests((context, builder) -> getSuggestions(context,builder,3, Command.HUD))
                                             .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.HUD))
-                                            .then(CommandManager.argument("args", StringArgumentType.string())
+                                            .then(Commands.argument("args", StringArgumentType.string())
                                                     .suggests((context, builder) -> getSuggestions(context,builder,4, Command.HUD))
                                                     .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.HUD))
-                                                    .then(CommandManager.argument("args", StringArgumentType.string())
+                                                    .then(Commands.argument("args", StringArgumentType.string())
                                                             .suggests((context, builder) -> getSuggestions(context,builder,5, Command.HUD))
                                                             .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.HUD))
-                                                            .then(CommandManager.argument("args", StringArgumentType.string())
+                                                            .then(Commands.argument("args", StringArgumentType.string())
                                                                     .suggests((context, builder) -> getSuggestions(context,builder,6, Command.HUD))
                                                                     .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.HUD))
-                                                                    .then(CommandManager.argument("args", StringArgumentType.string())
+                                                                    .then(Commands.argument("args", StringArgumentType.string())
                                                                             .suggests((context, builder) -> getSuggestions(context,builder,7, Command.HUD))
                                                                             .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.HUD))
-                                                                            .then(CommandManager.argument("args", StringArgumentType.string())
+                                                                            .then(Commands.argument("args", StringArgumentType.string())
                                                                                     .suggests((context, builder) -> getSuggestions(context,builder,8, Command.HUD))
                                                                                     .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.HUD))
                                                                                     .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.HUD)))))))))));
         }
 
-        public static void directionhud(CommandDispatcher<ServerCommandSource> dispatcher) {
-            dispatcher.register(CommandManager.literal("dhud")
+        public static void directionhud(CommandDispatcher<CommandSourceStack> dispatcher) {
+            dispatcher.register(Commands.literal("dhud")
                     .requires((commandSource) -> true)
                     .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.DIRECTIONHUD))
-                    .then(CommandManager.argument("args", StringArgumentType.string())
+                    .then(Commands.argument("args", StringArgumentType.string())
                             .suggests((context, builder) -> getSuggestions(context,builder,1, Command.DIRECTIONHUD))
                             .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.DIRECTIONHUD))
-                            .then(CommandManager.argument("args", StringArgumentType.string())
+                            .then(Commands.argument("args", StringArgumentType.string())
                                     .suggests((context, builder) -> getSuggestions(context,builder,2, Command.DIRECTIONHUD))
                                     .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.DIRECTIONHUD))
-                                    .then(CommandManager.argument("args", StringArgumentType.string())
+                                    .then(Commands.argument("args", StringArgumentType.string())
                                             .suggests((context, builder) -> getSuggestions(context,builder,3, Command.DIRECTIONHUD))
                                             .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.DIRECTIONHUD))
-                                            .then(CommandManager.argument("args", StringArgumentType.string())
+                                            .then(Commands.argument("args", StringArgumentType.string())
                                                     .suggests((context, builder) -> getSuggestions(context,builder,4, Command.DIRECTIONHUD))
                                                     .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.DIRECTIONHUD))
-                                                    .then(CommandManager.argument("args", StringArgumentType.string())
+                                                    .then(Commands.argument("args", StringArgumentType.string())
                                                             .suggests((context, builder) -> getSuggestions(context,builder,5, Command.DIRECTIONHUD))
                                                             .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.DIRECTIONHUD))
-                                                            .then(CommandManager.argument("args", StringArgumentType.string())
+                                                            .then(Commands.argument("args", StringArgumentType.string())
                                                                     .suggests((context, builder) -> getSuggestions(context,builder,6, Command.DIRECTIONHUD))
                                                                     .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.DIRECTIONHUD))
-                                                                    .then(CommandManager.argument("args", StringArgumentType.string())
+                                                                    .then(Commands.argument("args", StringArgumentType.string())
                                                                             .suggests((context, builder) -> getSuggestions(context,builder,7, Command.DIRECTIONHUD))
                                                                             .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.DIRECTIONHUD))
-                                                                            .then(CommandManager.argument("args", StringArgumentType.string())
+                                                                            .then(Commands.argument("args", StringArgumentType.string())
                                                                                     .suggests((context, builder) -> getSuggestions(context,builder,8, Command.DIRECTIONHUD))
                                                                                     .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.DIRECTIONHUD))
                                                                                     .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.DIRECTIONHUD)))))))))));
-            dispatcher.register(CommandManager.literal("directionhud").redirect(dispatcher.getRoot().getChild("dhud"))
+            dispatcher.register(Commands.literal("directionhud").redirect(dispatcher.getRoot().getChild("dhud"))
                     .executes((context2) -> execute(context2.getSource(), context2.getInput(), Command.DIRECTIONHUD)));
         }
     }
@@ -139,11 +139,11 @@ public class ModCommands {
     /**
      * executes the command
      */
-    private static int execute(ServerCommandSource source, String arg, Command command) {
+    private static int execute(CommandSourceStack source, String arg, Command command) {
         // get the player and make sure they're not null
-        ServerPlayerEntity spe = source.getPlayer();
+        ServerPlayer spe = source.getPlayer();
         if (spe == null) return 1;
-        Player player = new Player(spe);
+        DPlayer player = new DPlayer(spe);
 
         // get the fixed args
         String[] args = Helper.Command.removeTo(arg.split(" "), command.getVariations());
@@ -164,9 +164,9 @@ public class ModCommands {
     /**
      * gets suggestions for a command
      */
-    private static CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder, int pos, Command command) {
+    private static CompletableFuture<Suggestions> getSuggestions(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder, int pos, Command command) {
         // get the executor
-        Player player = new Player(context.getSource().getPlayer());
+        DPlayer player = new DPlayer(context.getSource().getPlayer());
         // get the current command args
         String[] args = context.getInput().split(" ");
         // if the suggestion query is greater than the amount of args in the current command, return empty

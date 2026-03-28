@@ -1,13 +1,13 @@
 package one.oth3r.directionhud.common.hud;
 
-import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.DPlayer;
 import one.oth3r.otterlib.chat.Rainbow;
 
 public class HudRainbow extends Rainbow {
     // todo add linked rainbow support, when not linked switch between 2 rainbows :sob:
-    private final Player player;
+    private final DPlayer player;
 
-    public HudRainbow(Player player) {
+    public HudRainbow(DPlayer player) {
         this.player = player;
     }
 

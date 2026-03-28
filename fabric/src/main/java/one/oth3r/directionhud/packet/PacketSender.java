@@ -2,8 +2,8 @@ package one.oth3r.directionhud.packet;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.server.level.ServerPlayer;
 import one.oth3r.directionhud.common.Assets.packets;
 
 public class PacketSender {
@@ -16,7 +16,7 @@ public class PacketSender {
         this.type = type;
     }
 
-    public void sendToPlayer(ServerPlayerEntity player) {
+    public void sendToPlayer(ServerPlayer player) {
         ServerPlayNetworking.send(player,getPayload());
     }
 
@@ -24,7 +24,7 @@ public class PacketSender {
         ClientPlayNetworking.send(getPayload());
     }
 
-    private CustomPayload getPayload() {
+    private CustomPacketPayload getPayload() {
         return switch (type) {
             case INITIALIZATION -> new Payloads.Initialization(data);
             case HUD -> new Payloads.HUD(data);
