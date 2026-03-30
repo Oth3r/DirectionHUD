@@ -26,7 +26,7 @@ public class ActionBarMixin {
         if (message.getString().isEmpty()) return;
         Minecraft client = Minecraft.getInstance();
         // get the actionbar's click event (otterlib CTxT compiling always has an empty base, so get the first sibling for the encoding)
-        ClickEvent click = message.getSiblings().getFirst().getStyle().getClickEvent();
+        ClickEvent click = message.getSiblings().isEmpty() ? null : message.getSiblings().getFirst().getStyle().getClickEvent();
         // if the click event has the Modrinth link, it's a directionhud actionbar
         if (click == null ||
                 !(click.action().getSerializedName().equals("open_url") && ((ClickEvent.OpenUrl) click).uri().equals(URI.create("https://modrinth.com/mod/directionhud")))) {
