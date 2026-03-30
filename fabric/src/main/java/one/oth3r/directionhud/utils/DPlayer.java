@@ -156,7 +156,7 @@ public class DPlayer extends PlayerTemplate {
 
     @Override
     public int getTimeOfDay() {
-        return (int) player.level().getGameTime() % 24000;
+        return (int) player.level().getOverworldClockTime() % 24000;
     }
 
     @Override
