@@ -3,14 +3,13 @@ package one.oth3r.directionhud.utils;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.particle.DustParticleEffect;
-import net.minecraft.server.PlayerManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.LightType;
-import net.minecraft.world.World;
+import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.server.players.PlayerList;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.Level;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.hud.module.ModuleInstructions;
 import one.oth3r.directionhud.common.utils.*;
@@ -25,9 +24,9 @@ import java.awt.*;
 import java.util.Objects;
 import java.util.UUID;
 
-public class Player extends PlayerTemplate {
-    private final PlayerEntity player;
-    private final ServerPlayerEntity serverPlayer;
+public class DPlayer extends PlayerTemplate {
+    private final net.minecraft.world.entity.player.Player player;
+    private final ServerPlayer serverPlayer;
     private final boolean client;
 
     @Override
@@ -38,7 +37,7 @@ public class Player extends PlayerTemplate {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        Player other = (Player) obj;
+        DPlayer other = (DPlayer) obj;
         return Objects.equals(player, other.player);
     }
 
@@ -47,7 +46,7 @@ public class Player extends PlayerTemplate {
         return Objects.hash(player);
     }
 
-    public Player() {
+    public DPlayer() {
         player = null;
         serverPlayer = null;
         client = false;
@@ -56,22 +55,22 @@ public class Player extends PlayerTemplate {
     /**
      * load a client player entity for client work
      */
-    public Player(PlayerEntity playerEntity, boolean cpl) {
+    public DPlayer(net.minecraft.world.entity.player.Player playerEntity, boolean cpl) {
         player = playerEntity;
         serverPlayer = null;
         client = cpl;
     }
 
-    public Player(ServerPlayerEntity serverPlayerEntity) {
+    public DPlayer(ServerPlayer serverPlayerEntity) {
         player = serverPlayerEntity;
         serverPlayer = serverPlayerEntity;
         client = false;
     }
 
-    public Player(String identifier) {
-        PlayerManager playerManager = DirectionHUD.getData().getServer().getPlayerManager();
+    public DPlayer(String identifier) {
+        PlayerList playerManager = DirectionHUD.getData().getServer().getPlayerList();
         if (identifier.contains("-")) serverPlayer = playerManager.getPlayer(UUID.fromString(identifier));
-        else serverPlayer = playerManager.getPlayer(identifier);
+        else serverPlayer = playerManager.getPlayerByName(identifier);
         player = serverPlayer;
         client = false;
     }
@@ -83,8 +82,8 @@ public class Player extends PlayerTemplate {
 
     public void performCommand(String cmd) {
         try {
-            CommandDispatcher<ServerCommandSource> dispatcher = DirectionHUD.getData().getCommandManager().getDispatcher();
-            ParseResults<ServerCommandSource> parse = dispatcher.parse(cmd, serverPlayer.getCommandSource());
+            CommandDispatcher<CommandSourceStack> dispatcher = DirectionHUD.getData().getCommandManager().getDispatcher();
+            ParseResults<CommandSourceStack> parse = dispatcher.parse(cmd, serverPlayer.createCommandSourceStack());
             dispatcher.execute(parse);
         } catch (CommandSyntaxException e) {
             DirectionHUD.LOGGER.info("ERROR EXECUTING COMMAND - PLEASE REPORT WITH THE ERROR LOG");
@@ -94,12 +93,12 @@ public class Player extends PlayerTemplate {
 
     @Override
     public void sendMessage(CTxT message) {
-        player.sendMessage(message.b(), false);
+        player.sendSystemMessage(message.b());
     }
 
     @Override
     public void sendActionBar(CTxT message) {
-        player.sendMessage(message.b(),true);
+        player.sendOverlayMessage(message.b());
     }
 
     @Override
@@ -141,56 +140,56 @@ public class Player extends PlayerTemplate {
         return player.getName().getString();
     }
 
-    public ServerPlayerEntity getPlayer() {
+    public ServerPlayer getPlayer() {
         return serverPlayer;
     }
 
     @Override
     public String getUUID() {
-        return player.getUuidAsString();
+        return player.getStringUUID();
     }
 
     @Override
     public String getDimension() {
-        return Utl.dim.format(player.getEntityWorld().getRegistryKey());
+        return Utl.dim.format(player.level().dimension());
     }
 
     @Override
     public int getTimeOfDay() {
-        return (int) player.getEntityWorld().getTimeOfDay() % 24000;
+        return (int) player.level().getOverworldClockTime() % 24000;
     }
 
     @Override
     public long getWorldTime() {
-        return player.getEntityWorld().getTime();
+        return player.level().getGameTime();
     }
 
     @Override
     public boolean hasStorm() {
-        return player.getEntityWorld().isRaining();
+        return player.level().isRaining();
     }
 
     @Override
     public boolean hasThunderstorm() {
-        return player.getEntityWorld().isThundering();
+        return player.level().isThundering();
     }
 
     @Override
     public String getSpawnDimension() {
         if (client) return null;
-        ServerPlayerEntity.Respawn respawn = serverPlayer.getRespawn();
-        if (respawn == null) return Utl.dim.format(World.OVERWORLD);
-        return Utl.dim.format(respawn.respawnData().getDimension());
+        ServerPlayer.RespawnConfig respawn = serverPlayer.getRespawnConfig();
+        if (respawn == null) return Utl.dim.format(Level.OVERWORLD);
+        return Utl.dim.format(respawn.respawnData().dimension());
     }
 
     @Override
     public float getYaw() {
-        return player.getYaw();
+        return player.getYRot();
     }
 
     @Override
     public float getPitch() {
-        return player.getPitch();
+        return player.getXRot();
     }
 
     /**
@@ -201,14 +200,14 @@ public class Player extends PlayerTemplate {
      */
     @Override
     public int[] getLightLevels(boolean lookTarget) {
-        BlockPos pos = player.getBlockPos();
+        BlockPos pos = player.blockPosition();
         // try to get the look target if possible
         if (lookTarget) {
             pos = Utl.getSideOfBlockPosPlayerIsLookingAt(serverPlayer, Utl.getPlayerReach(player));
             if (pos == null) return new int[]{-1,-1};
         }
 
-        return new int[]{player.getEntityWorld().getLightLevel(LightType.SKY,pos),player.getEntityWorld().getLightLevel(LightType.BLOCK,pos)};
+        return new int[]{player.level().getBrightness(LightLayer.SKY,pos),player.level().getBrightness(LightLayer.BLOCK,pos)};
     }
 
     /**
@@ -218,8 +217,8 @@ public class Player extends PlayerTemplate {
     public Vec getVec() {
         double adjustment = 1;
         if (player.getVehicle() != null) adjustment += .45;
-        else if (player.isCrawling() || player.isSwimming()) adjustment -= .65;
-        else if (player.isGliding()) adjustment -= 1;
+        else if (player.isVisuallyCrawling() || player.isSwimming()) adjustment -= .65;
+        else if (player.isFallFlying()) adjustment -= 1;
         return new Vec(player.getX(),player.getY()+adjustment,player.getZ());
     }
 
@@ -230,7 +229,7 @@ public class Player extends PlayerTemplate {
     }
 
     /// particles
-    public DustParticleEffect getParticle(ParticleType particleType) {
+    public DustParticleOptions getParticle(ParticleType particleType) {
         String color;
         float scale;
 
@@ -253,12 +252,12 @@ public class Player extends PlayerTemplate {
             }
         }
 
-        return new DustParticleEffect(Color.decode(CUtl.color.format(color)).getRGB(), scale);
+        return new DustParticleOptions(Color.decode(CUtl.color.format(color)).getRGB(), scale);
     }
 
     @Override
     public void spawnParticle(ParticleType particleType, Vec position) {
-        serverPlayer.getEntityWorld().spawnParticles(serverPlayer,getParticle(particleType),
+        serverPlayer.level().sendParticles(serverPlayer,getParticle(particleType),
                 true,true,position.getX(),position.getY(),position.getZ(),1,0,0,0,1);
     }
 }

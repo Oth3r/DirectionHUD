@@ -4,6 +4,7 @@ import com.google.gson.*;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import one.oth3r.directionhud.DirectionHUD;
+import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.DHud;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.dimension.DimensionSettings;
@@ -17,6 +18,7 @@ import one.oth3r.directionhud.common.hud.module.modules.*;
 import one.oth3r.directionhud.common.template.CustomFile;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Helper;
+import one.oth3r.otterlib.registry.LanguageReg;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -458,6 +460,9 @@ public class Config implements CustomFile<Config> {
             // rename lang to have lowercase letters (en_US -> en_us)
             this.lang = this.lang.substring(0,3)+this.lang.substring(3).toLowerCase();
         }
+
+        // update the language file
+        LanguageReg.getLang(Assets.MOD_ID).updateLanguage(this.lang);
     }
 
     /**

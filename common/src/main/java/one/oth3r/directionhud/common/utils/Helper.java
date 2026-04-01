@@ -5,12 +5,16 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import one.oth3r.directionhud.common.DHud;
+import one.oth3r.directionhud.common.assets.DColors;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.hud.module.*;
 import one.oth3r.directionhud.common.hud.module.setting.ModuleSettingAdapterFactory;
 import one.oth3r.directionhud.utils.CTxT;
-import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.DPlayer;
 import one.oth3r.directionhud.utils.Utl;
+import one.oth3r.otterlib.chat.click.ClickAction;
+import one.oth3r.otterlib.chat.click.ClickActions;
+import one.oth3r.otterlib.chat.hover.HoverAction;
 import org.apache.commons.text.similarity.FuzzyScore;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 
@@ -242,7 +246,7 @@ public class Helper {
              * @param current current typed string
              * @param type amount of coordinates, 3 xyz, 2 z|yz, 1 z
              */
-            public static ArrayList<String> xyz(Player player, String current, int type) {
+            public static ArrayList<String> xyz(DPlayer player, String current, int type) {
                 // type = 3: all 3, ect
                 ArrayList<String> list = new ArrayList<>();
                 Vec vec = player.getVec();
@@ -265,10 +269,10 @@ public class Helper {
              * suggests player strings excluding the inputted player
              * @param player player to exclude
              */
-            public static ArrayList<String> players(Player player) {
+            public static ArrayList<String> players(DPlayer player) {
 
                 ArrayList<String> list = new ArrayList<>();
-                for (Player entry: Utl.getPlayers())
+                for (DPlayer entry: Utl.getPlayers())
                     if (!entry.equals(player)) list.add(entry.getName());
                 return list;
             }
@@ -292,7 +296,7 @@ public class Helper {
              * suggests a list of colors and player presets
              * @param displayEmpty if the list displays when the current is empty or not
              */
-            public static ArrayList<String> colors(Player player, String current, boolean displayEmpty) {
+            public static ArrayList<String> colors(DPlayer player, String current, boolean displayEmpty) {
                 ArrayList<String> list = new ArrayList<>();
                 ArrayList<String> presets = new ArrayList<>();
                 // add all presets to a list
@@ -422,7 +426,7 @@ public class Helper {
         }
     }
 
-    public static Utl.CheckEnabled checkEnabled(Player player) {
+    public static Utl.CheckEnabled checkEnabled(DPlayer player) {
         return new Utl.CheckEnabled(player);
     }
 
@@ -525,18 +529,20 @@ public class Helper {
             int max = getTotalPages();
             if (page > max) page = max;
             if (page < 2) page = 1;
-            CTxT left = CTxT.of("");
-            CTxT right = CTxT.of("");
+            CTxT left = new CTxT();
+            CTxT right = new CTxT();
             // if at the start left is gray else not
-            if (page==1) left.append(CTxT.of("<<").btn(true).color('7'));
-            else left.append(CTxT.of("<<").btn(true).color(CUtl.s()).click(1,command+(page-1)));
+            if (page==1) left.append(new CTxT("<<").wrapper().color(DColors.DISABLED));
+            else left.append(new CTxT("<<").wrapper().color(CUtl.s()).click(new ClickAction(ClickActions.RUN_COMMAND,command+(page-1))));
             // if at the end right is gray else not
-            if (page==max) right.append(CTxT.of(">>").btn(true).color('7'));
-            else right.append(CTxT.of(">>").btn(true).color(CUtl.s()).click(1,command+(page+1)));
+            if (page==max) right.append(new CTxT(">>").wrapper().color(DColors.DISABLED));
+            else right.append(new CTxT(">>").wrapper().color(CUtl.s()).click(new ClickAction(ClickActions.RUN_COMMAND,command+(page+1))));
             // build and return
-            return CTxT.of("")
+            return new CTxT()
                     .append(left).append(" ")
-                    .append(CTxT.of(String.valueOf(page)).btn(true).color(CUtl.p()).click(2,command).hover(CUtl.LANG.hover("page_set").color(CUtl.p())))
+                    .append(new CTxT(String.valueOf(page)).wrapper().color(CUtl.p())
+                            .click(new ClickAction(ClickActions.SUGGEST_COMMAND,command))
+                            .hover(HoverAction.of(CUtl.LANG.hover("page_set").color(CUtl.p()))))
                     .append(" ").append(right);
         }
     }

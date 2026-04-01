@@ -1,11 +1,15 @@
 package one.oth3r.directionhud.common.hud.module.setting;
 
+import one.oth3r.directionhud.common.assets.DColors;
 import one.oth3r.directionhud.common.hud.module.Module;
 import one.oth3r.directionhud.common.hud.module.ModuleManager;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Lang;
 import one.oth3r.directionhud.utils.CTxT;
+import one.oth3r.otterlib.chat.click.ClickAction;
+import one.oth3r.otterlib.chat.click.ClickActions;
+import one.oth3r.otterlib.chat.hover.HoverAction;
 
 public class ModuleSettingDisplay {
 
@@ -46,7 +50,7 @@ public class ModuleSettingDisplay {
         String setCMD = "/hud modules setting-r "+module.getName()+" ";
 
         String buttonString = buttonDisplay.getText(value);
-        CTxT buttonTxT, exampleTxT = new CTxT(" - ").append(moduleLang.get(settingID+"."+value).color('7'));
+        CTxT buttonTxT, exampleTxT = new CTxT(" - ").append(moduleLang.get(settingID+"."+value).color(DColors.GRAY));
 
         if (buttonString == null) {
             buttonTxT = moduleLang.get(settingID+"."+value);
@@ -54,7 +58,7 @@ public class ModuleSettingDisplay {
             buttonTxT = new CTxT(buttonString);
         }
         // the color defaults to secondary color even if null
-        buttonTxT.btn(true).color(buttonDisplay.getColor(value));
+        buttonTxT.wrapper().color(buttonDisplay.getColor(value));
 
         // create the start of the hover text
         CTxT hover = moduleLang.get(settingID+".ui").color(CUtl.s());
@@ -62,7 +66,7 @@ public class ModuleSettingDisplay {
         if (showExample) hover.append(exampleTxT);
         // add setting info (custom info if set)
         hover.append("\n")
-                .append(moduleLang.get(settingID+(buttonDisplay.hasCustomInfo()?"."+value:"")+".info").color('7'))
+                .append(moduleLang.get(settingID+(buttonDisplay.hasCustomInfo()?"."+value:"")+".info").color(DColors.DESCRIPTION))
                 .append("\n\n");
 
         switch (settingType) {
@@ -71,7 +75,7 @@ public class ModuleSettingDisplay {
 
                 // if toggle and the button string is null (ON/OFF button text)
                 if (settingType.equals(ModuleSettingType.BOOLEAN_TOGGLE) && buttonString == null) {
-                    buttonTxT.text(CUtl.DLANG.btn(state?"on":"off").color(state?'a':'c')).btn(true);
+                    buttonTxT.text(CUtl.DLANG.btn(state?"on":"off").color(CUtl.toggleColor(state))).wrapper();
                 }
 
                 // if switch get the opposite lang
@@ -82,13 +86,13 @@ public class ModuleSettingDisplay {
                 // if not get the off / on lang and get toggle hover text
                 else {
                     hover.append(LANG.hover("set.toggle",moduleLang.get(settingID),
-                            CUtl.DLANG.get("fill."+(!state?"on":"off")).color(!state?'a':'c')));
+                            CUtl.DLANG.get("fill."+(!state?"on":"off")).color(CUtl.toggleColor(!state))));
                 }
 
                 // build the button TxT
                 buttonTxT
-                        .hover(hover)
-                        .click(1,setCMD+settingID+" "+!state);
+                        .hover(HoverAction.of(hover))
+                        .click(ClickAction.of(ClickActions.RUN_COMMAND,setCMD+settingID+" "+!state));
             }
             case ENUM_SWITCH -> {
                 // should convert no issue
@@ -104,15 +108,15 @@ public class ModuleSettingDisplay {
                         moduleLang.get(settingID+"."+next).color(CUtl.s())));
                 // build the button TxT
                 buttonTxT
-                        .hover(hover)
-                        .click(1,setCMD+settingID+" "+next);
+                        .hover(HoverAction.of(hover))
+                        .click(ClickAction.of(ClickActions.RUN_COMMAND,setCMD+settingID+" "+next));
             }
             case CUSTOM -> {
                 // rebuild the hover text cuz it's custom
                 hover = moduleLang.get(settingID+".ui").color(CUtl.s());
-                if (showExample) hover.append(" - ").append(new CTxT(value).color('7'));
+                if (showExample) hover.append(" - ").append(new CTxT(value).color(DColors.GRAY));
                 hover.append("\n")
-                        .append(moduleLang.get(settingID+".info").color('7'))
+                        .append(moduleLang.get(settingID+".info").color(DColors.DESCRIPTION))
                         .append("\n\n");
                 // set the button text to the value if no buttonString
                 if (buttonString == null) {
@@ -124,8 +128,8 @@ public class ModuleSettingDisplay {
                         moduleLang.get(settingID).color(CUtl.s())));
                 // build the button TxT
                 buttonTxT
-                        .hover(hover)
-                        .click(2,setCMD+settingID+" ");
+                        .hover(HoverAction.of(hover))
+                        .click(ClickAction.of(ClickActions.SUGGEST_COMMAND,setCMD+settingID+" "));
             }
         }
 

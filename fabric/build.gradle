@@ -1,6 +1,6 @@
 plugins {
 	id 'base'
-	id 'fabric-loom' version "${loom_version}"
+	id 'net.fabricmc.fabric-loom' version "${loom_version}"
 	id 'maven-publish'
 	id "me.modmuss50.mod-publish-plugin" version "0.8.4"
 }
@@ -12,6 +12,7 @@ version = project.mod_version
 group = project.maven_group
 
 repositories {
+	mavenLocal()
 	maven {
 		name = "Terraformers"
 		url = "https://maven.terraformersmc.com/"
@@ -23,6 +24,10 @@ repositories {
 	maven {
 		name = "DevAuth"
 		url = "https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1"
+	}
+	maven {
+		name "oth3rMavenSnapshots"
+		url "https://maven.oth3r.one/snapshots"
 	}
 }
 
@@ -40,15 +45,17 @@ sourceSets {
 
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-	modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
+	implementation "com.terraformersmc:modmenu:${project.modmenu_version}"
 
 	include implementation('org.apache.commons:commons-text:1.10.0')
-	modRuntimeOnly "me.djtheredstoner:DevAuth-fabric:${project.devauth_version}"
+	runtimeOnly "me.djtheredstoner:DevAuth-fabric:${project.devauth_version}"
+
+	// otterlib
+	implementation "one.oth3r:otterlib:${project.otterlib_version}-fabric"
 }
 
 processResources {
@@ -59,6 +66,8 @@ processResources {
 			minecraft_version      : minecraft_version,
 			min_minecraft_version  : min_minecraft_version,
 			max_minecraft_version  : max_minecraft_version,
+			otterlib_version       : otterlib_version,
+			otterlib_max_version   : otterlib_max_version,
 			loader_version         : loader_version
 	]
 
@@ -69,8 +78,7 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
-	// Minecraft 1.18 (1.18-pre2) upwards uses Java 17.
-	it.options.release = 17
+	it.options.release = 25
 }
 
 java {
@@ -104,7 +112,7 @@ publishMods {
 	changelog = file('../changelog.md').text
 	type = STABLE
 
-	file = remapJar.archiveFile
+	file = jar.archiveFile
 	modLoaders.add("fabric")
 	modLoaders.add("quilt")
 
@@ -117,7 +125,7 @@ publishMods {
 		projectSlug = "directionhud-fabric"
 		minecraftVersions.addAll(minecraft_versions.split(",").toList())
 
-		requires("fabric-api")
+		requires("fabric-api", "otterlib")
 
 		announcementTitle = "Download from CurseForge"
 	}
@@ -127,7 +135,7 @@ publishMods {
 		projectId = "H8WCXRtb"
 		minecraftVersions.addAll(minecraft_versions.split(",").toList())
 
-		requires("fabric-api")
+		requires("fabric-api", "otterlib")
 
 		announcementTitle = "Download from Modrinth"
 	}

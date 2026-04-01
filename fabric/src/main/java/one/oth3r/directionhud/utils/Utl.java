@@ -1,20 +1,20 @@
 package one.oth3r.directionhud.utils;
 
-import net.minecraft.block.ShapeContext;
-import net.minecraft.command.DefaultPermissions;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.RaycastContext;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.server.permissions.Permissions;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.Level;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
@@ -30,19 +30,19 @@ import java.util.List;
 
 public class Utl {
     public static CTxT getTranslation(String key, Object... args) {
-        return CTxT.of(Text.translatable(key, args));
+        return new CTxT(Component.translatable(key, args));
     }
     public static CTxT getTxTFromObj(Object obj) {
-        CTxT txt = CTxT.of("");
+        CTxT txt = new CTxT();
         if (obj instanceof CTxT) txt.append(((CTxT) obj).b());
-        else if (obj instanceof Text) txt.append((MutableText) obj);
+        else if (obj instanceof Component) txt.append((MutableComponent) obj);
         else txt.append(String.valueOf(obj));
         return txt;
     }
-    public static List<Player> getPlayers() {
-        ArrayList<Player> array = new ArrayList<>();
-        for (ServerPlayerEntity p : DirectionHUD.getData().getServer().getPlayerManager().getPlayerList())
-            array.add(new Player(p));
+    public static List<DPlayer> getPlayers() {
+        ArrayList<DPlayer> array = new ArrayList<>();
+        for (ServerPlayer p : DirectionHUD.getData().getServer().getPlayerList().getPlayers())
+            array.add(new DPlayer(p));
         return array;
     }
 
@@ -52,16 +52,16 @@ public class Utl {
      * @param range the maximum range to check for
      * @return the block pos where a block *would* be placed OR NULL if not found.
      */
-    public static BlockPos getSideOfBlockPosPlayerIsLookingAt(ServerPlayerEntity serverPlayer, double range) {
+    public static BlockPos getSideOfBlockPosPlayerIsLookingAt(ServerPlayer serverPlayer, double range) {
         // pos, adjusted to player eye level
-        Vec3d rayStart = serverPlayer.getEntityPos().add(0, serverPlayer.getEyeHeight(serverPlayer.getPose()), 0);
+        Vec3 rayStart = serverPlayer.position().add(0, serverPlayer.getEyeHeight(serverPlayer.getPose()), 0);
         // extend ray by the range
-        Vec3d rayEnd = rayStart.add(serverPlayer.getRotationVector().multiply(range));
+        Vec3 rayEnd = rayStart.add(serverPlayer.getLookAngle().scale(range));
 
-        BlockHitResult hitResult = serverPlayer.getEntityWorld().raycast(new RaycastContext(rayStart, rayEnd, RaycastContext.ShapeType.OUTLINE, RaycastContext.FluidHandling.NONE, ShapeContext.absent()));
+        BlockHitResult hitResult = serverPlayer.level().clip(new ClipContext(rayStart, rayEnd, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, CollisionContext.empty()));
 
         if (hitResult.getType() == HitResult.Type.BLOCK) {
-            return hitResult.getBlockPos().offset(hitResult.getSide());
+            return hitResult.getBlockPos().relative(hitResult.getDirection());
         }
 
         return null;
@@ -71,40 +71,40 @@ public class Utl {
      * gets the player's block interaction range
      * @param player the player to check
      */
-    public static double getPlayerReach(PlayerEntity player) {
+    public static double getPlayerReach(Player player) {
         // use the BLOCK_INTERACTION_RANGE attribute if available
-        if (player.getAttributeInstance(EntityAttributes.BLOCK_INTERACTION_RANGE) != null) {
-            return player.getAttributeValue(EntityAttributes.BLOCK_INTERACTION_RANGE);
+        if (player.getAttribute(Attributes.BLOCK_INTERACTION_RANGE) != null) {
+            return player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE);
         }
         // fallback to 5
         return 5;
     }
 
     public static class CheckEnabled extends FeatureChecker {
-        public CheckEnabled(Player player) {
+        public CheckEnabled(DPlayer player) {
             super(player);
         }
 
         @Override
         public boolean globalEditing() {
-            return super.globalEditing() && (player.getPlayer().getPermissions().hasPermission(DefaultPermissions.ADMINS) || DirectionHUD.getData().isSingleplayer() ||
+            return super.globalEditing() && (player.getPlayer().permissions().hasPermission(Permissions.COMMANDS_ADMIN) || DirectionHUD.getData().isSingleplayer() ||
                     FileData.getConfig().getDestination().getGlobal().getPublicEditing()); // if public editing is enabled, allow global editing
         }
 
         @Override
         public boolean send() {
-            return super.send() && DirectionHUD.getData().getServer().isRemote();
+            return super.send() && DirectionHUD.getData().getServer().isPublished();
         }
 
         @Override
         public boolean track() {
-            return super.track() && DirectionHUD.getData().getServer().isRemote();
+            return super.track() && DirectionHUD.getData().getServer().isPublished();
         }
 
         @Override
         public boolean reload()
         {
-            return player.getPlayer().getPermissions().hasPermission(DefaultPermissions.ADMINS) || DirectionHUD.getData().isSingleplayer();
+            return player.getPlayer().permissions().hasPermission(Permissions.COMMANDS_ADMIN) || DirectionHUD.getData().isSingleplayer();
         }
     }
 
@@ -125,8 +125,8 @@ public class Utl {
          * @param worldRegistryKey the worldRegistryKey
          * @return the formatted dimension string
          */
-        public static String format(RegistryKey<World> worldRegistryKey) {
-            return worldRegistryKey.getValue().toString();
+        public static String format(ResourceKey<Level> worldRegistryKey) {
+            return worldRegistryKey.identifier().toString();
         }
 
         /**
@@ -147,8 +147,8 @@ public class Utl {
             Random random = new Random();
             if (DirectionHUD.getData().getServer() == null) return;
             //ADD MISSING DIMS TO MAP
-            for (ServerWorld world : DirectionHUD.getData().getServer().getWorlds()) {
-                String currentDIM = format(world.getRegistryKey());
+            for (ServerLevel world : DirectionHUD.getData().getServer().getAllLevels()) {
+                String currentDIM = format(world.dimension());
                 // if already exist, continue
                 if (dimensions.stream()
                         .anyMatch(dimension -> dimension.getId().equals(currentDIM)) ) continue;
@@ -171,9 +171,9 @@ public class Utl {
          * @return formatted dimension string
          */
         @NotNull
-        private static String getFormattedDim(ServerWorld world) {
+        private static String getFormattedDim(ServerLevel world) {
             // get the path of the dimension, removes the "minecraft:"
-            String formatted = world.getRegistryKey().getValue().getPath();
+            String formatted = world.dimension().identifier().getPath();
             // remove all "_" "the_nether" -> "the nether"
             formatted = formatted.replaceAll("_"," ");
             // remove 'the' "the nether" -> "nether"

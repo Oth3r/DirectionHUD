@@ -53,7 +53,7 @@ public class LangReader {
             }
             //if there are placeholders specified, and the split is more than 1, it will replace %(dfs) with the placeholder objects
             if (parts.length > 1) {
-                CTxT txt = CTxT.of("");
+                CTxT txt = new CTxT();
                 int i = 0;
                 for (String match : matches) {
                     int get = i;
@@ -68,10 +68,10 @@ public class LangReader {
                     i++;
                 }
                 if (parts.length != i) txt.append(parts[i]);
-                return CTxT.of(txt);
+                return new CTxT(txt);
             }
         }
-        return CTxT.of(translated);
+        return new CTxT(translated);
     }
 
     public static LangReader of(String translationKey, Object... placeholders) {

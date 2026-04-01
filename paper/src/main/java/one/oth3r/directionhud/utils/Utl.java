@@ -19,7 +19,7 @@ public class Utl {
         return LangReader.of("key.directionhud."+key, args).getTxT();
     }
     public static CTxT getTxTFromObj(Object obj) {
-        CTxT txt = CTxT.of("");
+        CTxT txt = new CTxT();
         if (obj instanceof CTxT) txt.append(((CTxT) obj).b());
         else if (obj instanceof TextComponent) txt.append((TextComponent) obj);
         else txt.append(String.valueOf(obj));

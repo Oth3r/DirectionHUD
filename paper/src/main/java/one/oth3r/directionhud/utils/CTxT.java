@@ -3,14 +3,16 @@ package one.oth3r.directionhud.utils;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.format.TextDecoration;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import one.oth3r.directionhud.common.template.ChatText;
+import one.oth3r.directionhud.common.Assets;
+import one.oth3r.directionhud.common.utils.LangEntry;
+import one.oth3r.otterlib.chat.LoaderText;
+import one.oth3r.otterlib.registry.LanguageReg;
 
-public class CTxT extends ChatText<TextComponent, CTxT> {
+import java.util.ArrayList;
+
+public class CTxT extends LoaderText<CTxT> {
+    protected LangEntry lang = null;
+
     public CTxT() {
         this.text = Component.empty();
     }
@@ -19,29 +21,36 @@ public class CTxT extends ChatText<TextComponent, CTxT> {
         super(main);
     }
 
+    public CTxT(String text) {
+        this.text = Component.text(text);
+    }
+
     public CTxT(TextComponent text) {
         // i think this copies?
         this.text = text.toBuilder().build();
     }
 
-    public CTxT(String text) {
-        this.text = Component.text(text);
+    public CTxT(LangEntry lang) {
+        this.lang = lang;
     }
 
-    public static CTxT of(String of) {
-        return new CTxT(of);
+    public CTxT append(LangEntry append) {
+        return super.append(new CTxT(append));
     }
 
-    public static CTxT of(TextComponent of) {
-        return new CTxT(of);
+    public CTxT translatable(CTxT cTxT) {
+        this.lang = cTxT.lang;
+        return this;
     }
 
-    public static CTxT of(CTxT of) {
-        return new CTxT(of);
+    public CTxT translatable(LangEntry lang) {
+        this.lang = lang;
+        return this;
     }
 
     @Override
     public void copyFromObject(CTxT old) {
+        this.lang = old.lang;
         super.copyFromObject(old);
         this.text = old.text.toBuilder().build();
     }
@@ -51,79 +60,19 @@ public class CTxT extends ChatText<TextComponent, CTxT> {
         return new CTxT(this);
     }
 
-    @Override
-    public CTxT text(String text) {
-        this.text = Component.text(text);
-        return this;
-    }
-
-    public CTxT text(CTxT text) {
-        this.text = text.text.toBuilder().build();
-        return this;
-    }
-
-    public CTxT text(TextComponent text) {
-        this.text = text.toBuilder().build();
-        return this;
-    }
-    
-    @Override
-    public CTxT append(String append) {
-        this.append(new CTxT(append));
-        return this;
-    }
-
-    @Override
-    public CTxT append(TextComponent append) {
-        this.append(new CTxT(append));
-        return this;
-    }
-
-    private ClickEvent getClickEvent() {
-        if (this.clickEvent == null || this.clickEvent.value() == null) return null;
-        return switch (this.clickEvent.key()) {
-            case 1 -> ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, clickEvent.value());
-            case 2 -> ClickEvent.clickEvent(ClickEvent.Action.SUGGEST_COMMAND, clickEvent.value());
-            case 3 -> ClickEvent.clickEvent(ClickEvent.Action.OPEN_URL, clickEvent.value());
-            default -> null;
-        };
-    }
-    private HoverEvent<Component> getHoverEvent() {
-        if (this.hoverEvent == null) return null;
-        return HoverEvent.showText(this.hoverEvent.b());
-    }
-
-    @Override
+    @Override @SuppressWarnings("unchecked")
     public TextComponent b() {
-        TextComponent.Builder output = Component.text();
-        if (this.rainbow.isEnabled()) {
-            //todo the rainbow in the HUD doesnt work for some reason
-            text = this.rainbow.colorize(PlainTextComponentSerializer.plainText().serialize(text), this).b();
-        } else text = text.toBuilder().color(TextColor.fromHexString(this.color)).build();
+        // if lang is not null, use the language registry to get the translated text
+        if (lang != null) {
+            LoaderText<?> langText = LanguageReg.getLang(Assets.MOD_ID).translatable(lang.key(), lang.args());
+            this.text = langText.getText();
+            ArrayList<CTxT> arrayList = (ArrayList<CTxT>) langText.getAppends();
+            arrayList.addAll(this.append);
+            this.append = arrayList;
 
-        text.clickEvent(getClickEvent());
-        text.hoverEvent(getHoverEvent());
-        if (this.italic) text.decorate(TextDecoration.ITALIC);
-        if (this.bold) text.decorate(TextDecoration.BOLD);
-        if (this.strikethrough) text.decorate(TextDecoration.STRIKETHROUGH);
-        if (this.underline) text.decorate(TextDecoration.UNDERLINED);
-
-        if (this.button) output.append(Component.text("["));
-        output.append(text);
-        if (this.button) output.append(Component.text("]"));
-        output.clickEvent(getClickEvent());
-        output.hoverEvent(getHoverEvent());
-        if (this.italic) output.decorate(TextDecoration.ITALIC);
-        if (this.bold) output.decorate(TextDecoration.BOLD);
-        if (this.strikethrough) output.decorate(TextDecoration.STRIKETHROUGH);
-        if (this.underline) output.decorate(TextDecoration.UNDERLINED);
-        for (CTxT txt : this.append) output.append(txt.b());
-        return output.build();
-    }
-
-    @Override
-    public String toString() {
-        return PlainTextComponentSerializer.plainText().serialize(b());
+            this.lang = null; // clear lang to prevent infinite recursion
+        }
+        return super.b();
     }
 
 }

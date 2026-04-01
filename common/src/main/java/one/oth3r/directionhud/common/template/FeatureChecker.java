@@ -2,12 +2,12 @@ package one.oth3r.directionhud.common.template;
 
 import one.oth3r.directionhud.common.Destination;
 import one.oth3r.directionhud.common.files.FileData;
-import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.DPlayer;
 
 public abstract class FeatureChecker {
-    protected Player player;
+    protected DPlayer player;
 
-    public FeatureChecker(Player player) {
+    public FeatureChecker(DPlayer player) {
         this.player = player;
     }
 

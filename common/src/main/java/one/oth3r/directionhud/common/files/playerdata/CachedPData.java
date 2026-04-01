@@ -3,9 +3,9 @@ package one.oth3r.directionhud.common.files.playerdata;
 import one.oth3r.directionhud.common.hud.HudColor;
 import one.oth3r.directionhud.common.utils.Dest;
 import one.oth3r.directionhud.common.hud.HudRainbow;
-import one.oth3r.directionhud.common.utils.Rainbow;
 import one.oth3r.directionhud.common.utils.Vec;
-import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.DPlayer;
+import one.oth3r.otterlib.chat.Rainbow;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -104,7 +104,7 @@ public class CachedPData {
         private Long worldTime;
         private Double speed = 0.0;
 
-        public SpeedData(Player player) {
+        public SpeedData(DPlayer player) {
             vec = player.getVec();
             worldTime = player.getWorldTime();
         }

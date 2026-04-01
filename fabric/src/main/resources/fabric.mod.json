@@ -33,7 +33,8 @@
     "fabricloader": ">=0.14.8",
     "fabric-api": "*",
     "minecraft": ">=${min_minecraft_version} <=${max_minecraft_version}",
-    "java": ">=17"
+    "java": ">=17",
+    "otterlib": ">=${otterlib_version} <${otterlib_max_version}"
   },
   "suggests": {
     "modmenu": "*",

@@ -1,9 +1,9 @@
 package one.oth3r.directionhud;
 
 import net.fabricmc.api.ClientModInitializer;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import one.oth3r.directionhud.utils.ModEvents;
-import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.DPlayer;
 
 public class DirectionHUDClient implements ClientModInitializer {
 
@@ -12,7 +12,7 @@ public class DirectionHUDClient implements ClientModInitializer {
         ModEvents.registerClient();
     }
 
-    public static Player getPlayerFromClient(MinecraftClient client) {
-        return new Player(client.player, true);
+    public static DPlayer getPlayerFromClient(Minecraft client) {
+        return new DPlayer(client.player, true);
     }
 }

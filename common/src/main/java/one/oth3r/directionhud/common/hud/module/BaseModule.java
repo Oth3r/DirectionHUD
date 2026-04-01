@@ -9,7 +9,7 @@ import one.oth3r.directionhud.common.utils.ActionResult;
 import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Lang;
 import one.oth3r.directionhud.utils.CTxT;
-import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.DPlayer;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -61,12 +61,12 @@ public abstract class BaseModule implements Cloneable {
                 else throw new IllegalArgumentException();
             } catch (Exception e) {
                 // setting value invalid
-                return new ActionResult(false,LANG.error("invalid.setting_value",
-                        new CTxT(settingID).color(CUtl.s())));
+                return new ActionResult(false,new CTxT(LANG.error("invalid.setting_value",
+                        new CTxT(settingID).color(CUtl.s()))));
             }
         } else {
-            return new ActionResult(false, LANG.error(
-                    settings.isEmpty() ? "no_settings" : "invalid", moduleType.getCTxT()));
+            return new ActionResult(false,new CTxT(LANG.error(
+                    settings.isEmpty() ? "no_settings" : "invalid", moduleType.getCTxT())));
         }
     }
 
@@ -211,7 +211,7 @@ public abstract class BaseModule implements Cloneable {
      * @return a CTxT of the module display
      * @throws IllegalArgumentException if the arguments are not valid for the module
      */
-    public CTxT getDisplayTxT(Player player, Object... args) {
+    public CTxT getDisplayTxT(DPlayer player, Object... args) {
         return CUtl.parse(player, getDisplayString(args));
     }
 

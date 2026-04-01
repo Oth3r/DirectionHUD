@@ -1,4 +1,3 @@
-
 package one.oth3r.directionhud.common.files.playerdata;
 
 import com.google.gson.annotations.SerializedName;
@@ -9,13 +8,13 @@ import one.oth3r.directionhud.common.hud.module.BaseModule;
 import one.oth3r.directionhud.common.hud.module.Module;
 import one.oth3r.directionhud.common.hud.module.ModuleManager;
 import one.oth3r.directionhud.common.utils.Helper;
-import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.DPlayer;
 
 import java.util.ArrayList;
 
 public class PDHud {
 
-    public void setPlayer(Player player) {
+    public void setPlayer(DPlayer player) {
         this.player = player;
         primary.setPlayer(player);
         secondary.setPlayer(player);
@@ -26,7 +25,7 @@ public class PDHud {
         player.getPData().queueSave();
     }
     
-    private transient Player player;
+    private transient DPlayer player;
 
     @SerializedName("modules")
     private ArrayList<BaseModule> modules = ModuleManager.getDefaultModules();
@@ -145,7 +144,7 @@ public class PDHud {
 
     public static class Color {
 
-        public void setPlayer(Player player) {
+        public void setPlayer(DPlayer player) {
             this.player = player;
         }
 
@@ -154,7 +153,7 @@ public class PDHud {
             player.getPData().queueSave();
         }
 
-        private transient Player player;
+        private transient DPlayer player;
 
         @SerializedName("color")
         private String color;
@@ -173,7 +172,7 @@ public class PDHud {
             this.player = color.player;
         }
 
-        public Color(Player player, String color, Boolean bold, Boolean italics, Boolean rainbow) {
+        public Color(DPlayer player, String color, Boolean bold, Boolean italics, Boolean rainbow) {
             this.color = color;
             this.bold = bold;
             this.italics = italics;

@@ -1,5 +1,8 @@
 package one.oth3r.directionhud.common.utils;
 
+import one.oth3r.directionhud.DirectionHUD;
+import one.oth3r.otterlib.file.ResourceReader;
+
 public class DirectionHudData {
     protected final String PRIMARY;
     protected final String SECONDARY;
@@ -7,6 +10,7 @@ public class DirectionHudData {
     protected final boolean isMod;
     protected String configDirectory;
     protected String dataDirectory;
+    protected ResourceReader defaultLanguageLocation;
 
     protected boolean isClient;
     protected boolean isServerStarted;
@@ -20,6 +24,7 @@ public class DirectionHudData {
         this.isServerStarted = false;
         this.dataDirectory = "";
         this.configDirectory = "";
+        this.defaultLanguageLocation = new ResourceReader("assets/directionhud/lang/", DirectionHUD.class.getClassLoader());
     }
 
     /**
@@ -81,5 +86,9 @@ public class DirectionHudData {
 
     public void setConfigDirectory(String configDirectory) {
         this.configDirectory = configDirectory;
+    }
+
+    public ResourceReader getDefaultLanguageLocation() {
+        return defaultLanguageLocation;
     }
 }

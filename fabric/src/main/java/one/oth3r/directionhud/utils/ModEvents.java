@@ -1,7 +1,7 @@
 package one.oth3r.directionhud.utils;
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -11,11 +11,11 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.WorldSavePath;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.KeyMapping;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.storage.LevelResource;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.DirectionHUDClient;
 import one.oth3r.directionhud.commands.ModCommands;
@@ -35,25 +35,25 @@ import org.lwjgl.glfw.GLFW;
 
 public class ModEvents {
     private static class Keybindings {
-        private static KeyBinding keyBinding;
+        private static KeyMapping keyBinding;
 
         private static void register() {
-            KeyBinding.Category dhudCategory = KeyBinding.Category.create(Identifier.of(DirectionHUD.MOD_ID, "main"));
+            KeyMapping.Category dhudCategory = KeyMapping.Category.register(Identifier.fromNamespaceAndPath(DirectionHUD.MOD_ID, "main"));
 
-            keyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+            keyBinding = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                     "key.directionhud.keybind.toggle",
-                    InputUtil.Type.KEYSYM,
+                    InputConstants.Type.KEYSYM,
                     GLFW.GLFW_KEY_H,
                     dhudCategory
             ));
 
         }
 
-        private static void loopLogic(MinecraftClient client) {
-            while (keyBinding.wasPressed()) {
+        private static void loopLogic(Minecraft client) {
+            while (keyBinding.consumeClick()) {
                 if (DirectionHUD.getData().isOnSupportedServer()) {
                     assert client.player != null;
-                    client.player.networkHandler.sendChatCommand("hud toggle");
+                    client.player.connection.sendCommand("hud toggle");
                 }
             }
         }
@@ -63,18 +63,18 @@ public class ModEvents {
         private static void common() {
             // register the data
             // PACKET REGISTRATION
-            PayloadTypeRegistry.playS2C().register(Payloads.HUD.ID, Payloads.HUD.CODEC);
-            PayloadTypeRegistry.playS2C().register(Payloads.SpigotHUD.ID, Payloads.SpigotHUD.CODEC);
+            PayloadTypeRegistry.clientboundPlay().register(Payloads.HUD.ID, Payloads.HUD.CODEC);
+            PayloadTypeRegistry.clientboundPlay().register(Payloads.SpigotHUD.ID, Payloads.SpigotHUD.CODEC);
 
-            PayloadTypeRegistry.playS2C().register(Payloads.PlayerData.ID, Payloads.PlayerData.CODEC);
-            PayloadTypeRegistry.playS2C().register(Payloads.SpigotPlayerData.ID, Payloads.SpigotPlayerData.CODEC);
+            PayloadTypeRegistry.clientboundPlay().register(Payloads.PlayerData.ID, Payloads.PlayerData.CODEC);
+            PayloadTypeRegistry.clientboundPlay().register(Payloads.SpigotPlayerData.ID, Payloads.SpigotPlayerData.CODEC);
 
-            PayloadTypeRegistry.playC2S().register(Payloads.Initialization.ID, Payloads.Initialization.CODEC);
+            PayloadTypeRegistry.serverboundPlay().register(Payloads.Initialization.ID, Payloads.Initialization.CODEC);
 
             // PACKET HANDLING
             ServerPlayNetworking.registerGlobalReceiver(Payloads.Initialization.ID, ((payload, context) ->
                     DirectionHUD.getData().getServer().execute(() -> {
-                Player player = new Player(context.player());
+                DPlayer player = new DPlayer(context.player());
                 DirectionHUD.LOGGER.info("Received initialization packet from "+player.getName());
                 DirectionHUD.getData().getClientPlayers().add(player);
                 player.sendPDataPackets();
@@ -101,11 +101,11 @@ public class ModEvents {
             });
         }
 
-        public static void playerDataPacketLogic(MinecraftClient client, String packet) {
+        public static void playerDataPacketLogic(Minecraft client, String packet) {
             client.execute(() -> {
                 // if not single player store the payload in local playerdata (otherwise it doesn't need to be saved)
-                if (!client.isInSingleplayer()) {
-                    Player player = DirectionHUDClient.getPlayerFromClient(client);
+                if (!client.isLocalServer()) {
+                    DPlayer player = DirectionHUDClient.getPlayerFromClient(client);
                     PData pData = Helper.getGson().fromJson(packet, PData.class);
                     pData.setPlayer(player);
 
@@ -116,11 +116,11 @@ public class ModEvents {
             });
         }
 
-        public static void hudPacketLogic(MinecraftClient client, String packet) {
+        public static void hudPacketLogic(Minecraft client, String packet) {
             client.execute(() -> {
                 // if there is no actionbar override, build and send the HUD
                 if (DirectionHUD.getData().getActionBarOverride().canDisplay()) {
-                    Player player = DirectionHUDClient.getPlayerFromClient(client);
+                    DPlayer player = DirectionHUDClient.getPlayerFromClient(client);
                     player.sendActionBar(Hud.build.compile(player, Helper.getGson().fromJson(packet, ModuleInstructions.class)));
                 }
             });
@@ -129,7 +129,7 @@ public class ModEvents {
 
     private static void clientConnections() {
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
-            if (client.isInSingleplayer()) DirectionHUD.getData().setSingleplayer(true);
+            if (client.isLocalServer()) DirectionHUD.getData().setSingleplayer(true);
             // send an initialization packet whenever joining a server
             client.execute(() -> new PacketSender(Assets.packets.INITIALIZATION,"Hello from the DirectionHUD client!").sendToServer());
         });
@@ -140,25 +140,25 @@ public class ModEvents {
             if (client.player == null) return;
 
             // clear client player data and cache
-            Player player = DirectionHUDClient.getPlayerFromClient(client);
+            DPlayer player = DirectionHUDClient.getPlayerFromClient(client);
             PlayerData.removePlayerData(player);
             PlayerData.removePlayerCache(player);
         });
     }
 
     private static void playerConnections() {
-        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> Events.playerJoin(new Player(handler.player)));
-        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> Events.playerLeave(new Player(handler.player)));
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> Events.playerJoin(new DPlayer(handler.player)));
+        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> Events.playerLeave(new DPlayer(handler.player)));
     }
 
     private static void serverLifecycle() {
         // START
         ServerLifecycleEvents.SERVER_STARTED.register(s -> {
             ModData modData = DirectionHUD.getData();
-            modData.setPlayerManager(s.getPlayerManager());
+            modData.setPlayerManager(s.getPlayerList());
             modData.setServer(s);
-            modData.setCommandManager(s.getCommandManager());
-            if (modData.isClient()) modData.setDataDirectory(DirectionHUD.getData().getServer().getSavePath(WorldSavePath.ROOT).normalize()+"/directionhud/");
+            modData.setCommandManager(s.getCommands());
+            if (modData.isClient()) modData.setDataDirectory(DirectionHUD.getData().getServer().getWorldPath(LevelResource.ROOT).normalize()+"/directionhud/");
             else modData.setDataDirectory(FabricLoader.getInstance().getConfigDir().toFile()+"/directionhud/");
             Events.serverStart();
         });

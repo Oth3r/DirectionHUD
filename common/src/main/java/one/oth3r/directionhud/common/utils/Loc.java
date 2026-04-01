@@ -1,10 +1,11 @@
 package one.oth3r.directionhud.common.utils;
 
 import com.google.gson.Gson;
+import one.oth3r.directionhud.common.assets.DColors;
 import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.utils.CTxT;
-import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.DPlayer;
 import one.oth3r.directionhud.utils.Utl;
 import one.oth3r.directionhud.common.utils.Helper.Command.Suggester;
 
@@ -128,7 +129,7 @@ public class Loc {
     /**
      * creates a Loc based on the player's current location and dimension
      */
-    public Loc(Player player) {
+    public Loc(DPlayer player) {
         Vec vec = player.getVec();
         this.x = xzBounds(vec.getBlockX());
         this.y = yBounds(vec.getBlockY());
@@ -179,7 +180,7 @@ public class Loc {
         return hasXYZ() && dimension != null;
     }
 
-    public Vec getVec(Player player) {
+    public Vec getVec(DPlayer player) {
         // make sure y isn't null, using the player y if needed
         Integer i = this.y;
         if (i == null) i = player.getVec().getBlockY();
@@ -198,9 +199,9 @@ public class Loc {
      * @return badge
      */
     public CTxT getBadge() {
-        CTxT msg = CTxT.of("");
+        CTxT msg = new CTxT();
         if (this.dimension != null) msg.append(Dimension.getBadge(getDimension())).append(" ");
-        return msg.append(CTxT.of(getXYZ()).color('f'));
+        return msg.append(new CTxT(getXYZ()).color(DColors.WHITE));
     }
 
     /**

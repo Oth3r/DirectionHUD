@@ -13,7 +13,7 @@ import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.common.utils.ParticleType;
 import one.oth3r.directionhud.common.utils.Vec;
-import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.DPlayer;
 import one.oth3r.directionhud.utils.Utl;
 
 public class LoopManager {
@@ -39,21 +39,21 @@ public class LoopManager {
 
         if (HUDTick >= FileData.getConfig().getHud().getLoop()) {
             HUDTick = 0;
-            for (Player player : Utl.getPlayers()) {
+            for (DPlayer player : Utl.getPlayers()) {
                 HUDTickLogic(player);
             }
         }
 
         if (ParticleTick >= FileData.getConfig().getDestination().getLoop()) {
             ParticleTick = 0;
-            for (Player player :Utl.getPlayers()) particles(player);
+            for (DPlayer player :Utl.getPlayers()) particles(player);
         }
 
 
 
         // tick every 2
         if (secondTick % 2 == 0) {
-            for (Player player : Utl.getPlayers()) {
+            for (DPlayer player : Utl.getPlayers()) {
                 speedUpdate(player);
             }
         }
@@ -61,7 +61,7 @@ public class LoopManager {
         // every 20 ticks
         if (secondTick >= 20) {
             secondTick = 0;
-            for (Player player :Utl.getPlayers()) secondLoop(player);
+            for (DPlayer player :Utl.getPlayers()) secondLoop(player);
             // tick the playerdata queue
             PlayerData.Queue.tick();
         }
@@ -70,7 +70,7 @@ public class LoopManager {
     /**
      * updates the player speed by seeing how far the player went since the last check
      */
-    private static void speedUpdate(Player player) {
+    private static void speedUpdate(DPlayer player) {
         /*
         still having consistency issues - FABRIC TESTING ONLY it seems like the player's location isnt being properly updated every tick
         - leading to the player speed jumping around... making the check faster makes the issue worse, and slowing down the checks lessons the effect
@@ -101,7 +101,7 @@ public class LoopManager {
         }
     }
 
-    private static void HUDTickLogic(Player player) {
+    private static void HUDTickLogic(DPlayer player) {
         // if the HUD is enabled
         if ((boolean) player.getPCache().getHud().getSetting(Hud.Setting.state)) {
             ModuleInstructions instructions = Hud.build.getModuleInstructions(player);
@@ -120,7 +120,7 @@ public class LoopManager {
         }
     }
 
-    private static void particles(Player player) {
+    private static void particles(DPlayer player) {
         // spawn all the particles
         if (Destination.dest.get(player).hasXYZ()) {
             /// destination particles
@@ -142,7 +142,7 @@ public class LoopManager {
         // if tracking particles are enabled
         if (player.getPCache().getDEST().getDestSettings().getParticles().getTracking()) {
             // make sure there's a target
-            Player target = Destination.social.track.getTarget(player);
+            DPlayer target = Destination.social.track.getTarget(player);
             if (target.isValid()) {
                 boolean sendParticles = true;
                 Vec targetVec = target.getVec();
@@ -166,7 +166,7 @@ public class LoopManager {
             }
         }
     }
-    private static void secondLoop(Player player) {
+    private static void secondLoop(DPlayer player) {
         DHud.inbox.tick(player);
         // count down the social cooldown
         Integer timer = player.getPCache().getSocialCooldown();

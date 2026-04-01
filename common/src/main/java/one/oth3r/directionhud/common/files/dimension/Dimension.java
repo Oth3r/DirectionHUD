@@ -5,6 +5,7 @@ import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.utils.Helper.*;
 import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.directionhud.utils.Utl;
+import one.oth3r.otterlib.chat.hover.HoverAction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -95,10 +96,10 @@ public class Dimension {
                 .filter(dimension -> dimension.getId().equals(id))
                 .findFirst().orElse(null);
         // if not found
-        if (dim == null) return CTxT.of("X").btn(true).hover(CTxT.of("???"));
+        if (dim == null) return new CTxT("X").wrapper().hover(HoverAction.of(new CTxT("???")));
         // make the badge
-        return CTxT.of(String.valueOf(dim.getName().charAt(0)).toUpperCase()).btn(true)
-                .color(dim.getColor()).hover(CTxT.of(dim.getName()).color(dim.getColor()));
+        return new CTxT(String.valueOf(dim.getName().charAt(0)).toUpperCase()).wrapper()
+                .color(dim.getColor()).hover(HoverAction.of(new CTxT(dim.getName()).color(dim.getColor())));
     }
     public static ArrayList<Pair<String, String>> getRatioPairs() {
         return dimensionSettings.getRatios().stream()

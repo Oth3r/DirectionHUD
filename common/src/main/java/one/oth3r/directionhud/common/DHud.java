@@ -1,15 +1,19 @@
 package one.oth3r.directionhud.common;
 
 import one.oth3r.directionhud.DirectionHUD;
+import one.oth3r.directionhud.common.assets.DColors;
 import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.hud.Hud;
 import one.oth3r.directionhud.common.utils.*;
 import one.oth3r.directionhud.common.utils.Helper.Enums;
 import one.oth3r.directionhud.common.utils.Helper.*;
 import one.oth3r.directionhud.common.utils.Helper.Command.Suggester;
-import one.oth3r.directionhud.utils.CTxT;
-import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.DPlayer;
 import one.oth3r.directionhud.utils.Utl;
+import one.oth3r.directionhud.utils.CTxT;
+import one.oth3r.otterlib.chat.click.ClickAction;
+import one.oth3r.otterlib.chat.click.ClickActions;
+import one.oth3r.otterlib.chat.hover.HoverAction;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -17,7 +21,7 @@ import java.util.stream.Collectors;
 public class DHud {
     public static final Lang LANG = new Lang("dhud.");
 
-    public static void CMDExecutor(Player player, String[] args) {
+    public static void CMDExecutor(DPlayer player, String[] args) {
         if (args.length == 0) {
             UI(player);
             return;
@@ -38,7 +42,7 @@ public class DHud {
             default -> player.sendMessage(CUtl.error("command"));
         }
     }
-    public static ArrayList<String> CMDSuggester(Player player, int pos, String[] args) {
+    public static ArrayList<String> CMDSuggester(DPlayer player, int pos, String[] args) {
         ArrayList<String> suggester = new ArrayList<>();
         if (!Helper.checkEnabled(player).hud()) return suggester;
         if (pos == 1) {
@@ -66,23 +70,23 @@ public class DHud {
         return suggester;
     }
 
-    public static CTxT RELOAD_BUTTON = LANG.btn("reload").btn(true).color(Assets.mainColors.reload)
-            .click(1,"/dhud reload")
-            .hover(CTxT.of(Assets.cmdUsage.reload).color(Assets.mainColors.reload).append("\n").append(LANG.hover("reload")));
+    public static CTxT RELOAD_BUTTON = LANG.btn("reload").wrapper().color(Assets.mainColors.reload)
+            .click(ClickAction.of(ClickActions.RUN_COMMAND,"/dhud reload"))
+            .hover(HoverAction.of(new CTxT(Assets.cmdUsage.reload).color(Assets.mainColors.reload).append("\n").append(LANG.hover("reload"))));
 
     /**
      * reloads DirectionHUD
      * @param player null if reloading from the console
      */
-    public static void reload(Player player) {
+    public static void reload(DPlayer player) {
         FileData.loadFiles();
         // fully reload the players
-        for (Player pl: Utl.getPlayers()) {
+        for (DPlayer pl: Utl.getPlayers()) {
             Events.playerSoftLeave(pl);
             Events.playerJoin(pl);
         }
         if (player == null) DirectionHUD.LOGGER.info(LANG.msg("reload").toString());
-        else player.sendMessage(CUtl.tag().append(LANG.msg("reload").color('a')));
+        else player.sendMessage(CUtl.tag().append(LANG.msg("reload").color(DColors.REFRESH)));
     }
 
     public static class inbox {
@@ -90,11 +94,11 @@ public class DHud {
 
         public static final Lang LANG = new Lang("dhud.inbox.");
 
-        public static CTxT BUTTON = LANG.btn().btn(true).color(Assets.mainColors.inbox)
-                .click(1,"/dhud inbox")
-                .hover(CTxT.of(Assets.cmdUsage.inbox).color(Assets.mainColors.inbox).append("\n").append(LANG.hover()));
+        public static CTxT BUTTON = LANG.btn().wrapper().color(Assets.mainColors.inbox)
+                .click(ClickAction.of(ClickActions.RUN_COMMAND,"/dhud inbox"))
+                .hover(HoverAction.of(new CTxT(Assets.cmdUsage.inbox).color(Assets.mainColors.inbox).append("\n").append(LANG.hover())));
 
-        public static void CMDExecutor(Player player, String[] args) {
+        public static void CMDExecutor(DPlayer player, String[] args) {
             if (!FileData.getConfig().getSocial().getEnabled()) return;
             // UI
             if (args.length <= 1) {
@@ -119,7 +123,7 @@ public class DHud {
         /**
          * counts down all expire clocks in the inbox
          */
-        public static void tick(Player player) {
+        public static void tick(DPlayer player) {
             ArrayList<HashMap<String, String>> inbox = player.getPCache().getInbox();
             // don't process anything if empty
             if (inbox.isEmpty()) return;
@@ -135,7 +139,7 @@ public class DHud {
                     iterator.remove();
                     // send expire messages if pending expired
                     if (entry.get("type").equals(Type.track_pending.name())) {
-                        Player target = new Player(entry.get("player_name"));
+                        DPlayer target = new DPlayer(entry.get("player_name"));
                         if (!target.isValid()) continue;
                         target.sendMessage(CUtl.tag().append(Destination.social.track.LANG.msg("expired.target", player.getHighlightedName())));
                         player.sendMessage(CUtl.tag().append(Destination.social.track.LANG.msg("expired",target.getHighlightedName())));
@@ -149,7 +153,7 @@ public class DHud {
         /**
          * removes all entries to deal with tracking, because tracking entries doesn't save between sessions
          */
-        public static void removeAllTracking(Player player) {
+        public static void removeAllTracking(DPlayer player) {
             // removes all pending and requests from the player and their targets
             ArrayList<HashMap<String, String>> inbox = player.getPCache().getInbox();
             // iterate over the arraylist, as we are editing it, cant use for loop
@@ -162,8 +166,8 @@ public class DHud {
                     Type type = entry.get("type").equals(Type.track_pending.name())?
                             Type.track_request : Type.track_pending;
                     // use name if online mode is off
-                    Player target = new Player(entry.get("player_uuid"));
-                    if (!FileData.getConfig().getOnline()) target = new Player(entry.get("player_name"));
+                    DPlayer target = new DPlayer(entry.get("player_uuid"));
+                    if (!FileData.getConfig().getOnline()) target = new DPlayer(entry.get("player_name"));
                     if (target.isValid()) {
                         // search for the opposite type of the player and the id to match it in target inbox and remove
                         removeEntry(target, DHud.inbox.search(target, type,"id",entry.get("id")));
@@ -182,7 +186,7 @@ public class DHud {
          * @param value the value to match
          * @return the first entry that contains the key and value
          */
-        public static HashMap<String, String> search(Player player, Type type, String key, String value) {
+        public static HashMap<String, String> search(DPlayer player, Type type, String key, String value) {
             ArrayList<HashMap<String, String>> inbox = player.getPCache().getInbox();
             for (HashMap<String, String> entry: inbox) {
                 // if the type isn't null, and it doesn't match, continue to the next entry
@@ -197,7 +201,7 @@ public class DHud {
          * @param type the type of entry to search for
          * @return null if none found, the list of entries if there are any
          */
-        public static ArrayList<HashMap<String, String>> getAllType(Player player, Type type) {
+        public static ArrayList<HashMap<String, String>> getAllType(DPlayer player, Type type) {
             ArrayList<HashMap<String, String>> inbox = player.getPCache().getInbox();
             ArrayList<HashMap<String, String>> matches = new ArrayList<>();
             for (HashMap<String, String> entry: inbox)
@@ -212,7 +216,7 @@ public class DHud {
          * @param from the player that is sending the tracking request
          * @param time the amount of time that the entry is going to last
          */
-        public static void addTracking(Player target, Player from, int time) {
+        public static void addTracking(DPlayer target, DPlayer from, int time) {
             String ID = Helper.createID();
             // create the track request for the target
             ArrayList<HashMap<String, String>> inbox = target.getPCache().getInbox();
@@ -243,7 +247,7 @@ public class DHud {
          * @param time how long the entry should last
          * @param dest the destination location
          */
-        public static void addDest(Player target, Player from, int time, Dest dest) {
+        public static void addDest(DPlayer target, DPlayer from, int time, Dest dest) {
             if (!dest.hasXYZ() || dest.getDimension() == null) return;
 
             ArrayList<HashMap<String, String>> inbox = target.getPCache().getInbox();
@@ -262,7 +266,7 @@ public class DHud {
          * removes the entry provided
          * @param entry the entry to remove
          */
-        public static void removeEntry(Player player, HashMap<String, String> entry) {
+        public static void removeEntry(DPlayer player, HashMap<String, String> entry) {
             if (entry == null) return;
             ArrayList<HashMap<String, String>> inbox = player.getPCache().getInbox();
             inbox.remove(entry);
@@ -274,7 +278,7 @@ public class DHud {
          * @param ID the id of the entry to remove
          * @param playerBased if requested by the player, to send a message and return or not
          */
-        public static void delete(Player player, String ID, boolean playerBased) {
+        public static void delete(DPlayer player, String ID, boolean playerBased) {
             Helper.ListPage<HashMap<String, String>> listPage = new Helper.ListPage<>(player.getPCache().getInbox(),PER_PAGE);
             //delete via ID (command)
             HashMap<String, String> entry = search(player,null,"id",ID);
@@ -283,7 +287,7 @@ public class DHud {
             // remove the entry
             removeEntry(player,entry);
             if (playerBased) {
-                player.sendMessage(CUtl.tag().append(LANG.msg("cleared",CTxT.of(entry.get("player_name")).color(CUtl.s()))));
+                player.sendMessage(CUtl.tag().append(LANG.msg("cleared",new CTxT(entry.get("player_name")).color(CUtl.s()))));
                 UI(player,listPage.getPageOf(entry));
             }
         }
@@ -293,21 +297,21 @@ public class DHud {
          * @param entry entry data
          * @return the TxT created
          */
-        public static CTxT getEntryTxT(Player player, HashMap<String, String> entry) {
+        public static CTxT getEntryTxT(DPlayer player, HashMap<String, String> entry) {
             // get the entry type
             Type type = Enums.get(entry.get("type"),Type.class);
             // get the entry name
             String name = entry.get("player_name");
             // get name from UUID if online mode is on
             if (FileData.getConfig().getOnline()) {
-                Player player_uuid = new Player(entry.get("player_uuid"));
+                DPlayer player_uuid = new DPlayer(entry.get("player_uuid"));
                 if (player_uuid.isValid()) name = player_uuid.getName();
             }
             // make the TxTs that make things easier
-            CTxT msg = CTxT.of(""),
-                    time = LANG.ui("time",entry.get("expire")).color('7'),
-                    from = LANG.ui("from",CTxT.of(name).color(CUtl.s())),
-                    to = LANG.ui("to",CTxT.of(name).color(CUtl.s()));
+            CTxT msg = new CTxT(""),
+                    time = LANG.ui("time",entry.get("expire")).color(DColors.EXTRA_INFO),
+                    from = LANG.ui("from",new CTxT(name).color(CUtl.s())),
+                    to = LANG.ui("to",new CTxT(name).color(CUtl.s()));
             // switch for the different type of entries
             switch (type) {
                 case track_request ->
@@ -315,26 +319,27 @@ public class DHud {
                             // to / from
                             .append("\n  ").append(from).append("\n   ")
                             // accept & deny buttons
-                            .append(CUtl.LANG.btn("accept").btn(true).color('a')
-                                    .hover(CUtl.LANG.hover("accept").color('a'))
-                                    .click(1,"/dest track accept-r "+name)).append(" ")
-                            .append(CUtl.LANG.btn("deny").btn(true).color('c')
-                                    .hover(CUtl.LANG.hover("deny").color('c'))
-                                    .click(1,"/dest track deny-r "+name));
+                            .append(CUtl.LANG.btn("accept").wrapper().color(DColors.YES)
+                                    .hover(HoverAction.of(CUtl.LANG.hover("accept").color(DColors.YES)))
+                                    .click(ClickAction.of(ClickActions.RUN_COMMAND,"/dest track accept-r "+name)))
+                            .append(" ")
+                            .append(CUtl.LANG.btn("deny").wrapper().color(DColors.NO)
+                                    .hover(HoverAction.of(CUtl.LANG.hover("deny").color(DColors.NO)))
+                                    .click(ClickAction.of(ClickActions.RUN_COMMAND,"/dest track deny-r "+name)));
                 case track_pending ->
                         msg.append(LANG.ui("track_pending",time).color(CUtl.p())).append(" ")
                             // to / from
                             .append("\n  ").append(to).append("\n   ")
                             // cancel button
-                            .append(CUtl.LANG.btn("cancel").btn(true).color('c')
-                                    .hover(CUtl.LANG.hover("cancel").color('c'))
-                                    .click(1, "/dest track cancel-r "+name));
+                            .append(CUtl.LANG.btn("cancel").wrapper().color(DColors.DELETE)
+                                    .hover(HoverAction.of(CUtl.LANG.hover("cancel").color(DColors.DELETE)))
+                                    .click(ClickAction.of(ClickActions.RUN_COMMAND, "/dest track cancel-r "+name)));
                 case destination ->
                         msg.append(LANG.ui("destination",time).color(CUtl.p())).append(" ")
                             // x button
-                            .append(CTxT.of(Assets.symbols.x).btn(true).color('c')
-                                    .hover(LANG.hover("clear").color('c'))
-                                    .click(1,"/dhud inbox clear "+entry.get("id")))
+                            .append(new CTxT(Assets.symbols.x).wrapper().color(DColors.DELETE)
+                                    .hover(HoverAction.of(LANG.hover("clear").color(DColors.DELETE)))
+                                    .click(ClickAction.of(ClickActions.RUN_COMMAND,"/dhud inbox clear "+entry.get("id"))))
                             // to / from
                             .append("\n  ").append(from).append("\n   ")
                             // destination badge
@@ -343,15 +348,15 @@ public class DHud {
             return msg;
         }
 
-        public static void UI(Player player, int pg) {
+        public static void UI(DPlayer player, int pg) {
             Helper.ListPage<HashMap<String, String>> listPage = new Helper.ListPage<>(player.getPCache().getInbox(),PER_PAGE);
-            CTxT msg = CTxT.of(" "), line = CTxT.of("\n                                   ").strikethrough(true);
+            CTxT msg = new CTxT(" "), line = new CTxT("\n                                   ").strikethrough(true);
             msg.append(LANG.ui().color(Assets.mainColors.inbox)).append(line).append("\n ");
             for (HashMap<String, String> index : listPage.getPage(pg)) {
                 msg.append(getEntryTxT(player,index)).append("\n ");
             }
             // no entries
-            if (listPage.getList().isEmpty()) msg.append("\n ").append(LANG.ui("empty").color('7').italic(true)).append("\n");
+            if (listPage.getList().isEmpty()) msg.append("\n ").append(LANG.ui("empty").color(DColors.DESCRIPTION).italic(true)).append("\n");
             // bottom row
             msg.append("\n ")
                     .append(listPage.getNavButtons(pg,"/dhud inbox ")).append(" ")
@@ -367,11 +372,11 @@ public class DHud {
 
         public static final Lang LANG = new Lang("dhud.preset.");
 
-        public static CTxT BUTTON = LANG.btn().btn(true).color(Assets.mainColors.presets)
-                .click(1,"/dhud preset")
-                .hover(CTxT.of("/dhud presets").color(Assets.mainColors.presets).append("\n").append(LANG.hover()));
+        public static CTxT BUTTON = LANG.btn().wrapper().color(Assets.mainColors.presets)
+                .click(ClickAction.of(ClickActions.RUN_COMMAND,"/dhud preset"))
+                .hover(HoverAction.of(new CTxT("/dhud presets").color(Assets.mainColors.presets).append("\n").append(LANG.hover())));
 
-        public static void colorCMDExecutor(Player player, String[] args) {
+        public static void colorCMDExecutor(DPlayer player, String[] args) {
             if (args.length != 5) return;
             // /dhud color (settings) (type) (subtype) (set/preset) (color/page)
             if (Enums.toStringList(Type.values()).contains(args[1])) {
@@ -380,7 +385,7 @@ public class DHud {
                 if (args[3].equals("preset")) UI(player,args[0],type,args[2],args[4]);
             }
         }
-        public static void CMDExecutor(Player player, String[] args) {
+        public static void CMDExecutor(DPlayer player, String[] args) {
             if (!Helper.checkEnabled(player).customPresets()) return;
             if (args.length <= 1) {
                 // preset ui
@@ -413,7 +418,7 @@ public class DHud {
                 if (args[0].equals("color")) custom.setColor(player,"",args[1],args[2],Return);
             }
         }
-        public static ArrayList<String> CMDSuggester(Player player, int pos, String[] args) {
+        public static ArrayList<String> CMDSuggester(DPlayer player, int pos, String[] args) {
             ArrayList<String> suggester = new ArrayList<>();
             if (!Helper.checkEnabled(player).customPresets()) return suggester;
             /*
@@ -464,7 +469,7 @@ public class DHud {
          * @param subtype color subtype
          * @param color the color to set
          */
-        public static void setColor(Player player, String UISettings, Type type, String subtype, String color) {
+        public static void setColor(DPlayer player, String UISettings, Type type, String subtype, String color) {
             // /dhud color (settings) (type) (subtype) set (color)
             switch (type) {
                 case hud -> {
@@ -495,19 +500,19 @@ public class DHud {
          * @return the color editor
          */
         public static CTxT colorEditor(String color, String UISettings, Type type, String subtype, String stepCMD) {
-            CTxT presetsButton = CTxT.of("")
-                    .append(CTxT.of("+").btn(true).color('a')
-                            .click(2,String.format("/dhud preset save \"%s\" ",color))
-                            .hover(LANG.hover("preset.plus",LANG.hover("preset.plus_2").color(color))))
-                    .append(LANG.btn().color(Assets.mainColors.presets)
-                            .click(1,String.format("/dhud color %s %s \"%s\" preset default",UISettings,type,subtype)).btn(true)
-                            .hover(LANG.hover("preset.editor",LANG.hover("preset.editor_2").color(Assets.mainColors.presets))));
+            CTxT presetsButton = new CTxT("")
+                    .append(new CTxT("+").wrapper().color(DColors.ADD)
+                            .click(ClickAction.of(ClickActions.SUGGEST_COMMAND,String.format("/dhud preset save \"%s\" ",color)))
+                            .hover(HoverAction.of(LANG.hover("preset.plus",LANG.hover("preset.plus_2").color(color)))))
+                    .append(LANG.btn().color(Assets.mainColors.presets).wrapper()
+                            .click(ClickAction.of(ClickActions.RUN_COMMAND,String.format("/dhud color %s %s \"%s\" preset default",UISettings,type,subtype)))
+                            .hover(HoverAction.of(LANG.hover("preset.editor",LANG.hover("preset.editor_2").color(Assets.mainColors.presets)))));
 
-            CTxT customButton = LANG.btn("custom").btn(true).color(Assets.mainColors.custom)
-                    .click(2,String.format("/dhud color %s %s \"%s\" set ",UISettings,type,subtype))
-                    .hover(LANG.hover("custom",LANG.hover("custom.2").color(Assets.mainColors.custom)));
+            CTxT customButton = LANG.btn("custom").wrapper().color(Assets.mainColors.custom)
+                    .click(ClickAction.of(ClickActions.SUGGEST_COMMAND,String.format("/dhud color %s %s \"%s\" set ",UISettings,type,subtype)))
+                    .hover(HoverAction.of(LANG.hover("custom",LANG.hover("custom.2").color(Assets.mainColors.custom))));
 
-            CTxT defaultSquare = CTxT.of(Assets.symbols.square).color(color).hover(CUtl.color.getBadge(color));
+            CTxT defaultSquare = new CTxT(Assets.symbols.square).color(color).hover(HoverAction.of(CUtl.color.getBadge(color)));
             CTxT smallButton = createSizeButton(stepCMD,"small");
             CTxT normalButton = createSizeButton(stepCMD, "normal");
             CTxT bigButton = createSizeButton(stepCMD, "big");
@@ -532,8 +537,8 @@ public class DHud {
             }
             ArrayList<CTxT> hsbList = new ArrayList<>();
             for (int i = 0; i < 3; i++) {
-                hsbList.add(CTxT.of("-").btn(true));
-                hsbList.add(CTxT.of("+").btn(true));
+                hsbList.add(new CTxT("-").wrapper());
+                hsbList.add(new CTxT("+").wrapper());
             }
             int i = 0;
             // todo color editor logic, dissect later i was dumb and didn't comment whyy...
@@ -542,14 +547,14 @@ public class DHud {
                     String editedColor = CUtl.color.editHSB(changeAmt,color,(plus%2==0)?changeAmounts[changeAmt]*-1:(changeAmounts[changeAmt]));
                     hsbList.get(plus).color(editedColor.equals(color)?Assets.mainColors.gray:editedColor);
                     if (!editedColor.equals(color)) {
-                        hsbList.get(plus).hover(LANG.get("color.hover.set",CUtl.color.getBadge(editedColor)));
-                        hsbList.get(plus).click(1,String.format("/dhud color %s %s \"%s\" set \"%s\"",UISettings,type,subtype,editedColor));
+                        hsbList.get(plus).hover(HoverAction.of(LANG.get("color.hover.set",CUtl.color.getBadge(editedColor))));
+                        hsbList.get(plus).click(ClickAction.of(ClickActions.RUN_COMMAND,String.format("/dhud color %s %s \"%s\" set \"%s\"",UISettings,type,subtype,editedColor)));
                     }
                 }
                 i = i+2;
             }
 
-            return CTxT.of(" ")
+            return new CTxT(" ")
                     .append(presetsButton).append(" ").append(customButton).append("\n\n")
                     .append("  ")
                     .append(hsbList.get(0)).append(" ").append(defaultSquare).append(" ").append(hsbList.get(1)).append(" ").append(LANG.get("editor.hue")).append("\n  ")
@@ -566,7 +571,8 @@ public class DHud {
          */
         private static CTxT createSizeButton(String stepCMD, String size) {
             CTxT buttonTxT = LANG.get("editor.step.button."+size).color(CUtl.s());
-            return new CTxT(buttonTxT).click(1,String.format(stepCMD,size)).hover(LANG.get("editor.step.hover",buttonTxT)).btn(true);
+            return new CTxT(buttonTxT).click(ClickAction.of(ClickActions.RUN_COMMAND,String.format(stepCMD,size)))
+                    .hover(HoverAction.of(LANG.get("editor.step.hover",buttonTxT))).wrapper();
         }
 
         /**
@@ -576,14 +582,14 @@ public class DHud {
          * @param subtype subtype of color
          * @param page the page to display
          */
-        public static void UI(Player player, String UISettings, Type type, String subtype, String page) {
+        public static void UI(DPlayer player, String UISettings, Type type, String subtype, String page) {
             // top button initialization
             String clickCMD = String.format("/dhud color %s %s \"%s\" ",UISettings,type,subtype);
 
-            CTxT defaultBtn = LANG.btn("default").color(CUtl.s()).click(1,clickCMD+"preset default").btn(true),
-                    minecraftBtn = LANG.btn("minecraft").color(CUtl.s()).click(1,clickCMD+"preset minecraft").btn(true),
-                    customBtn = CTxT.of(" ").append(LANG.btn("custom").color(CUtl.s()).click(1,clickCMD+"preset custom").btn(true)), // space at start for alignment
-                    list = CTxT.of(""); // text for inside the UI
+            CTxT defaultBtn = LANG.btn("default").color(CUtl.s()).click(ClickAction.of(ClickActions.RUN_COMMAND,clickCMD+"preset default")).wrapper(),
+                    minecraftBtn = LANG.btn("minecraft").color(CUtl.s()).click(ClickAction.of(ClickActions.RUN_COMMAND,clickCMD+"preset minecraft")).wrapper(),
+                    customBtn = new CTxT(" ").append(LANG.btn("custom").color(CUtl.s()).click(ClickAction.of(ClickActions.RUN_COMMAND,clickCMD+"preset custom")).wrapper()), // space at start for alignment
+                    list = new CTxT(""); // text for inside the UI
 
             // code for the button selector page, default and mc colors
             if (page.equals("default") || page.equals("minecraft")) {
@@ -591,12 +597,12 @@ public class DHud {
                 int rowAmt;
                 if (page.equals("default")) {
                     // disable the current page button & set the data for the loop
-                    defaultBtn.color(Assets.mainColors.gray).click(1,null).hover(null);
+                    defaultBtn.color(Assets.mainColors.gray).click(null).hover(null);
                     colorStrings = List.of("red","orange","yellow","green","blue","purple","gray");
                     colors = CUtl.color.DEFAULT_COLORS;
                     rowAmt = 3;
                 } else {
-                    minecraftBtn.color(Assets.mainColors.gray).click(1,null).hover(null);
+                    minecraftBtn.color(Assets.mainColors.gray).click(null).hover(null);
                     colorStrings = List.of("red","yellow","green","aqua","blue","purple","gray");
                     colors = List.of("#FF5555","#AA0000",
                             "#FFFF55","#FFAA00",
@@ -614,9 +620,9 @@ public class DHud {
                     // for x amt of colors per type
                     for (int i = 0; i < rowAmt;i++) {
                         String color = colors.get(colorIndex);
-                        list.append(CTxT.of(Assets.symbols.square).btn(true).color(color)
-                                .click(1,String.format(clickCMD+"set \"%s\"",color))
-                                .hover(LANG.get("color.hover.set", CUtl.color.getBadge(color))));
+                        list.append(new CTxT(Assets.symbols.square).wrapper().color(color)
+                                .click(ClickAction.of(ClickActions.RUN_COMMAND,String.format(clickCMD+"set \"%s\"",color)))
+                                .hover(HoverAction.of(LANG.get("color.hover.set", CUtl.color.getBadge(color)))));
                         colorIndex++;
                     }
                     list.append(" ").append(LANG.get("color."+s));
@@ -628,10 +634,10 @@ public class DHud {
                 customBtn = listPage.getNavButtons(pg,clickCMD+"preset ");
                 for (ColorPreset preset : listPage.getPage(pg)) {
                     String color = preset.color(), name = preset.name();
-                    list.append("\n ").append(CTxT.of(Assets.symbols.square).color(color).btn(true)
-                                    .click(1,String.format(clickCMD+"set \"%s\"",color))
-                                    .hover(LANG.get("color.hover.set",CUtl.color.getBadge(color))))
-                            .append(" ").append(CTxT.of(name).color(color));
+                    list.append("\n ").append(new CTxT(Assets.symbols.square).color(color).wrapper()
+                                    .click(ClickAction.of(ClickActions.RUN_COMMAND,String.format(clickCMD+"set \"%s\"",color)))
+                                    .hover(HoverAction.of(LANG.get("color.hover.set",CUtl.color.getBadge(color)))))
+                            .append(" ").append(new CTxT(name).color(color));
                 }
                 // fill in the gaps if entries don't fill whole page (consistency)
                 if (listPage.getPage(pg).size() != PER_PAGE) {
@@ -648,11 +654,11 @@ public class DHud {
                 default -> "/dhud";
             };
             // final building of the message
-            CTxT msg = CTxT.of(" ").append(LANG.ui().color(Assets.mainColors.presets))
-                    .append(CTxT.of("\n                               \n").strikethrough(true))
+            CTxT msg = new CTxT(" ").append(LANG.ui().color(Assets.mainColors.presets))
+                    .append(new CTxT("\n                               \n").strikethrough(true))
                     .append(" ").append(defaultBtn).append(" ").append(minecraftBtn).append("\n").append(list)
                     .append("\n\n   ").append(customBtn).append("  ").append(CUtl.CButton.back(backCMD))
-                    .append(CTxT.of("\n                               ").strikethrough(true));
+                    .append(new CTxT("\n                               ").strikethrough(true));
             player.sendMessage(msg);
         }
 
@@ -708,7 +714,7 @@ public class DHud {
              * @return the badge
              */
             public static CTxT getBadge(ColorPreset preset, boolean square) {
-                return CTxT.of((square?Assets.symbols.square+" ":"")+preset.name()).color(preset.color());
+                return new CTxT((square?Assets.symbols.square+" ":"")+preset.name()).color(preset.color());
             }
 
             /**
@@ -734,31 +740,36 @@ public class DHud {
              * @param pg the page of the custom presets to display
              * @param aboveTxT the TxT to show above the UI
              */
-            public static void UI(Player player, int pg, CTxT aboveTxT) {
-                CTxT msg = aboveTxT==null?CTxT.of(" "):aboveTxT.append("\n "),
-                        line = CTxT.of("\n                               ").strikethrough(true);
+            public static void UI(DPlayer player, int pg, CTxT aboveTxT) {
+                CTxT msg = aboveTxT==null?new CTxT(" "):aboveTxT.append("\n "),
+                        line = new CTxT("\n                               ").strikethrough(true);
                 msg.append(LANG.ui("custom").color(Assets.mainColors.presets)).append(line);
-                CTxT addBtn = CTxT.of("+").btn(true).color('a').click(2,"/dhud preset save-r ").hover(LANG.hover("save").color('a'));
+
+                CTxT addBtn = new CTxT("+").wrapper().color(DColors.ADD)
+                        .click(ClickAction.of(ClickActions.SUGGEST_COMMAND,"/dhud preset save-r "))
+                        .hover(HoverAction.of(LANG.hover("save").color(DColors.ADD)));
                 // disable if max saved colors reached
-                if (player.getPData().getColorPresets().size() >= FileData.getConfig().getMaxColorPresets()) addBtn.color('7').click(1,null).hover(null);
+                if (player.getPData().getColorPresets().size() >= FileData.getConfig().getMaxColorPresets())
+                    addBtn.color(DColors.DISABLED).click(null).hover(null);
+
                 ListPage<ColorPreset> listPage = new ListPage<>(player.getPData().getColorPresets(),PER_PAGE);
 
                 for (ColorPreset preset : listPage.getPage(pg)) {
                     String color = preset.color(), name = preset.name();
                     msg.append("\n ")
                             // X BUTTON
-                            .append(CTxT.of(Assets.symbols.x).color('c').btn(true)
-                                    .click(1,String.format("/dhud preset delete-r \"%s\"",name))
-                                    .hover(LANG.hover("delete",getBadge(preset,true)).color('c')))
+                            .append(new CTxT(Assets.symbols.x).color(DColors.DELETE).wrapper()
+                                    .click(ClickAction.of(ClickActions.RUN_COMMAND,String.format("/dhud preset delete-r \"%s\"",name)))
+                                    .hover(HoverAction.of(LANG.hover("delete",getBadge(preset,true)).color(DColors.DELETE))))
                             .append(" ")
                             // COLOR
-                            .append(CTxT.of(Assets.symbols.square).color(color).btn(true)
-                                    .click(1,String.format("/dhud preset colorui \"%s\" normal",name))
-                                    .hover(LANG.hover("color",CUtl.color.getBadge(color))))
+                            .append(new CTxT(Assets.symbols.square).color(color).wrapper()
+                                    .click(ClickAction.of(ClickActions.RUN_COMMAND,String.format("/dhud preset colorui \"%s\" normal",name)))
+                                    .hover(HoverAction.of(LANG.hover("color",CUtl.color.getBadge(color)))))
                             // NAME
-                            .append(CTxT.of(name).color(color).btn(true)
-                                    .click(2,String.format("/dhud preset rename-r \"%s\" ",name))
-                                    .hover(LANG.hover("rename",getBadge(preset,false))));
+                            .append(new CTxT(name).color(color).wrapper()
+                                    .click(ClickAction.of(ClickActions.SUGGEST_COMMAND,String.format("/dhud preset rename-r \"%s\" ",name)))
+                                    .hover(HoverAction.of(LANG.hover("rename",getBadge(preset,false)))));
                 }
 
                 // fill in the gaps if entries don't fill whole page (consistency)
@@ -780,13 +791,13 @@ public class DHud {
              * @param name the name of the preset to edit
              * @param aboveTxT the TxT above the UI
              */
-            public static void colorUI(Player player, String UISettings, String name, CTxT aboveTxT) {
+            public static void colorUI(DPlayer player, String UISettings, String name, CTxT aboveTxT) {
                 ArrayList<ColorPreset> presets = player.getPData().getColorPresets();
                 ArrayList<String> names = getNames(presets);
                 if (!names.contains(name)) return;
                 String currentColor = getColors(presets).get(names.indexOf(name));
-                CTxT line = CTxT.of("\n                               ").strikethrough(true);
-                CTxT msg = CTxT.of("");
+                CTxT line = new CTxT("\n                               ").strikethrough(true);
+                CTxT msg = new CTxT("");
                 if (aboveTxT != null) msg.append(aboveTxT).append("\n");
 
                 msg.append(" ").append(LANG.ui("color").color(currentColor))
@@ -803,7 +814,7 @@ public class DHud {
              * @param color the new color to set to
              * @param Return whether to return to the UI or not
              */
-            public static void setColor(Player player, String UISettings, String name, String color, boolean Return) {
+            public static void setColor(DPlayer player, String UISettings, String name, String color, boolean Return) {
                 ArrayList<ColorPreset> presets = player.getPData().getColorPresets();
                 ArrayList<String> names = getNames(presets);
                 // remove the bad data
@@ -826,7 +837,7 @@ public class DHud {
              * saves a new preset
              * @param Return displays the UI or not
              */
-            public static void save(Player player, String name, String color, boolean Return) {
+            public static void save(DPlayer player, String name, String color, boolean Return) {
                 ArrayList<ColorPreset> presets = player.getPData().getColorPresets();
                 // errors
                 if (getNames(presets).contains(name)) {
@@ -858,7 +869,7 @@ public class DHud {
              * renames an existing preset
              * @param Return displays the UI or not
              */
-            public static void rename(Player player, String name, String newName, boolean Return) {
+            public static void rename(DPlayer player, String name, String newName, boolean Return) {
                 ArrayList<ColorPreset> presets = player.getPData().getColorPresets();
                 ArrayList<String> names = getNames(presets);
                 // remove the bad data
@@ -889,7 +900,7 @@ public class DHud {
              * deletes an existing preset
              * @param Return displays the UI or not
              */
-            public static void delete(Player player, String name, boolean Return) {
+            public static void delete(DPlayer player, String name, boolean Return) {
                 ArrayList<ColorPreset> presets = player.getPData().getColorPresets();
                 ArrayList<String> names = getNames(presets);
                 // remove the bad data
@@ -913,11 +924,11 @@ public class DHud {
     /**
      * the main directionHUD UI
      */
-    public static void UI(Player player) {
-        CTxT msg = CTxT.of(" "), line = CTxT.of("\n                             ").strikethrough(true);
-        msg.append(CTxT.of("DirectionHUD").color(CUtl.p())
-                        .hover(CTxT.of(DirectionHUD.getData().getVersion()+Assets.symbols.link).color(CUtl.s()))
-                        .click(3,"https://modrinth.com/mod/directionhud/changelog"))
+    public static void UI(DPlayer player) {
+        CTxT msg = new CTxT(" "), line = new CTxT("\n                             ").strikethrough(true);
+        msg.append(new CTxT("DirectionHUD").color(CUtl.p())
+                        .hover(HoverAction.of(new CTxT(DirectionHUD.getData().getVersion()+Assets.symbols.link).color(CUtl.s())))
+                        .click(ClickAction.of(ClickActions.OPEN_URL,"https://modrinth.com/mod/directionhud/changelog")))
                 .append(line).append("\n ");
         // hud
         if (Helper.checkEnabled(player).hud()) msg.append(Hud.BUTTON).append("  ");

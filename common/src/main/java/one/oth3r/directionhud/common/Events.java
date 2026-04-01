@@ -12,9 +12,12 @@ import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Dest;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Loc;
-import one.oth3r.directionhud.utils.CTxT;
-import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.DPlayer;
 import one.oth3r.directionhud.utils.Utl;
+import one.oth3r.directionhud.utils.CTxT;
+import one.oth3r.otterlib.file.LanguageReader;
+import one.oth3r.otterlib.file.ResourceReader;
+import one.oth3r.otterlib.registry.LanguageReg;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -29,6 +32,12 @@ public class Events {
                 new ModuleLight()
         );
         modules.forEach(bm -> DisplayRegistry.registerModuleDisplay(bm.getModuleType(),bm.getDisplaySettings()));
+
+        // register the main language file
+        LanguageReg.registerLang(Assets.MOD_ID,new LanguageReader(
+                DirectionHUD.getData().getDefaultLanguageLocation(),
+                new ResourceReader(DirectionHUD.getData().getConfigDirectory()),
+                "en_us",FileData.getConfig().getLang()));
     }
 
     public static void serverStart() {
@@ -43,7 +52,7 @@ public class Events {
     }
 
     public static void serverEnd() {
-        for (Player player: Utl.getPlayers()) playerLeave(player);
+        for (DPlayer player: Utl.getPlayers()) playerLeave(player);
         // clear everything as serverEnd on client can just be exiting single-player
         FileData.clearServerData();
         PlayerData.clearPlayerData();
@@ -52,7 +61,7 @@ public class Events {
         DirectionHUD.LOGGER.info("Safely shutdown DirectionHUD server!");
     }
 
-    public static void playerJoin(Player player) {
+    public static void playerJoin(DPlayer player) {
         PlayerData.addPlayer(player);
 
         // add the bossbar on player join to fix duplicate boss bar issue on spigot
@@ -61,7 +70,7 @@ public class Events {
         }
     }
 
-    public static void playerLeave(Player player) {
+    public static void playerLeave(DPlayer player) {
         playerSoftLeave(player);
         DirectionHUD.getData().getClientPlayers().remove(player);
     }
@@ -69,13 +78,13 @@ public class Events {
     /**
      * effectively reloads the player without deleting certain required maps (like clientPlayers)
      */
-    public static void playerSoftLeave(Player player) {
+    public static void playerSoftLeave(DPlayer player) {
         DHud.inbox.removeAllTracking(player);
         PlayerData.removePlayer(player);
         DirectionHUD.getData().getBossBarManager().removePlayer(player);
     }
 
-    public static void playerChangeWorld(Player player, String fromDIM, String toDIM) {
+    public static void playerChangeWorld(DPlayer player, String fromDIM, String toDIM) {
         if (Destination.dest.get(player).hasXYZ()) {
             Loc loc = Destination.dest.get(player);
             // don't clear if the dest's dim is the same as the new dim
@@ -87,7 +96,7 @@ public class Events {
                 dest.convertTo(toDIM);
                 Destination.dest.set(player,dest);
                 player.sendMessage(CUtl.tag().append(Destination.LANG.msg("autoconvert.destination",
-                        CTxT.of("\n ").append(Destination.LANG.msg("autoconvert.destination.2",loc.getBadge(),dest.getBadge())))));
+                        new CTxT("\n ").append(Destination.LANG.msg("autoconvert.destination.2",loc.getBadge(),dest.getBadge())))));
             } else if ((boolean) player.getPData().getDEST().getSetting(Destination.Setting.autoclear)) {
                 // clear if autoclear is on
                 Destination.dest.clear(player, 3);
@@ -95,7 +104,7 @@ public class Events {
         }
     }
 
-    public static void playerDeath(Player player, Loc deathLoc) {
+    public static void playerDeath(DPlayer player, Loc deathLoc) {
         if (!Helper.checkEnabled(player).lastdeath()) return;
         Destination.lastdeath.add(player, deathLoc);
         player.sendLastDeathMessage(deathLoc);

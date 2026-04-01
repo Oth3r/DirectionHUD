@@ -1,4 +1,3 @@
-
 package one.oth3r.directionhud.common.files.playerdata;
 
 import com.google.gson.Gson;
@@ -17,7 +16,7 @@ import one.oth3r.directionhud.common.utils.CUtl;
 import one.oth3r.directionhud.common.utils.Dest;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.common.utils.Loc;
-import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.DPlayer;
 import one.oth3r.directionhud.utils.Utl;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,9 +36,9 @@ public class PData extends BasePData implements CustomFile<PData> {
     @SerializedName("social_cooldown")
     protected Integer socialCooldown;
 
-    protected transient Player player;
+    protected transient DPlayer player;
 
-    public PData(Player player) {
+    public PData(DPlayer player) {
         this.name = player.getName();
         this.hud = PlayerData.getDefaults().getHud();
         this.destination = PlayerData.getDefaults().getDEST();
@@ -47,7 +46,7 @@ public class PData extends BasePData implements CustomFile<PData> {
         setPlayer(player);
     }
 
-    public PData(Player player, PData pData) {
+    public PData(DPlayer player, PData pData) {
         copyFileData(pData);
         setPlayer(player);
     }
@@ -86,14 +85,14 @@ public class PData extends BasePData implements CustomFile<PData> {
         player.sendPDataPackets();
     }
 
-    public void setPlayer(Player player) {
+    public void setPlayer(DPlayer player) {
         this.player = player;
         this.name = player.getName();
         this.hud.setPlayer(player);
         this.destination.setPlayer(player);
     }
 
-    public Player getPlayer() {
+    public DPlayer getPlayer() {
         return player;
     }
 
