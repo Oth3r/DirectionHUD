@@ -1,10 +1,15 @@
-# v1.8.3.1
+# v1.8.3.2
+
+#### Changes:
+* changed the maximum version to be up to 26.2 to account for the small patches
+
+## Past Changes
+### v1.8.3.1
 
 #### Fixes
 * fixed an issue with simple action bars crashing the game or kicking players off of the server
 * fixed and issue with the time module not syncing up to the world time
 
-## Past Changes
 ### v1.8.3.0
 OtterLib support if finally here!
 This update has been a long time coming, but since the scope was so big, working on it was a pain.
