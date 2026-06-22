@@ -66,7 +66,7 @@ public class ConfigScreen extends Screen {
         // open folder button
         addRenderableWidget(
                 Button.builder(LANG.btn("save").b(), button -> {
-                            minecraft.setScreen(PARENT);
+                            minecraft.setScreenAndShow(PARENT);
                             FileData.loadFiles();
                         })
                         .bounds(width / 2-100, height-30, 200, 20)
@@ -77,6 +77,6 @@ public class ConfigScreen extends Screen {
     @Override
     public void onClose() {
         assert minecraft != null;
-        minecraft.setScreen(PARENT);
+        minecraft.setScreenAndShow(PARENT);
     }
 }
