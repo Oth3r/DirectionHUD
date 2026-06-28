@@ -5,4 +5,4 @@
 * ported the new version to paper and spigot
 
 ## Past Changes
-*none yet*
+*nothing yet*
