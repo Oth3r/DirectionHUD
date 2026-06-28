@@ -19,6 +19,7 @@ public class CTxT extends LoaderText<CTxT> {
 
     public CTxT(CTxT main) {
         super(main);
+        this.lang = main.lang;
     }
 
     public CTxT(String text) {
@@ -32,6 +33,21 @@ public class CTxT extends LoaderText<CTxT> {
 
     public CTxT(LangEntry lang) {
         this.lang = lang;
+    }
+
+    @Override
+    protected CTxT createText(String text) {
+        return new CTxT(text);
+    }
+
+    @Override
+    protected CTxT createText(TextComponent text) {
+        return new CTxT(text);
+    }
+
+    @Override
+    protected CTxT createCopy(CTxT text) {
+        return new CTxT(text);
     }
 
     public CTxT append(LangEntry append) {

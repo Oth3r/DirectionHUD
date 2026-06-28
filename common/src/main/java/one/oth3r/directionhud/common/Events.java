@@ -1,7 +1,5 @@
 package one.oth3r.directionhud.common;
 
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
@@ -17,7 +15,6 @@ import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.utils.DPlayer;
 import one.oth3r.directionhud.utils.Utl;
 import one.oth3r.directionhud.utils.CTxT;
-import one.oth3r.otterlib.chat.LoaderText;
 import one.oth3r.otterlib.chat.LoaderTextFactory;
 import one.oth3r.otterlib.file.LanguageReader;
 import one.oth3r.otterlib.file.ResourceReader;
@@ -55,13 +52,7 @@ public class Events {
 
                     @Override
                     public CTxT fromObject(Object obj) {
-                        return switch (obj) {
-                            case CTxT txt -> txt.clone();
-                            case LoaderText<?> txt -> new CTxT(txt.b());
-                            case Component _ -> new CTxT((MutableComponent) obj);
-                            // else, try to convert into a string
-                            case null, default -> new CTxT(String.valueOf(obj));
-                        };
+                        return DirectionHUD.getData().getCTxTFromObj(obj);
                     }
                 }));
     }

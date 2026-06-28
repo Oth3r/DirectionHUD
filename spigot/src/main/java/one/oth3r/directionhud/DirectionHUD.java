@@ -6,17 +6,13 @@ import one.oth3r.directionhud.commands.HUDCommand;
 import one.oth3r.directionhud.common.Assets;
 import one.oth3r.directionhud.common.Events;
 import one.oth3r.directionhud.common.LoopManager;
-import one.oth3r.directionhud.utils.BossBarManager;
-import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.DPlayer;
 import one.oth3r.directionhud.utils.PluginData;
 import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
 import java.util.Objects;
 import java.util.logging.Logger;
 
@@ -80,7 +76,7 @@ public class DirectionHUD extends JavaPlugin implements PluginMessageListener {
         if (channel.equals(PacketHelper.getChannel(Assets.packets.INITIALIZATION))) {
             // if the client has directionhud, add them to the list & send the data packets
             DirectionHUD.LOGGER.info("Received initialization packet from "+player.getName()+", connecting to client.");
-            Player dPlayer = new Player(player);
+            DPlayer dPlayer = new DPlayer(player);
             getData().getClientPlayers().add(dPlayer);
             dPlayer.sendPDataPackets();
         }

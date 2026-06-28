@@ -4,7 +4,6 @@ import net.md_5.bungee.api.chat.TextComponent;
 import one.oth3r.directionhud.common.files.LangReader;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
 import one.oth3r.directionhud.common.files.dimension.DimensionEntry;
-import one.oth3r.directionhud.common.files.dimension.DimensionSettings;
 import one.oth3r.directionhud.common.files.dimension.RatioEntry;
 import one.oth3r.directionhud.common.template.FeatureChecker;
 import one.oth3r.directionhud.common.utils.Helper.*;
@@ -24,16 +23,16 @@ public class Utl {
         else txt.append(String.valueOf(obj));
         return txt;
     }
-    public static List<Player> getPlayers() {
-        ArrayList<Player> array = new ArrayList<>();
+    public static List<DPlayer> getPlayers() {
+        ArrayList<DPlayer> array = new ArrayList<>();
         for (org.bukkit.entity.Player p : Bukkit.getOnlinePlayers())
-            array.add(new Player(p));
+            array.add(new DPlayer(p));
         return array;
     }
 
     public static class CheckEnabled extends FeatureChecker {
 
-        public CheckEnabled(Player player) {
+        public CheckEnabled(DPlayer player) {
             super(player);
         }
 

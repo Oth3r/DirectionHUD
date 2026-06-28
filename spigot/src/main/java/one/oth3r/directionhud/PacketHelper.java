@@ -1,7 +1,7 @@
 package one.oth3r.directionhud;
 
 import one.oth3r.directionhud.common.Assets;
-import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.DPlayer;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
@@ -11,7 +11,7 @@ public class PacketHelper {
         return "directionhud:"+packetType.getIdentifier();
     }
 
-    public static void sendPacket(Player player, Assets.packets packetType, String data) {
+    public static void sendPacket(DPlayer player, Assets.packets packetType, String data) {
         PacketByteBuffer buffer = new PacketByteBuffer();
         buffer.writeString(data);
 

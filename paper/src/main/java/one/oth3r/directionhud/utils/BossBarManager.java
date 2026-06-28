@@ -10,12 +10,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class BossBarManager {
-    private final Map<Player, BossBar> bossBars = new HashMap<>();
+    private final Map<DPlayer, BossBar> bossBars = new HashMap<>();
 
     /**
      * creates a bossbar for the player
      */
-    public void addPlayer(Player player) {
+    public void addPlayer(DPlayer player) {
         if (bossBars.get(player) == null) {
             BossBar bossBar = BossBar.bossBar(Component.text("DirectionHUD"),1, BossBar.Color.WHITE, BossBar.Overlay.PROGRESS);
             player.getPlayer().showBossBar(bossBar);
@@ -26,7 +26,7 @@ public class BossBarManager {
     /**
      * removes the bossbar from the player
      */
-    public void removePlayer(Player player) {
+    public void removePlayer(DPlayer player) {
         BossBar bossBar = bossBars.remove(player);
         if (bossBar != null) player.getPlayer().hideBossBar(bossBar);
     }
@@ -34,7 +34,7 @@ public class BossBarManager {
     /**
      * displays the bossbar for the player
      */
-    public void display(Player player, CTxT hud) {
+    public void display(DPlayer player, CTxT hud) {
         // if the player doesnt have a bossbar, add one in
         if (!bossBars.containsKey(player)) addPlayer(player);
 

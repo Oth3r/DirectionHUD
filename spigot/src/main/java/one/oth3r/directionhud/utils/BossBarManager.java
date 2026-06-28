@@ -11,12 +11,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class BossBarManager {
-    private final Map<Player, BossBar> bossBars = new HashMap<>();
+    private final Map<DPlayer, BossBar> bossBars = new HashMap<>();
 
     /**
      * creates a bossbar for the player
      */
-    public void addPlayer(Player player) {
+    public void addPlayer(DPlayer player) {
         if (bossBars.get(player) == null) {
             BossBar bossBar = Bukkit.createBossBar("DirectionHUD", BarColor.WHITE, BarStyle.SOLID);
             bossBar.addPlayer(player.getPlayer());
@@ -27,7 +27,7 @@ public class BossBarManager {
     /**
      * removes the bossbar from the player
      */
-    public void removePlayer(Player player) {
+    public void removePlayer(DPlayer player) {
         BossBar bossBar = bossBars.remove(player);
         if (bossBar != null) bossBar.removePlayer(player.getPlayer());
     }
@@ -35,7 +35,7 @@ public class BossBarManager {
     /**
      * displays the bossbar for the player
      */
-    public void display(Player player, CTxT hud) {
+    public void display(DPlayer player, CTxT hud) {
         // if the player doesnt have a bossbar, add one in
         if (!bossBars.containsKey(player)) addPlayer(player);
 

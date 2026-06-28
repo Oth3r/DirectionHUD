@@ -1,9 +1,12 @@
 package one.oth3r.directionhud.utils;
 
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.commands.Commands;
 import one.oth3r.directionhud.common.utils.DirectionHudData;
+import one.oth3r.otterlib.chat.LoaderText;
 
 import java.util.ArrayList;
 
@@ -26,6 +29,17 @@ public class ModData extends DirectionHudData {
         this.version = version;
         this.isSingleplayer = false;
         this.onSupportedServer = false;
+    }
+
+    @Override
+    public CTxT getCTxTFromObj(Object obj) {
+        return switch (obj) {
+            case CTxT txt -> txt.clone();
+            case LoaderText<?> txt -> new CTxT(txt.b());
+            case Component _ -> new CTxT((MutableComponent) obj);
+            // else, try to convert into a string
+            case null, default -> new CTxT(String.valueOf(obj));
+        };
     }
 
     @Override

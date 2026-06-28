@@ -1,9 +1,10 @@
 package one.oth3r.directionhud.common.utils;
 
 import one.oth3r.directionhud.DirectionHUD;
+import one.oth3r.directionhud.utils.CTxT;
 import one.oth3r.otterlib.file.ResourceReader;
 
-public class DirectionHudData {
+public abstract class DirectionHudData {
     protected final String PRIMARY;
     protected final String SECONDARY;
     protected String version;
@@ -26,6 +27,8 @@ public class DirectionHudData {
         this.configDirectory = "";
         this.defaultLanguageLocation = new ResourceReader("assets/directionhud/lang/", DirectionHUD.class.getClassLoader());
     }
+
+    public abstract CTxT getCTxTFromObj(Object obj);
 
     /**
      * clears the directionhud data (that should be cleared when a server ends)

@@ -2,7 +2,7 @@ package one.oth3r.directionhud.commands;
 
 import one.oth3r.directionhud.common.DHud;
 import one.oth3r.directionhud.common.utils.Helper;
-import one.oth3r.directionhud.utils.Player;
+import one.oth3r.directionhud.utils.DPlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -20,7 +20,7 @@ public class DHUDCommand implements CommandExecutor, TabCompleter {
             }
             return true;
         }
-        Player player = new Player(plr);
+        DPlayer player = new DPlayer(plr);
         DHud.CMDExecutor(player, Helper.Command.quoteHandler(args));
         return true;
     }
@@ -30,7 +30,7 @@ public class DHUDCommand implements CommandExecutor, TabCompleter {
         if (!(sender instanceof org.bukkit.entity.Player plr)) {
             return new ArrayList<>();
         }
-        Player player = new Player(plr);
+        DPlayer player = new DPlayer(plr);
         // fix args
         args = Helper.Command.quoteHandler(args);
         return DHud.CMDSuggester(player,args.length,args);
