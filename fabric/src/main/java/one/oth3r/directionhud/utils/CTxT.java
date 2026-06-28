@@ -10,7 +10,6 @@ import java.util.ArrayList;
 
 public class CTxT extends LoaderText<CTxT> {
     protected LangEntry lang = null;
-
     public CTxT() {
     }
 
@@ -29,6 +28,21 @@ public class CTxT extends LoaderText<CTxT> {
 
     public CTxT(LangEntry lang) {
         this.lang = lang;
+    }
+
+    @Override
+    protected CTxT createText(String text) {
+        return new CTxT(text);
+    }
+
+    @Override
+    protected CTxT createText(MutableComponent text) {
+        return new CTxT(text);
+    }
+
+    @Override
+    protected CTxT createCopy(CTxT text) {
+        return new CTxT(text);
     }
 
     public CTxT append(LangEntry append) {

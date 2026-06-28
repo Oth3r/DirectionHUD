@@ -1,5 +1,7 @@
 package one.oth3r.directionhud.common;
 
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import one.oth3r.directionhud.DirectionHUD;
 import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
@@ -15,6 +17,8 @@ import one.oth3r.directionhud.common.utils.Loc;
 import one.oth3r.directionhud.utils.DPlayer;
 import one.oth3r.directionhud.utils.Utl;
 import one.oth3r.directionhud.utils.CTxT;
+import one.oth3r.otterlib.chat.LoaderText;
+import one.oth3r.otterlib.chat.LoaderTextFactory;
 import one.oth3r.otterlib.file.LanguageReader;
 import one.oth3r.otterlib.file.ResourceReader;
 import one.oth3r.otterlib.registry.LanguageReg;
@@ -34,10 +38,32 @@ public class Events {
         modules.forEach(bm -> DisplayRegistry.registerModuleDisplay(bm.getModuleType(),bm.getDisplaySettings()));
 
         // register the main language file
-        LanguageReg.registerLang(Assets.MOD_ID,new LanguageReader(
+        LanguageReg.registerLang(Assets.MOD_ID,new LanguageReader<CTxT>(
                 DirectionHUD.getData().getDefaultLanguageLocation(),
                 new ResourceReader(DirectionHUD.getData().getConfigDirectory()),
-                "en_us",FileData.getConfig().getLang()));
+                "en_us", FileData.getConfig().getLang(),
+                new LoaderTextFactory<>() {
+                    @Override
+                    public CTxT empty() {
+                        return new CTxT();
+                    }
+
+                    @Override
+                    public CTxT literal(String text) {
+                        return new CTxT(text);
+                    }
+
+                    @Override
+                    public CTxT fromObject(Object obj) {
+                        return switch (obj) {
+                            case CTxT txt -> txt.clone();
+                            case LoaderText<?> txt -> new CTxT(txt.b());
+                            case Component _ -> new CTxT((MutableComponent) obj);
+                            // else, try to convert into a string
+                            case null, default -> new CTxT(String.valueOf(obj));
+                        };
+                    }
+                }));
     }
 
     public static void serverStart() {
