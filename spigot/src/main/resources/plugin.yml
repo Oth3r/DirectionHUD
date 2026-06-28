@@ -4,9 +4,10 @@ website: https://github.com/Oth3r/DirectionHUD
 version: '${version}'
 author: "Oth3r"
 main: one.oth3r.directionhud.DirectionHUD
+depend: [OtterLib]
 api-version: 1.20
 libraries:
-  - org.apache.commons:commons-configuration2:2.11.0
+  - org.apache.commons:commons-configuration2:2.15.1
 commands:
   destination:
     description: "Handles everything to do with destinations, tracking, and sharing."
