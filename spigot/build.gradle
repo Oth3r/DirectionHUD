@@ -47,7 +47,7 @@ dependencies {
     implementation "one.oth3r:otterlib:${project.otterlib_version}-spigot"
 }
 
-def targetJavaVersion = 17
+def targetJavaVersion = 21
 java {
     def javaVersion = JavaVersion.toVersion(targetJavaVersion)
     sourceCompatibility = javaVersion
