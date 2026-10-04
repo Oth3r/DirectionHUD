@@ -31,7 +31,6 @@ import one.oth3r.directionhud.common.hud.module.ModuleInstructions;
 import one.oth3r.directionhud.common.utils.Helper;
 import one.oth3r.directionhud.packet.PacketSender;
 import one.oth3r.directionhud.packet.Payloads;
-import org.lwjgl.glfw.GLFW;
 
 public class ModEvents {
     private static class Keybindings {
@@ -42,8 +41,8 @@ public class ModEvents {
 
             keyBinding = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                     "key.directionhud.keybind.toggle",
-                    InputConstants.Type.KEYSYM,
-                    GLFW.GLFW_KEY_H,
+                    InputConstants.Type.KEYBOARD,
+                    InputConstants.KEY_H,
                     dhudCategory
             ));
 

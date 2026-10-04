@@ -30,10 +30,10 @@
     "directionhud.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.14.8",
+    "fabricloader": ">=${loader_version}",
     "fabric-api": "*",
     "minecraft": ">=${min_minecraft_version} <${max_minecraft_version}",
-    "java": ">=17",
+    "java": ">=25",
     "otterlib": ">=${otterlib_version} <${otterlib_max_version}"
   },
   "suggests": {

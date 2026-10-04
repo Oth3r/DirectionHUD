@@ -6,13 +6,10 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.Util;
+import com.mojang.blaze3d.Blaze3D;
 import one.oth3r.directionhud.DirectionHUD;
-import one.oth3r.directionhud.common.files.Config;
 import one.oth3r.directionhud.common.files.FileData;
 import one.oth3r.directionhud.common.files.dimension.Dimension;
-import one.oth3r.directionhud.common.files.dimension.DimensionSettings;
-import one.oth3r.directionhud.common.files.playerdata.DefaultPData;
 import one.oth3r.directionhud.common.files.playerdata.PlayerData;
 import one.oth3r.directionhud.common.utils.Lang;
 
@@ -34,14 +31,14 @@ public class ConfigScreen extends Screen {
         super.init();
         // config file
         addRenderableWidget(Button.builder(Component.literal(FileData.getConfig().getFileName()), button -> {
-                    Util.getPlatform().openUri(FileData.getConfig().getFileName());
+                    Blaze3D.openUri(FileData.getConfig().getFile().toURI());
                 })
                 .bounds(width / 2-100, 10, 200, 20)
                 .tooltip(Tooltip.create(LANG.get("tooltip.file").b()))
                 .build());
         // dimension settings file
         addRenderableWidget(Button.builder(Component.literal(Dimension.getDimensionSettings().getFileName()), button -> {
-                    Util.getPlatform().openFile(Dimension.getDimensionSettings().getFile());
+                    Blaze3D.openUri(Dimension.getDimensionSettings().getFile().toURI());
                 })
                 .bounds(width / 2-100, 35, 200, 20)
                 .tooltip(Tooltip.create(LANG.get("tooltip.file").b()))
@@ -49,7 +46,7 @@ public class ConfigScreen extends Screen {
         // default pData file
         addRenderableWidget(
                 Button.builder(Component.literal(PlayerData.getDefaults().getFileName()), button -> {
-                    Util.getPlatform().openFile(PlayerData.getDefaults().getFile());
+                    Blaze3D.openUri(PlayerData.getDefaults().getFile().toURI());
                 })
                 .bounds(width / 2-100, 60, 200, 20)
                 .tooltip(Tooltip.create(LANG.get("tooltip.file").b()))
@@ -57,7 +54,7 @@ public class ConfigScreen extends Screen {
         // open folder button
         addRenderableWidget(
                 Button.builder(LANG.btn("folder").b(), button -> {
-                            Util.getPlatform().openUri(Paths.get(DirectionHUD.getData().getConfigDirectory()).toUri());
+                            Blaze3D.openUri(Paths.get(DirectionHUD.getData().getConfigDirectory()).toUri());
                         })
                         .bounds(width / 2-100, 85, 200, 20)
                         .tooltip(Tooltip.create(LANG.get("tooltip.folder").b()))
